@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<!--
+ONEMANSHYO Dojo App V1
+DJ/VJ performance tool for live audio-reactive visuals
+
+Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
+Licensed under GPL-3.0
+https://onemanshyo.com
+
+Version: V1
+Build Date: November 10, 2025
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONEMANSHYO App [V1]</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c, #1a1a1a);
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 1200px;
+            max-width: 1200px;
+            height: 50px;
+            background: linear-gradient(180deg, #2a2a2a, #222);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00d4ff, #ff006e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .header .version {
+            font-size: 11px;
+            color: #999;
+            font-weight: 400;
+            display: inline;
+            margin-left: 10px;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            width: 1200px;
+            max-width: 1200px;
+            height: calc(100vh - 50px);
+            overflow: hidden;
+        }
+
+        /* Performance View */
+        .performance-view {
+            flex: 1;
+            background: linear-gradient(180deg, #1e1e1e, #252525);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Fixed Headers Section */
+        .grid-headers {
+            display: grid;
+            grid-template-columns: 100px repeat(4, 1fr);
+            gap: 0;
+            background: #0c0c0c;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        /* Scrollable Scene Rows */
+        .scenes-scroll-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #0c0c0c;
+        }
+
+        .scenes-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(4, 1fr);
+            gap: 0;
+            padding: 0;
+            min-height: 100%;
+        }
+
+        /* Fixed Mixer Section */
+        .mixer-section {
+            height: 140px;
+            background: #1a1a1a;
+            border-top: 2px solid #444;
+            display: grid;
+            grid-template-columns: 100px repeat(4, 1fr);
+            gap: 0;
+            padding: 10px 0;
+            flex-shrink: 0;
+        }
+
+        .mixer-spacer {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 3px;
+            margin: 0 0;
+        }
+
+        .grid-corner {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .track-header {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            padding: 15px 10px;
+            text-align: center;
+        }
+
+        .track-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+
+        .track-status {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .track-status.connected {
+            color: #00ff00;
+        }
+
+        .instance-selector {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            color: #00d4ff;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-top: 8px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .instance-selector:hover {
+            border-color: #00d4ff;
+        }
+
+        .instance-selector option {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        .scene-trigger {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            padding: 10px;
+        }
+
+        .scene-trigger:hover {
+            background: #333;
+            border-color: #00d4ff;
+        }
+
+        .scene-trigger.active {
+            background: #00d4ff;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .scene-number {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .clip-slot {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            aspect-ratio: 4 / 3;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .clip-slot:hover {
+            background: #222;
+            border-color: #00d4ff;
+        }
+
+        .clip-slot.empty {
+            color: #444;
+            font-size: 11px;
+        }
+
+        .clip-slot.has-clip {
+            background: #2a2a2a;
+            border-color: #ff006e;
+        }
+
+        .clip-slot.playing {
+            background: #00d4ff;
+            color: #000;
+            font-weight: 600;
+        }
+
+        /* Track Controls (in fixed mixer section) */
+        .track-controls {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 3px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .track-control-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .mixer-layout {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .mixer-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .mixer-right {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+        }
+
+        /* Rotary Knob Styling */
+        .rotary-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .rotary-knob {
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+        }
+
+        .volume-label {
+            font-size: 10px;
+            color: #666;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        /* Vertical Meter Bars */
+        .meter-container {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            align-items: stretch;
+            flex: 1;
+        }
+
+        .meter-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .meter-bar {
+            width: 8px;
+            flex: 1;
+            background: #0c0c0c;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .meter-fill-vertical {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(0deg, #00ff00, #ffff00, #ff0000);
+            height: 0%;
+            transition: height 0.1s;
+        }
+
+        .meter-label {
+            font-size: 8px;
+            color: #666;
+            text-align: center;
+        }
+
+        .track-btn-group {
+            display: flex;
+            gap: 4px;
+        }
+
+        .track-btn {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #888;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 9px;
+            text-transform: uppercase;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+
+        .track-btn:hover {
+            border-color: #00d4ff;
+        }
+
+        .track-btn.active {
+            background: #00d4ff;
+            color: #000;
+            border-color: #00d4ff;
+        }
+
+        .track-btn.mute.active {
+            background: #ffa500;
+            color: #000;
+            border-color: #ffa500;
+        }
+
+        .scene-controls-spacer {
+            background: #2a2a2a;
+            border: 1px solid #444;
+        }
+
+        /* Waveform Viewing Section (bottom) */
+        .waveform-view {
+            height: 200px;
+            background: linear-gradient(180deg, #1e1e1e, #252525);
+            border-top: 1px solid #444;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+        }
+
+        .waveform-strip {
+            background: #0c0c0c;
+            border: 1px solid #444;
+            border-radius: 3px;
+            height: 45px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 10px;
+        }
+
+        .waveform-track-label {
+            font-size: 10px;
+            color: #00d4ff;
+            font-weight: 600;
+            min-width: 60px;
+        }
+
+        .waveform-canvas-container {
+            flex: 1;
+            height: 35px;
+            background: #000;
+            border-radius: 2px;
+        }
+
+        /* Status Messaging (matches Shader Baker) */
+        .status {
+            width: 100%;
+            flex-shrink: 0;
+            height: 30px;
+            background: #000;
+            padding: 6px 20px;
+            border-radius: 0;
+            font-size: 13px;
+            color: #00d4ff;
+            border-top: 1px solid #00d4ff;
+            text-align: center;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .status.error {
+            background: #000;
+            color: #ff006e;
+            border-top-color: #ff006e;
+        }
+
+        .status.success {
+            background: #000;
+            color: #00d4ff;
+            border-top-color: #00d4ff;
+        }
+
+        .status.info {
+            background: #000;
+            color: #ffa500;
+            border-top-color: #ffa500;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
+        <span class="version">[V1]</span>
+    </div>
+
+    <div class="main-container">
+        <!-- Performance View -->
+        <div class="performance-view">
+            <!-- Fixed Headers -->
+            <div class="grid-headers" id="gridHeaders">
+                <!-- Headers generated by JavaScript -->
+            </div>
+            
+            <!-- Scrollable Scene Rows -->
+            <div class="scenes-scroll-container">
+                <div class="scenes-grid" id="scenesGrid">
+                    <!-- Scene rows generated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Fixed Mixer Section -->
+            <div class="mixer-section">
+                <div class="mixer-spacer"></div>
+                <div class="track-controls" id="mixer1">
+                    <!-- Track 1 controls -->
+                </div>
+                <div class="track-controls" id="mixer2">
+                    <!-- Track 2 controls -->
+                </div>
+                <div class="track-controls" id="mixer3">
+                    <!-- Track 3 controls -->
+                </div>
+                <div class="track-controls" id="mixer4">
+                    <!-- Track 4 controls -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Waveform Viewing -->
+        <div class="waveform-view">
+            <div class="waveform-strip">
+                <div class="waveform-track-label">Track 1</div>
+                <div class="waveform-canvas-container">
+                    <canvas class="waveform-canvas" id="waveform1"></canvas>
+                </div>
+            </div>
+            <div class="waveform-strip">
+                <div class="waveform-track-label">Track 2</div>
+                <div class="waveform-canvas-container">
+                    <canvas class="waveform-canvas" id="waveform2"></canvas>
+                </div>
+            </div>
+            <div class="waveform-strip">
+                <div class="waveform-track-label">Track 3</div>
+                <div class="waveform-canvas-container">
+                    <canvas class="waveform-canvas" id="waveform3"></canvas>
+                </div>
+            </div>
+            <div class="waveform-strip">
+                <div class="waveform-track-label">Track 4</div>
+                <div class="waveform-canvas-container">
+                    <canvas class="waveform-canvas" id="waveform4"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <span id="liveStatus" class="status">Ready</span>
+
+    <script>
+        // Configuration
+        const NUM_TRACKS = 4;
+        const NUM_SCENES = 8;
+
+        // Instance Discovery
+        const liveChannel = new BroadcastChannel('oms-live-channel');
+        const discoveredInstances = new Map(); // id -> {id, name, lastSeen}
+        const trackAssignments = {}; // trackIndex -> instanceId
+
+        // Listen for Shader Baker announcements
+        liveChannel.onmessage = (event) => {
+            const msg = event.data;
+            
+            if (msg.type === 'announce') {
+                // Store/update instance
+                discoveredInstances.set(msg.id, {
+                    id: msg.id,
+                    name: msg.name || 'Unnamed Shader',
+                    lastSeen: Date.now(),
+                    snapshot: discoveredInstances.get(msg.id)?.snapshot || null // Preserve existing snapshot
+                });
+                
+                updateInstanceDropdowns();
+            }
+            
+            if (msg.type === 'snapshot') {
+                // Store canvas snapshot
+                const instance = discoveredInstances.get(msg.id);
+                if (instance) {
+                    instance.snapshot = msg.imageData;
+                    instance.lastSeen = Date.now();
+                    updateGridSnapshots(); // Update visuals in grid
+                }
+            }
+        };
+
+        // Heartbeat check - remove stale instances (30 sec timeout)
+        setInterval(() => {
+            const now = Date.now();
+            for (const [id, instance] of discoveredInstances) {
+                if (now - instance.lastSeen > 30000) {
+                    discoveredInstances.delete(id);
+                    updateInstanceDropdowns();
+                }
+            }
+        }, 5000);
+
+        // Update all track instance dropdowns
+        function updateInstanceDropdowns() {
+            for (let t = 1; t <= NUM_TRACKS; t++) {
+                const selector = document.getElementById(`instanceSelect${t}`);
+                if (!selector) continue;
+
+                const currentValue = selector.value;
+                selector.innerHTML = '<option value="">Not Connected</option>';
+                
+                for (const [id, instance] of discoveredInstances) {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = instance.name;
+                    selector.appendChild(option);
+                }
+                
+                // Restore selection if still valid
+                if (currentValue && discoveredInstances.has(currentValue)) {
+                    selector.value = currentValue;
+                }
+            }
+        }
+
+        // Handle track assignment
+        function assignInstanceToTrack(trackIndex, instanceId) {
+            trackAssignments[trackIndex] = instanceId;
+            
+            // Update status
+            const statusElement = document.querySelector(`#gridHeaders .track-header:nth-child(${trackIndex + 1}) .track-status`);
+            if (statusElement) {
+                if (instanceId) {
+                    const instance = discoveredInstances.get(instanceId);
+                    statusElement.textContent = instance ? instance.name : 'Connected';
+                    statusElement.classList.add('connected');
+                } else {
+                    statusElement.textContent = 'Not Connected';
+                    statusElement.classList.remove('connected');
+                }
+            }
+            
+            // Update grid visuals
+            updateGridSnapshots();
+        }
+        
+        // Update grid cells with canvas snapshots
+        function updateGridSnapshots() {
+            const allSlots = document.querySelectorAll('.clip-slot');
+            
+            allSlots.forEach(slot => {
+                const trackIndex = parseInt(slot.dataset.track);
+                const assignedInstanceId = trackAssignments[trackIndex + 1]; // Track indices are 1-based
+                
+                if (assignedInstanceId) {
+                    const instance = discoveredInstances.get(assignedInstanceId);
+                    if (instance && instance.snapshot) {
+                        // Display snapshot
+                        slot.style.backgroundImage = `url(${instance.snapshot})`;
+                        slot.style.backgroundSize = 'cover';
+                        slot.style.backgroundPosition = 'center';
+                        slot.textContent = ''; // Remove "Empty" text
+                        slot.classList.remove('empty');
+                        slot.classList.add('has-snapshot');
+                    } else {
+                        // No snapshot yet
+                        slot.style.backgroundImage = '';
+                        slot.textContent = 'Empty';
+                        slot.classList.add('empty');
+                        slot.classList.remove('has-snapshot');
+                    }
+                } else {
+                    // No instance assigned
+                    slot.style.backgroundImage = '';
+                    slot.textContent = 'Empty';
+                    slot.classList.add('empty');
+                    slot.classList.remove('has-snapshot');
+                }
+            });
+        }
+
+        // Initialize Performance Grid Headers
+        function initHeaders() {
+            const headers = document.getElementById('gridHeaders');
+            
+            // Corner cell
+            const corner = document.createElement('div');
+            corner.className = 'grid-corner';
+            corner.textContent = 'Scenes';
+            headers.appendChild(corner);
+
+            // Track headers
+            for (let t = 0; t < NUM_TRACKS; t++) {
+                const header = document.createElement('div');
+                header.className = 'track-header';
+                header.innerHTML = `
+                    <div class="track-title">Track ${t + 1}</div>
+                    <div class="track-status">Not Connected</div>
+                    <select class="instance-selector" id="instanceSelect${t + 1}">
+                        <option value="">Not Connected</option>
+                    </select>
+                `;
+                headers.appendChild(header);
+                
+                // Add change listener
+                const selector = header.querySelector('.instance-selector');
+                selector.addEventListener('change', (e) => {
+                    assignInstanceToTrack(t + 1, e.target.value);
+                });
+            }
+        }
+
+        // Initialize Scene Rows
+        function initScenes() {
+            const scenes = document.getElementById('scenesGrid');
+            
+            // 8 scene rows
+            for (let s = 0; s < NUM_SCENES; s++) {
+                // Scene trigger
+                const trigger = document.createElement('div');
+                trigger.className = 'scene-trigger';
+                trigger.innerHTML = `<div class="scene-number">Scene ${s + 1}</div>`;
+                trigger.dataset.scene = s;
+                trigger.addEventListener('click', () => launchScene(s));
+                scenes.appendChild(trigger);
+
+                // Clip slots
+                for (let t = 0; t < NUM_TRACKS; t++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'clip-slot empty';
+                    slot.textContent = 'Empty';
+                    slot.dataset.track = t;
+                    slot.dataset.scene = s;
+                    scenes.appendChild(slot);
+                }
+            }
+        }
+
+        // Initialize Mixer Section
+        function initMixer() {
+            for (let t = 1; t <= NUM_TRACKS; t++) {
+                const mixer = document.getElementById(`mixer${t}`);
+                mixer.innerHTML = `
+                    <div class="track-control-row">
+                        <div class="track-btn-group">
+                            <button class="track-btn mute" data-track="${t}">M</button>
+                            <button class="track-btn solo" data-track="${t}">S</button>
+                        </div>
+                        <div class="volume-label" id="volLabel${t}">-∞</div>
+                    </div>
+                    <div class="mixer-layout">
+                        <div class="mixer-left">
+                            <canvas class="rotary-knob" id="rotary${t}" width="60" height="60"></canvas>
+                        </div>
+                        <div class="mixer-right">
+                            <div class="meter-container">
+                                <div class="meter-wrapper">
+                                    <div class="meter-bar">
+                                        <div class="meter-fill-vertical" id="meterL${t}"></div>
+                                    </div>
+                                    <div class="meter-label">L</div>
+                                </div>
+                                <div class="meter-wrapper">
+                                    <div class="meter-bar">
+                                        <div class="meter-fill-vertical" id="meterR${t}"></div>
+                                    </div>
+                                    <div class="meter-label">R</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Initialize rotary knob
+                const canvas = document.getElementById(`rotary${t}`);
+                const ctx = canvas.getContext('2d');
+                let volume = 0.75; // Default 75%
+                let isDragging = false;
+                let lastY = 0;
+                
+                function drawKnob() {
+                    ctx.clearRect(0, 0, 60, 60);
+                    
+                    // Background circle
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.beginPath();
+                    ctx.arc(30, 30, 28, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Border
+                    ctx.strokeStyle = '#444';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // Volume arc (-135° to +135°, 270° total range)
+                    const startAngle = -135 * Math.PI / 180;
+                    const endAngle = 135 * Math.PI / 180;
+                    const currentAngle = startAngle + (endAngle - startAngle) * volume;
+                    
+                    ctx.strokeStyle = '#00d4ff';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(30, 30, 22, startAngle, currentAngle);
+                    ctx.stroke();
+                    
+                    // Center indicator line
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(30, 30);
+                    ctx.lineTo(30 + Math.cos(currentAngle) * 18, 30 + Math.sin(currentAngle) * 18);
+                    ctx.stroke();
+                }
+                
+                function updateVolume(newVolume) {
+                    volume = Math.max(0, Math.min(1, newVolume));
+                    drawKnob();
+                    
+                    const volLabel = document.getElementById(`volLabel${t}`);
+                    if (volume === 0) {
+                        volLabel.textContent = '-∞';
+                    } else {
+                        const db = Math.round((1 - volume) * 20);
+                        volLabel.textContent = `-${db}`;
+                    }
+                }
+                
+                canvas.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    lastY = e.clientY;
+                });
+                
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const deltaY = lastY - e.clientY;
+                    updateVolume(volume + deltaY * 0.005);
+                    lastY = e.clientY;
+                });
+                
+                window.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+                
+                // Initial draw
+                updateVolume(0.75);
+                
+                // Mute/Solo buttons
+                const muteBtn = mixer.querySelector('.track-btn.mute');
+                const soloBtn = mixer.querySelector('.track-btn.solo');
+                
+                muteBtn.addEventListener('click', () => muteBtn.classList.toggle('active'));
+                soloBtn.addEventListener('click', () => soloBtn.classList.toggle('active'));
+            }
+        }
+
+        // Scene launching
+        function launchScene(sceneIndex) {
+            // Update status message
+            const status = document.getElementById('liveStatus');
+            status.textContent = `Scene ${sceneIndex + 1} launched`;
+            status.className = 'status success';
+            
+            // Visual feedback
+            const triggers = document.querySelectorAll('.scene-trigger');
+            triggers.forEach((t, i) => {
+                if (i === sceneIndex) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+        }
+
+        // Waveform Viewing
+        function initWaveforms() {
+            [1, 2, 3, 4].forEach(track => {
+                const canvas = document.getElementById(`waveform${track}`);
+                const ctx = canvas.getContext('2d');
+                
+                // Set canvas size
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                
+                // Draw empty waveform
+                drawEmptyWaveform(ctx, canvas);
+            });
+        }
+
+        function drawEmptyWaveform(ctx, canvas) {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height / 2);
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.stroke();
+        }
+
+        function drawPlaceholderWaveform(ctx, canvas) {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw waveform bars
+            ctx.fillStyle = '#00d4ff';
+            const barWidth = canvas.width / 200;
+            for (let i = 0; i < 200; i++) {
+                const height = Math.random() * 20 + 3;
+                const x = i * barWidth;
+                const y = (canvas.height / 2) - (height / 2);
+                ctx.fillRect(x, y, barWidth - 1, height);
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            initHeaders();
+            initScenes();
+            initMixer();
+            initWaveforms();
+        });
+    </script>
+</body>
+</html>
