@@ -1,6 +1,6 @@
-# ONEMANSHYO Dojo V2_1 - FFmpeg Video Guide
+# ONEMANSHYO Dojo V2_2 - FFmpeg Video Guide
 
-**Version:** V2_1  
+**Version:** V2_2  
 **Purpose:** Post-processing ONEMANSHYO Dojo outputs with FFmpeg  
 **Target Audience:** Content creators, streamers, video producers
 
@@ -427,7 +427,7 @@ ffmpeg -i input.webm -c:v h264 output.mp4
 ### File size too large
 
 **Solutions:**
-1. Increase CRF value (23 → 26)
+1. Increase CRF value (23 â†’ 26)
 2. Lower bitrate (`-b:v 3000k`)
 3. Use faster preset
 4. Reduce resolution
@@ -527,7 +527,7 @@ ffmpeg -i OMS_myshader_2160p_60fps_300s_720beats_L.webm \
 ---
 
 **Last Updated:** November 2025  
-**Version:** V2_1  
+**Version:** V2_2  
 **For:** Post-processing ONEMANSHYO Dojo outputs
 
 ---

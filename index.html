@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V2_1
+ONEMANSHYO Dojo App V2_2
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V2_1
-Build Date: November 6, 2025
+Version: V2_2
+Build Date: November 7, 2025
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V2_1]</title>
+    <title>ONEMANSHYO App [V2_2]</title>
     <style>
         * {
             margin: 0;
@@ -28,11 +28,14 @@ Build Date: November 6, 2025
             color: #e0e0e0;
             height: 100vh;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
             display: flex;
-            height: 100vh;
+            height: calc(100vh - 80px); /* Full height minus header (50px) and status (30px) */
+            flex: 1;
         }
 
         .left-panel {
@@ -50,10 +53,16 @@ Build Date: November 6, 2025
         }
 
         .header {
+            width: 100%; /* V2.1.1-A: Full width */
+            height: 50px; /* V2.1.1-A: Fixed height */
             background: linear-gradient(180deg, #2a2a2a, #222);
-            padding: 10px 20px;
+            padding: 0 20px;
             border-bottom: 1px solid #333;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            /* V2.1.1-A: Removed justify-content: space-between to keep title and version together */
+            flex-shrink: 0; /* V2.1.1-A: Don't shrink */
         }
 
         .header h1 {
@@ -62,7 +71,7 @@ Build Date: November 6, 2025
             background: linear-gradient(45deg, #00d4ff, #ff006e);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            display: inline;
+            margin: 0; /* V2.1.1-A: Explicit margin reset */
         }
 
         .header .version {
@@ -322,15 +331,18 @@ Build Date: November 6, 2025
             background: rgba(255,255,255,0.05);
             padding: 6px 20px;
             border-bottom: 1px solid #333;
+            display: flex;
+            gap: 10px; /* V2.1.1-C: Gap between buttons */
         }
 
-        .code-header h2 {
-            font-size: 16px;
+        /* V2.1.1-C: Buttons in code header */
+        .code-header .btn {
+            width: auto;
+            min-height: unset;
+            height: auto;
+            padding: 8px 20px;
+            font-size: 14px;
             font-weight: 600;
-            color: #ddd;
-            background: linear-gradient(45deg, #00d4ff, #ff006e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .editor {
@@ -411,6 +423,13 @@ Build Date: November 6, 2025
             min-height: unset;
         }
 
+        /* V2.2.0-F: Standard inactive button styling (applies to all buttons) */
+        .btn.inactive {
+            opacity: 0.4;
+            cursor: pointer; /* Keep clickable so user can toggle back */
+        }
+
+
         .audio-controls-strip input[type="number"] {
             width: 80px;
             height: 28px;
@@ -440,42 +459,37 @@ Build Date: November 6, 2025
             margin-right: 4px;
         }
 
-        /* V2.1.0-E: Transport controls */
-        .transport-btn {
-            width: 32px;
-            height: 32px;
-            background: rgba(255, 0, 110, 0.1);
-            border: 1px solid rgba(255, 0, 110, 0.3);
-            color: #ff006e;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+        /* V2.2.0-A: Audio Tempo field styling */
+        #audioTempoField {
             transition: all 0.2s ease;
-            flex-shrink: 0;
-            padding: 0;
         }
 
-        .transport-btn:hover {
-            background: rgba(255, 0, 110, 0.2);
-            border-color: rgba(255, 0, 110, 0.5);
+        #audioTempoField:focus {
+            border-color: #00d4ff !important;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+            outline: none;
         }
 
-        .transport-btn:active {
-            background: rgba(255, 0, 110, 0.3);
+        #audioTempoField::placeholder {
+            color: rgba(0, 212, 255, 0.6);
+            font-style: italic;
         }
 
-        .transport-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
+        #audioTempoField.detecting {
+            border-color: #00d4ff;
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
-        .transport-btn.playing {
-            background: rgba(255, 0, 110, 0.2);
-            border-color: #ff006e;
+        #audioTempoField.detected {
+            border-color: #00ff88;
         }
 
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* V2.1.0-E: Transport controls */
         .progress-overlay {
             position: absolute;
             top: 0;
@@ -512,10 +526,10 @@ Build Date: November 6, 2025
         }
 
         .status {
-            /* V2.1.0-D: Status bar now in left panel (flex child) */
+            /* V2.1.1-A: Status bar now full width outside container */
+            width: 100%;
             flex-shrink: 0;
             height: 30px;
-            width: 100%;
             background: #000;
             padding: 6px 20px;
             border-radius: 0;
@@ -555,15 +569,42 @@ Build Date: November 6, 2025
             -webkit-text-fill-color: transparent;
             font-weight: 600;
         }
+
+        /* V2.1.1-E: Drag & drop visual feedback */
+        .drag-over {
+            border: 2px solid #00d4ff !important;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5) !important;
+            background: rgba(0, 212, 255, 0.05) !important;
+        }
+
+        .waveform-section.drag-over {
+            background: rgba(0, 212, 255, 0.1) !important;
+        }
+
+        .editor.drag-over {
+            background: rgba(0, 212, 255, 0.05) !important;
+        }
+
+        /* V2.1.1-G: Output section header */
+        .output-header {
+            color: #00d4ff;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 12px 20px 8px 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
+    <!-- V2.1.1-A: Header now full-width outside container -->
+    <div class="header">
+        <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
+        <span class="version">[V2_2]</span>
+    </div>
+    
     <div class="container">
         <div class="left-panel">
-            <div class="header">
-                <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-                <span class="version">[V2_1]</span>
-            </div>
             
             <!-- V2.1.0-C: Tab Bar -->
             <div class="tab-bar">
@@ -575,18 +616,9 @@ Build Date: November 6, 2025
             <div class="tab-content active" id="controlsTabContent">
             <div class="controls-section">
                 <div class="controls">
-                    <!-- Row 1: Video Orientation (alone) -->
-                    <div class="control-row">
-                        <div class="control-group">
-                            <select id="orientation" title="Video aspect ratio">
-                                <option value="landscape">Landscape</option>
-                                <option value="portrait" selected>Portrait</option>
-                                <option value="square">Square</option>
-                            </select>
-                        </div>
-                    </div>
+                    <!-- V2.1.1-G: Orientation moved to Output section (Row 5) -->
                     
-                    <!-- Row 2: Shader Timing Controls (NO IN/OUT) -->
+                    <!-- Row 1: Shader Timing Controls (NO IN/OUT) -->
                     <div class="control-row">
                         <div class="control-group">
                             <input type="number" id="tempo" min="1" max="999" value="120" step="1" title="Shader Tempo (BPM)" placeholder="Shader Tempo">
@@ -594,20 +626,20 @@ Build Date: November 6, 2025
                         <div class="control-group">
                             <select id="loopLength" title="Shader Pattern Repeat">
                                 <option value="0">No Loop</option>
-                                <option disabled>────────────</option>
+                                <option disabled>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>
                                 <option value="4">1 Bar</option>
                                 <option value="8">2 Bars</option>
                                 <option value="16" selected>4 Bars</option>
                                 <option value="32">8 Bars</option>
                                 <option value="64">16 Bars</option>
                                 <option value="128">32 Bars</option>
-                                <option disabled>────────────</option>
+                                <option disabled>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>
                                 <option value="4">Whole</option>
                                 <option value="2">Half</option>
                                 <option value="1">1/4</option>
                                 <option value="0.5">1/8</option>
                                 <option value="0.25">1/16</option>
-                                <option disabled>────────────</option>
+                                <option disabled>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>
                                 <option value="chaos">Chaos</option>
                                 <option value="cycler">Cycler</option>
                                 <option value="madmax">Mad Max</option>
@@ -616,7 +648,7 @@ Build Date: November 6, 2025
                         </div>
                     </div>
 
-                    <!-- Row 3: Mod A Controls -->
+                    <!-- Row 2: Mod A Controls -->
                     <div class="control-row">
                         <div class="control-group">
                             <select id="modASubdiv" title="Shader Mod A Note Duration">
@@ -625,7 +657,7 @@ Build Date: November 6, 2025
                                 <option value="1" selected>1/4</option>
                                 <option value="0.5">1/8</option>
                                 <option value="0.25">1/16</option>
-                                <option disabled>────────────</option>
+                                <option disabled>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>
                                 <option value="chaos">Chaos</option>
                                 <option value="cycler">Cycler</option>
                                 <option value="madmax">Mad Max</option>
@@ -643,7 +675,7 @@ Build Date: November 6, 2025
                                 <option value="random">Random</option>
                                 <option value="fibonacci">Fibonacci</option>
                                 <option value="prime">Prime</option>
-                                <option disabled>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>
+                                <option disabled>Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬</option>
                                 <option value="chaosmode">Chaos</option>
                                 <option value="cycler">Cycler</option>
                                 <option value="madmax">Mad Max</option>
@@ -655,7 +687,7 @@ Build Date: November 6, 2025
                         </div>
                     </div>
 
-                    <!-- Row 4: Mod B Controls -->
+                    <!-- Row 3: Mod B Controls -->
                     <div class="control-row">
                         <div class="control-group">
                             <select id="modBSubdiv" title="Shader Mod B Note Duration">
@@ -664,7 +696,7 @@ Build Date: November 6, 2025
                                 <option value="1">1/4</option>
                                 <option value="0.5">1/8</option>
                                 <option value="0.25">1/16</option>
-                                <option disabled>────────────</option>
+                                <option disabled>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>
                                 <option value="chaos">Chaos</option>
                                 <option value="cycler">Cycler</option>
                                 <option value="madmax">Mad Max</option>
@@ -682,7 +714,7 @@ Build Date: November 6, 2025
                                 <option value="random">Random</option>
                                 <option value="fibonacci">Fibonacci</option>
                                 <option value="prime">Prime</option>
-                                <option disabled>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>
+                                <option disabled>Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬</option>
                                 <option value="chaosmode">Chaos</option>
                                 <option value="cycler">Cycler</option>
                                 <option value="madmax">Mad Max</option>
@@ -694,7 +726,7 @@ Build Date: November 6, 2025
                         </div>
                     </div>
 
-                    <!-- Row 5: Mod C Controls -->
+                    <!-- Row 4: Mod C Controls -->
                     <div class="control-row">
                         <div class="control-group">
                             <select id="modCSubdiv" title="Shader Mod C Note Duration">
@@ -703,7 +735,7 @@ Build Date: November 6, 2025
                                 <option value="1">1/4</option>
                                 <option value="0.5">1/8</option>
                                 <option value="0.25">1/16</option>
-                                <option disabled>────────────</option>
+                                <option disabled>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>
                                 <option value="chaos">Chaos</option>
                                 <option value="cycler">Cycler</option>
                                 <option value="madmax">Mad Max</option>
@@ -721,7 +753,7 @@ Build Date: November 6, 2025
                                 <option value="random">Random</option>
                                 <option value="fibonacci">Fibonacci</option>
                                 <option value="prime">Prime</option>
-                                <option disabled>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>
+                                <option disabled>Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬</option>
                                 <option value="chaosmode">Chaos</option>
                                 <option value="cycler">Cycler</option>
                                 <option value="madmax">Mad Max</option>
@@ -738,9 +770,18 @@ Build Date: November 6, 2025
                     <!-- Row 6 freed for future features -->
 
 
-                    <!-- Row 7: C, Resolution, FPS, Filename, R -->
+                    <!-- V2.1.1-G: Output Section -->
+                    <div class="output-header">Output</div>
+
+                    <!-- Row 5: Orientation, Resolution, FPS -->
                     <div class="control-row">
-                        <button class="btn btn-compact" title="Compile Shader" onclick="compileShader(true)">C</button>
+                        <div class="control-group">
+                            <select id="orientation" title="Video Aspect Ratio">
+                                <option value="landscape">Landscape</option>
+                                <option value="portrait" selected>Portrait</option>
+                                <option value="square">Square</option>
+                            </select>
+                        </div>
                         <div class="control-group">
                             <select id="resolution" title="Video Resolution">
                                 <option value="720">720p</option>
@@ -756,6 +797,10 @@ Build Date: November 6, 2025
                                 <option value="60">60 FPS</option>
                             </select>
                         </div>
+                    </div>
+
+                    <!-- Row 6: Filename, Render -->
+                    <div class="control-row">
                         <input type="text" id="filename" class="control-group input" value="" placeholder="Filename" title="Video Filename" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 10px; border-radius: 0; font-size: 14px;">
                         <button class="btn btn-compact" id="renderBtn" title="Render Video" onclick="startRender()">R</button>
                     </div>
@@ -767,10 +812,12 @@ Build Date: November 6, 2025
             <div class="tab-content" id="codeTabContent">
             <div class="code-section">
                 <div class="code-header">
-                    <h2>Shader Code</h2>
+                    <button class="btn" onclick="compileShader(true)" title="Compile Shader">Compile</button>
+                    <button class="btn" onclick="copyShaderCode()" title="Copy Shader to Clipboard">Copy Code</button>
+                    <button class="btn" onclick="exportShaderTxt()" title="Export Shader as .txt File">Export .txt</button>
                 </div>
                 <textarea class="editor" id="shaderCode" placeholder="Paste your shader code here...">
-// ONEMANSHYO Dojo V2_1 - Flower Power
+// ONEMANSHYO Dojo V2_2 - Flower Power
 // Available uniforms:
 //   uniforms.time - elapsed time in seconds
 //   uniforms.tempo - shader visual tempo in BPM (for modulator timing)
@@ -835,9 +882,6 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 </textarea>
             </div>
             </div><!-- End Code Tab Content -->
-            
-            <!-- V2.1.0-D: Status Bar (moved from canvas to left panel) -->
-            <span id="shaderStatus" class="status">WebGPU Ready</span>
         </div>
         
         <div class="preview-panel">
@@ -862,27 +906,49 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 <input type="file" id="audioFile" accept="audio/*" style="display: none;" onchange="loadAudioFile(event)">
                 
                 <!-- Remove button (shown when audio loaded) -->
-                <button class="btn btn-compact" data-tooltip="Remove Audio" onclick="removeAudio()" id="removeBtn" style="display: none;">✕</button>
+                <button class="btn btn-compact" data-tooltip="Remove Audio" onclick="removeAudio()" id="removeBtn" style="display: none;">âœ•</button>
             </div>
             
             <!-- Audio Controls Strip (Bottom - 40px Fixed Height) -->
             <div class="audio-controls-strip">
-                <!-- V2.1.0-E: Transport controls -->
-                <button class="transport-btn" id="playBtn" onclick="toggleAudioPlayback()" title="Play (Spacebar)" disabled>▶</button>
-                <button class="transport-btn" id="stopBtn" onclick="stopAudio()" title="Stop" disabled>⏹</button>
+                <!-- V2.1.1-H: Transport controls with standard button styling -->
+                <button class="btn" id="playBtn" onclick="toggleAudioPlayback()" title="Play/Pause (Spacebar)" disabled>Play ▶</button>
+                <button class="btn" id="stopBtn" onclick="stopAudio()" title="Stop Audio" disabled>Stop ■</button>
+                <button class="btn" id="loopBtn" onclick="toggleLoop()" title="Loop: Audio repeats IN to OUT" disabled>Loop</button>
                 
-                <div style="width: 1px; height: 24px; background: #333; margin: 0 6px;"></div>
+                <div style="width: 1px; height: 24px; background: #333; margin: 0 12px;"></div>
                 
-                <label>IN</label>
-                <input type="number" id="inBeat" min="0" max="9999" value="64" step="1" title="Audio IN Beat">
+                <!-- V2.2.0-H: BPM field (renamed from "Audio BPM") -->
+                <label for="audioTempoField">BPM</label>
+                <input type="number" id="audioTempoField" min="30" max="300" step="0.1" value="120.0" 
+                       placeholder="Detecting..." title="Audio tempo (auto-detected, type to override)" 
+                       style="width: 80px;">
                 
-                <label>OUT</label>
-                <input type="number" id="outBeat" min="1" max="9999" value="128" step="1" title="Audio OUT Beat">
+                <div style="width: 1px; height: 24px; background: #333; margin: 0 12px;"></div>
+                
+                <label id="inLabel" onclick="setInToStart()" style="cursor: pointer;" title="Click to set to start (0)">Loop In</label>
+                <input type="number" id="inBeat" min="0" max="9999" value="64" step="1" title="Loop In Beat">
+                
+                <label id="outLabel" onclick="setOutToEnd()" style="cursor: pointer;" title="Click to set to end">Loop Out</label>
+                <input type="number" id="outBeat" min="1" max="9999" value="128" step="1" title="Loop Out Beat">
+                
+                <!-- V2.2.0-H: Nudge field for fine-tuning loop timing -->
+                <label for="nudgeField">Nudge</label>
+                <input type="number" id="nudgeField" min="-5000" max="5000" value="0" step="1" 
+                       title="Shift entire loop by milliseconds (Up/Down: ±1ms, Left/Right: ±4ms)" 
+                       style="width: 70px;">
+                <span style="color: #888; font-size: 12px; margin-left: 4px;">ms</span>
+                
+                <!-- V2.2.0-H: Grid button disabled (reserved for future visual grid feature) -->
+                <button class="btn inactive" id="gridFreeBtn" disabled title="Grid: Reserved for future visual grid feature">Grid</button>
                 
                 <div class="spacer"></div>
             </div>
         </div>
     </div>
+    
+    <!-- V2.1.1-A: Status bar now full-width outside container -->
+    <span id="shaderStatus" class="status">WebGPU Ready</span>
 
     <script>
         let device, context, pipeline, canvas;
@@ -901,6 +967,15 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         let audioDataArray = null;
         let audioLoaded = false;
         let bassLevel = 0, midLevel = 0, trebleLevel = 0;
+        
+        // V2.2.0-D: Grid/Free mode for bracket adjustment [REMOVED IN V2.2.0-H - brackets always move together]
+        // let gridMode = true; // No longer used - arrow keys always shift both brackets
+        
+        // V2.2.0-F: Loop mode for audio playback
+        let loopEnabled = true; // true = Loop IN to OUT (default), false = Play continuously
+        
+        // V2.2.0-H: Nudge offset for fine-tuning loop timing (in milliseconds)
+        let nudgeOffset = 0; // Shifts entire loop by milliseconds
         
         // Noise state for smooth noise generation
         let noiseState = { a: 0, b: 0, c: 0 };
@@ -978,9 +1053,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             }
         }
 
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         // AUDIO SYSTEM - Load audio file (V2.0.0 MAJOR FEATURE)
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         // This function is the entry point for the entire audio-reactive system.
         // Process flow:
         //   1. Load audio file from user selection
@@ -993,7 +1068,74 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         //
         // Once loaded, audio levels (bass/mid/treble) are analyzed in real-time
         // and multiplied with modA/B/C values to create audio-reactive visuals.
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+        // Beat Detection - Automatic BPM Analysis (V2.2.0-A)
+        function detectBPM(audioBuffer) {
+            const sampleRate = audioBuffer.sampleRate;
+            const channelData = audioBuffer.getChannelData(0);
+            const bufferSize = 4096;
+            const hopSize = 2048;
+            
+            // Calculate energy (RMS) for each frame
+            const energies = [];
+            for (let i = 0; i < channelData.length - bufferSize; i += hopSize) {
+                let sum = 0;
+                for (let j = 0; j < bufferSize; j++) {
+                    sum += channelData[i + j] ** 2;
+                }
+                energies.push(Math.sqrt(sum / bufferSize));
+            }
+            
+            // Detect onsets (peaks where energy spikes)
+            const onsets = [];
+            const threshold = 0.15;
+            const minTimeBetweenOnsets = 0.1;
+            
+            for (let i = 1; i < energies.length - 1; i++) {
+                if (energies[i] > energies[i - 1] && 
+                    energies[i] > energies[i + 1] && 
+                    energies[i] > threshold) {
+                    const time = (i * hopSize) / sampleRate;
+                    if (onsets.length === 0 || time - onsets[onsets.length - 1] >= minTimeBetweenOnsets) {
+                        onsets.push(time);
+                    }
+                }
+            }
+            
+            if (onsets.length < 8) {
+                return 120.0;
+            }
+            
+            // Calculate intervals between onsets
+            const intervals = [];
+            for (let i = 1; i < onsets.length; i++) {
+                intervals.push(onsets[i] - onsets[i - 1]);
+            }
+            
+            // Find most common BPM using autocorrelation
+            const bpmCandidates = [];
+            for (let testBPM = 60; testBPM <= 180; testBPM += 0.5) {
+                const testInterval = 60 / testBPM;
+                let score = 0;
+                for (let interval of intervals) {
+                    for (let mult of [1, 2, 4]) {
+                        const expected = testInterval * mult;
+                        const diff = Math.abs(interval - expected);
+                        if (diff < 0.05) {
+                            score += 1 / mult;
+                        }
+                    }
+                }
+                bpmCandidates.push({ bpm: testBPM, score: score });
+            }
+            
+            bpmCandidates.sort((a, b) => b.score - a.score);
+            const detectedBPM = bpmCandidates[0].bpm;
+            
+            return detectedBPM;
+        }
+
         async function loadAudioFile(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1042,19 +1184,35 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const arrayBuffer = await file.arrayBuffer();
                 audioBufferData = await audioContext.decodeAudioData(arrayBuffer);
                 
+                // V2.2.0-A: Detect BPM automatically
+                const audioTempoField = document.getElementById('audioTempoField');
+                audioTempoField.classList.add('detecting');
+                audioTempoField.placeholder = 'Detecting...';
+                
+                const detectedBPM = detectBPM(audioBufferData);
+                
+                // Update Audio Tempo field and variable
+                audioTempo = detectedBPM;
+                audioTempoField.value = detectedBPM.toFixed(1);
+                audioTempoField.classList.remove('detecting');
+                audioTempoField.classList.add('detected');
+                
                 // Generate real waveform from decoded audio
                 generateStaticWaveform();
                 
-                // Capture audio tempo for IN/OUT beat positioning
-                // This ensures IN/OUT indicators don't move when shader tempo changes
-                audioTempo = currentTempo;
-                
                 audioLoaded = true;
-                showStatus('Audio loaded: ' + file.name, 'success');
+                showStatus('Audio loaded: ' + file.name + ' | Detected: ' + detectedBPM.toFixed(1) + ' BPM', 'success');
+                
+                // V2.2.0-G: Jump audio to IN beat position on load
+                const inBeat = parseInt(document.getElementById('inBeat').value) || 0;
+                const beatsPerSecond = audioTempo / 60.0;
+                audioElement.currentTime = (inBeat / beatsPerSecond) + nudgeOffset; // V2.2.0-H: Apply nudge offset
                 
                 // V2.1.0-E: Enable transport controls
+                // V2.2.0-F: Added Loop button
                 document.getElementById('playBtn').disabled = false;
                 document.getElementById('stopBtn').disabled = false;
+                document.getElementById('loopBtn').disabled = false;
             } catch (error) {
                 showStatus('Error loading audio: ' + error.message, 'error');
                 audioLoaded = false;
@@ -1064,9 +1222,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             setupWaveformControls();
         }
         
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         // WAVEFORM VISUALIZATION - Static waveform generation (V2.0.0 MAJOR FEATURE)
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         // These functions create a visual representation of the audio file's amplitude
         // over time. The waveform is rendered once and cached for performance.
         //
@@ -1083,7 +1241,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         //
         // The cached waveform is then overlaid with real-time progress indicators
         // in drawProgress() function.
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         // Generate static waveform from REAL audio data
         let staticWaveformCache = null;
         let audioBufferData = null;
@@ -1258,20 +1416,20 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const outX = canvas.width * outPercent;
             
             // VISUAL INDICATOR: Draw shaded region between In and Out (loop range)
-            ctx.fillStyle = 'rgba(0, 212, 255, 0.15)'; // Subtle cyan tint
+            ctx.fillStyle = 'rgba(255, 0, 110, 0.25)'; // Magenta loop region
             ctx.fillRect(inX, 0, outX - inX, canvas.height);
             
-            // VISUAL INDICATOR: Draw In line (cyan)
-            ctx.strokeStyle = '#00d4ff';
-            ctx.lineWidth = 2;
+            // VISUAL INDICATOR: Draw In line (magenta)
+            ctx.strokeStyle = '#ff006e'; // Magenta
+            ctx.lineWidth = 4; // Thicker for better visibility
             ctx.beginPath();
             ctx.moveTo(inX, 0);
             ctx.lineTo(inX, canvas.height);
             ctx.stroke();
             
-            // VISUAL INDICATOR: Draw Out line (pink)
-            ctx.strokeStyle = '#ff006e';
-            ctx.lineWidth = 2;
+            // VISUAL INDICATOR: Draw Out line (magenta - matches IN marker)
+            ctx.strokeStyle = '#ff006e'; // Magenta
+            ctx.lineWidth = 4; // Thicker for better visibility
             ctx.beginPath();
             ctx.moveTo(outX, 0);
             ctx.lineTo(outX, canvas.height);
@@ -1286,9 +1444,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
                 ctx.fillRect(0, 0, progressWidth, canvas.height);
                 
-                // Draw playhead line (thicker, bright pink)
-                ctx.strokeStyle = '#ff006e';
-                ctx.lineWidth = 3;
+                // Draw playhead line (thicker, bright orange - distinct from cyan brackets)
+                ctx.strokeStyle = '#ffaa00'; // Orange playhead
+                ctx.lineWidth = 4;
                 ctx.beginPath();
                 ctx.moveTo(progressWidth, 0);
                 ctx.lineTo(progressWidth, canvas.height);
@@ -1333,11 +1491,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             audioLoaded = false;
             
             // V2.1.0-E: Disable transport controls
+            // V2.2.0-F: Added Loop button
             const playBtn = document.getElementById('playBtn');
             playBtn.disabled = true;
             playBtn.textContent = '▶';
             playBtn.classList.remove('playing');
             document.getElementById('stopBtn').disabled = true;
+            document.getElementById('loopBtn').disabled = true;
             showStatus('Audio removed', 'success');
         }
         
@@ -1349,11 +1509,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             if (audioElement.paused) {
                 audioElement.play();
-                playBtn.textContent = '⏸';
+                playBtn.textContent = 'â¸';
                 playBtn.classList.add('playing');
             } else {
                 audioElement.pause();
-                playBtn.textContent = '▶';
+                playBtn.textContent = 'â–¶';
                 playBtn.classList.remove('playing');
             }
         }
@@ -1361,17 +1521,54 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         function stopAudio() {
             if (!audioLoaded || !audioElement) return;
             audioElement.pause();
-            audioElement.currentTime = 0;
+            
+            // V2.2.0-G: Jump to IN beat position (not 0)
+            const inBeat = parseInt(document.getElementById('inBeat').value) || 0;
+            const beatsPerSecond = audioTempo / 60.0;
+            audioElement.currentTime = (inBeat / beatsPerSecond) + nudgeOffset; // V2.2.0-H: Apply nudge offset
             
             const playBtn = document.getElementById('playBtn');
             playBtn.textContent = '▶';
             playBtn.classList.remove('playing');
         }
 
+        // V2.2.0-D: Toggle Grid/Free mode for bracket adjustment
+        // V2.2.0-F: Toggle Grid/Free mode for bracket adjustment (updated to use standard inactive styling)
+        function toggleGridFree() {
+            gridMode = !gridMode;
+            const btn = document.getElementById('gridFreeBtn');
+            
+            if (gridMode) {
+                // Grid mode: Active (brackets move together)
+                btn.classList.remove('inactive');
+                btn.title = 'Grid mode: Brackets move together | Click to toggle';
+            } else {
+                // Free mode: Inactive (independent adjustment)
+                btn.classList.add('inactive');
+                btn.title = 'Free mode: Independent adjustment | Click to toggle';
+            }
+        }
+
+        // V2.2.0-F: Toggle Loop mode for audio playback
+        function toggleLoop() {
+            loopEnabled = !loopEnabled;
+            const btn = document.getElementById('loopBtn');
+            
+            if (loopEnabled) {
+                // Loop ON: Active (audio loops IN to OUT)
+                btn.classList.remove('inactive');
+                btn.title = 'Loop: Audio repeats IN to OUT | Click to toggle';
+            } else {
+                // Loop OFF: Inactive (audio plays continuously)
+                btn.classList.add('inactive');
+                btn.title = 'Loop off: Audio plays continuously | Click to toggle';
+            }
+        }
+
         // Analyze audio frequencies
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         // FREQUENCY ANALYSIS - Real-time audio analysis (V2.0.0 MAJOR FEATURE)
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         // This function performs real-time FFT (Fast Fourier Transform) analysis on the
         // playing audio and extracts bass, mid, and treble frequency levels.
         //
@@ -1391,7 +1588,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         //   - modC *= (treble * trebleGain)
         //
         // Called every frame during rendering when audio is playing.
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         function analyzeAudio() {
             if (!audioLoaded || !analyser || !audioDataArray) {
                 return { bass: 0, mid: 0, treble: 0 };
@@ -1451,7 +1648,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // Update In Beat input
         // FEATURES ADDED V2.0.1:
-        //   1. Changed from bars to beats (removed Ã— 4 calculation)
+        //   1. Changed from bars to beats (removed Ãƒâ€” 4 calculation)
         //   2. Shows duration in status bar while editing
         //   3. Audio jumps to In beat position when value changes
         //      - Provides immediate visual/audio feedback of In point
@@ -1480,7 +1677,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const tempo = audioTempo;  // Use audio tempo, NOT shader tempo
                 const beatsPerSecond = tempo / 60.0;
                 const inBeatTime = value / beatsPerSecond;
-                audioElement.currentTime = inBeatTime;
+                audioElement.currentTime = inBeatTime + nudgeOffset; // V2.2.0-H: Apply nudge offset
             }
         });
         
@@ -1587,112 +1784,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             showLoopDuration();
         });
         
-        // V2.0.1C: Coupled arrow key behavior for IN/OUT fields
-        // Arrow keys shift both IN and OUT together (maintains loop length)
-        // Typing in fields works independently (only changes that field)
-        document.getElementById('inBeat').addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                e.preventDefault(); // Prevent default increment/decrement
-                
-                const inBeat = parseInt(document.getElementById('inBeat').value) || 0;
-                const outBeat = parseInt(document.getElementById('outBeat').value) || 1;
-                const loopLength = outBeat - inBeat;
-                
-                if (e.key === 'ArrowUp') {
-                    // Shift both up by 1
-                    const newIn = Math.min(inBeat + 1, 9999);
-                    const newOut = Math.min(outBeat + 1, 9999);
-                    
-                    // Only update if we can maintain loop length or hit max
-                    if (newOut - newIn >= loopLength || newOut === 9999) {
-                        document.getElementById('inBeat').value = newIn;
-                        document.getElementById('outBeat').value = newOut;
-                        
-                        // Use requestAnimationFrame to ensure DOM has updated before reading values
-                        requestAnimationFrame(() => showLoopDuration());
-                        
-                        // Jump audio if loaded
-                        if (audioLoaded && audioElement) {
-                            const tempo = audioTempo;  // Use audio tempo, NOT shader tempo
-                            const beatsPerSecond = tempo / 60.0;
-                            audioElement.currentTime = newIn / beatsPerSecond;
-                        }
-                    }
-                } else if (e.key === 'ArrowDown') {
-                    // Shift both down by 1
-                    const newIn = Math.max(inBeat - 1, 0);
-                    const newOut = Math.max(outBeat - 1, 1);
-                    
-                    // Only update if IN stays >= 0 and OUT > IN
-                    if (newIn >= 0 && newOut > newIn) {
-                        document.getElementById('inBeat').value = newIn;
-                        document.getElementById('outBeat').value = newOut;
-                        
-                        // Use requestAnimationFrame to ensure DOM has updated before reading values
-                        requestAnimationFrame(() => showLoopDuration());
-                        
-                        // Jump audio if loaded
-                        if (audioLoaded && audioElement) {
-                            const tempo = audioTempo;  // Use audio tempo, NOT shader tempo
-                            const beatsPerSecond = tempo / 60.0;
-                            audioElement.currentTime = newIn / beatsPerSecond;
-                        }
-                    }
-                }
-            }
-        });
-        
-        document.getElementById('outBeat').addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                e.preventDefault(); // Prevent default increment/decrement
-                
-                const inBeat = parseInt(document.getElementById('inBeat').value) || 0;
-                const outBeat = parseInt(document.getElementById('outBeat').value) || 1;
-                const loopLength = outBeat - inBeat;
-                
-                if (e.key === 'ArrowUp') {
-                    // Shift both up by 1
-                    const newIn = Math.min(inBeat + 1, 9999);
-                    const newOut = Math.min(outBeat + 1, 9999);
-                    
-                    // Only update if we can maintain loop length or hit max
-                    if (newOut - newIn >= loopLength || newOut === 9999) {
-                        document.getElementById('inBeat').value = newIn;
-                        document.getElementById('outBeat').value = newOut;
-                        
-                        // Use requestAnimationFrame to ensure DOM has updated before reading values
-                        requestAnimationFrame(() => showLoopDuration());
-                        
-                        // Jump audio if loaded
-                        if (audioLoaded && audioElement) {
-                            const tempo = audioTempo;  // Use audio tempo, NOT shader tempo
-                            const beatsPerSecond = tempo / 60.0;
-                            audioElement.currentTime = newIn / beatsPerSecond;
-                        }
-                    }
-                } else if (e.key === 'ArrowDown') {
-                    // Shift both down by 1
-                    const newIn = Math.max(inBeat - 1, 0);
-                    const newOut = Math.max(outBeat - 1, 1);
-                    
-                    // Only update if IN stays >= 0 and OUT > IN
-                    if (newIn >= 0 && newOut > newIn) {
-                        document.getElementById('inBeat').value = newIn;
-                        document.getElementById('outBeat').value = newOut;
-                        
-                        // Use requestAnimationFrame to ensure DOM has updated before reading values
-                        requestAnimationFrame(() => showLoopDuration());
-                        
-                        // Jump audio if loaded
-                        if (audioLoaded && audioElement) {
-                            const tempo = audioTempo;  // Use audio tempo, NOT shader tempo
-                            const beatsPerSecond = tempo / 60.0;
-                            audioElement.currentTime = newIn / beatsPerSecond;
-                        }
-                    }
-                }
-            }
-        });
+        // V2.0.1C: Arrow key navigation handled by setupInOutArrowKeys() function (see below)
         
         // Handle Loop Length changes - no longer needs to disable anything
         document.getElementById('loopLength').addEventListener('change', (e) => {
@@ -1719,7 +1811,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     // If outside In/Out range, jump to In beat
                     if (currentAudioBeat < inBeat || currentAudioBeat >= outBeat) {
                         const inBeatTime = inBeat / beatsPerSecond;
-                        audioElement.currentTime = inBeatTime;
+                        audioElement.currentTime = inBeatTime + nudgeOffset; // V2.2.0-H: Apply nudge offset
                     }
                     
                     audioElement.play();
@@ -1830,7 +1922,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // Update status with current dimensions
             const orientationText = orientation === 'portrait' ? 'Portrait' : 
                                    orientation === 'square' ? 'Square' : 'Landscape';
-            showStatus(`${resolution}p ${orientationText} (${width}Ã—${height})`, 'success');
+            showStatus(`${resolution}p ${orientationText} (${width}Ãƒâ€”${height})`, 'success');
         }
 
         // Compile shader
@@ -1930,7 +2022,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         const inBeat = parseInt(document.getElementById('inBeat').value);
                         const beatsPerSecond = currentTempo / 60.0;
                         const inBeatTime = inBeat / beatsPerSecond;
-                        audioElement.currentTime = inBeatTime;
+                        audioElement.currentTime = inBeatTime + nudgeOffset; // V2.2.0-H: Apply nudge offset
                         audioElement.play().catch(() => {});
                     }
                     // Otherwise: preserve position and play state (do nothing)
@@ -2085,10 +2177,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const outBeat = parseInt(document.getElementById('outBeat').value);
                 const currentAudioBeat = audioElement.currentTime * beatsPerSecond;
                 
-                // If we've reached or passed the Out beat, loop back to In beat
-                if (currentAudioBeat >= outBeat) {
+                // V2.2.0-F: Only loop if loopEnabled is true
+                if (loopEnabled && currentAudioBeat >= outBeat) {
                     const inBeatTime = inBeat / beatsPerSecond;
-                    audioElement.currentTime = inBeatTime;
+                    audioElement.currentTime = inBeatTime + nudgeOffset; // V2.2.0-H: Apply nudge offset
                 }
                 
                 const audioLevels = analyzeAudio();
@@ -2189,7 +2281,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 if (audioLoaded && audioElement && audioContext) {
                     // Reset audio to In beat
                     const inBeatTime = inBeat / (tempo / 60.0);
-                    audioElement.currentTime = inBeatTime;
+                    audioElement.currentTime = inBeatTime + nudgeOffset; // V2.2.0-H: Apply nudge offset
                     
                     // Create destination for capturing audio
                     const audioDest = audioContext.createMediaStreamDestination();
@@ -2283,6 +2375,46 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             status.className = 'status ' + type;
         }
 
+        // V2.1.1-C: Copy shader code to clipboard
+        function copyShaderCode() {
+            const shaderCode = document.getElementById('shaderCode').value;
+            navigator.clipboard.writeText(shaderCode).then(() => {
+                showStatus('Shader code copied to clipboard!', 'success');
+            }).catch(err => {
+                showStatus('Failed to copy shader code', 'error');
+            });
+        }
+
+        // V2.1.1-C: Export shader code as .txt file
+        function exportShaderTxt() {
+            const shaderCode = document.getElementById('shaderCode').value;
+            const filename = document.getElementById('filename').value.trim();
+            
+            // V2.1.1-J: OMS version for compatibility tracking
+            const omsVersion = 'V2.2.0_H';
+            
+            // Generate filename: OMS_{filename}_{version}.txt
+            let txtFilename;
+            if (filename) {
+                txtFilename = `OMS_${filename}_${omsVersion}.txt`;
+            } else {
+                const now = new Date();
+                const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5); // 2025-11-06T12-45-23
+                txtFilename = `OMS_shader_${timestamp}_${omsVersion}.txt`;
+            }
+            
+            // Create blob and download
+            const blob = new Blob([shaderCode], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = txtFilename;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showStatus(`Shader exported as ${txtFilename}`, 'success');
+        }
+
         function showLoopDuration() {
             const inBeat = parseInt(document.getElementById('inBeat').value) || 0;
             const outBeat = parseInt(document.getElementById('outBeat').value) || 1;
@@ -2298,6 +2430,96 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const barsDisplay = (bars + fractionalBeats * 0.1).toFixed(1);
             
             showStatus(`${barsDisplay} bars / ${beatCount} beats / ${durationSeconds.toFixed(1)}s`, 'success');
+        }
+
+        // V2.1.1-I: IN/OUT label click handlers
+        function setInToStart() {
+            if (audioElement) {
+                document.getElementById('inBeat').value = 0;
+                showLoopDuration();
+            }
+        }
+
+        function setOutToEnd() {
+            if (audioElement && audioElement.duration > 0) {
+                const tempo = parseInt(document.getElementById('tempo').value) || 120;
+                const beatsPerSecond = tempo / 60;
+                const totalBeats = Math.ceil(audioElement.duration * beatsPerSecond);
+                document.getElementById('outBeat').value = totalBeats;
+                showLoopDuration();
+            }
+        }
+
+        // V2.1.1-I: Arrow key navigation for IN/OUT with range maintenance
+        function setupInOutArrowKeys() {
+            const inBeatInput = document.getElementById('inBeat');
+            const outBeatInput = document.getElementById('outBeat');
+
+            function handleArrowKeys(e, isInBeat) {
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                    e.preventDefault();
+                    
+                    const inBeat = parseInt(inBeatInput.value) || 0;
+                    const outBeat = parseInt(outBeatInput.value) || 1;
+                    const range = outBeat - inBeat;
+                    
+                    let delta = 0;
+                    if (e.key === 'ArrowUp') delta = 1;
+                    else if (e.key === 'ArrowDown') delta = -1;
+                    else if (e.key === 'ArrowRight') delta = 4;  // 1 bar
+                    else if (e.key === 'ArrowLeft') delta = -4;  // 1 bar
+                    
+                    let newIn, newOut;
+                    
+                    // V2.2.0-H: Arrow keys always move both brackets together (maintain loop length)
+                    newIn = inBeat + delta;
+                    newOut = outBeat + delta;
+                    
+                    // Clamp to valid ranges
+                    if (newIn < 0) {
+                        newIn = 0;
+                        newOut = range;
+                    }
+                    
+                    // Update both inputs
+                    inBeatInput.value = Math.max(0, newIn);
+                    outBeatInput.value = Math.max(1, newOut);
+                    
+                    showLoopDuration();
+                    
+                    // Jump audio to new IN position if loaded (V2.1.1-J: Added for left/right arrow scrubbing)
+                    if (audioLoaded && audioElement) {
+                        const tempo = audioTempo;  // Use audio tempo, NOT shader tempo
+                        const beatsPerSecond = tempo / 60.0;
+                        audioElement.currentTime = (newIn / beatsPerSecond) + nudgeOffset; // V2.2.0-H: Apply nudge offset
+                    }
+                }
+            }
+
+            inBeatInput.addEventListener('keydown', (e) => handleArrowKeys(e, true));
+            outBeatInput.addEventListener('keydown', (e) => handleArrowKeys(e, false));
+            
+            // V2.2.0-H: Nudge field arrow key navigation
+            const nudgeInput = document.getElementById('nudgeField');
+            nudgeInput.addEventListener('keydown', (e) => {
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                    e.preventDefault();
+                    
+                    const currentNudge = parseInt(nudgeInput.value) || 0;
+                    let delta = 0;
+                    
+                    if (e.key === 'ArrowUp') delta = 1;        // +1ms
+                    else if (e.key === 'ArrowDown') delta = -1; // -1ms
+                    else if (e.key === 'ArrowRight') delta = 4;  // +4ms
+                    else if (e.key === 'ArrowLeft') delta = -4;  // -4ms
+                    
+                    const newNudge = currentNudge + delta;
+                    nudgeInput.value = Math.max(-5000, Math.min(5000, newNudge)); // Clamp to range
+                    nudgeOffset = newNudge / 1000; // Convert ms to seconds
+                    
+                    showStatus(`Loop nudged ${newNudge > 0 ? '+' : ''}${newNudge}ms`, 'success');
+                }
+            });
         }
 
         // Event listeners
@@ -2331,8 +2553,150 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             }
         }
 
+        // V2.1.1-E: Drag & drop functionality
+        function setupDragAndDrop() {
+            // Audio drag & drop on waveform section
+            const waveformSection = document.querySelector('.waveform-section');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                waveformSection.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                waveformSection.addEventListener(eventName, () => {
+                    waveformSection.classList.add('drag-over');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                waveformSection.addEventListener(eventName, () => {
+                    waveformSection.classList.remove('drag-over');
+                }, false);
+            });
+            
+            waveformSection.addEventListener('drop', handleAudioDrop, false);
+            
+            function handleAudioDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    const file = files[0];
+                    // Check if it's an audio file
+                    if (file.type.startsWith('audio/')) {
+                        // Create a fake event object that loadAudioFile expects
+                        const fakeEvent = {
+                            target: {
+                                files: [file]
+                            }
+                        };
+                        loadAudioFile(fakeEvent);
+                        showStatus('Audio file loaded via drag & drop!', 'success');
+                    } else {
+                        showStatus('Please drop an audio file (MP3, WAV, etc.)', 'error');
+                    }
+                }
+            }
+            
+            // Shader .txt drag & drop on code editor
+            const shaderEditor = document.getElementById('shaderCode');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                shaderEditor.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                shaderEditor.addEventListener(eventName, () => {
+                    shaderEditor.classList.add('drag-over');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                shaderEditor.addEventListener(eventName, () => {
+                    shaderEditor.classList.remove('drag-over');
+                }, false);
+            });
+            
+            shaderEditor.addEventListener('drop', handleShaderDrop, false);
+            
+            function handleShaderDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    const file = files[0];
+                    // V2.1.1-F: Accept text-based WGSL shader files only
+                    // .txt (generic), .wgsl (official WebGPU)
+                    // RTF removed - loads formatting codes instead of plain text
+                    const validExtensions = ['.txt', '.wgsl'];
+                    const hasValidExtension = validExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+                    
+                    if (hasValidExtension) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            shaderEditor.value = event.target.result;
+                            showStatus(`Shader loaded from ${file.name}`, 'success');
+                        };
+                        reader.onerror = function() {
+                            showStatus('Failed to read shader file', 'error');
+                        };
+                        reader.readAsText(file);
+                    } else {
+                        showStatus('Please drop a WGSL shader file (.txt or .wgsl)', 'error');
+                    }
+                }
+            }
+        }
+
         // Initialize
+        setupDragAndDrop(); // V2.1.1-E: Initialize drag & drop
+        setupInOutArrowKeys(); // V2.1.1-I: Initialize IN/OUT arrow key navigation
         initWebGPU().then(success => {
+
+        // V2.2.0-A: Audio Tempo field event listeners
+        document.getElementById('audioTempoField').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            if (isNaN(value)) return;
+            if (value < 30) e.target.value = 30;
+            if (value > 300) e.target.value = 300;
+            
+            audioTempo = parseFloat(e.target.value);
+            e.target.classList.remove('detected');
+            showStatus('Audio BPM set to ' + audioTempo.toFixed(1), 'success');
+        });
+        
+        document.getElementById('audioTempoField').addEventListener('blur', (e) => {
+            const value = parseFloat(e.target.value);
+            if (isNaN(value) || value < 30) {
+                e.target.value = 120.0;
+                audioTempo = 120.0;
+            }
+        });
+        
+        // V2.2.0-H: Nudge field event listeners
+        document.getElementById('nudgeField').addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            if (isNaN(value)) return;
+            if (value < -5000) e.target.value = -5000;
+            if (value > 5000) e.target.value = 5000;
+            
+            nudgeOffset = parseInt(e.target.value) / 1000; // Convert ms to seconds
+            showStatus(`Loop nudge: ${value > 0 ? '+' : ''}${value}ms`, 'success');
+        });
+        
+        document.getElementById('nudgeField').addEventListener('blur', (e) => {
+            const value = parseInt(e.target.value);
+            if (isNaN(value)) {
+                e.target.value = 0;
+                nudgeOffset = 0;
+            }
+        });
+
             if (success) {
                 compileShader();
             }

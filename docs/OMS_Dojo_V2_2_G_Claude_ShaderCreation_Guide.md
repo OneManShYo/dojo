@@ -1,6 +1,6 @@
 # ONEMANSHYO Dojo - Claude Shader Creation Guide
 
-**Version:** V2_1  
+**Version:** V2_2  
 **Target Audience:** AI Assistants creating shader code  
 **Purpose:** Guide for generating high-quality WGSL shaders
 
@@ -8,7 +8,7 @@
 
 ## Overview
 
-This guide helps AI assistants create effective WGSL fragment shaders for ONEMANSHYO Dojo V2_1. Focus on creating visually interesting, audio-reactive shaders that work well with the modulation system.
+This guide helps AI assistants create effective WGSL fragment shaders for ONEMANSHYO Dojo V2_2. Focus on creating visually interesting, audio-reactive shaders that work well with the modulation system.
 
 ---
 
@@ -76,7 +76,7 @@ let color = vec3<f32>(modA, modB, modC);
 let offset = vec2<f32>(modA * 0.5, modB * 0.5);
 
 // Control rotation
-let angle = modC * 6.28318;  // 0-2π
+let angle = modC * 6.28318;  // 0-2Ï€
 ```
 
 ---
@@ -234,7 +234,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 ## Testing Checklist
 
 When creating shaders, verify:
-- [ ] Works at 1920x1080 (V2_1 default canvas)
+- [ ] Works at 1920x1080 (V2.1.0 default canvas)
 - [ ] Works in all orientations (L/P/S)
 - [ ] Responds to modA (bass)
 - [ ] Responds to modB (mid)
@@ -249,37 +249,37 @@ When creating shaders, verify:
 
 **Coordinate normalization:**
 ```wgsl
-// ❌ Wrong - doesn't adapt to orientation
+// âŒ Wrong - doesn't adapt to orientation
 let uv = coord.xy / uniforms.resolution;
 
-// ✓ Correct - consistent across orientations
+// âœ“ Correct - consistent across orientations
 let uv = (coord.xy / min(uniforms.resolution.x, uniforms.resolution.y)) * 2.0 - 1.0;
 ```
 
 **Modulator range:**
 ```wgsl
-// ❌ Wrong - assumes 0-255 range
+// âŒ Wrong - assumes 0-255 range
 let color = vec3<f32>(uniforms.modA * 255.0);
 
-// ✓ Correct - already 0-1 range
+// âœ“ Correct - already 0-1 range
 let color = vec3<f32>(uniforms.modA, uniforms.modB, uniforms.modC);
 ```
 
 **Missing return:**
 ```wgsl
-// ❌ Wrong - no return statement
+// âŒ Wrong - no return statement
 @fragment
 fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
     let color = vec3<f32>(1.0);
 }
 
-// ✓ Correct - returns vec4
+// âœ“ Correct - returns vec4
 return vec4<f32>(color, 1.0);
 ```
 
 ---
 
-## V2_1 Considerations
+## V2.1.0 Considerations
 
 **Bigger Canvas:**
 - Preview is 1920x1080 (6x bigger than V2.0.2)
@@ -294,5 +294,5 @@ return vec4<f32>(color, 1.0);
 ---
 
 **Last Updated:** November 2025  
-**Version:** V2_1  
+**Version:** V2.1.0  
 **For:** AI Assistants creating shaders for ONEMANSHYO Dojo

@@ -1,6 +1,6 @@
-# ONEMANSHYO Dojo V2_1 - Complete User Guide
+# ONEMANSHYO Dojo V2_2 - Complete User Guide
 
-**Version:** V2_1  
+**Version:** V2_2  
 **Target Audience:** All users (beginners to advanced)  
 **Purpose:** Complete reference for all features and workflows
 
@@ -21,6 +21,38 @@
 
 ---
 
+## What's New in V2_2
+
+### Automatic BPM Detection
+- Audio tempo automatically detected on load
+- Range: 60-180 BPM (0.5 step precision)
+- Override by typing if needed
+- Onset detection algorithm
+
+### Nudge Field
+- Fine-tune loop timing by milliseconds
+- Range: ±5000ms
+- Arrow keys: ±1ms (Up/Down), ±4ms (Left/Right)
+- Applied to all audio position jumps
+
+### UI Clarity
+- "Audio BPM" → "BPM"
+- "IN" → "Loop In"
+- "OUT" → "Loop Out"
+- Clearer tooltips throughout
+
+### Loop Button
+- Toggle between loop IN→OUT vs continuous play
+- Visual state indicator
+- Default: Loop enabled
+
+### Simplified Arrow Keys
+- Always move both Loop In/Out together
+- Maintains loop length (slides window)
+- Grid button disabled (reserved for future)
+
+---
+
 ## Getting Started
 
 ### System Requirements
@@ -38,7 +70,7 @@
 ### First Steps
 
 1. **Open the application:**
-   - Double-click `OMS_Dojo_V2_1.html`
+   - Double-click `OMS_Dojo_V2_2.html`
    - Opens in your default browser
 
 2. **Verify WebGPU:**
@@ -57,25 +89,25 @@
 ### Layout
 
 ```
-┌────────────────┬────────────────────────────────────┐
-│  LEFT PANEL    │  RIGHT PANEL                       │
-│                │                                    │
-│  Header        │  Canvas (1920x1080)               │
-│  [V2_1]      │  ┌──────────────────────────────┐ │
-│                │  │  Shader Preview (HD)         │ │
-│  Tab Bar       │  │                              │ │
-│  [Controls]    │  └──────────────────────────────┘ │
-│  [Code]        │                                    │
-│                │  Waveform (1920x180)              │
-│  Tab Content   │  ┌──────────────────────────────┐ │
-│  (5 rows)      │  │  Audio Waveform              │ │
-│                │  └──────────────────────────────┘ │
-│                │                                    │
-│                │  Audio Controls                   │
-│                │  [▶] [⏹] │ IN [64] OUT [128]      │
-│                │                                    │
-│                │  Status Bar                        │
-└────────────────┴────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  LEFT PANEL    â”‚  RIGHT PANEL                       â”‚
+â”‚                â”‚                                    â”‚
+â”‚  Header        â”‚  Canvas (1920x1080)               â”‚
+â”‚  [V2_2]      â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚                â”‚  â”‚  Shader Preview (HD)         â”‚ â”‚
+â”‚  Tab Bar       â”‚  â”‚                              â”‚ â”‚
+â”‚  [Controls]    â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚  [Code]        â”‚                                    â”‚
+â”‚                â”‚  Waveform (1920x180)              â”‚
+â”‚  Tab Content   â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚  (5 rows)      â”‚  â”‚  Audio Waveform              â”‚ â”‚
+â”‚                â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                â”‚                                    â”‚
+â”‚                â”‚  Audio Controls                   â”‚
+â”‚                â”‚  [â–¶] [â¹] â”‚ IN [64] OUT [128]      â”‚
+â”‚                â”‚                                    â”‚
+â”‚                â”‚  Status Bar                        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### Left Panel (Controls Tab)
@@ -107,8 +139,8 @@
 - Interactive (click/drag to scrub)
 
 **Audio Controls Strip:**
-- ▶ Play/Pause (OMS Pink when playing)
-- ⏹ Stop
+- â–¶ Play/Pause (OMS Pink when playing)
+- â¹ Stop
 - IN beat field
 - OUT beat field
 
@@ -123,7 +155,7 @@
 
 ### Overview
 
-V2_1 introduces a tab system for better workflow organization.
+V2_2 introduces a tab system for better workflow organization.
 
 **Controls Tab:**
 - All shader parameters
@@ -165,9 +197,9 @@ V2_1 introduces a tab system for better workflow organization.
 - WAV (high quality)
 - OGG, M4A, FLAC (browser-dependent)
 
-### Waveform (V2_1)
+### Waveform (V2_2)
 
-**New in V2_1:**
+**New in V2_2:**
 - 6x bigger (1920px vs 320px)
 - Located on canvas (not left panel)
 - Better visibility
@@ -184,19 +216,19 @@ V2_1 introduces a tab system for better workflow organization.
 - Arrow keys to jump beats
 - Spacebar to play/pause
 
-### Transport Controls (V2_1)
+### Transport Controls (V2_2)
 
-**New in V2_1:**
+**New in V2_2:**
 - Visual playback controls
 - OMS Pink (#ff006e) styling
 - Below waveform
 
-**Play Button (▶/⏸):**
+**Play Button (â–¶/â¸):**
 - Click to play/pause
 - Icon changes based on state
 - Pink glow when playing
 
-**Stop Button (⏹):**
+**Stop Button (â¹):**
 - Click to stop and reset
 - Returns to beginning
 - Clears play state
@@ -235,9 +267,9 @@ V2_1 introduces a tab system for better workflow organization.
    - Mid: 10-50% of spectrum
    - Treble (Hi): 50-100% of spectrum
 3. Each band multiplies a modulator:
-   - Bass × Mod A × Gain
-   - Mid × Mod B × Gain
-   - Treble × Mod C × Gain
+   - Bass Ã— Mod A Ã— Gain
+   - Mid Ã— Mod B Ã— Gain
+   - Treble Ã— Mod C Ã— Gain
 
 **Gain Controls:**
 - Value range: 0.0 to 5.0
@@ -318,10 +350,10 @@ V2_1 introduces a tab system for better workflow organization.
 ### Settings
 
 **Resolution:**
-- 720p (1280×720 or equivalent)
-- 1080p (1920×1080 or equivalent)
-- 1440p (2560×1440 or equivalent)
-- 2160p (3840×2160 or equivalent)
+- 720p (1280Ã—720 or equivalent)
+- 1080p (1920Ã—1080 or equivalent)
+- 1440p (2560Ã—1440 or equivalent)
+- 2160p (3840Ã—2160 or equivalent)
 
 **Frame Rate:**
 - 24 FPS (cinematic)
@@ -509,7 +541,7 @@ V2_1 introduces a tab system for better workflow organization.
 
 ## FAQ
 
-**Q: What's new in V2_1?**  
+**Q: What's new in V2_2?**  
 A: Tab system, 6x bigger canvas (1920x1080), waveform on canvas, audio controls strip with transport buttons, cleaner left panel.
 
 **Q: Does the bigger canvas affect performance?**  
@@ -543,7 +575,7 @@ A: No, one at a time. But you can concatenate videos with FFmpeg afterward.
 
 ## Tips & Tricks
 
-**Canvas Preview (V2_1):**
+**Canvas Preview (V2_2):**
 - Preview is 1920x1080 (matches 1080p export exactly)
 - What you see is what you get!
 - Great for detailed shader work
@@ -579,7 +611,7 @@ A: No, one at a time. But you can concatenate videos with FFmpeg afterward.
 ---
 
 **Last Updated:** November 2025  
-**Version:** V2_1  
+**Version:** V2_2  
 **Status:** Production Release
 
 ---
