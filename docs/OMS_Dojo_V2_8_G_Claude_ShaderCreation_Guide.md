@@ -1,6 +1,6 @@
-# OMS DOJO - CLAUDE SHADER CREATION GUIDE V2_7
+# OMS DOJO - CLAUDE SHADER CREATION GUIDE V2.7.0
 
-**Version:** V2_7  
+**Version:** V2.7.0  
 **Purpose:** Guide for creating WGSL shaders conversationally with Claude AI  
 **Audience:** Users creating custom shaders for ONEMANSHYO Dojo
 
@@ -184,7 +184,7 @@ let pulse = sin(pulseRate * 6.28318) * 0.5 + 0.5;
 - Range: 0.0 (silence) to 10.0 (max gain × max amplitude)
 - Controlled by frequency ranges (Freq1/Freq2) and gain settings
 
-**Default Ranges (V2_7):**
+**Default Ranges (V2.7.0):**
 - modA: 30-50 Hz (kick drums)
 - modB: 50-75 Hz (sub-bass)
 - modC: 100-500 Hz (lead bass)

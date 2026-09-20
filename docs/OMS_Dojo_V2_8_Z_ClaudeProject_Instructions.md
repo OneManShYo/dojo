@@ -1,6 +1,6 @@
 # OMS Ecosystem - Comprehensive Project Instructions
 
-**Version:** Dojo V2_7 + DojoLive V1.0.0  
+**Version:** Dojo V2_8 + DojoLive V1.0.0  
 **Last Updated:** November 2025  
 **Purpose:** Complete ecosystem context for Claude AI development
 
@@ -9,13 +9,14 @@
 ## TABLE OF CONTENTS
 
 1. [About Wes Smith (Creator Context)](#1-about-wes-smith)
-2. [OMS Ecosystem Overview](#2-oms-ecosystem-overview)
-3. [ONEMANSHYO Dojo (Main Tool)](#3-oms-shader-baker)
-4. [DojoLive (Performance Mixer)](#4-dojolive)
-5. [Integration & Communication](#5-integration--communication)
-6. [Development Guidelines (Both Tools)](#6-development-guidelines)
-7. [Communication Protocols](#7-communication-protocols)
-8. [Roadmap & Future Vision](#8-roadmap--future-vision)
+2. [OneManShYo Ableton Edition (Current Workflow)](#2-onemanshyo-ableton-edition)
+3. [OMS Ecosystem Overview](#3-oms-ecosystem-overview)
+4. [ONEMANSHYO Dojo (Main Tool)](#4-oms-shader-baker)
+5. [DojoLive (Performance Mixer)](#5-dojolive)
+6. [Integration & Communication](#6-integration--communication)
+7. [Development Guidelines (Both Tools)](#7-development-guidelines)
+8. [Communication Protocols](#8-communication-protocols)
+9. [Roadmap & Future Vision](#9-roadmap--future-vision)
 
 ---
 
@@ -132,7 +133,115 @@ OMS tools aren't theoretical experiments - they're codifying Wes's proven ONEMAN
 
 ---
 
-## 2. OMS Ecosystem Overview
+## 2. OneManShYo Ableton Edition (Current Workflow)
+
+**THIS IS THE ORIGIN OF ALL OMS TOOLS** - understanding this workflow is CRITICAL because it's what OMS is built to replace/improve.
+
+### The Current Production Pipeline
+
+**What Wes Does TODAY:**
+
+```
+1. PREP FILES
+   └─→ Organize audio tracks, samples, stems
+
+2. CREATE SHADERS
+   └─→ ONEMANSHYO Dojo: Write/test audio-reactive shaders
+
+3. COMBINE & EXPORT (SB Core)
+   └─→ Load audio in Dojo
+   └─→ Set frequency mapping (kick, bass, etc.)
+   └─→ Configure render settings
+   └─→ Render silent video (WebM)
+
+4. VIDEO CONVERSION
+   └─→ FFmpeg: Convert WebM to ProRes 422
+   └─→ ProRes optimized for real-time playback
+
+5. ABLETON LIVE SESSION
+   └─→ Drag ProRes videos into Ableton clips
+   └─→ EboSuite (Max for Live plugin) plays videos
+   └─→ Audio tracks on other channels
+   └─→ Videos sync to audio via Ableton timeline
+
+6. PERFORMANCE
+   └─→ DJ audio (mix tracks, build set)
+   └─→ Trigger video clips with MIDI controller
+   └─→ Videos react to music (pre-baked reactivity)
+   └─→ Result: Solo DJ with live reactive visuals
+```
+
+### Engine Separation (CRITICAL)
+
+**THREE SEPARATE ENGINES - Claude keeps forgetting this:**
+
+**1. ONEMANSHYO Dojo** (Visual Creation Engine)
+- Creates shader-based visuals
+- Audio analysis → bakes reactivity into video
+- Exports SILENT video files
+- NOT a playback engine
+- NOT an audio engine
+
+**2. Ableton Live** (Audio Engine)
+- Plays/mixes audio tracks
+- DJ mixing, effects, arrangement
+- Master timeline/tempo control
+- NO video creation
+- NO shader rendering
+
+**3. EboSuite** (Video Playback Engine)
+- Max for Live plugin in Ableton
+- Plays silent video files
+- Syncs to Ableton timeline
+- Video mixing/effects
+- NO audio analysis
+- NO shader creation
+
+**Why This Matters:**
+When Claude suggests "add audio playback to Dojo" or "make Dojo play videos live" - this violates the architecture. Dojo CREATES videos. Ableton/EboSuite PLAYS them.
+
+### What Makes This Work
+
+**Strengths:**
+- Proven workflow (years of performances)
+- Professional results
+- Stable, reliable ecosystem
+- Industry-standard tools
+
+**Pain Points:**
+- Requires 3 separate products (SB + Ableton + EboSuite)
+- Static workflow (videos pre-rendered)
+- Extensive prep work
+- Expensive software licenses
+- Complex multi-vendor integration
+
+### What OMS Session Will Replace
+
+**Goal:** Replace Ableton + EboSuite with OMS Session:
+- Browser-based (no installation)
+- Audio + video in one tool
+- Real-time shader rendering (not pre-rendered)
+- MIDI control built-in
+- Free and open source
+
+**What Stays:**
+- Same solo creator workflow
+- Same audio-reactive shaders
+- Same MIDI controllers
+- Same "OneManShYo" philosophy
+
+**The Transition:**
+```
+CURRENT:
+Dojo → FFmpeg → Ableton + EboSuite → Performance
+
+FUTURE:
+Dojo (live mode) + OMS Session → Performance
+```
+
+---
+
+## 3. OMS Ecosystem Overview
 
 ### The Two-Tool System
 
@@ -150,9 +259,9 @@ OMS DOJO                    DOJOLIVE
      │                                    │
 ```
 
-### Current State (V1.0.0/V2.8.0)
+### Current State (V1.0.0/V2_8)
 
-**Dojo (V2.8.0):**
+**Dojo (V2_8):**
 - Creates shader-based visual loops
 - Audio-reactive (user-definable frequency mapping)
 - Exports silent video for Ableton Live + EboSuite
@@ -191,12 +300,12 @@ OMS DOJO                    DOJOLIVE
 
 ---
 
-## 3. ONEMANSHYO Dojo
+## 4. ONEMANSHYO Dojo
 
 ### Project Identity
 
 **Name:** ONEMANSHYO Dojo  
-**Current Version:** V2_7 (Production), V2.8.0 (BroadcastChannel)  
+**Current Version:** V2_8 (BroadcastChannel)  
 **Type:** Single-file HTML application (~215KB)  
 **Purpose:** Audio-reactive WebGPU shader tool for DJ performance visuals
 
@@ -253,14 +362,11 @@ Creates shader-based visual loops that sync to music theory timing:
 - Real-time state info display
 - Zero value support for selective reactivity
 
-**7. BroadcastChannel Broadcasting (V2.8.0):**
+**7. BroadcastChannel Broadcasting (V2_8):**
 - Instance announcements (unique ID, shader name)
 - Canvas snapshots (JPEG base64, ~50-100KB)
 - 5-second heartbeat keep-alive
 - Foundation for Live integration
-
-**Dojo is a complete standalone tool that works perfectly alone.**  
-DojoLive doesn't make it useful - it adds performance mixing capabilities to an already professional tool.
 
 ### Two Independent Modules
 
@@ -284,27 +390,7 @@ DojoLive doesn't make it useful - it adds performance mixing capabilities to an 
 1. Loop brackets → Render Duration (when audio loaded)
 2. FFT → Modulators (audio analysis enhances shader modulators)
 
-### V2_7 Major Features
-
-**User-Definable Frequency Mapping:**
-- 6 frequency input fields (Freq1/Freq2 for Mod A/B/C)
-- 32768 FFT analysis (~1.46 Hz/bin precision)
-- Target specific frequencies (30-50Hz kick, 50-75Hz sub, 100-500Hz bass)
-- Arrow key navigation (±5Hz fine, ±50Hz coarse)
-
-**Control States System:**
-- Save complete render configurations (21 values)
-- 5 library presets + unlimited user presets
-- Info box with real-time state display
-- Zero value support for selective reactivity
-
-**Preset System:**
-- 5 library shaders (curated)
-- User presets with visual thumbnails
-- Drag-and-drop import
-- Keyboard navigation
-
-### V2.8.0 BroadcastChannel Features
+### V2_8 BroadcastChannel Features
 
 **Instance Announcement:**
 - Unique ID: 'sb-XXXXXXXXX'
@@ -360,7 +446,7 @@ DojoLive doesn't make it useful - it adds performance mixing capabilities to an 
 
 ---
 
-## 4. DojoLive
+## 5. DojoLive
 
 ### Project Identity
 
@@ -457,13 +543,13 @@ Fixed Header (50px)
 
 ---
 
-## 5. Integration & Communication
+## 6. Integration & Communication
 
 ### BroadcastChannel Protocol
 
 **Channel Name:** `'oms-live-channel'`
 
-**Current Messages (V1.0.0/V2.8.0):**
+**Current Messages (V1.0.0/V2_8):**
 
 **1. Announce (Dojo → Live):**
 ```javascript
@@ -539,7 +625,7 @@ Fixed Header (50px)
 ### Compatibility
 
 **Dojo Requirements:**
-- V2.8.0-A or later (BroadcastChannel support)
+- V2_8-A or later (BroadcastChannel support)
 - Broadcasting enabled
 - Instance announcement system
 - Canvas snapshot system
@@ -553,7 +639,52 @@ Fixed Header (50px)
 
 ---
 
-## 6. Development Guidelines
+## 7. Development Guidelines
+
+### CRITICAL: Development Session Rules
+
+**BEFORE EVERY ITERATION - Claude MUST:**
+
+1. **Ask Before Building**
+   - Present numbered questions with lettered options
+   - Wait for "yes go" or specific answer
+   - Do NOT proceed without confirmation
+
+2. **Iterate with Letters**
+   - Use alphabetical iteration naming: A, B, C... Z, AA, AB, etc.
+   - One feature per iteration
+   - NEVER skip letters or use non-sequential naming
+
+3. **Update Header Title Display**
+   - HTML title tag MUST show: `ONEMANSHYO Dojo V2_8-N`
+   - Visible title in UI MUST show: `ONEMANSHYO Dojo V2_8-N`
+   - NEVER forget to update version display
+
+**Example Good Workflow:**
+```
+User: "Add audio engine to DojoLive"
+
+Claude: "Before building iteration Q:
+1. Should I add Web Audio API setup in this iteration?
+   a) Yes, add audio context and basic playback
+   b) No, plan architecture first
+   c) Different feature instead
+
+2. Should the audio engine support:
+   a) Single track playback only
+   b) Multi-track mixing (4 tracks)
+   c) Plan full mixer architecture"
+
+User: "1.a, 2.b, yes go"
+
+Claude: [Proceeds with iteration Q]
+```
+
+**Example Bad Workflow:**
+```
+User: "Add audio engine"
+Claude: [Immediately starts coding without asking]
+```
 
 ### Iteration Process (Both Tools)
 
@@ -566,10 +697,10 @@ Fixed Header (50px)
    - [Tool]_V#_#_#_[Letter]_[DescriptiveName]_Notes.txt
 
 **Naming Convention:**
-- Use underscores: V2_7_0_A_FeatureName
-- NOT periods: V2_7.A (breaks sorting)
-- NOT hyphens: V2-7-0-A (breaks sorting)
-- Descriptive names: V2_7_0_A_FrequencyFields (not V2_7_0_A)
+- Use underscores: V2_8_0_N_FeatureName
+- NOT periods: V2_8.N (breaks sorting)
+- NOT hyphens: V2-8-0-N (breaks sorting)
+- Descriptive names: V2_8_0_N_FrequencyFields (not V2_8_0_N)
 
 ### Token Management
 
@@ -630,7 +761,6 @@ Fixed Header (50px)
 - Max for Live versions (locks out non-Ableton)
 - Server-side processing (client-side philosophy)
 - TouchDesigner replacement (different use case)
-- Resolume replacement (different use case)
 
 **DO:**
 - Encourage creativity
@@ -640,7 +770,7 @@ Fixed Header (50px)
 
 ---
 
-## 7. Communication Protocols
+## 8. Communication Protocols
 
 ### Development Communication
 
@@ -676,11 +806,11 @@ Fixed Header (50px)
 
 ---
 
-## 8. Roadmap & Future Vision
+## 9. Roadmap & Future Vision
 
 ### Dojo Evolution
 
-**V2.8.0 (Current):**
+**V2_8 (Current):**
 - ✓ BroadcastChannel broadcasting
 - ✓ Instance announcements
 - ✓ Canvas snapshots
@@ -772,13 +902,13 @@ CREATOR'S WORKFLOW:
 
 ---
 
-## 9. When Starting New Development
+## 10. When Starting New Development
 
 ### For Dojo V2.9.0+
 
 **Before making changes:**
 1. Add this comprehensive instructions file to Claude project
-2. Review Dojo V2_7/V2.8.0 deliverables
+2. Review Dojo V2_8 deliverables
 3. Read recent iteration notes (last 5-10)
 4. Understand current architecture state
 5. Ask user about goals for new version
@@ -787,9 +917,8 @@ CREATOR'S WORKFLOW:
 8. Proceed incrementally
 
 **Key Files:**
-- OMS_Dojo_V2_7_Z_ClaudeProject_Instructions.md (specific context)
-- OMS_Comprehensive_Project_Instructions.md (this file - full context)
-- Recent iteration notes (A-AG for V2_7, A-C for V2.8.0)
+- OMS_Dojo_V2_8_Z_ClaudeProject_Instructions.md (this file)
+- Recent iteration notes (A-N for V2_8)
 
 ### For DojoLive V1.1.0+
 
@@ -806,12 +935,11 @@ CREATOR'S WORKFLOW:
 
 **Key Files:**
 - DojoLive_V1_0_0_Z_Project_Instructions.md (specific context)
-- OMS_Comprehensive_Project_Instructions.md (this file - full context)
 - Iteration notes A-P
 
 ---
 
-## 10. Critical Reminders
+## 11. Critical Reminders
 
 ### For Both Tools
 
@@ -849,18 +977,46 @@ CREATOR'S WORKFLOW:
 - Scene commands: Live → Dojo
 - Real-time synchronized performance
 
+### Engine Separation (CRITICAL - Claude Keeps Forgetting)
+
+**THREE SEPARATE ENGINES:**
+
+1. **Dojo** = Visual creation engine
+   - Creates shaders
+   - Bakes audio reactivity into video
+   - Exports silent videos
+   - NOT an audio engine
+   - NOT a playback engine
+
+2. **Ableton Live** = Audio engine
+   - Plays/mixes audio
+   - Master timeline control
+   - NO video creation
+   - NO shader rendering
+
+3. **EboSuite** = Video playback engine
+   - Plays silent videos in Ableton
+   - Video mixing
+   - NO audio analysis
+   - NO shader creation
+
+**When OMS Session is complete, it will replace Ableton + EboSuite but maintain this separation of concerns:**
+- Dojo still creates visuals
+- OMS Session plays audio + displays visuals
+- Different engines, integrated workflow
+
 ---
 
-## 11. Success Metrics
+## 12. Success Metrics
 
-### Dojo V2_7
+### Dojo V2.7.0
 ✓ User-definable frequency mapping  
 ✓ 32768 FFT precision  
 ✓ Control States system  
 ✓ Professional bass music responsiveness  
 ✓ 33 iterations without system crashes  
 
-### Dojo V2.8.0
+### Dojo V2_8
 ✓ BroadcastChannel integration  
 ✓ Instance announcement system  
 ✓ Canvas snapshot broadcasting  
@@ -885,7 +1041,7 @@ CREATOR'S WORKFLOW:
 
 ---
 
-**Document Version:** Dojo V2_7/V2.8.0 + DojoLive V1.0.0  
+**Document Version:** Dojo V2_8 + DojoLive V1.0.0  
 **Last Updated:** November 2025  
 **Next Update:** When major version development begins
 

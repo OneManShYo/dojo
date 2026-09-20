@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V2_7
+ONEMANSHYO Dojo App V2_8
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V2_7
-Build Date: November 9, 2025
+Version: V2_8
+Build Date: November 10, 2025
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V2_7]</title>
+    <title>ONEMANSHYO App [V2_8]</title>
     <style>
         * {
             margin: 0;
@@ -543,6 +543,31 @@ Build Date: November 9, 2025
             font-style: italic;
         }
 
+        /* V2.8.0-D: Pitch control field styling */
+        #pitchField {
+            width: 70px;
+            height: 28px;
+            padding: 4px 8px;
+            font-size: 13px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 0;
+            min-height: unset;
+            transition: all 0.2s ease;
+        }
+
+        #pitchField:focus {
+            border-color: #00d4ff !important;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+            outline: none;
+        }
+
+        #pitchField::placeholder {
+            color: rgba(0, 212, 255, 0.6);
+            font-style: italic;
+        }
+
         /* V2.1.0-E: Transport controls */
         .progress-overlay {
             position: absolute;
@@ -882,7 +907,7 @@ Build Date: November 9, 2025
     <!-- V2.1.1-A: Header now full-width outside container -->
     <div class="header">
         <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-        <span class="version">[V2_7]</span>
+        <span class="version">[V2_8]</span>
     </div>
     
     <div class="container">
@@ -893,6 +918,7 @@ Build Date: November 9, 2025
                 <button class="tab active" id="controlsTab" onclick="switchTab('controls')">Controls</button>
                 <button class="tab" id="codeTab" onclick="switchTab('code')">Code</button>
                 <button class="tab" id="presetsTab" onclick="switchTab('presets')">Presets</button>
+                <button class="tab" id="libraryTab" onclick="switchTab('library')">Library</button>
             </div>
             
             <!-- V2.1.0-C: Controls Tab Content -->
@@ -1174,7 +1200,7 @@ Build Date: November 9, 2025
                     <button class="btn" onclick="exportShaderTxt()" title="Export Shader as .txt File">Export .txt</button>
                 </div>
                 <textarea class="editor" id="shaderCode" placeholder="Paste your shader code here...">
-// ONEMANSHYO Dojo V2_7 - Flower Power
+// ONEMANSHYO Dojo V2_8 - Flower Power
 // Available uniforms:
 //   uniforms.time - elapsed time in seconds
 //   uniforms.tempo - shader visual tempo (for modulator timing)
@@ -1282,6 +1308,66 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     </div>
                 </div>
             </div><!-- End Presets Tab Content -->
+            
+            <!-- V2.8.0-M: Library Tab Content (Reorganized) -->
+            <div class="tab-content" id="libraryTabContent">
+                <div class="controls-section" style="flex: 1; display: flex; flex-direction: column; border-bottom: none;">
+                    <div class="controls" style="flex: 1; display: flex; flex-direction: column;">
+                        <div class="shader-header">Container Library</div>
+                        
+                        <!-- V2.8.0-M: Add Current / Import at top (daily use) -->
+                        <div class="control-row" style="margin-bottom: 12px;">
+                            <div class="control-group">
+                                <button class="btn" onclick="addToLibrary()">Add Current</button>
+                            </div>
+                            <div class="control-group">
+                                <button class="btn" onclick="document.getElementById('omsFile').click()">Import</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Inline input row for container name (hidden by default) -->
+                        <div id="addContainerRow" class="control-row" style="display: none; margin-bottom: 12px;">
+                            <div class="control-group" style="flex: 3;">
+                                <input type="text" id="containerNameInput" placeholder="Enter container name..." 
+                                       style="background: rgba(255,255,255,0.1); border: 1px solid #00d4ff; color: #fff; padding: 6px 10px; border-radius: 0; font-size: 14px;">
+                            </div>
+                            <div class="control-group">
+                                <button class="btn" onclick="confirmAddToLibrary()" title="Confirm">✓</button>
+                            </div>
+                            <div class="control-group">
+                                <button class="btn" onclick="cancelAddToLibrary()" title="Cancel">✗</button>
+                            </div>
+                        </div>
+                        
+                        <!-- V2.8.0-M: Container list grows to fill space -->
+                        <div class="library-list" id="libraryList" style="flex: 1; overflow-y: auto; min-height: 0;">
+                            <div style="color: #666; text-align: center; padding: 40px 20px;">
+                                No containers in library. Click "Add Current" to save your first container.
+                            </div>
+                        </div>
+                        
+                        <!-- V2.8.0-M: Setup Audio Library at absolute bottom -->
+                        <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #333;">
+                            <div class="control-row">
+                                <div class="control-group">
+                                    <button class="btn" onclick="setupAudioLibrary()" id="setupLibraryBtn">Setup Audio Library</button>
+                                </div>
+                            </div>
+                            
+                            <!-- V2.8.0-M: Audio Library Info Box (like Control State Info) -->
+                            <div class="control-state-info" id="audioLibraryInfo" style="display: none;">
+                                <div class="control-state-info-title">Audio Library</div>
+                                <div class="control-state-info-content">
+                                    <div class="info-row">
+                                        <span style="color: #00d4ff;">✓</span>
+                                        <span id="audioLibraryFolderName">Not configured</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End Library Tab Content -->
         </div>
         
         <div class="preview-panel">
@@ -1304,6 +1390,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     <span id="audioFileName">Upload Audio</span>
                 </button>
                 <input type="file" id="audioFile" accept="audio/*" style="display: none;" onchange="loadAudioFile(event)">
+                <input type="file" id="omsFile" accept=".oms" style="display: none;" onchange="handleOmsFileImport(event)">
             </div>
             
             <!-- Audio Controls Strip (Bottom - 40px Fixed Height) -->
@@ -1336,6 +1423,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 <input type="text" id="audioTempoField" value="120.00" 
                        placeholder="120.00" title="Manual audio tempo entry in decimal format (e.g., 127.53 from Ableton) | Arrow keys: Up/Down=±0.01, Left/Right=±1.0" 
                        style="width: 80px;">
+                
+                <!-- V2.8.0-D: Pitch control - Adjusts playback speed/tempo -->
+                <label for="pitchField">Pitch</label>
+                <input type="text" id="pitchField" value="0.00" 
+                       placeholder="0.00" title="Pitch adjustment (±16%) | Arrow keys: Up/Down=±0.1%, Left/Right=±1.0% | Affects playback speed and BPM" 
+                       style="width: 70px;" disabled>
                 
                 <div style="width: 1px; height: 24px; background: #333; margin: 0 12px;"></div>
                 
@@ -1375,6 +1468,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         let animationId;
         let currentTempo = 120;  // Shader visual tempo (for modulators)
         let audioTempo = 120;     // Audio reference tempo (for IN/OUT beat positioning)
+        let audioPitch = 0;       // V2.8.0-D: Audio pitch adjustment (-16 to +16 percent)
         
         // Audio analysis variables
         let audioContext = null;
@@ -1383,7 +1477,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         let analyser = null;
         let audioDataArray = null;
         let audioLoaded = false;
+        let currentAudioFile = null;  // V2.8.0-L: Store current audio File object for filename
         let bassLevel = 0, midLevel = 0, trebleLevel = 0;
+        
+        // V2.8.0-A: BroadcastChannel for DojoLive communication
+        const instanceId = 'sb-' + Math.random().toString(36).substr(2, 9);
+        const liveChannel = new BroadcastChannel('oms-live-channel');
+        let isBroadcasting = false;
         
         // V2.4.0-A: Audio Start/End times (in seconds)
         let audioStartTime = 0.0;   // Start of musical content (default: beginning)
@@ -1697,7 +1797,23 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 document.getElementById('audioTempoField').value = detectedBPM.toFixed(2);
                 
                 audioLoaded = true;
+                currentAudioFile = file;  // V2.8.0-L: Store File object for filename
                 showStatus(`Audio loaded: ${file.name} (${detectedBPM.toFixed(2)} Tempo)`, 'success');
+                
+                // V2.8.0-D: Enable pitch control
+                const pitchField = document.getElementById('pitchField');
+                pitchField.disabled = false;
+                pitchField.value = audioPitch.toFixed(2);
+                
+                // V2.8.0-D: Apply pitch on field change
+                pitchField.oninput = function() {
+                    const newPitch = parseFloat(pitchField.value) || 0;
+                    // Clamp to ±16%
+                    audioPitch = Math.max(-16, Math.min(16, newPitch));
+                    pitchField.value = audioPitch.toFixed(2);
+                    applyPitchToAudio();
+                    markAsCustomState();
+                };
                 
                 
                 // V2.7.0-AE: Enable freq fields and attach listeners with direct property assignment
@@ -2087,8 +2203,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // Draw time text (3x bigger)
                 const currentMin = Math.floor(audioElement.currentTime / 60);
                 const currentSec = Math.floor(audioElement.currentTime % 60);
-                const totalMin = Math.floor(audioElement.duration / 60);
-                const totalSec = Math.floor(audioElement.duration % 60);
+                
+                // V2.8.0-E: Adjust total duration based on playback rate
+                // Faster playback (>1.0) = shorter duration, slower (<1.0) = longer
+                const adjustedDuration = audioElement.duration / audioElement.playbackRate;
+                const totalMin = Math.floor(adjustedDuration / 60);
+                const totalSec = Math.floor(adjustedDuration % 60);
                 
                 const timeText = `${currentMin}:${currentSec.toString().padStart(2, '0')} / ${totalMin}:${totalSec.toString().padStart(2, '0')}`;
                 
@@ -2097,6 +2217,20 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 ctx.textAlign = 'center';
                 ctx.fillText(timeText, canvas.width / 2, canvas.height / 2 + 14);
             }
+        }
+        
+        // V2.8.0-D: Apply pitch adjustment to audio playback
+        function applyPitchToAudio() {
+            if (!audioElement) return;
+            
+            // Calculate playback rate: 1.0 = normal, 1.1 = 10% faster, 0.9 = 10% slower
+            const playbackRate = 1.0 + (audioPitch / 100.0);
+            audioElement.playbackRate = playbackRate;
+            
+            // Update displayed BPM to show adjusted tempo
+            const adjustedBPM = audioTempo * playbackRate;
+            document.getElementById('audioTempoField').value = adjustedBPM.toFixed(2);
+            
         }
         
         // Remove audio
@@ -2158,6 +2292,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('modCFreq1').disabled = true;
             document.getElementById('modCFreq2').disabled = true;
             
+            // V2.8.0-D: Reset and disable pitch field when audio removed
+            audioPitch = 0;
+            document.getElementById('pitchField').value = '0.00';
+            document.getElementById('pitchField').disabled = true;
+            
             // V2.7.0-AD: Re-enable renderDuration (remove magenta overlay)
             const renderDurationField = document.getElementById('renderDuration');
             renderDurationField.disabled = false;
@@ -2175,6 +2314,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const playBtn = document.getElementById('playBtn');
             
             if (audioElement.paused) {
+                applyPitchToAudio();  // V2.8.0-D: Apply pitch before playing
                 audioElement.play();
                 playBtn.textContent = 'Pause';
                 playBtn.classList.add('playing');
@@ -2803,6 +2943,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     render();
                 }
                 
+                // V2.8.0-A: Announce shader name update to DojoLive
+                announcePresence();
+                
+                // V2.8.0-B: Capture and broadcast canvas snapshot after 1 frame
+                setTimeout(() => {
+                    broadcastSnapshot();
+                }, 100); // Wait 100ms for render to complete
+                
             } catch (error) {
                 showStatus('Shader compilation error: ' + error.message, 'error');
             }
@@ -3385,11 +3533,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('controlsTabContent').classList.remove('active');
             document.getElementById('codeTabContent').classList.remove('active');
             document.getElementById('presetsTabContent').classList.remove('active');
+            document.getElementById('libraryTabContent').classList.remove('active'); // V2.8.0-F
             
             // Deactivate all tabs
             document.getElementById('controlsTab').classList.remove('active');
             document.getElementById('codeTab').classList.remove('active');
             document.getElementById('presetsTab').classList.remove('active');
+            document.getElementById('libraryTab').classList.remove('active'); // V2.8.0-F
             
             // Show selected tab content and activate tab
             if (tabName === 'controls') {
@@ -3401,6 +3551,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             } else if (tabName === 'presets') {
                 document.getElementById('presetsTabContent').classList.add('active');
                 document.getElementById('presetsTab').classList.add('active');
+            } else if (tabName === 'library') { // V2.8.0-F
+                document.getElementById('libraryTabContent').classList.add('active');
+                document.getElementById('libraryTab').classList.add('active');
+                refreshLibraryList(); // Update library display
             }
         }
 
@@ -3523,6 +3677,350 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             } catch (error) {
                 showStatus('Save failed - localStorage error');
             }
+        }
+        
+        // V2.8.0-F: LIBRARY MANAGEMENT FUNCTIONS
+        // V2.8.0-L: File System Access API for Audio Library
+        
+        let audioLibraryHandle = null;
+        
+        async function setupAudioLibrary() {
+            try {
+                // Check if File System Access API is supported
+                if (!('showDirectoryPicker' in window)) {
+                    showStatus('File System Access API not supported (use Chrome/Safari)', 'error');
+                    return;
+                }
+                
+                // Request directory picker
+                audioLibraryHandle = await window.showDirectoryPicker({
+                    mode: 'read',
+                    startIn: 'music'
+                });
+                
+                // Store handle in IndexedDB for persistence
+                await storeAudioLibraryHandle(audioLibraryHandle);
+                
+                // V2.8.0-M: Update UI - show info box and folder name
+                document.getElementById('audioLibraryInfo').style.display = 'block';
+                document.getElementById('audioLibraryFolderName').textContent = audioLibraryHandle.name;
+                document.getElementById('setupLibraryBtn').textContent = 'Change Audio Library';
+                
+                showStatus(`Audio library set: ${audioLibraryHandle.name}`, 'success');
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    showStatus('Failed to setup audio library', 'error');
+                }
+            }
+        }
+        
+        async function storeAudioLibraryHandle(handle) {
+            const db = await openLibraryDB();
+            const tx = db.transaction('settings', 'readwrite');
+            await tx.objectStore('settings').put(handle, 'audioLibraryHandle');
+        }
+        
+        async function loadAudioLibraryHandle() {
+            try {
+                const db = await openLibraryDB();
+                const tx = db.transaction('settings', 'readonly');
+                const handle = await tx.objectStore('settings').get('audioLibraryHandle');
+                
+                if (handle) {
+                    // Verify permission
+                    const permission = await handle.queryPermission({ mode: 'read' });
+                    if (permission === 'granted' || permission === 'prompt') {
+                        audioLibraryHandle = handle;
+                        // V2.8.0-M: Show info box with folder name
+                        document.getElementById('audioLibraryInfo').style.display = 'block';
+                        document.getElementById('audioLibraryFolderName').textContent = handle.name;
+                        document.getElementById('setupLibraryBtn').textContent = 'Change Audio Library';
+                        return true;
+                    }
+                }
+            } catch (error) {
+                // (no-op)
+            }
+            return false;
+        }
+        
+        async function openLibraryDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('OMSDojo', 1);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('settings')) {
+                        db.createObjectStore('settings');
+                    }
+                };
+            });
+        }
+        
+        async function getAudioFromLibrary(filename) {
+            if (!audioLibraryHandle) {
+                throw new Error('No audio library configured');
+            }
+            
+            try {
+                const fileHandle = await audioLibraryHandle.getFileHandle(filename);
+                const file = await fileHandle.getFile();
+                return file;
+            } catch (error) {
+                throw new Error(`Audio file not found: ${filename}`);
+            }
+        }
+        
+        function getLibraryContainers() {
+            try {
+                const stored = localStorage.getItem('omsLibrary');
+                return stored ? JSON.parse(stored) : [];
+            } catch (error) {
+                return [];
+            }
+        }
+        
+        function saveLibraryContainers(containers) {
+            try {
+                localStorage.setItem('omsLibrary', JSON.stringify(containers));
+            } catch (error) {
+                showStatus('Error saving library (storage full?)', 'error');
+            }
+        }
+        
+        function addToLibrary() {
+            // Show inline input row instead of prompt dialog
+            const inputRow = document.getElementById('addContainerRow');
+            const nameInput = document.getElementById('containerNameInput');
+            
+            // Get default name from shader code
+            const shaderCode = document.getElementById('shaderCode').value;
+            const shaderName = parseShaderNameFromCode(shaderCode) || 'Untitled';
+            
+            inputRow.style.display = 'block';
+            nameInput.value = shaderName;
+            nameInput.focus();
+            nameInput.select();
+            
+            // Allow Enter key to confirm, Escape to cancel
+            nameInput.onkeypress = function(e) {
+                if (e.key === 'Enter') {
+                    confirmAddToLibrary();
+                } else if (e.key === 'Escape') {
+                    cancelAddToLibrary();
+                }
+            };
+        }
+        
+        async function confirmAddToLibrary() {
+            const nameInput = document.getElementById('containerNameInput');
+            const containerName = nameInput.value.trim();
+            
+            if (!containerName) {
+                showStatus('Please enter a container name', 'error');
+                return;
+            }
+            
+            const shaderCode = document.getElementById('shaderCode').value;
+            const states = getCurrentControlState();
+            let audioFilename = null;
+            let audioBPM = null;
+            
+            // V2.8.0-L: Store filename only, not blob
+            if (audioLoaded && currentAudioFile) {
+                audioFilename = currentAudioFile.name;
+                audioBPM = audioTempo;
+            }
+            
+            const container = {
+                id: Date.now().toString(),
+                name: containerName,
+                shaderCode: shaderCode,
+                controlStates: states,
+                audioFilename: audioFilename,  // Changed from audioData
+                audioBPM: audioBPM,
+                hasAudio: !!audioFilename,
+                created: new Date().toISOString()
+            };
+            
+            const containers = getLibraryContainers();
+            containers.push(container);
+            saveLibraryContainers(containers);
+            
+            // Hide input row
+            document.getElementById('addContainerRow').style.display = 'none';
+            
+            showStatus(`Added to library: ${containerName}`, 'success');
+            refreshLibraryList();
+        }
+        
+        function cancelAddToLibrary() {
+            // Hide input row
+            document.getElementById('addContainerRow').style.display = 'none';
+            showStatus('Add cancelled', 'info');
+        }
+        
+        function refreshLibraryList() {
+            const containers = getLibraryContainers();
+            const listDiv = document.getElementById('libraryList');
+            
+            if (containers.length === 0) {
+                listDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px;">No containers in library. Click "Add Current" to save your first container.</div>';
+                return;
+            }
+            
+            let html = '';
+            containers.forEach((container) => {
+                const audioIcon = container.hasAudio ? '🎵' : '🎨';
+                const bpmText = container.audioBPM ? `${container.audioBPM.toFixed(1)} BPM` : 'No audio';
+                html += `
+                    <div style="background: rgba(255, 255, 255, 0.03); padding: 12px 15px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #333;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <div style="color: #fff; font-size: 13px; margin-bottom: 5px; font-weight: 400;">${audioIcon} ${container.name}</div>
+                                <div style="color: #999; font-size: 12px;">${bpmText}</div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn" onclick="loadContainer('${container.id}')" title="Load .oms container">L</button>
+                                <button class="btn" onclick="exportContainer('${container.id}')" title="Export .oms container">E</button>
+                                <button class="btn" onclick="removeContainer('${container.id}')" title="Remove .oms container">X</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listDiv.innerHTML = html;
+        }
+        
+        async function loadContainer(containerId) {
+            const containers = getLibraryContainers();
+            const container = containers.find(c => c.id === containerId);
+            if (!container) {
+                showStatus('Container not found', 'error');
+                return;
+            }
+            
+            document.getElementById('shaderCode').value = container.shaderCode;
+            
+            if (container.controlStates) {
+                applyControlState(container.controlStates);
+            }
+            
+            // V2.8.0-L: Load audio from library folder if filename exists
+            if (container.audioFilename) {
+                try {
+                    if (!audioLibraryHandle) {
+                        showStatus(`Container loaded. Please load audio: ${container.audioFilename}`, 'info');
+                    } else {
+                        const file = await getAudioFromLibrary(container.audioFilename);
+                        const fakeEvent = { target: { files: [file] } };
+                        await loadAudioFile(fakeEvent);
+                    }
+                } catch (error) {
+                    showStatus(`Container loaded. Audio not found: ${container.audioFilename}`, 'error');
+                }
+            } else if (container.audioData) {
+                // V2.8.0-L: Backward compatibility for old containers with embedded audio
+                try {
+                    const response = await fetch(container.audioData);
+                    const blob = await response.blob();
+                    const file = new File([blob], `${container.name}.mp3`, { type: 'audio/mpeg' });
+                    const fakeEvent = { target: { files: [file] } };
+                    await loadAudioFile(fakeEvent);
+                } catch (error) {
+                    showStatus('Container loaded (audio failed)', 'error');
+                }
+            }
+            
+            await compileShader();
+            showStatus(`Loaded: ${container.name}`, 'success');
+        }
+        
+        function removeContainer(containerId) {
+            if (!confirm('Remove this container from library?')) return;
+            const containers = getLibraryContainers();
+            const filtered = containers.filter(c => c.id !== containerId);
+            saveLibraryContainers(filtered);
+            showStatus('Container removed', 'success');
+            refreshLibraryList();
+        }
+        
+        function exportContainer(containerId) {
+            const containers = getLibraryContainers();
+            const container = containers.find(c => c.id === containerId);
+            
+            if (!container) {
+                showStatus('Container not found', 'error');
+                return;
+            }
+            
+            // Create .oms file (JSON format)
+            const omsData = {
+                format: 'oms-container',
+                version: '1.0',
+                container: container
+            };
+            
+            const jsonString = JSON.stringify(omsData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            // Create download link
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${container.name.replace(/[^a-z0-9]/gi, '_')}.oms`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus(`Exported: ${container.name}`, 'success');
+        }
+        
+        function handleOmsFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const omsData = JSON.parse(e.target.result);
+                    
+                    // Validate format
+                    if (omsData.format !== 'oms-container' || !omsData.container) {
+                        showStatus('Invalid .oms file format', 'error');
+                        return;
+                    }
+                    
+                    const container = omsData.container;
+                    
+                    // Generate new ID and timestamp
+                    container.id = Date.now().toString();
+                    container.created = new Date().toISOString();
+                    
+                    // Add to library
+                    const containers = getLibraryContainers();
+                    containers.push(container);
+                    saveLibraryContainers(containers);
+                    
+                    showStatus(`Imported: ${container.name}`, 'success');
+                    refreshLibraryList();
+                    
+                } catch (error) {
+                    showStatus('Failed to import .oms file', 'error');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+        
+        // Legacy function kept for compatibility (now unused)
+        function importContainer() {
+            document.getElementById('omsFile').click();
         }
         
         // Generate user preset cards (similar to OMS library cards)
@@ -4620,6 +5118,49 @@ ${shaderCode}
             }
         });
 
+        // V2.8.0-D: Arrow key navigation for Pitch field
+        document.getElementById('pitchField').addEventListener('keydown', (e) => {
+            const field = e.target;
+            let currentValue = parseFloat(field.value) || 0;
+            let newValue = currentValue;
+            let shouldUpdate = false;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    newValue = currentValue + 0.1;  // Fine adjustment
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    newValue = currentValue - 0.1;
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    newValue = currentValue + 1.0;  // Coarse adjustment
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    newValue = currentValue - 1.0;
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+            }
+            
+            if (shouldUpdate) {
+                // Clamp to ±16%
+                newValue = Math.max(-16, Math.min(16, newValue));
+                
+                // Update field and audioPitch
+                field.value = newValue.toFixed(2);
+                audioPitch = newValue;
+                applyPitchToAudio();
+                markAsCustomState();
+                showStatus(`Pitch: ${audioPitch >= 0 ? '+' : ''}${audioPitch.toFixed(2)}%`, 'success');
+            }
+        });
+
         // V2.7.0-A: Arrow key navigation for Mod A Freq1
         document.getElementById('modAFreq1').addEventListener('keydown', (e) => {
             const field = e.target;
@@ -5094,6 +5635,7 @@ ${shaderCode}
                 tempo: 120,
                 loopLength: 16,
                 renderDuration: "00:30.000",
+                audioPitch: 0,  // V2.8.0-D
                 modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
                 modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
                 modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
@@ -5104,6 +5646,7 @@ ${shaderCode}
                 tempo: 120,
                 loopLength: 16,
                 renderDuration: "01:00.000",
+                audioPitch: 0,  // V2.8.0-D
                 modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
                 modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
                 modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
@@ -5114,6 +5657,7 @@ ${shaderCode}
                 tempo: 120,
                 loopLength: 16,
                 renderDuration: "00:30.000",
+                audioPitch: 0,  // V2.8.0-D
                 modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
                 modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
                 modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
@@ -5124,6 +5668,7 @@ ${shaderCode}
                 tempo: 120,
                 loopLength: 16,
                 renderDuration: "00:15.000",
+                audioPitch: 0,  // V2.8.0-D
                 modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
                 modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
                 modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
@@ -5134,6 +5679,7 @@ ${shaderCode}
                 tempo: 120,
                 loopLength: 16,
                 renderDuration: "00:30.000",
+                audioPitch: 0,  // V2.8.0-D
                 modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
                 modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
                 modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
@@ -5158,6 +5704,7 @@ ${shaderCode}
                 tempo: parseNumeric(getElementValue('tempo', '120'), 120, parseInt),
                 loopLength: parseNumeric(getElementValue('loopLength', '16'), 16, parseFloat),
                 renderDuration: getElementValue('renderDuration', '00:30.000') || "00:30.000",
+                audioPitch: parseNumeric(getElementValue('pitchField', '0'), 0, parseFloat), // V2.8.0-D
                 modASubdiv: parseNumeric(getElementValue('modASubdiv', '1'), 1, parseFloat),
                 modAWaveform: getElementValue('modAWaveform', 'sine') || "sine",
                 modAGain: parseNumeric(getElementValue('modAGain', '0.1'), 0.1, parseFloat),
@@ -5183,6 +5730,14 @@ ${shaderCode}
             document.getElementById('tempo').value = state.tempo;
             document.getElementById('loopLength').value = state.loopLength;
             document.getElementById('renderDuration').value = state.renderDuration;
+            
+            // V2.8.0-D: Apply pitch if present in state
+            if (state.audioPitch !== undefined) {
+                audioPitch = state.audioPitch;
+                document.getElementById('pitchField').value = audioPitch.toFixed(2);
+                applyPitchToAudio();
+            }
+            
             document.getElementById('modASubdiv').value = state.modASubdiv;
             document.getElementById('modAWaveform').value = state.modAWaveform;  // Updated: now consistent
             document.getElementById('modAGain').value = state.modAGain;           // Updated: now consistent
@@ -5464,8 +6019,13 @@ ${shaderCode}
                 
                 const loopText = subdivNames[state.loopLength] || state.loopLength + ' beats';
                 
+                // V2.8.0-D: Include pitch in timing info
+                const pitchText = state.audioPitch !== undefined && state.audioPitch !== 0 
+                    ? `, Pitch: ${state.audioPitch >= 0 ? '+' : ''}${state.audioPitch.toFixed(2)}%` 
+                    : '';
+                
                 contentDiv.innerHTML = `
-                    <div class="info-row-single"><strong>Timing:</strong> ${state.tempo}bpm, ${loopText}, ${state.renderDuration}</div>
+                    <div class="info-row-single"><strong>Timing:</strong> ${state.tempo}bpm, ${loopText}, ${state.renderDuration}${pitchText}</div>
                     <div class="info-row">
                         <span class="info-label">Mod A:</span>
                         <span class="info-subdiv">${subdivNames[state.modASubdiv] || state.modASubdiv}</span>
@@ -5532,6 +6092,74 @@ ${shaderCode}
             };
         }
 
+        // V2.8.0-A: BroadcastChannel communication for DojoLive
+        function announcePresence() {
+            try {
+                const shaderName = getShaderNameFromCode() || 'Dojo Instance';
+                
+                liveChannel.postMessage({
+                    type: 'announce',
+                    id: instanceId,
+                    name: shaderName,
+                    timestamp: Date.now()
+                });
+                
+                isBroadcasting = true;
+            } catch (error) {
+                // (no-op)
+            }
+        }
+        
+        function getShaderNameFromCode() {
+            const codeEditor = document.getElementById('shaderCode');
+            if (!codeEditor) return null;
+            
+            const code = codeEditor.value;
+            // Extract name from first comment line like: // Bass Tunnel v3
+            const match = code.match(/^\/\/\s*(.+)$/m);
+            return match ? match[1].trim() : null;
+        }
+        
+        // V2.8.0-B: Broadcast canvas snapshot
+        function broadcastSnapshot() {
+            try {
+                if (!canvas) {
+                    return;
+                }
+                
+                // Capture canvas as base64 image data
+                const imageData = canvas.toDataURL('image/jpeg', 0.8); // 80% quality JPEG
+                
+                liveChannel.postMessage({
+                    type: 'snapshot',
+                    id: instanceId,
+                    imageData: imageData,
+                    timestamp: Date.now()
+                });
+                
+            } catch (error) {
+                // (no-op)
+            }
+        }
+        
+        function startHeartbeat() {
+            setInterval(() => {
+                if (isBroadcasting) {
+                    announcePresence();
+                }
+            }, 5000);
+        }
+        
+        // V2.8.0-A: Listen for control messages from DojoLive
+        liveChannel.onmessage = (event) => {
+            const msg = event.data;
+            
+            // Future: Handle scene launch commands, preset switches, etc.
+            if (msg.type === 'control' && msg.target === instanceId) {
+                // (no-op)
+            }
+        };
+
         // V2.7.0-L: Initialize control states dropdown on load
         updateControlStatesDropdown();
         
@@ -5539,8 +6167,30 @@ ${shaderCode}
         updateControlStateInfo();
 
         // V2.6.0-B: Initialize preset cards on page load
-        generatePresetCards();
+        generatePresetCards()
+;
         generateUserPresetCards(); // V2.6.0-S: Initialize user preset cards
+        
+        // V2.8.0-A: Initialize BroadcastChannel
+        announcePresence(); // Announce on page load
+        startHeartbeat(); // Start 5-second heartbeat
+        
+        // V2.8.0-L: Load audio library handle from IndexedDB
+        loadAudioLibraryHandle().then(loaded => {
+            if (loaded) {
+                // (no-op)
+            }
+        });
+        
+        // V2.8.0-C: Auto-snapshot on page load (500ms delay for canvas render)
+        setTimeout(() => {
+            broadcastSnapshot();
+        }, 500);
+        
+        // V2.8.0-A: Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            liveChannel.close();
+        });
     </script>
 </body>
 </html>

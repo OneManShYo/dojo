@@ -1,6 +1,6 @@
 # OMS DOJO - FFMPEG VIDEO CONVERSION GUIDE
 
-**Version:** V2_7  
+**Version:** V2.7.0  
 **Purpose:** Convert WebM exports to ProRes 422 for Ableton Live + EboSuite  
 **Audience:** DJ/VJ users preparing videos for live performance
 
@@ -326,7 +326,7 @@ done
 ffmpeg -i input.webm -c:v prores_ks -profile:v 3 \
   -metadata title="Track Name - Drop Section" \
   -metadata artist="DJ Name" \
-  -metadata comment="ONEMANSHYO Dojo V2_7" \
+  -metadata comment="ONEMANSHYO Dojo V2.7.0" \
   output.mov
 ```
 
