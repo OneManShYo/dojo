@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V2_6
+ONEMANSHYO Dojo App V2_7
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V2_6
+Version: V2_7
 Build Date: November 9, 2025
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V2_6]</title>
+    <title>ONEMANSHYO App [V2_7]</title>
     <style>
         * {
             margin: 0;
@@ -159,6 +159,33 @@ Build Date: November 9, 2025
             width: 100%;
         }
 
+        /* V2.7.0-C: Mod row control width adjustments */
+        /* V2.7.0-D: Updated - Subdivision and Waveform equal, narrower Gain/Freq */
+        /* Subdivision (1st): wider - equal to Waveform */
+        .control-row.mod-row .control-group:nth-child(1) {
+            flex: 1.9;
+        }
+        
+        /* Waveform (2nd): wider - equal to Subdivision */
+        .control-row.mod-row .control-group:nth-child(2) {
+            flex: 1.9;
+        }
+        
+        /* Gain (3rd): narrower - loses 20% total */
+        .control-row.mod-row .control-group:nth-child(3) {
+            flex: 0.8;
+        }
+        
+        /* Freq1 (4th): narrower - loses 20% total */
+        .control-row.mod-row .control-group:nth-child(4) {
+            flex: 0.8;
+        }
+        
+        /* Freq2 (5th): narrower - loses 20% total */
+        .control-row.mod-row .control-group:nth-child(5) {
+            flex: 0.8;
+        }
+
         .control-group label {
             font-size: 14px;
             font-weight: 400;
@@ -225,6 +252,15 @@ Build Date: November 9, 2025
         .control-group input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
+        }
+
+        /* V2.7.0-K: Disabled freq fields with cyan overlay */
+        input[id$="Freq1"]:disabled,
+        input[id$="Freq2"]:disabled {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.3);
+            cursor: not-allowed;
+            color: rgba(255, 255, 255, 0.5);
         }
 
         .duration-display {
@@ -636,6 +672,65 @@ Build Date: November 9, 2025
             letter-spacing: 1px;
         }
 
+        /* V2.7.0-M: Control State Info Box */
+        /* V2.7.0-S: Adjusted margin to match control section width */
+        .control-state-info {
+            margin: 15px 20px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #333;
+            border-radius: 4px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .control-state-info-title {
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .control-state-info-content {
+            color: #ccc;
+        }
+
+        .control-state-info-content .info-row {
+            display: flex;
+            margin: 4px 0;
+            gap: 8px;
+        }
+
+        .control-state-info-content .info-row span {
+            display: inline-block;
+        }
+
+        .control-state-info-content .info-row .info-label {
+            flex: 0 0 60px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .control-state-info-content .info-row .info-subdiv {
+            flex: 1.9;
+        }
+
+        .control-state-info-content .info-row .info-wave {
+            flex: 1.9;
+        }
+
+        .control-state-info-content .info-row .info-gain {
+            flex: 0.8;
+        }
+
+        .control-state-info-content .info-row .info-freq {
+            flex: 1.6;
+        }
+
+        .control-state-info-content .info-row-single {
+            margin: 4px 0;
+        }
+
         /* V2.6.0-A: Preset section collapsible styles */
         .preset-section {
             border-bottom: 1px solid #333;
@@ -787,7 +882,7 @@ Build Date: November 9, 2025
     <!-- V2.1.1-A: Header now full-width outside container -->
     <div class="header">
         <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-        <span class="version">[V2_6]</span>
+        <span class="version">[V2_7]</span>
     </div>
     
     <div class="container">
@@ -805,7 +900,8 @@ Build Date: November 9, 2025
             <div class="controls-section">
                 <div class="controls">
                     <!-- V2.5.0-B: SHADER section header -->
-                    <div class="shader-header">Shader</div>
+                    <!-- V2.7.0-H: Renamed to SHADER TIMING -->
+                    <div class="shader-header">Shader Timing</div>
                     
                     <!-- V2.1.1-G: Orientation moved to Output section (Row 5) -->
                     
@@ -843,8 +939,11 @@ Build Date: November 9, 2025
                         </div>
                     </div>
 
+                    <!-- V2.7.0-H: SHADER REACTIVITY section header -->
+                    <div class="shader-header">Shader Reactivity</div>
+
                     <!-- Row 2: Mod A Controls -->
-                    <div class="control-row">
+                    <div class="control-row mod-row">
                         <div class="control-group">
                             <select id="modASubdiv" title="Shader Mod A Note Duration">
                                 <option value="4">Whole</option>
@@ -860,7 +959,7 @@ Build Date: November 9, 2025
                             </select>
                         </div>
                         <div class="control-group">
-                            <select id="modAWave" title="Shader Mod A Waveform">
+                            <select id="modAWaveform" title="Shader Mod A Waveform">
                                 <option value="sine" selected>Sine</option>
                                 <option value="cosine">Cosine</option>
                                 <option value="sawtooth">Sawtooth</option>
@@ -877,13 +976,19 @@ Build Date: November 9, 2025
                                 <option value="psycho">Psycho</option>
                             </select>
                         </div>
-                        <div class="control-group" id="bassGainGroup">
-                            <input type="number" id="bassGain" min="0" max="5" value="0.1" step="0.1" title="Shader Mod A Low">
+                        <div class="control-group" id="modAGainGroup">
+                            <input type="number" id="modAGain" min="0" max="5" value="0.1" step="0.1" title="Shader Mod A Gain">
+                        </div>
+                        <div class="control-group">
+                            <input type="number" id="modAFreq1" min="20" max="24000" value="30" step="1" title="Mod A Freq 1 (Hz)" disabled>
+                        </div>
+                        <div class="control-group">
+                            <input type="number" id="modAFreq2" min="20" max="24000" value="50" step="1" title="Mod A Freq 2 (Hz)" disabled>
                         </div>
                     </div>
 
                     <!-- Row 3: Mod B Controls -->
-                    <div class="control-row">
+                    <div class="control-row mod-row">
                         <div class="control-group">
                             <select id="modBSubdiv" title="Shader Mod B Note Duration">
                                 <option value="4" selected>Whole</option>
@@ -899,7 +1004,7 @@ Build Date: November 9, 2025
                             </select>
                         </div>
                         <div class="control-group">
-                            <select id="modBWave" title="Shader Mod B Waveform">
+                            <select id="modBWaveform" title="Shader Mod B Waveform">
                                 <option value="sine">Sine</option>
                                 <option value="cosine">Cosine</option>
                                 <option value="sawtooth" selected>Sawtooth</option>
@@ -916,13 +1021,19 @@ Build Date: November 9, 2025
                                 <option value="psycho">Psycho</option>
                             </select>
                         </div>
-                        <div class="control-group" id="midGainGroup">
-                            <input type="number" id="midGain" min="0" max="5" value="0.1" step="0.1" title="Shader Mod B Mid">
+                        <div class="control-group" id="modBGainGroup">
+                            <input type="number" id="modBGain" min="0" max="5" value="0.1" step="0.1" title="Shader Mod B Gain">
+                        </div>
+                        <div class="control-group">
+                            <input type="number" id="modBFreq1" min="20" max="24000" value="50" step="1" title="Mod B Freq 1 (Hz)" disabled>
+                        </div>
+                        <div class="control-group">
+                            <input type="number" id="modBFreq2" min="20" max="24000" value="75" step="1" title="Mod B Freq 2 (Hz)" disabled>
                         </div>
                     </div>
 
                     <!-- Row 4: Mod C Controls -->
-                    <div class="control-row">
+                    <div class="control-row mod-row">
                         <div class="control-group">
                             <select id="modCSubdiv" title="Shader Mod C Note Duration">
                                 <option value="4" selected>Whole</option>
@@ -938,7 +1049,7 @@ Build Date: November 9, 2025
                             </select>
                         </div>
                         <div class="control-group">
-                            <select id="modCWave" title="Shader Mod C Waveform">
+                            <select id="modCWaveform" title="Shader Mod C Waveform">
                                 <option value="sine">Sine</option>
                                 <option value="cosine">Cosine</option>
                                 <option value="sawtooth">Sawtooth</option>
@@ -955,8 +1066,14 @@ Build Date: November 9, 2025
                                 <option value="psycho">Psycho</option>
                             </select>
                         </div>
-                        <div class="control-group" id="trebleGainGroup">
-                            <input type="number" id="trebleGain" min="0" max="5" value="0.1" step="0.1" title="Shader Mod C Hi">
+                        <div class="control-group" id="modCGainGroup">
+                            <input type="number" id="modCGain" min="0" max="5" value="0.1" step="0.1" title="Shader Mod C Gain">
+                        </div>
+                        <div class="control-group">
+                            <input type="number" id="modCFreq1" min="20" max="24000" value="100" step="1" title="Mod C Freq 1 (Hz)" disabled>
+                        </div>
+                        <div class="control-group">
+                            <input type="number" id="modCFreq2" min="20" max="24000" value="500" step="1" title="Mod C Freq 2 (Hz)" disabled>
                         </div>
                     </div>
 
@@ -999,6 +1116,51 @@ Build Date: November 9, 2025
                         <input type="text" id="filename" class="control-group input" value="" placeholder="Filename" title="Video Filename" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 10px; border-radius: 0; font-size: 14px;">
                         <button class="btn btn-compact" id="renderBtn" title="Render Video" onclick="startRender()">R</button>
                     </div>
+
+                    <!-- V2.7.0-L: Control States Section -->
+                    <div class="shader-header" style="margin-top: 20px;">Control States</div>
+                    
+                    <!-- Control States Row -->
+                    <div class="control-row">
+                        <div class="control-group" style="flex: 3;">
+                            <select id="controlStateSelect" title="Load Control State">
+                                <option value="custom" selected>Custom</option>
+                                <option disabled>--- Library ---</option>
+                                <option value="quickTest">Quick Test</option>
+                                <option value="hdRender">HD Render</option>
+                                <option value="4kFinal">4K Final</option>
+                                <option value="instagramStory">Instagram Story</option>
+                                <option value="tiktok">TikTok</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" onclick="saveControlState()" title="Save Current Control State">Save</button>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" onclick="deleteControlState()" title="Delete Selected Control State">Delete</button>
+                        </div>
+                    </div>
+                    
+                    <!-- V2.7.0-S: Inline Save Input Row (hidden by default) -->
+                    <div id="saveInputRow" class="control-row" style="display: none;">
+                        <div class="control-group" style="flex: 3;">
+                            <input type="text" id="saveStateName" placeholder="Enter state name..." 
+                                   class="control-group input" 
+                                   style="background: rgba(255,255,255,0.1); border: 1px solid #00d4ff; color: #fff; padding: 6px 10px; border-radius: 0; font-size: 14px;">
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" onclick="confirmSaveControlState()" title="Confirm Save">✓</button>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" onclick="cancelSaveControlState()" title="Cancel Save">✗</button>
+                        </div>
+                    </div>
+                    
+                    <!-- V2.7.0-M: Control State Info Box -->
+                    <div id="controlStateInfo" class="control-state-info" style="display: none;">
+                        <div class="control-state-info-title"></div>
+                        <div class="control-state-info-content"></div>
+                    </div>
                 </div>
             </div>
             </div><!-- End Controls Tab Content -->
@@ -1012,7 +1174,7 @@ Build Date: November 9, 2025
                     <button class="btn" onclick="exportShaderTxt()" title="Export Shader as .txt File">Export .txt</button>
                 </div>
                 <textarea class="editor" id="shaderCode" placeholder="Paste your shader code here...">
-// ONEMANSHYO Dojo V2_6 - Flower Power
+// ONEMANSHYO Dojo V2_7 - Flower Power
 // Available uniforms:
 //   uniforms.time - elapsed time in seconds
 //   uniforms.tempo - shader visual tempo (for modulator timing)
@@ -1509,7 +1671,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // Create analyser
             if (!analyser) {
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = 512;
+                analyser.fftSize = 32768; // V2.7.0-E: Bumped from 512 for ~1.46Hz bin resolution
                 audioDataArray = new Uint8Array(analyser.frequencyBinCount);
             }
             
@@ -1536,6 +1698,51 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 audioLoaded = true;
                 showStatus(`Audio loaded: ${file.name} (${detectedBPM.toFixed(2)} Tempo)`, 'success');
+                
+                
+                // V2.7.0-AE: Enable freq fields and attach listeners with direct property assignment
+                const freqPairs = [
+                    { freq1: 'modAFreq1', freq2: 'modAFreq2' },
+                    { freq1: 'modBFreq1', freq2: 'modBFreq2' },
+                    { freq1: 'modCFreq1', freq2: 'modCFreq2' }
+                ];
+                
+                freqPairs.forEach(pair => {
+                    const freq1Field = document.getElementById(pair.freq1);
+                    const freq2Field = document.getElementById(pair.freq2);
+                    
+                    
+                    // Enable fields
+                    freq1Field.disabled = false;
+                    freq2Field.disabled = false;
+                    
+                    // Use direct property assignment (more reliable than addEventListener)
+                    freq1Field.oninput = function() {
+                        const freq1 = parseInt(freq1Field.value) || 0;
+                        const freq2 = parseInt(freq2Field.value) || 0;
+                        if (freq1 > freq2) {
+                            freq2Field.value = freq1;
+                        }
+                        markAsCustomState();
+                    };
+                    
+                    freq2Field.oninput = function() {
+                        const freq1 = parseInt(freq1Field.value) || 0;
+                        const freq2 = parseInt(freq2Field.value) || 0;
+                        if (freq2 < freq1) {
+                            freq1Field.value = freq2;
+                        }
+                        markAsCustomState();
+                    };
+                });
+                
+                
+                // V2.7.0-AE: Disable renderDuration with magenta overlay (audio timing active)
+                const renderDurationField = document.getElementById('renderDuration');
+                renderDurationField.disabled = true;
+                renderDurationField.style.background = 'rgba(255, 0, 255, 0.1)';
+                renderDurationField.style.cursor = 'not-allowed';
+                renderDurationField.title = 'Render Duration disabled (using Loop In/Out from audio)';
                 
                 // V2.4.0-A: Set Audio Start/End times first
                 audioStartTime = 0.0;
@@ -1943,6 +2150,21 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('audioStartField').disabled = true;
             document.getElementById('audioEndField').disabled = true;
             
+            // V2.7.0-AD: Disable freq fields when audio removed (listeners auto-removed when disabled)
+            document.getElementById('modAFreq1').disabled = true;
+            document.getElementById('modAFreq2').disabled = true;
+            document.getElementById('modBFreq1').disabled = true;
+            document.getElementById('modBFreq2').disabled = true;
+            document.getElementById('modCFreq1').disabled = true;
+            document.getElementById('modCFreq2').disabled = true;
+            
+            // V2.7.0-AD: Re-enable renderDuration (remove magenta overlay)
+            const renderDurationField = document.getElementById('renderDuration');
+            renderDurationField.disabled = false;
+            renderDurationField.style.background = '';
+            renderDurationField.style.cursor = '';
+            renderDurationField.title = 'Shader Render Duration (MM:SS.mmm) | Arrow keys: Up/Down=±0.1s, Left/Right=±1.0s';
+            
             showStatus('Audio removed', 'success');
         }
         
@@ -2051,9 +2273,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         //   5. Apply exponential smoothing to prevent jitter (0.7 smoothing factor)
         //
         // Output is used to modulate modA/B/C values:
-        //   - modA *= (bass * bassGain)
-        //   - modB *= (mid * midGain)
-        //   - modC *= (treble * trebleGain)
+        //   - modA *= (bass * modAGain)
+        //   - modB *= (mid * modBGain)
+        //   - modC *= (treble * modCGain)
         //
         // Called every frame during rendering when audio is playing.
         function analyzeAudio() {
@@ -2063,30 +2285,52 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             analyser.getByteFrequencyData(audioDataArray);
             
-            // Split into frequency bands
-            const bassEnd = Math.floor(audioDataArray.length * 0.1); // 0-10%
-            const midEnd = Math.floor(audioDataArray.length * 0.5);  // 10-50%
-            // Treble is 50-100%
+            // V2.7.0-E: User-defined frequency ranges from Freq1/Freq2 fields
+            // Calculate bin width: sample rate / 2 (Nyquist) / number of bins
+            const sampleRate = audioContext.sampleRate; // Typically 48000 Hz
+            const nyquistFreq = sampleRate / 2; // Typically 24000 Hz
+            const binCount = analyser.frequencyBinCount; // 16384 bins at 32768 FFT
+            const binWidth = nyquistFreq / binCount; // Hz per bin (~1.46 Hz at 32768 FFT)
             
-            let bassSum = 0, midSum = 0, trebleSum = 0;
+            // Get user-defined frequency ranges from UI
+            const modAFreq1 = parseFloat(document.getElementById('modAFreq1').value) || 30;
+            const modAFreq2 = parseFloat(document.getElementById('modAFreq2').value) || 50;
+            const modBFreq1 = parseFloat(document.getElementById('modBFreq1').value) || 50;
+            const modBFreq2 = parseFloat(document.getElementById('modBFreq2').value) || 75;
+            const modCFreq1 = parseFloat(document.getElementById('modCFreq1').value) || 100;
+            const modCFreq2 = parseFloat(document.getElementById('modCFreq2').value) || 500;
             
-            // Calculate bass (low frequencies)
-            for (let i = 0; i < bassEnd; i++) {
-                bassSum += audioDataArray[i];
+            // Convert Hz to bin indices
+            const modAStartBin = Math.floor(modAFreq1 / binWidth);
+            const modAEndBin = Math.floor(modAFreq2 / binWidth);
+            const modBStartBin = Math.floor(modBFreq1 / binWidth);
+            const modBEndBin = Math.floor(modBFreq2 / binWidth);
+            const modCStartBin = Math.floor(modCFreq1 / binWidth);
+            const modCEndBin = Math.floor(modCFreq2 / binWidth);
+            
+            // Calculate average amplitude for each frequency range
+            let modASum = 0, modBSum = 0, modCSum = 0;
+            
+            // Mod A (bass/kick range)
+            for (let i = modAStartBin; i < modAEndBin && i < audioDataArray.length; i++) {
+                modASum += audioDataArray[i];
             }
-            bassLevel = bassSum / bassEnd / 255.0; // Normalize to 0-1
+            const modABinCount = modAEndBin - modAStartBin;
+            bassLevel = modABinCount > 0 ? (modASum / modABinCount / 255.0) : 0;
             
-            // Calculate mid frequencies
-            for (let i = bassEnd; i < midEnd; i++) {
-                midSum += audioDataArray[i];
+            // Mod B (sub-bass range)
+            for (let i = modBStartBin; i < modBEndBin && i < audioDataArray.length; i++) {
+                modBSum += audioDataArray[i];
             }
-            midLevel = midSum / (midEnd - bassEnd) / 255.0;
+            const modBBinCount = modBEndBin - modBStartBin;
+            midLevel = modBBinCount > 0 ? (modBSum / modBBinCount / 255.0) : 0;
             
-            // Calculate treble (high frequencies)
-            for (let i = midEnd; i < audioDataArray.length; i++) {
-                trebleSum += audioDataArray[i];
+            // Mod C (lead bass range)
+            for (let i = modCStartBin; i < modCEndBin && i < audioDataArray.length; i++) {
+                modCSum += audioDataArray[i];
             }
-            trebleLevel = trebleSum / (audioDataArray.length - midEnd) / 255.0;
+            const modCBinCount = modCEndBin - modCStartBin;
+            trebleLevel = modCBinCount > 0 ? (modCSum / modCBinCount / 255.0) : 0;
             
             // Smooth the values (exponential moving average)
             const smoothing = 0.7;
@@ -2166,7 +2410,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // Update In Beat input
         // FEATURES ADDED V2.0.1:
-        //   1. Changed from bars to beats (removed ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â 4 calculation)
+        //   1. Changed from bars to beats (removed divide-by-4 calculation)
         //   2. Shows duration in status bar while editing
         //   3. Audio jumps to In beat position when value changes
         // V2.4.0-J: Updated for bar.beat format
@@ -2444,7 +2688,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // Update status with current dimensions
             const orientationText = orientation === 'portrait' ? 'Portrait' : 
                                    orientation === 'square' ? 'Square' : 'Landscape';
-            showStatus(`${resolution}p ${orientationText} (${width}ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â${height})`, 'success');
+            showStatus(`${resolution}p ${orientationText} (${width}x${height})`, 'success');
         }
 
         // Compile shader
@@ -2613,11 +2857,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             // Get mod settings
             const modASubdivValue = document.getElementById('modASubdiv').value;
-            const modAWave = document.getElementById('modAWave').value;
+            const modAWaveform = document.getElementById('modAWaveform').value;
             const modBSubdivValue = document.getElementById('modBSubdiv').value;
-            const modBWave = document.getElementById('modBWave').value;
+            const modBWaveform = document.getElementById('modBWaveform').value;
             const modCSubdivValue = document.getElementById('modCSubdiv').value;
-            const modCWave = document.getElementById('modCWave').value;
+            const modCWaveform = document.getElementById('modCWaveform').value;
             
             // Calculate dynamic subdivisions for meta-modes
             let modASubdiv, modBSubdiv, modCSubdiv;
@@ -2686,14 +2930,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             }
             
             // Calculate mod values
-            let modA = calculateMod(beat, modASubdiv, modAWave);
-            let modB = calculateMod(beat, modBSubdiv, modBWave);
-            let modC = calculateMod(beat, modCSubdiv, modCWave);
+            let modA = calculateMod(beat, modASubdiv, modAWaveform);
+            let modB = calculateMod(beat, modBSubdiv, modBWaveform);
+            let modC = calculateMod(beat, modCSubdiv, modCWaveform);
             
             // Get gain values
-            const bassGain = parseFloat(document.getElementById('bassGain').value);
-            const midGain = parseFloat(document.getElementById('midGain').value);
-            const trebleGain = parseFloat(document.getElementById('trebleGain').value);
+            const modAGain = parseFloat(document.getElementById('modAGain').value);
+            const modBGain = parseFloat(document.getElementById('modBGain').value);
+            const modCGain = parseFloat(document.getElementById('modCGain').value);
             
             // Apply audio analysis if loaded, otherwise just use gains as multipliers
             if (audioLoaded && audioElement && !audioElement.paused) {
@@ -2714,14 +2958,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 }
                 
                 const audioLevels = analyzeAudio();
-                modA *= (audioLevels.bass * bassGain);
-                modB *= (audioLevels.mid * midGain);
-                modC *= (audioLevels.treble * trebleGain);
+                modA *= (audioLevels.bass * modAGain);
+                modB *= (audioLevels.mid * modBGain);
+                modC *= (audioLevels.treble * modCGain);
             } else {
                 // No audio - gains just multiply the mod values directly
-                modA *= bassGain;
-                modB *= midGain;
-                modC *= trebleGain;
+                modA *= modAGain;
+                modB *= modBGain;
+                modC *= modCGain;
             }
             
             // Update uniforms: 12 floats = 48 bytes for proper alignment
@@ -4376,6 +4620,320 @@ ${shaderCode}
             }
         });
 
+        // V2.7.0-A: Arrow key navigation for Mod A Freq1
+        document.getElementById('modAFreq1').addEventListener('keydown', (e) => {
+            const field = e.target;
+            let currentValue = parseFloat(field.value) || 30;
+            let newValue = currentValue;
+            let shouldUpdate = false;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    newValue = currentValue + 5;  // Fine: +5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    newValue = currentValue - 5;  // Fine: -5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    newValue = currentValue + 50;  // Coarse: +50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    newValue = currentValue - 50;  // Coarse: -50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+            }
+            
+            if (shouldUpdate) {
+                // Clamp to valid range (20-24000 Hz)
+                newValue = Math.max(0, Math.min(24000, newValue));
+                field.value = Math.round(newValue);
+            }
+        });
+
+        // V2.7.0-A: Arrow key navigation for Mod A Freq2
+        document.getElementById('modAFreq2').addEventListener('keydown', (e) => {
+            const field = e.target;
+            let currentValue = parseFloat(field.value) || 50;
+            let newValue = currentValue;
+            let shouldUpdate = false;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    newValue = currentValue + 5;  // Fine: +5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    newValue = currentValue - 5;  // Fine: -5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    newValue = currentValue + 50;  // Coarse: +50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    newValue = currentValue - 50;  // Coarse: -50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+            }
+            
+            if (shouldUpdate) {
+                // Clamp to valid range (20-24000 Hz)
+                newValue = Math.max(0, Math.min(24000, newValue));
+                field.value = Math.round(newValue);
+            }
+        });
+
+        // V2.7.0-B: Arrow key navigation for Mod B Freq1
+        document.getElementById('modBFreq1').addEventListener('keydown', (e) => {
+            const field = e.target;
+            let currentValue = parseFloat(field.value) || 50;
+            let newValue = currentValue;
+            let shouldUpdate = false;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    newValue = currentValue + 5;  // Fine: +5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    newValue = currentValue - 5;  // Fine: -5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    newValue = currentValue + 50;  // Coarse: +50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    newValue = currentValue - 50;  // Coarse: -50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+            }
+            
+            if (shouldUpdate) {
+                // Clamp to valid range (20-24000 Hz)
+                newValue = Math.max(0, Math.min(24000, newValue));
+                field.value = Math.round(newValue);
+            }
+        });
+
+        // V2.7.0-B: Arrow key navigation for Mod B Freq2
+        document.getElementById('modBFreq2').addEventListener('keydown', (e) => {
+            const field = e.target;
+            let currentValue = parseFloat(field.value) || 75;
+            let newValue = currentValue;
+            let shouldUpdate = false;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    newValue = currentValue + 5;  // Fine: +5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    newValue = currentValue - 5;  // Fine: -5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    newValue = currentValue + 50;  // Coarse: +50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    newValue = currentValue - 50;  // Coarse: -50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+            }
+            
+            if (shouldUpdate) {
+                // Clamp to valid range (20-24000 Hz)
+                newValue = Math.max(0, Math.min(24000, newValue));
+                field.value = Math.round(newValue);
+            }
+        });
+
+        // V2.7.0-B: Arrow key navigation for Mod C Freq1
+        document.getElementById('modCFreq1').addEventListener('keydown', (e) => {
+            const field = e.target;
+            let currentValue = parseFloat(field.value) || 100;
+            let newValue = currentValue;
+            let shouldUpdate = false;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    newValue = currentValue + 5;  // Fine: +5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    newValue = currentValue - 5;  // Fine: -5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    newValue = currentValue + 50;  // Coarse: +50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    newValue = currentValue - 50;  // Coarse: -50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+            }
+            
+            if (shouldUpdate) {
+                // Clamp to valid range (20-24000 Hz)
+                newValue = Math.max(0, Math.min(24000, newValue));
+                field.value = Math.round(newValue);
+            }
+        });
+
+        // V2.7.0-B: Arrow key navigation for Mod C Freq2
+        document.getElementById('modCFreq2').addEventListener('keydown', (e) => {
+            const field = e.target;
+            let currentValue = parseFloat(field.value) || 500;
+            let newValue = currentValue;
+            let shouldUpdate = false;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    newValue = currentValue + 5;  // Fine: +5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    newValue = currentValue - 5;  // Fine: -5Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    newValue = currentValue + 50;  // Coarse: +50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    newValue = currentValue - 50;  // Coarse: -50Hz
+                    shouldUpdate = true;
+                    e.preventDefault();
+                    break;
+            }
+            
+            if (shouldUpdate) {
+                // Clamp to valid range (20-24000 Hz)
+                newValue = Math.max(0, Math.min(24000, newValue));
+                field.value = Math.round(newValue);
+            }
+        });
+
+        // V2.7.0-I: Frequency validation - ensure Freq2 >= Freq1
+        // V2.7.0-J: Added bounds validation (0-24000 Hz)
+        // Mod A validation
+        document.getElementById('modAFreq1').addEventListener('input', (e) => {
+            let freq1 = parseFloat(e.target.value) || 0;
+            // V2.7.0-J: Clamp to 0-24000 Hz
+            freq1 = Math.max(0, Math.min(24000, freq1));
+            e.target.value = Math.round(freq1);
+            
+            const freq2Field = document.getElementById('modAFreq2');
+            const freq2 = parseFloat(freq2Field.value) || 0;
+            if (freq1 > freq2) {
+                freq2Field.value = freq1;
+            }
+        });
+        
+        document.getElementById('modAFreq2').addEventListener('input', (e) => {
+            let freq2 = parseFloat(e.target.value) || 0;
+            // V2.7.0-J: Clamp to 0-24000 Hz
+            freq2 = Math.max(0, Math.min(24000, freq2));
+            
+            const freq1Field = document.getElementById('modAFreq1');
+            const freq1 = parseFloat(freq1Field.value) || 0;
+            if (freq2 < freq1) {
+                // V2.7.0-N: Push Freq1 down instead of clamping Freq2
+                freq1Field.value = Math.round(freq2);
+                e.target.value = Math.round(freq2);
+            } else {
+                e.target.value = Math.round(freq2);
+            }
+        });
+        
+        // Mod B validation
+        document.getElementById('modBFreq1').addEventListener('input', (e) => {
+            let freq1 = parseFloat(e.target.value) || 0;
+            // V2.7.0-J: Clamp to 0-24000 Hz
+            freq1 = Math.max(0, Math.min(24000, freq1));
+            e.target.value = Math.round(freq1);
+            
+            const freq2Field = document.getElementById('modBFreq2');
+            const freq2 = parseFloat(freq2Field.value) || 0;
+            if (freq1 > freq2) {
+                freq2Field.value = freq1;
+            }
+        });
+        
+        document.getElementById('modBFreq2').addEventListener('input', (e) => {
+            let freq2 = parseFloat(e.target.value) || 0;
+            // V2.7.0-J: Clamp to 0-24000 Hz
+            freq2 = Math.max(0, Math.min(24000, freq2));
+            
+            const freq1Field = document.getElementById('modBFreq1');
+            const freq1 = parseFloat(freq1Field.value) || 0;
+            if (freq2 < freq1) {
+                // V2.7.0-N: Push Freq1 down instead of clamping Freq2
+                freq1Field.value = Math.round(freq2);
+                e.target.value = Math.round(freq2);
+            } else {
+                e.target.value = Math.round(freq2);
+            }
+        });
+        
+        // Mod C validation
+        document.getElementById('modCFreq1').addEventListener('input', (e) => {
+            let freq1 = parseFloat(e.target.value) || 0;
+            // V2.7.0-J: Clamp to 0-24000 Hz
+            freq1 = Math.max(0, Math.min(24000, freq1));
+            e.target.value = Math.round(freq1);
+            
+            const freq2Field = document.getElementById('modCFreq2');
+            const freq2 = parseFloat(freq2Field.value) || 0;
+            if (freq1 > freq2) {
+                freq2Field.value = freq1;
+            }
+        });
+        
+        document.getElementById('modCFreq2').addEventListener('input', (e) => {
+            let freq2 = parseFloat(e.target.value) || 0;
+            // V2.7.0-J: Clamp to 0-24000 Hz
+            freq2 = Math.max(0, Math.min(24000, freq2));
+            
+            const freq1Field = document.getElementById('modCFreq1');
+            const freq1 = parseFloat(freq1Field.value) || 0;
+            if (freq2 < freq1) {
+                // V2.7.0-N: Push Freq1 down instead of clamping Freq2
+                freq1Field.value = Math.round(freq2);
+                e.target.value = Math.round(freq2);
+            } else {
+                e.target.value = Math.round(freq2);
+            }
+        });
+
             if (success) {
                 compileShader();
             }
@@ -4528,6 +5086,457 @@ ${shaderCode}
                 showStatus('Audio End set to ' + secondsToTimeString(audioEndTime), 'success');
             }
         });
+
+        // V2.7.0-L: Control States System
+        const CONTROL_STATE_LIBRARY = {
+            quickTest: {
+                name: "Quick Test",
+                tempo: 120,
+                loopLength: 16,
+                renderDuration: "00:30.000",
+                modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
+                modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
+                modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
+                orientation: "portrait", resolution: 720, fps: 24
+            },
+            hdRender: {
+                name: "HD Render",
+                tempo: 120,
+                loopLength: 16,
+                renderDuration: "01:00.000",
+                modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
+                modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
+                modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
+                orientation: "landscape", resolution: 1080, fps: 60
+            },
+            "4kFinal": {
+                name: "4K Final",
+                tempo: 120,
+                loopLength: 16,
+                renderDuration: "00:30.000",
+                modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
+                modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
+                modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
+                orientation: "landscape", resolution: 2160, fps: 60
+            },
+            instagramStory: {
+                name: "Instagram Story",
+                tempo: 120,
+                loopLength: 16,
+                renderDuration: "00:15.000",
+                modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
+                modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
+                modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
+                orientation: "portrait", resolution: 1080, fps: 30
+            },
+            tiktok: {
+                name: "TikTok",
+                tempo: 120,
+                loopLength: 16,
+                renderDuration: "00:30.000",
+                modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
+                modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
+                modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
+                orientation: "portrait", resolution: 1080, fps: 60
+            }
+        };
+
+        function getCurrentControlState() {
+            // V2.7.0-R: Added null checks for elements that might not exist on page load
+            const getElementValue = (id, defaultValue) => {
+                const element = document.getElementById(id);
+                return element ? element.value : defaultValue;
+            };
+            
+            // V2.7.0-X: Helper to parse numeric values and allow 0
+            const parseNumeric = (value, defaultValue, parser) => {
+                const parsed = parser(value);
+                return isNaN(parsed) ? defaultValue : parsed;
+            };
+            
+            return {
+                tempo: parseNumeric(getElementValue('tempo', '120'), 120, parseInt),
+                loopLength: parseNumeric(getElementValue('loopLength', '16'), 16, parseFloat),
+                renderDuration: getElementValue('renderDuration', '00:30.000') || "00:30.000",
+                modASubdiv: parseNumeric(getElementValue('modASubdiv', '1'), 1, parseFloat),
+                modAWaveform: getElementValue('modAWaveform', 'sine') || "sine",
+                modAGain: parseNumeric(getElementValue('modAGain', '0.1'), 0.1, parseFloat),
+                modAFreq1: parseNumeric(getElementValue('modAFreq1', '30'), 30, parseInt),
+                modAFreq2: parseNumeric(getElementValue('modAFreq2', '50'), 50, parseInt),
+                modBSubdiv: parseNumeric(getElementValue('modBSubdiv', '4'), 4, parseFloat),
+                modBWaveform: getElementValue('modBWaveform', 'sawtooth') || "sawtooth",
+                modBGain: parseNumeric(getElementValue('modBGain', '0.1'), 0.1, parseFloat),
+                modBFreq1: parseNumeric(getElementValue('modBFreq1', '50'), 50, parseInt),
+                modBFreq2: parseNumeric(getElementValue('modBFreq2', '75'), 75, parseInt),
+                modCSubdiv: parseNumeric(getElementValue('modCSubdiv', '4'), 4, parseFloat),
+                modCWaveform: getElementValue('modCWaveform', 'triangle') || "triangle",
+                modCGain: parseNumeric(getElementValue('modCGain', '0.1'), 0.1, parseFloat),
+                modCFreq1: parseNumeric(getElementValue('modCFreq1', '100'), 100, parseInt),
+                modCFreq2: parseNumeric(getElementValue('modCFreq2', '500'), 500, parseInt),
+                orientation: getElementValue('orientation', 'portrait') || "portrait",
+                resolution: parseNumeric(getElementValue('resolution', '1080'), 1080, parseInt),
+                fps: parseNumeric(getElementValue('fps', '30'), 30, parseInt)
+            };
+        }
+
+        function applyControlState(state) {
+            document.getElementById('tempo').value = state.tempo;
+            document.getElementById('loopLength').value = state.loopLength;
+            document.getElementById('renderDuration').value = state.renderDuration;
+            document.getElementById('modASubdiv').value = state.modASubdiv;
+            document.getElementById('modAWaveform').value = state.modAWaveform;  // Updated: now consistent
+            document.getElementById('modAGain').value = state.modAGain;           // Updated: now consistent
+            
+            // V2.7.0-W: Temporarily enable frequency fields to allow value updates
+            const freqFields = ['modAFreq1', 'modAFreq2', 'modBFreq1', 'modBFreq2', 'modCFreq1', 'modCFreq2'];
+            const wasDisabled = freqFields.map(id => document.getElementById(id).disabled);
+            
+            // Enable all frequency fields
+            freqFields.forEach(id => document.getElementById(id).disabled = false);
+            
+            // Set frequency values
+            document.getElementById('modAFreq1').value = state.modAFreq1;
+            document.getElementById('modAFreq2').value = state.modAFreq2;
+            document.getElementById('modBFreq1').value = state.modBFreq1;
+            document.getElementById('modBFreq2').value = state.modBFreq2;
+            document.getElementById('modCFreq1').value = state.modCFreq1;
+            document.getElementById('modCFreq2').value = state.modCFreq2;
+            
+            // Restore disabled state based on audio presence
+            const hasAudio = !!audioElement.src;
+            freqFields.forEach(id => document.getElementById(id).disabled = !hasAudio);
+            
+            document.getElementById('modBSubdiv').value = state.modBSubdiv;
+            document.getElementById('modBWaveform').value = state.modBWaveform;  // Updated: now consistent
+            document.getElementById('modBGain').value = state.modBGain;           // Updated: now consistent
+            document.getElementById('modCSubdiv').value = state.modCSubdiv;
+            document.getElementById('modCWaveform').value = state.modCWaveform;  // Updated: now consistent
+            document.getElementById('modCGain').value = state.modCGain;           // Updated: now consistent
+            document.getElementById('orientation').value = state.orientation;
+            document.getElementById('resolution').value = state.resolution;
+            document.getElementById('fps').value = state.fps;
+            
+            // Update currentTempo global
+            currentTempo = state.tempo;
+        }
+
+        function saveControlState() {
+            // V2.7.0-S: Show inline input instead of prompt dialog
+            const saveRow = document.getElementById('saveInputRow');
+            const saveInput = document.getElementById('saveStateName');
+            
+            saveRow.style.display = 'flex';
+            saveInput.value = '';
+            saveInput.focus();
+            
+            // Allow Enter key to confirm
+            saveInput.onkeypress = function(e) {
+                if (e.key === 'Enter') {
+                    confirmSaveControlState();
+                } else if (e.key === 'Escape') {
+                    cancelSaveControlState();
+                }
+            };
+        }
+        
+        function confirmSaveControlState() {
+            const nameInput = document.getElementById('saveStateName');
+            const name = nameInput.value.trim();
+            
+            if (!name) {
+                showStatus('Please enter a name for the Control State', 'error');
+                return;
+            }
+            
+            const state = getCurrentControlState();
+            state.name = name;
+            
+            // Get existing user states
+            let userStates = JSON.parse(localStorage.getItem('controlStates') || '{}');
+            
+            // Generate safe ID from name
+            const id = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            userStates[id] = state;
+            
+            // Save to localStorage
+            localStorage.setItem('controlStates', JSON.stringify(userStates));
+            
+            // Update dropdown
+            updateControlStatesDropdown();
+            
+            // Select the newly saved state
+            const select = document.getElementById('controlStateSelect');
+            select.value = id;
+            
+            // V2.7.0-Q: Update info box (Custom always visible now)
+            updateControlStateInfo();
+            
+            // Hide save input row
+            document.getElementById('saveInputRow').style.display = 'none';
+            
+            showStatus(`Control State "${name}" saved`, 'success');
+        }
+        
+        function cancelSaveControlState() {
+            // Hide save input row
+            document.getElementById('saveInputRow').style.display = 'none';
+            showStatus('Save cancelled', 'info');
+        }
+        
+        // Legacy function - now just calls the new inline version
+        function saveControlState_OLD_PROMPT() {
+            const name = prompt("Enter name for this Control State:");
+            if (!name || name.trim() === "") return;
+            
+            const state = getCurrentControlState();
+            state.name = name.trim();
+            
+            // Get existing user states
+            let userStates = JSON.parse(localStorage.getItem('controlStates') || '{}');
+            
+            // Generate safe ID from name
+            const id = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            userStates[id] = state;
+            
+            // Save to localStorage
+            localStorage.setItem('controlStates', JSON.stringify(userStates));
+            
+            // Update dropdown
+            updateControlStatesDropdown();
+            
+            // Select the newly saved state
+            const select = document.getElementById('controlStateSelect');
+            select.value = id;
+            
+            // V2.7.0-Q: Update info box (Custom always visible now)
+            updateControlStateInfo();
+            
+            showStatus(`Control State "${name}" saved`, 'success');
+        }
+
+        function deleteControlState() {
+            const select = document.getElementById('controlStateSelect');
+            const selectedId = select.value;
+            
+            if (!selectedId || selectedId === "") {
+                showStatus('No Control State selected', 'error');
+                return;
+            }
+            
+            // Check if it's a library state (can't delete)
+            if (CONTROL_STATE_LIBRARY[selectedId]) {
+                showStatus('Cannot delete library Control States', 'error');
+                return;
+            }
+            
+            // Get user states
+            let userStates = JSON.parse(localStorage.getItem('controlStates') || '{}');
+            
+            if (!userStates[selectedId]) {
+                showStatus('Control State not found', 'error');
+                return;
+            }
+            
+            const stateName = userStates[selectedId].name;
+            delete userStates[selectedId];
+            
+            // Save updated states
+            localStorage.setItem('controlStates', JSON.stringify(userStates));
+            
+            // Update dropdown
+            updateControlStatesDropdown();
+            
+            // Reset selection to Default
+            select.value = "";
+            
+            showStatus(`Control State "${stateName}" deleted`, 'success');
+        }
+
+        function updateControlStatesDropdown() {
+            const select = document.getElementById('controlStateSelect');
+            const currentSelection = select.value;
+            
+            // V2.7.0-M: Clear existing options and add Custom option (hidden by default)
+            select.innerHTML = '<option value="custom" style="display: none;">Custom</option><option value="">Default</option><option disabled>--- Library ---</option>';
+            
+            // Add library states
+            for (const [id, state] of Object.entries(CONTROL_STATE_LIBRARY)) {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = state.name;
+                select.appendChild(option);
+            }
+            
+            // Add user states separator
+            const userStates = JSON.parse(localStorage.getItem('controlStates') || '{}');
+            if (Object.keys(userStates).length > 0) {
+                const separator = document.createElement('option');
+                separator.disabled = true;
+                separator.textContent = '--- User States ---';
+                select.appendChild(separator);
+                
+                // Add user states
+                for (const [id, state] of Object.entries(userStates)) {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = state.name;
+                    select.appendChild(option);
+                }
+            }
+            
+            // V2.7.0-Q: Restore selection if still valid
+            if (currentSelection) {
+                select.value = currentSelection;
+            }
+        }
+
+        // Control State dropdown change handler
+        document.getElementById('controlStateSelect').addEventListener('change', (e) => {
+            const selectedId = e.target.value;
+            
+            if (selectedId === "custom") {
+                // Custom state - show info box with current values
+                updateControlStateInfo();
+                return;
+            }
+            
+            // Check library states first
+            if (CONTROL_STATE_LIBRARY[selectedId]) {
+                applyControlState(CONTROL_STATE_LIBRARY[selectedId]);
+                // V2.7.0-Z: Delay info box update to ensure DOM updates complete
+                setTimeout(() => updateControlStateInfo(), 0);
+                showStatus(`Loaded library state: ${CONTROL_STATE_LIBRARY[selectedId].name}`, 'success');
+                return;
+            }
+            
+            // Check user states
+            const userStates = JSON.parse(localStorage.getItem('controlStates') || '{}');
+            if (userStates[selectedId]) {
+                applyControlState(userStates[selectedId]);
+                // V2.7.0-Z: Delay info box update to ensure DOM updates complete
+                setTimeout(() => updateControlStateInfo(), 0);
+                showStatus(`Loaded user state: ${userStates[selectedId].name}`, 'success');
+                return;
+            }
+        });
+
+        // V2.7.0-M: Update Control State Info Box
+        // V2.7.0-P: Added debugging and error handling
+        function updateControlStateInfo() {
+            try {
+                const infoBox = document.getElementById('controlStateInfo');
+                if (!infoBox) {
+                    return;
+                }
+                
+                const titleDiv = infoBox.querySelector('.control-state-info-title');
+                const contentDiv = infoBox.querySelector('.control-state-info-content');
+                if (!titleDiv || !contentDiv) {
+                    return;
+                }
+                
+                const selectedId = document.getElementById('controlStateSelect').value;
+                
+                // Get state info
+                let state, stateName;
+                if (selectedId === "custom") {
+                    state = getCurrentControlState();
+                    stateName = "Custom";
+                } else if (CONTROL_STATE_LIBRARY[selectedId]) {
+                    state = CONTROL_STATE_LIBRARY[selectedId];
+                    stateName = state.name;
+                } else {
+                    const userStates = JSON.parse(localStorage.getItem('controlStates') || '{}');
+                    state = userStates[selectedId];
+                    stateName = state ? state.name : "Unknown";
+                }
+                
+                if (!state) {
+                    infoBox.style.display = 'none';
+                    return;
+                }
+                
+                // V2.7.0-T: Hide title div (no state name shown)
+                titleDiv.style.display = 'none';
+                
+                const waveformNames = { sine: "Sine", square: "Square", sawtooth: "Sawtooth", triangle: "Triangle" };
+                const subdivNames = { 4: "Whole", 2: "Half", 1: "1/4", 0.5: "1/8", 0.25: "1/16", 16: "4 Bars", 32: "8 Bars", 64: "16 Bars", 128: "32 Bars" };
+                
+                const loopText = subdivNames[state.loopLength] || state.loopLength + ' beats';
+                
+                contentDiv.innerHTML = `
+                    <div class="info-row-single"><strong>Timing:</strong> ${state.tempo}bpm, ${loopText}, ${state.renderDuration}</div>
+                    <div class="info-row">
+                        <span class="info-label">Mod A:</span>
+                        <span class="info-subdiv">${subdivNames[state.modASubdiv] || state.modASubdiv}</span>
+                        <span class="info-wave">${waveformNames[state.modAWaveform] || state.modAWaveform}</span>
+                        <span class="info-gain">${state.modAGain}</span>
+                        <span class="info-freq">${state.modAFreq1}-${state.modAFreq2}Hz</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Mod B:</span>
+                        <span class="info-subdiv">${subdivNames[state.modBSubdiv] || state.modBSubdiv}</span>
+                        <span class="info-wave">${waveformNames[state.modBWaveform] || state.modBWaveform}</span>
+                        <span class="info-gain">${state.modBGain}</span>
+                        <span class="info-freq">${state.modBFreq1}-${state.modBFreq2}Hz</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Mod C:</span>
+                        <span class="info-subdiv">${subdivNames[state.modCSubdiv] || state.modCSubdiv}</span>
+                        <span class="info-wave">${waveformNames[state.modCWaveform] || state.modCWaveform}</span>
+                        <span class="info-gain">${state.modCGain}</span>
+                        <span class="info-freq">${state.modCFreq1}-${state.modCFreq2}Hz</span>
+                    </div>
+                    <div class="info-row-single"><strong>Output:</strong> ${state.orientation.charAt(0).toUpperCase() + state.orientation.slice(1)}, ${state.resolution}p, ${state.fps} FPS</div>
+                `;
+                
+                infoBox.style.display = 'block';
+            } catch (error) {
+                // (no-op)
+            }
+        }
+
+        // V2.7.0-M: Mark state as Custom when controls change
+        // V2.7.0-Q: Simplified - Custom always visible
+        function markAsCustomState() {
+            const select = document.getElementById('controlStateSelect');
+            select.value = 'custom';
+            
+            // Update info box
+            updateControlStateInfo();
+        }
+
+        // V2.7.0-AD: Add change listeners to control fields
+        // Note: renderDuration and freq fields handled in audio load/remove handlers
+        const controlFields = [
+            'tempo', 'loopLength',
+            'modASubdiv', 'modAWaveform', 'modAGain',
+            'modBSubdiv', 'modBWaveform', 'modBGain',
+            'modCSubdiv', 'modCWaveform', 'modCGain',
+            'orientation', 'resolution', 'fps'
+        ];
+
+        controlFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('change', markAsCustomState);
+                field.addEventListener('input', markAsCustomState);
+            }
+        });
+
+        // V2.7.0-AE: Add renderDuration listener with debugging
+        const renderDurationField = document.getElementById('renderDuration');
+        if (renderDurationField) {
+            renderDurationField.oninput = function() {
+                markAsCustomState();
+            };
+        }
+
+        // V2.7.0-L: Initialize control states dropdown on load
+        updateControlStatesDropdown();
+        
+        // V2.7.0-Q: Show info box on load with Custom state
+        updateControlStateInfo();
 
         // V2.6.0-B: Initialize preset cards on page load
         generatePresetCards();
