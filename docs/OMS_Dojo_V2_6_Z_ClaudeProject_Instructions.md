@@ -1,6 +1,6 @@
 # ONEMANSHYO Dojo - Project Instructions for Claude
 
-**Version:** V2_5  
+**Version:** V2_6  
 **Last Updated:** November 2025  
 **Purpose:** Complete project context for Claude AI development
 
@@ -118,14 +118,15 @@ The Setup:
 ### Project Identity
 
 **Name:** ONEMANSHYO Dojo (Audio-Reactive WebGPU Shader Tool)  
-**Current Version:** V2_5 (Production Release)  
-**Type:** Single-file HTML application (~3,245 lines, 142KB)  
+**Current Version:** V2_6 (Production Release)  
+**Type:** Single-file HTML application (~199KB)  
 **Architecture:** HTML + CSS + JavaScript (no external dependencies)
 
 **Technologies:**
 - WebGPU rendering with WGSL fragment shaders
 - FFT audio analysis (Bass/Mid/Treble frequency bands)
 - Loop system with BPM-based beat positioning
+- LocalStorage for user preset persistence
 - Video export: WebM (VP8, 720p-2160p, 24/30/60fps)
 
 **Single-File Philosophy:**
@@ -151,6 +152,15 @@ The Setup:
 5. Enable Loop button → audition loop (cyan when active)
 6. Render video with selected resolution/FPS
 7. Video includes audio from Loop In to Loop Out (or render without audio)
+
+**Preset Workflow (NEW in V2_6):**
+1. Click Presets tab
+2. Browse Library (5 curated shaders) or User Presets
+3. Tab through thumbnails to see visuals
+4. Press Enter to load shader
+5. Adjust settings in Controls tab
+6. Render video
+7. Repeat for next shader (fast iteration)
 
 ### Architecture: Two Independent Modules
 
@@ -222,48 +232,74 @@ if (loopEnabled && currentAudioBeat >= (outBeat - 0.15)) { // 0.15 beat threshol
 }
 ```
 
-**Time Format Conversion (Left-to-Right Parsing):**
+**WebGPU Uniform Buffer (CRITICAL - 48 bytes):**
 ```javascript
-// "5" = 5 minutes, "2:30" = 2 min 30 sec
-function timeStringToSeconds(timeStr) {
-    const parts = timeStr.trim().split(':');
-    if (parts.length === 1) {
-        return parseFloat(parts[0]) * 60; // Single number = minutes
-    }
-    // ... rest of parsing logic
-}
+// MUST be 48 bytes for proper 16-byte alignment
+const uniformData = new Float32Array([
+    currentTime,      // 0: time
+    currentTempo,     // 1: tempo
+    modA,             // 2: modA
+    modB,             // 3: modB
+    modC,             // 4: modC
+    0,                // 5: padding1
+    canvas.width,     // 6: resolutionX
+    canvas.height,    // 7: resolutionY
+    0, 0, 0, 0        // 8-11: padding2-5 (48 bytes total)
+]);
 ```
 
-### Completed Features (V2_5)
+**WGSL Struct Layout (CRITICAL - separate resolutionX/Y):**
+```wgsl
+struct Uniforms {
+    time: f32,
+    tempo: f32,
+    modA: f32,
+    modB: f32,
+    modC: f32,
+    padding1: f32,
+    resolutionX: f32,  // NOT vec2!
+    resolutionY: f32,
+}
 
-**Shader Module Enhancements:**
-- Render Duration field for shader-only mode (MM:SS.mmm format)
-- Left-to-right time parsing (5 = 5 minutes)
-- Arrow key controls (Up/Down ±0.1s, Left/Right ±1.0s)
-- Default: 00:30.000 (30 seconds)
+// Reconstruct in shader:
+let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
+```
 
-**Audio Module Fixes:**
-- Fixed render visual timing to sync with Loop In/Out positions
-- Fixed render using Audio Module tempo instead of Shader Module tempo
-- Fixed bar.beat format conversion (was using parseInt incorrectly)
-- Removed Math.ceil rounding that caused overshoot
-- Removed +1 second buffer causing extra length
-- Fixed loop-back calculation using correct Audio Module tempo
-- Added 0.15 beat threshold to prevent Loop Out overshoot
-- Perfect tight looping within In/Out brackets
-- Loop button displays cyan when active
+### Completed Features (V2_6)
 
-**UI/UX:**
-- Render progress moved to status bar (canvas stays visible)
-- Simplified filename format (removed duration/beats metadata)
-- "Audio Tempo" terminology (industry standard)
-- Fixed UTF-8 encoding corruption throughout
+**NEW - Preset System:**
+- Library section with 5 curated shaders
+- User Presets with localStorage persistence
+- Visual thumbnail previews (WebGPU rendering)
+- Drag-and-drop import (.txt/.wgsl files)
+- Keyboard navigation (Tab/Enter)
+- One-click deletion (no prompts)
+- Orientation-responsive cards
 
-**File Optimization:**
-- Removed 505KB embedded changelog
-- Fixed 100KB corrupted UTF-8 separators
-- Cleaned 1.2MB corrupted comment blocks
-- Final size: 142KB (was 1.4MB - 90% reduction!)
+**NEW - Render Progress:**
+- Real-time elapsed time counter
+- Frame-by-frame progress display
+- Format: "Rendering 00:15/00:30 | Frame 450/900"
+- Updates every 5 frames (performance optimized)
+
+**NEW - Intelligent Filename Parsing:**
+- Parses shader names from code comments
+- Format: `// ONEMANSHYO Dojo V2_6 - ShaderName`
+- Fallback hierarchy: user → parsed → "filename"
+- Separate formats for video vs code exports
+
+**UX Improvements:**
+- Consistent 400px left panel width (all tabs)
+- No auto-tab-switching when loading presets
+- Drag-over visual feedback (cyan border)
+- Focus tracking for keyboard workflow
+
+**Existing Features (from V2.5.0):**
+- Render Duration field for shader-only mode
+- Fixed render visual timing with Loop In/Out
+- Loop button cyan indicator when active
+- Fixed UTF-8 encoding throughout
+- 90% file size reduction (1.4MB → 142KB → 199KB with presets)
 
 ---
 
@@ -316,17 +352,17 @@ function timeStringToSeconds(timeStr) {
 **Always provide TWO files:**
 
 1. **Build File:** OMS_Dojo_V2_X_Y_[Letter]_[DescriptiveName].html
-   - Example: OMS_Dojo_V2_5_A_RenderSync.html
+   - Example: OMS_Dojo_V2_6_A_PresetsTab.html
 
 2. **Notes File:** OMS_Dojo_V2_X_Y_[Letter]_[DescriptiveName]_Notes.txt
-   - Example: OMS_Dojo_V2_5_A_RenderSync_Notes.txt
+   - Example: OMS_Dojo_V2_6_A_PresetsTab_Notes.txt
 
 **Naming Convention:**
-- Use underscores: V2_5_0_A_RenderSync
+- Use underscores: V2_6_0_A_PresetsTab
 - Include descriptive name after letter
-- NOT generic: V2_5_0_A.html (missing name)
-- NOT periods: V2_5.A (breaks sorting)
-- NOT hyphens: V2-5-0-A (breaks sorting)
+- NOT generic: V2_6_0_A.html (missing name)
+- NOT periods: V2_6.A (breaks sorting)
+- NOT hyphens: V2-6-0-A (breaks sorting)
 
 ### File Size Management (CRITICAL)
 
@@ -417,14 +453,16 @@ When user requests full deliverables, provide **9 files:**
 4. Don't make multiple changes per iteration - breaks stability
 5. Don't skip iteration notes files - essential documentation
 6. Don't use bullet points in questions - use numbered format
+7. Don't use vec2 for resolution in uniforms - use separate resolutionX/Y
+8. Don't create uniform buffer < 48 bytes - causes WebGPU validation errors
 
 **Communication:**
-7. Don't suggest business models for this project
-8. Don't use "VJ/VJing" terminology
-9. Don't forget Wes has 35 years experience - not a beginner
-10. Don't waste tokens repeating yourself - numbered questions, get confirmation, move forward
-11. Don't use "A/V performance" terminology
-12. Don't explain basics unless asked
+9. Don't suggest business models for this project
+10. Don't use "VJ/VJing" terminology
+11. Don't forget Wes has 35 years experience - not a beginner
+12. Don't waste tokens repeating yourself - numbered questions, get confirmation, move forward
+13. Don't use "A/V performance" terminology
+14. Don't explain basics unless asked
 
 ---
 
@@ -446,7 +484,7 @@ When user requests full deliverables, provide **9 files:**
 
 **WebGPU Pipeline:**
 - Fragment shader only (no vertex shader control)
-- Uniforms: tempo, modA, modB, modC, resolution
+- Uniforms: time, tempo, modA, modB, modC, resolutionX, resolutionY, padding
 - Real-time rendering at 60fps
 - Canvas captures to MediaRecorder for video export
 
@@ -474,7 +512,16 @@ When user requests full deliverables, provide **9 files:**
 
 ## 10. Version History Context
 
-**V2_5 (Current) - November 2025**
+**V2_6 (Current) - November 2025**
+20 iterations (A-U, skipping K) focused on presets system, render progress, and intelligent filename handling.
+Major achievements: 
+- Complete preset system (Library + User Presets)
+- Visual thumbnails with WebGPU rendering
+- Real-time render progress tracking
+- Drag-and-drop import
+- Keyboard navigation workflow
+
+**V2.5.0 - November 2025**
 24 iterations (A-X) focused on render accuracy, file optimization, UX improvements.
 Major achievement: 90% file size reduction (1.4MB → 142KB)
 
@@ -488,22 +535,29 @@ Removed automatic BPM detection, added manual tempo entry workflow.
 
 ---
 
-## 11. Success Metrics (V2_5)
+## 11. Success Metrics (V2_6)
 
-- ✅ File size reduced 90% (1.4MB → 142KB)
-- ✅ Perfect audio/visual sync
-- ✅ Accurate loop playback
-- ✅ No render duration overshoot
-- ✅ Clean UTF-8 encoding throughout
-- ✅ Industry-standard terminology ("Audio Tempo")
-- ✅ 24 incremental iterations without system crashes
+- ✅ Preset system with 5 library shaders
+- ✅ User preset import and management
+- ✅ LocalStorage persistence
+- ✅ Visual thumbnail previews
+- ✅ Drag-and-drop import
+- ✅ Keyboard navigation (Tab/Enter)
+- ✅ Real-time render progress (elapsed time + frame counter)
+- ✅ Intelligent filename parsing from code comments
+- ✅ One-click deletion (no prompts)
+- ✅ WebGPU uniform buffer alignment fixed (48 bytes)
+- ✅ WGSL struct layout corrected (separate resolutionX/Y)
+- ✅ Consistent left panel width (400px)
+- ✅ No auto-tab-switching
+- ✅ 20 incremental iterations without system crashes
 - ✅ Comprehensive 9-file deliverables package
 
 ---
 
-**Document Version:** V2_5  
+**Document Version:** V2_6  
 **Last Updated:** November 2025  
-**Next Update:** When V2.6.0 development begins
+**Next Update:** When V2.7.0 development begins
 
 ---
 

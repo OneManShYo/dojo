@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V2_5
+ONEMANSHYO Dojo App V2_6
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V2_5
-Build Date: November 8, 2025
+Version: V2_6
+Build Date: November 9, 2025
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V2_5]</title>
+    <title>ONEMANSHYO App [V2_6]</title>
     <style>
         * {
             margin: 0;
@@ -40,6 +40,9 @@ Build Date: November 8, 2025
 
         .left-panel {
             width: 400px;
+            min-width: 400px;
+            max-width: 400px;
+            flex-shrink: 0;
             background: linear-gradient(180deg, #1e1e1e, #252525);
             border-right: 1px solid #333;
             display: flex;
@@ -606,6 +609,13 @@ Build Date: November 8, 2025
             background: rgba(0, 212, 255, 0.05) !important;
         }
 
+        /* V2.6.0-U: Drag & drop visual feedback for preset grid */
+        .preset-grid.drag-over {
+            background: rgba(0, 212, 255, 0.1) !important;
+            border: 2px dashed #00d4ff !important;
+            border-radius: 8px;
+        }
+
         /* V2.1.1-G: Output section header */
         .output-header {
             color: #00d4ff;
@@ -625,13 +635,159 @@ Build Date: November 8, 2025
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+
+        /* V2.6.0-A: Preset section collapsible styles */
+        .preset-section {
+            border-bottom: 1px solid #333;
+        }
+
+        .preset-section-header {
+            color: #00d4ff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 12px 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+            transition: background 0.2s ease;
+        }
+
+        .preset-section-header:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .preset-section-header .arrow {
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .preset-section-header.collapsed .arrow {
+            transform: rotate(-90deg);
+        }
+
+        .preset-section-content {
+            padding: 0 20px 20px 20px;
+            display: block;
+        }
+
+        .preset-section-content.collapsed {
+            display: none;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        /* V2.6.0-C: Preset cards with orientation-based aspect ratios */
+        .preset-card {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Default to portrait aspect ratio */
+        .preset-card {
+            aspect-ratio: 9 / 16;
+        }
+
+        /* Portrait orientation (9:16) */
+        .preset-grid.portrait .preset-card {
+            aspect-ratio: 9 / 16;
+        }
+
+        /* Landscape orientation (16:9) */
+        .preset-grid.landscape .preset-card {
+            aspect-ratio: 16 / 9;
+        }
+
+        /* Square orientation (1:1) */
+        .preset-grid.square .preset-card {
+            aspect-ratio: 1 / 1;
+        }
+
+        .preset-card:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .preset-card:focus {
+            outline: none;
+            background: rgba(255,255,255,0.15);
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.5);
+        }
+
+        /* V2.6.0-C: Canvas thumbnail inside card */
+        .preset-card canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 2px;
+        }
+
+        .preset-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .preset-actions .btn {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        /* V2.6.0-B: Preset orientation control */
+        .preset-orientation-control {
+            padding: 16px 20px 12px 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .preset-orientation-control label {
+            font-size: 13px;
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        .preset-orientation-control select {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 0;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .preset-orientation-control select:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.3);
+        }
     </style>
 </head>
 <body>
     <!-- V2.1.1-A: Header now full-width outside container -->
     <div class="header">
         <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-        <span class="version">[V2_5]</span>
+        <span class="version">[V2_6]</span>
     </div>
     
     <div class="container">
@@ -641,6 +797,7 @@ Build Date: November 8, 2025
             <div class="tab-bar">
                 <button class="tab active" id="controlsTab" onclick="switchTab('controls')">Controls</button>
                 <button class="tab" id="codeTab" onclick="switchTab('code')">Code</button>
+                <button class="tab" id="presetsTab" onclick="switchTab('presets')">Presets</button>
             </div>
             
             <!-- V2.1.0-C: Controls Tab Content -->
@@ -855,20 +1012,20 @@ Build Date: November 8, 2025
                     <button class="btn" onclick="exportShaderTxt()" title="Export Shader as .txt File">Export .txt</button>
                 </div>
                 <textarea class="editor" id="shaderCode" placeholder="Paste your shader code here...">
-// ONEMANSHYO Dojo V2_5 - Flower Power
+// ONEMANSHYO Dojo V2_6 - Flower Power
 // Available uniforms:
 //   uniforms.time - elapsed time in seconds
 //   uniforms.tempo - shader visual tempo (for modulator timing)
 //   uniforms.modA - modulation source A (0.0-1.0, tempo-synced, bass audio-reactive)
 //   uniforms.modB - modulation source B (0.0-1.0, tempo-synced, mid audio-reactive)
 //   uniforms.modC - modulation source C (0.0-1.0, tempo-synced, treble audio-reactive)
-//   uniforms.resolution - vec2<f32> canvas dimensions
+//   uniforms.resolutionX, uniforms.resolutionY - canvas dimensions
 //
 // Note: Coordinates normalize by min(resolution.x, resolution.y) for consistent zoom across orientations
 
 @fragment
 fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
-    let resolution = uniforms.resolution;
+    let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
     let time = uniforms.time;
     let tempo = uniforms.tempo;
     let modA = uniforms.modA;
@@ -920,6 +1077,49 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 </textarea>
             </div>
             </div><!-- End Code Tab Content -->
+            
+            <!-- V2.6.0-A: Presets Tab Content -->
+            <div class="tab-content" id="presetsTabContent">
+                <!-- V2.6.0-B: Preset Orientation Control -->
+                <div class="preset-orientation-control">
+                    <label for="presetOrientation">Preview As:</label>
+                    <select id="presetOrientation" onchange="updatePresetCardShapes()">
+                        <option value="portrait" selected>Portrait</option>
+                        <option value="landscape">Landscape</option>
+                        <option value="square">Square</option>
+                    </select>
+                </div>
+                
+                <!-- Library Section -->
+                <div class="preset-section">
+                    <div class="preset-section-header" onclick="togglePresetSection('omsLibrary')">
+                        <span>LIBRARY</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="preset-section-content" id="omsLibraryContent">
+                        <div class="preset-grid" id="omsPresetGrid">
+                            <!-- OMS preset cards will be generated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Presets Section -->
+                <div class="preset-section">
+                    <div class="preset-section-header" onclick="togglePresetSection('userPresets')">
+                        <span>USER PRESETS</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="preset-section-content" id="userPresetsContent">
+                        <div class="preset-grid" id="userPresetGrid">
+                            <!-- User preset cards will be generated here -->
+                        </div>
+                        <div class="preset-actions">
+                            <button class="btn" onclick="importPreset()">Import</button>
+                            <button class="btn" onclick="deletePreset()">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End Presets Tab Content -->
         </div>
         
         <div class="preview-panel">
@@ -1006,6 +1206,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         let uniformBuffer, uniformBindGroup;
         let startTime = Date.now();
         let isRendering = false;
+        let renderStartTime = 0;
+        let renderDuration = 0;
+        let totalFrames = 0;
+        let renderFPS = 0;
         let animationId;
         let currentTempo = 120;  // Shader visual tempo (for modulators)
         let audioTempo = 120;     // Audio reference tempo (for IN/OUT beat positioning)
@@ -1031,6 +1235,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // V2.4.0-B: Grid display toggle
         let gridEnabled = false; // false = Grid hidden (default), true = Show bar grid on waveform
+        
+        // V2.6.0-U: Track focused user preset for deletion
+        let focusedUserPresetIndex = -1; // -1 = none, 0+ = preset index
         
         // V2.2.0-H: Nudge offset for fine-tuning loop timing (in milliseconds)
         
@@ -1959,7 +2166,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // Update In Beat input
         // FEATURES ADDED V2.0.1:
-        //   1. Changed from bars to beats (removed × 4 calculation)
+        //   1. Changed from bars to beats (removed ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â 4 calculation)
         //   2. Shows duration in status bar while editing
         //   3. Audio jumps to In beat position when value changes
         // V2.4.0-J: Updated for bar.beat format
@@ -2237,7 +2444,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // Update status with current dimensions
             const orientationText = orientation === 'portrait' ? 'Portrait' : 
                                    orientation === 'square' ? 'Square' : 'Landscape';
-            showStatus(`${resolution}p ${orientationText} (${width}×${height})`, 'success');
+            showStatus(`${resolution}p ${orientationText} (${width}ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â${height})`, 'success');
         }
 
         // Compile shader
@@ -2270,7 +2477,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     modA: f32,
                     modB: f32,
                     modC: f32,
-                    resolution: vec2<f32>,
+                    padding1: f32,
+                    resolutionX: f32,
+                    resolutionY: f32,
                 }
 
                 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -2283,9 +2492,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     code: vertexShaderCode + '\n' + fragmentShaderCode
                 });
 
-                // Create uniform buffer - 32 bytes: time(4) + tempo(4) + modA(4) + modB(4) + modC(4) + resolution(8) + padding(4)
+                // Create uniform buffer - 48 bytes for proper 16-byte alignment
                 uniformBuffer = device.createBuffer({
-                    size: 32,
+                    size: 48,
                     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
                 });
 
@@ -2515,16 +2724,20 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 modC *= trebleGain;
             }
             
-            // Update uniforms: time, tempo, modA, modB, modC, resolution.x, resolution.y, padding
+            // Update uniforms: 12 floats = 48 bytes for proper alignment
             const uniformData = new Float32Array([
                 currentTime,
                 currentTempo,
                 modA,
                 modB,
                 modC,
-                0, // padding to align resolution
+                0, // padding
                 canvas.width,
-                canvas.height
+                canvas.height,
+                0, // padding
+                0, // padding
+                0, // padding
+                0  // padding
             ]);
             
             device.queue.writeBuffer(uniformBuffer, 0, uniformData);
@@ -2546,6 +2759,19 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             renderPass.end();
 
             device.queue.submit([commandEncoder.finish()]);
+            
+            // Update render progress counter if rendering
+            if (isRendering && renderStartTime > 0) {
+                const elapsedTime = (Date.now() - renderStartTime) / 1000;
+                const currentFrame = Math.floor(elapsedTime * renderFPS);
+                
+                // Update status every 5 frames (reduce overhead)
+                if (currentFrame % 5 === 0 || currentFrame >= totalFrames - 1) {
+                    const elapsedText = secondsToTimeString(Math.min(elapsedTime, renderDuration));
+                    const totalText = secondsToTimeString(renderDuration);
+                    showStatus(`Rendering ${elapsedText}/${totalText} | Frame ${currentFrame}/${totalFrames}`, 'info');
+                }
+            }
             
             animationId = requestAnimationFrame(render);
         }
@@ -2586,7 +2812,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const fps = parseInt(document.getElementById('fps').value);
                 const resolution = document.getElementById('resolution').value;
                 const orientation = document.getElementById('orientation').value;
-                const filename = document.getElementById('filename').value.trim() || 'filename';
+                
+                // V2.6.0-R: Parse shader name from code if filename field empty
+                let filename = document.getElementById('filename').value.trim();
+                if (!filename) {
+                    const shaderCode = document.getElementById('shaderCode').value;
+                    const parsedName = parseShaderNameFromCode(shaderCode);
+                    filename = parsedName || 'filename';
+                }
                 
                 // Capture canvas stream
                 // FIX V2.0.1G: Use captureStream() without FPS parameter to capture every rendered frame
@@ -2664,8 +2897,15 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 };
                 
                 mediaRecorder.start();
-                const timeText = secondsToTimeString(duration);
-                showStatus(`Rendering ${timeText}...`, 'info');
+                
+                // Initialize render tracking
+                renderStartTime = Date.now();
+                renderDuration = duration;
+                renderFPS = fps;
+                totalFrames = Math.floor(duration * fps);
+                
+                const totalText = secondsToTimeString(duration);
+                showStatus(`Rendering 00:00/${totalText} | Frame 0/${totalFrames}`, 'info');
                 
                 setTimeout(() => {
                     mediaRecorder.stop();
@@ -2678,6 +2918,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 
         function finishRender(message, isError = false) {
             isRendering = false;
+            
+            // Reset render tracking
+            renderStartTime = 0;
+            renderDuration = 0;
+            totalFrames = 0;
+            renderFPS = 0;
+            
             const renderBtn = document.getElementById('renderBtn');
             renderBtn.classList.remove('rendering');
             renderBtn.disabled = false;
@@ -2708,23 +2955,45 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             });
         }
 
+        // V2.6.0-R: Parse shader name from code comment
+        function parseShaderNameFromCode(shaderCode) {
+            // Look for pattern: // ONEMANSHYO Dojo [version] - ShaderName
+            const lines = shaderCode.split('\n');
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('// ONEMANSHYO Dojo')) {
+                    // Find last dash and extract name after it
+                    const lastDashIndex = trimmed.lastIndexOf(' - ');
+                    if (lastDashIndex !== -1) {
+                        const shaderName = trimmed.substring(lastDashIndex + 3).trim();
+                        // Clean name: remove special chars, keep alphanumeric and basic chars
+                        const cleanName = shaderName.replace(/[^a-zA-Z0-9_-]/g, '');
+                        if (cleanName.length > 0) {
+                            return cleanName;
+                        }
+                    }
+                }
+            }
+            return null; // No shader name found
+        }
+
         // V2.1.1-C: Export shader code as .txt file
         function exportShaderTxt() {
             const shaderCode = document.getElementById('shaderCode').value;
             const filename = document.getElementById('filename').value.trim();
             
-            // V2.1.1-J: OMS version for compatibility tracking
-            const omsVersion = 'V2.2.0_H';
+            // V2.6.0-P: Version for shader code export
+            const omsVersion = 'V2.6.0';
             
-            // Generate filename: OMS_{filename}_{version}.txt
-            let txtFilename;
-            if (filename) {
-                txtFilename = `OMS_${filename}_${omsVersion}.txt`;
-            } else {
-                const now = new Date();
-                const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5); // 2025-11-06T12-45-23
-                txtFilename = `OMS_shader_${timestamp}_${omsVersion}.txt`;
+            // V2.6.0-R: Parse shader name from code if filename field empty
+            let effectiveName = filename;
+            if (!effectiveName) {
+                const parsedName = parseShaderNameFromCode(shaderCode);
+                effectiveName = parsedName || 'filename';
             }
+            
+            // Generate filename: OMS_{name}_Shader_{version}.txt
+            const txtFilename = `OMS_${effectiveName}_Shader_${omsVersion}.txt`;
             
             // Create blob and download
             const blob = new Blob([shaderCode], { type: 'text/plain' });
@@ -2871,10 +3140,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // Hide all tab contents
             document.getElementById('controlsTabContent').classList.remove('active');
             document.getElementById('codeTabContent').classList.remove('active');
+            document.getElementById('presetsTabContent').classList.remove('active');
             
             // Deactivate all tabs
             document.getElementById('controlsTab').classList.remove('active');
             document.getElementById('codeTab').classList.remove('active');
+            document.getElementById('presetsTab').classList.remove('active');
             
             // Show selected tab content and activate tab
             if (tabName === 'controls') {
@@ -2883,7 +3154,984 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             } else if (tabName === 'code') {
                 document.getElementById('codeTabContent').classList.add('active');
                 document.getElementById('codeTab').classList.add('active');
+            } else if (tabName === 'presets') {
+                document.getElementById('presetsTabContent').classList.add('active');
+                document.getElementById('presetsTab').classList.add('active');
             }
+        }
+
+        // V2.6.0-A: Toggle preset section collapse
+        function togglePresetSection(sectionId) {
+            const header = event.currentTarget;
+            const content = document.getElementById(sectionId + 'Content');
+            
+            header.classList.toggle('collapsed');
+            content.classList.toggle('collapsed');
+        }
+
+        // V2.6.0-A: Preset action placeholders (to be implemented in later iterations)
+        function importPreset() {
+            // Create file input element
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.txt,.wgsl';
+            fileInput.multiple = true; // Allow multiple file selection
+            
+            fileInput.onchange = async (e) => {
+                const files = e.target.files;
+                if (!files || files.length === 0) return;
+                
+                let importedCount = 0;
+                
+                for (let file of files) {
+                    try {
+                        const content = await file.text();
+                        const shaderName = extractShaderName(content, file.name);
+                        
+                        // Get existing user presets from localStorage
+                        const userPresets = getUserPresets();
+                        
+                        // Add new preset (with default portrait orientation)
+                        userPresets.push({
+                            name: shaderName,
+                            orientation: 'portrait',
+                            code: content
+                        });
+                        
+                        // Save back to localStorage
+                        saveUserPresets(userPresets);
+                        importedCount++;
+                        
+                    } catch (error) {
+                        // (no-op)
+                    }
+                }
+                
+                // Regenerate user preset cards
+                if (importedCount > 0) {
+                    generateUserPresetCards();
+                    showStatus(`Imported ${importedCount} shader${importedCount > 1 ? 's' : ''}`);
+                } else {
+                    showStatus('Import failed - check console for errors');
+                }
+            };
+            
+            // Trigger file picker
+            fileInput.click();
+        }
+
+        function deletePreset() {
+            const userPresets = getUserPresets();
+            if (userPresets.length === 0) {
+                showStatus('No user presets to delete');
+                return;
+            }
+            
+            // V2.6.0-U: Delete focused preset (no prompt)
+            if (focusedUserPresetIndex < 0 || focusedUserPresetIndex >= userPresets.length) {
+                showStatus('No preset selected - click or tab to a card first');
+                return;
+            }
+            
+            const deletedName = userPresets[focusedUserPresetIndex].name;
+            userPresets.splice(focusedUserPresetIndex, 1);
+            saveUserPresets(userPresets);
+            
+            // Reset focus tracking
+            focusedUserPresetIndex = -1;
+            
+            generateUserPresetCards();
+            showStatus(`Deleted: ${deletedName}`);
+        }
+
+        // V2.6.0-S: User Preset Helper Functions
+        
+        // Extract shader name from code (uses parseShaderNameFromCode) or fallback to filename
+        function extractShaderName(shaderCode, filename) {
+            // Try to parse name from code comment
+            const parsedName = parseShaderNameFromCode(shaderCode);
+            if (parsedName) {
+                return parsedName;
+            }
+            
+            // Fallback: use filename without extension
+            if (filename) {
+                return filename.replace(/\.(txt|wgsl)$/i, '').trim();
+            }
+            
+            return 'Untitled Shader';
+        }
+        
+        // Get user presets from localStorage
+        function getUserPresets() {
+            try {
+                const stored = localStorage.getItem('omsUserPresets');
+                return stored ? JSON.parse(stored) : [];
+            } catch (error) {
+                return [];
+            }
+        }
+        
+        // Save user presets to localStorage
+        function saveUserPresets(presets) {
+            try {
+                localStorage.setItem('omsUserPresets', JSON.stringify(presets));
+            } catch (error) {
+                showStatus('Save failed - localStorage error');
+            }
+        }
+        
+        // Generate user preset cards (similar to OMS library cards)
+        async function generateUserPresetCards() {
+            const grid = document.getElementById('userPresetGrid');
+            const currentOrientation = document.getElementById('presetOrientation').value;
+            
+            // Clear existing cards
+            grid.innerHTML = '';
+            
+            // Apply orientation class to grid
+            grid.className = `preset-grid ${currentOrientation}`;
+            
+            // Get user presets from localStorage
+            const userPresets = getUserPresets();
+            
+            // Check WebGPU support
+            if (!navigator.gpu) {
+                grid.innerHTML = '<div style="padding: 20px; color: #999;">WebGPU not supported</div>';
+                return;
+            }
+            
+            // Create cards for each user preset
+            for (let index = 0; index < userPresets.length; index++) {
+                const preset = userPresets[index];
+                
+                // Create card container
+                const card = document.createElement('div');
+                card.className = 'preset-card';
+                card.title = preset.name; // Tooltip
+                card.tabIndex = 0; // Make focusable for keyboard navigation
+                
+                // V2.6.0-U: Track focus for deletion
+                card.onfocus = () => {
+                    focusedUserPresetIndex = index;
+                };
+                
+                card.onclick = () => {
+                    focusedUserPresetIndex = index;
+                    loadUserPreset(index);
+                };
+                
+                // Add keyboard navigation (Enter/Return to load preset)
+                card.onkeydown = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault(); // Prevent space from scrolling page
+                        loadUserPreset(index);
+                    }
+                };
+                
+                // Create canvas for thumbnail
+                const canvas = document.createElement('canvas');
+                
+                // Set canvas size based on orientation (reduced for smaller cards)
+                let width, height;
+                if (currentOrientation === 'portrait') {
+                    width = 90;
+                    height = 160;
+                } else if (currentOrientation === 'landscape') {
+                    width = 160;
+                    height = 90;
+                } else {
+                    width = 120;
+                    height = 120;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                
+                card.appendChild(canvas);
+                grid.appendChild(card);
+                
+                // Initialize WebGPU and render single frame for this thumbnail
+                try {
+                    await initThumbnailShader(canvas, preset.code, index);
+                } catch (error) {
+                    canvas.style.background = 'rgba(255,0,0,0.2)';
+                }
+            }
+        }
+        
+        // Load user preset into code editor and compile
+        function loadUserPreset(index) {
+            const userPresets = getUserPresets();
+            if (index < 0 || index >= userPresets.length) {
+                showStatus('Invalid preset index');
+                return;
+            }
+            
+            const preset = userPresets[index];
+            
+            // Load code into editor
+            document.getElementById('shaderCode').value = preset.code;
+            
+            // Set orientation in Controls tab to match preset's default
+            document.getElementById('orientation').value = preset.orientation;
+            
+            // Compile shader
+            compileShader();
+            
+            // Show status
+            showStatus(`Loaded: ${preset.name}`);
+        }
+
+
+        // V2.6.0-B: OMS Preset Library
+        const omsPresets = [
+            {
+                name: "Tron Tunnel",
+                orientation: "portrait",
+                code: `// ONEMANSHYO Dojo V2.5.0 - TronTunnel Pink-Blue
+// Available uniforms:
+//   uniforms.time - elapsed time in seconds
+//   uniforms.tempo - shader visual tempo in BPM (for modulator timing)
+//   uniforms.modA - modulation source A (0.0-1.0, tempo-synced, bass audio-reactive)
+//   uniforms.modB - modulation source B (0.0-1.0, tempo-synced, mid audio-reactive)
+//   uniforms.modC - modulation source C (0.0-1.0, tempo-synced, treble audio-reactive)
+//   uniforms.resolutionX, uniforms.resolutionY - canvas dimensions
+
+@fragment
+fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
+    let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
+    let time = uniforms.time;
+    let modA = uniforms.modA;  // Bass → speed + grid intensity
+    let modB = uniforms.modB;  // Mid → color shift
+    let modC = uniforms.modC;  // Treble → sparkles + glow bursts
+    
+    // Normalize coordinates to center
+    let uv = (coord.xy - resolution * 0.5) / resolution.y;
+    
+    // Calculate angle
+    var angle = atan(uv.y / (abs(uv.x) + 0.0001));
+    if (uv.x < 0.0) {
+        angle = 3.14159 - angle;
+    }
+    
+    let radius = length(uv);
+    
+    // Bass-driven tunnel speed and depth
+    let bassSpeed = 2.0 + modA * 3.0;  // 2.0 to 5.0 speed range
+    let depth = 1.0 / max(radius, 0.15);
+    let z = depth + time * bassSpeed;
+    
+    // Grid coordinates
+    let gridX = angle * 4.0;
+    let gridZ = z * 2.0;
+    
+    // Create grid lines
+    let lineX = abs(fract(gridX) - 0.5);
+    let lineZ = abs(fract(gridZ) - 0.5);
+    
+    // Bass-reactive line thickness
+    let baseThickness = 0.08 * (1.0 + radius * 1.5);
+    let thicknessMod = baseThickness * (1.0 + modA * 0.5);
+    let grid = max(
+        step(lineX, thicknessMod),
+        step(lineZ, thicknessMod)
+    );
+    
+    // Bass-reactive grid intensity
+    let gridIntensity = 1.0 + modA * 0.4;
+    
+    // Fade at edges
+    let fade = smoothstep(0.0, 0.2, radius) * smoothstep(1.8, 0.8, radius);
+    
+    // Mid-driven color shifting
+    let cyan = vec3<f32>(0.0, 0.9, 1.0);
+    let magenta = vec3<f32>(1.0, 0.1, 0.8);
+    let colorShift = sin(angle * 3.0 + time * 0.5 + modB * 2.0) * 0.5 + 0.5;
+    let neonColor = mix(cyan, magenta, colorShift);
+    
+    // Treble-driven center glow bursts
+    let glowPulse = 0.4 + modC * 0.6;
+    let glow = exp(-radius * 2.0) * glowPulse;
+    
+    // Treble-driven edge sparkles
+    let sparkleNoise = fract(sin(dot(uv * 50.0, vec2<f32>(12.9898, 78.233))) * 43758.5453);
+    let sparkleThreshold = 0.98 + modC * 0.015;
+    let sparkle = step(sparkleThreshold, sparkleNoise) * modC * fade;
+    
+    // Combine
+    let gridColor = neonColor * grid * fade * gridIntensity;
+    let glowColor = neonColor * glow;
+    let sparkleColor = vec3<f32>(1.0, 1.0, 1.0) * sparkle * 0.8;
+    let bg = vec3<f32>(0.0, 0.02, 0.05);
+    
+    let finalColor = bg + gridColor + glowColor + sparkleColor;
+    
+    return vec4<f32>(finalColor, 1.0);
+}`
+            },
+            {
+                name: "Tron Grid",
+                orientation: "portrait",
+                code: `// ONEMANSHYO Dojo V2.0.2 - SonOfTronGrid
+// Available uniforms:
+//   uniforms.time - elapsed time in seconds
+//   uniforms.tempo - shader visual tempo in BPM (for modulator timing)
+//   uniforms.modA - modulation source A (0.0-1.0, tempo-synced, bass audio-reactive)
+//   uniforms.modB - modulation source B (0.0-1.0, tempo-synced, mid audio-reactive)
+//   uniforms.modC - modulation source C (0.0-1.0, tempo-synced, treble audio-reactive)
+//   uniforms.resolutionX, uniforms.resolutionY - canvas dimensions
+
+@fragment
+fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
+    let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
+    let time = uniforms.time;
+    let modA = uniforms.modA;
+    let modB = uniforms.modB;
+    let modC = uniforms.modC;
+    
+    // Normalize coordinates to -1..1, maintaining aspect ratio
+    let minDim = min(resolution.x, resolution.y);
+    let uv = coord.xy / resolution;
+    var p = (uv - 0.5) * 2.0;
+    p.x = p.x * (resolution.x / resolution.y);
+    
+    // Create perspective grid effect
+    let horizon = 0.3;
+    let gridY = p.y + horizon;
+    
+    // Start with dark sky
+    var col = vec3<f32>(0.0, 0.05, 0.1);
+    
+    // === RETROWAVE SUN (TOP OF SKY) ===
+    let sunPos = vec2<f32>(0.0, -0.4);
+    let sunDist = length(p - sunPos);
+    
+    // Bass makes sun pulse (modA)
+    let sunSize = 0.25 + modA * 0.15;
+    
+    // Gradient rings (classic retrowave look)
+    let ring1 = smoothstep(sunSize, sunSize - 0.02, sunDist) - smoothstep(sunSize - 0.02, sunSize - 0.04, sunDist);
+    let ring2 = smoothstep(sunSize - 0.06, sunSize - 0.08, sunDist) - smoothstep(sunSize - 0.08, sunSize - 0.10, sunDist);
+    let ring3 = smoothstep(sunSize - 0.12, sunSize - 0.14, sunDist) - smoothstep(sunSize - 0.14, sunSize - 0.16, sunDist);
+    
+    // Sun gradient colors (pink to yellow to orange)
+    let sunGradient = smoothstep(sunSize + 0.1, sunSize - 0.2, sunDist);
+    let pink = vec3<f32>(1.0, 0.2, 0.6);
+    let yellow = vec3<f32>(1.0, 0.9, 0.2);
+    let orange = vec3<f32>(1.0, 0.4, 0.0);
+    let sunColor = mix(pink, mix(yellow, orange, sunGradient), sunGradient);
+    
+    // Draw sun with rings
+    let sunGlow = exp(-sunDist * 1.5) * 0.3;
+    col = col + sunColor * (ring1 + ring2 + ring3) * 2.0;
+    col = col + sunColor * sunGlow;
+    
+    // === LASERS ===
+    // Treble controls laser intensity
+    let laserPower = 0.5 + modC * 1.5;
+    
+    // Mids control laser rotation speed (modB)
+    let rotationSpeed = 0.5 + modB * 2.0;
+    
+    // Mids also control laser bend/wave (modB)
+    let bendAmount = modB * 0.3;
+    
+    // Multiple rotating lasers
+    let numLasers = 8.0;
+    var laserBrightness = 0.0;
+    
+    for (var i = 0.0; i < numLasers; i = i + 1.0) {
+        let angle = (i / numLasers) * 6.28318 + time * rotationSpeed;
+        let laserDir = vec2<f32>(cos(angle), sin(angle));
+        
+        // Laser from sun downward to grid
+        let toPixel = p - sunPos;
+        let alongLaser = dot(toPixel, laserDir);
+        
+        // Add wave/bend to laser based on distance
+        let bendOffset = sin(alongLaser * 3.0 + time * 2.0) * bendAmount;
+        
+        // Calculate distance to laser line with bend
+        let laserDist = abs(toPixel.x * laserDir.y - toPixel.y * laserDir.x + bendOffset);
+        
+        // Only draw lasers going downward
+        if (alongLaser > 0.0 && alongLaser < 4.0) {
+            let laserWidth = 0.008;
+            let laserLine = smoothstep(laserWidth, 0.0, laserDist);
+            
+            // Fade laser with distance
+            let laserFade = 1.0 - (alongLaser / 4.0);
+            laserBrightness = laserBrightness + laserLine * laserFade;
+        }
+    }
+    
+    // Laser color (cyan with orange tips)
+    let laserColor = vec3<f32>(0.0, 0.8, 1.0);
+    col = col + laserColor * laserBrightness * laserPower * 0.5;
+    
+    // === GRID FLOOR ===
+    if (gridY > 0.0) {
+        // Perspective divide for 3D grid floor
+        let perspective = 1.0 / max(gridY, 0.1);
+        
+        // Bass controls grid speed (faster with kicks)
+        let gridSpeed = 0.5 + modA * 1.5;
+        let gridUV = vec2<f32>(p.x * perspective, time * gridSpeed + perspective * 2.0);
+        
+        // Mids control grid density
+        let gridScale = 4.0 + modB * 4.0;
+        let grid = fract(gridUV * gridScale);
+        let gridLines = step(0.95, grid.x) + step(0.95, grid.y);
+        
+        // Glow pulse along grid
+        let pulse = sin(gridUV.y * 2.0 - time * 3.0) * 0.5 + 0.5;
+        
+        // Treble also controls glow intensity
+        let glowIntensity = 1.0 + modC * 2.0;
+        let glow = pulse * gridLines * glowIntensity;
+        
+        // Distance fade
+        let fade = 1.0 - smoothstep(0.0, 2.0, perspective);
+        
+        // Tron cyan/orange color scheme
+        let cyan = vec3<f32>(0.0, 0.8, 1.0);
+        let orange = vec3<f32>(1.0, 0.4, 0.0);
+        let baseColor = mix(cyan, orange, pulse);
+        
+        // Draw grid
+        col = col + baseColor * gridLines * fade * 0.8;
+        col = col + baseColor * glow * fade * 0.5;
+    } else {
+        // Upper sky - stars
+        let stars = step(0.998, fract(sin(dot(uv * 500.0, vec2<f32>(12.9898, 78.233))) * 43758.5453));
+        col = col + vec3<f32>(0.0, 0.8, 1.0) * stars * 0.5;
+    }
+    
+    // === SCAN LINES ===
+    // Treble controls scan line speed
+    let scanSpeed = 2.0 + modC * 4.0;
+    let scanLine = sin(uv.y * 200.0 + time * scanSpeed) * 0.5 + 0.5;
+    col = col + vec3<f32>(0.0, 0.2, 0.3) * scanLine * 0.05;
+    
+    // === VIGNETTE ===
+    let vignette = 1.0 - length(uv - 0.5) * 0.8;
+    col = col * vignette;
+    
+    return vec4<f32>(col, 1.0);
+}`
+            },
+            {
+                name: "MetaBalls",
+                orientation: "square",
+                code: `// ONEMANSHYO Dojo V2.0.2 - Lava Lamp Metaballs
+// Available uniforms:
+//   uniforms.time - elapsed time in seconds
+//   uniforms.tempo - shader visual tempo in BPM (for modulator timing)
+//   uniforms.modA - modulation source A (0.0-1.0, tempo-synced, bass audio-reactive)
+//   uniforms.modB - modulation source B (0.0-1.0, tempo-synced, mid audio-reactive)
+//   uniforms.modC - modulation source C (0.0-1.0, tempo-synced, treble audio-reactive)
+//   uniforms.resolutionX, uniforms.resolutionY - canvas dimensions
+
+@fragment
+fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
+    let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
+    let time = uniforms.time;
+    let modA = uniforms.modA;
+    let modB = uniforms.modB;
+    let modC = uniforms.modC;
+    
+    // Normalize coordinates to -1..1, maintaining aspect ratio
+    let minDim = min(resolution.x, resolution.y);
+    let uv = (coord.xy - resolution * 0.5) / minDim;
+    
+    // Metaball influence accumulator
+    var influence = 0.0;
+    
+    // Create 6 bouncing metaballs
+    for (var i = 0; i < 6; i = i + 1) {
+        let ballId = f32(i);
+        
+        // Mod B controls speed
+        let speed = (0.3 + sin(ballId * 2.1) * 0.2) * (0.5 + modB);
+        let ballTime = time * speed + ballId * 1.5;
+        
+        // Bouncing movement
+        let posX = sin(ballTime * 0.7 + ballId) * 0.5;
+        let posY = cos(ballTime * 0.5 + ballId * 1.3) * 0.4;
+        
+        let ballPos = vec2<f32>(posX, posY);
+        let dist = length(uv - ballPos);
+        
+        // Metaball influence - Mod A controls ball size (bass-reactive)
+        let ballSize = (0.12 + modA * 0.12);
+        influence = influence + (ballSize * ballSize) / max(dist * dist, 0.0001);
+    }
+    
+    // Mod C controls threshold (treble-reactive)
+    let threshold = 1.0 + modC * 2.0;
+    
+    // Sharp antialiased edge
+    let pixelSize = 2.0 / minDim;
+    let blobMask = smoothstep(threshold - pixelSize, threshold + pixelSize, influence);
+    
+    // Color gradient based on field strength
+    let gradient = clamp((influence - threshold) / 3.0, 0.0, 1.0);
+    
+    // OMS colors
+    let cyan = vec3<f32>(0.0, 0.83, 1.0);
+    let magenta = vec3<f32>(1.0, 0.0, 0.43);
+    let purple = vec3<f32>(0.6, 0.0, 1.0);
+    
+    var blobColor = mix(cyan, purple, gradient);
+    blobColor = mix(blobColor, magenta, gradient * gradient);
+    
+    // Apply mask
+    let finalColor = blobColor * blobMask;
+    
+    return vec4<f32>(finalColor, 1.0);
+}`
+            },
+            {
+                name: "Flower Power",
+                orientation: "square",
+                code: `// ONEMANSHYO Dojo v1.0.6 - Flower Power
+// Available uniforms:
+//   uniforms.time - elapsed time in seconds
+//   uniforms.tempo - tempo in BPM (beats per minute)
+//   uniforms.modA - modulation source A (0.0-1.0, tempo-synced, audio-reactive)
+//   uniforms.modB - modulation source B (0.0-1.0, tempo-synced, audio-reactive)
+//   uniforms.modC - modulation source C (0.0-1.0, tempo-synced, audio-reactive)
+//   uniforms.resolutionX, uniforms.resolutionY - canvas dimensions
+
+@fragment
+fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
+    let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
+    let time = uniforms.time;
+    let tempo = uniforms.tempo;
+    let modA = uniforms.modA;
+    let modB = uniforms.modB;
+    let modC = uniforms.modC;
+    
+    // Normalize tempo to a usable speed factor
+    let tempoFactor = tempo / 60.0;
+    
+    // Normalize coordinates - using min dimension keeps same zoom in both orientations
+    let uv = (coord.xy - resolution * 0.5) / min(resolution.x, resolution.y);
+    
+    // Settings - modA controls base radius
+    let numCircles = 12;
+    let baseRadius = 0.3 + modA * 0.2;
+    let circleRadius = 0.15;
+    
+    // Rotation speed scales with tempo and modB
+    let rotation = time * tempoFactor * (0.1 + modB * 0.3);
+    
+    var pattern = 0.0;
+    
+    // Draw circles in a ring
+    for (var i = 0; i < numCircles; i = i + 1) {
+        let fi = f32(i);
+        let angle = (fi / 12.0) * 6.28318 + rotation;
+        let circlePos = vec2<f32>(cos(angle), sin(angle)) * baseRadius;
+        
+        let dist = length(uv - circlePos);
+        
+        // Outline only
+        let outer = step(dist, circleRadius);
+        let inner = step(dist, circleRadius - 0.03);
+        pattern = pattern + (outer - inner);
+    }
+    
+    // Center circle
+    let centerDist = length(uv);
+    let centerOuter = step(centerDist, circleRadius);
+    let centerInner = step(centerDist, circleRadius - 0.03);
+    pattern = pattern + (centerOuter - centerInner);
+    
+    // ModC controls brightness
+    let brightness = 0.5 + modC * 0.5;
+    let color = vec3<f32>(pattern * brightness);
+    
+    return vec4<f32>(color, 1.0);
+}`
+            },
+            {
+                name: "Retro Fish Farm",
+                orientation: "square",
+                code: `// ONEMANSHYO Dojo - Retro Fish Farm
+// Available uniforms:
+//   uniforms.time - elapsed time in seconds
+//   uniforms.tempo - tempo in BPM (beats per minute)
+//   uniforms.modA - modulation source A (0.0-1.0, tempo-synced, audio-reactive)
+//   uniforms.modB - modulation source B (0.0-1.0, tempo-synced, audio-reactive)
+//   uniforms.modC - modulation source C (0.0-1.0, tempo-synced, audio-reactive)
+//   uniforms.resolutionX, uniforms.resolutionY - canvas dimensions
+
+@fragment
+fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
+    let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
+    let time = uniforms.time;
+    let tempo = uniforms.tempo;
+    let modA = uniforms.modA;
+    let modB = uniforms.modB;
+    let modC = uniforms.modC;
+    
+    let uv = coord.xy / resolution;
+    let aspect = resolution.x / resolution.y;
+    
+    // Mod B: Grid flex/distortion
+    let flexAmount = modB * 0.15;
+    let flexWave = sin(uv.x * 8.0 + time * 0.5) * cos(uv.y * 6.0 + time * 0.3);
+    let flexedUV = uv + vec2<f32>(flexWave * flexAmount);
+    
+    var p = vec2<f32>(flexedUV.x * aspect, flexedUV.y);
+    
+    // Grid parameters
+    let gridSize = 16.0;
+    let gridThickness = 0.015;
+    
+    // Time-based animation
+    let tempoFactor = tempo / 60.0;
+    let t = time * tempoFactor * 0.5;
+    
+    // Vertical gradient color (magenta top to cyan bottom)
+    let gradientColor = mix(
+        vec3<f32>(1.0, 0.0, 1.0),  // Magenta
+        vec3<f32>(0.0, 0.8, 1.0),  // Cyan
+        uv.y
+    );
+    
+    // Grid lines
+    let gridX = fract(p.x * gridSize);
+    let gridY = fract(p.y * gridSize);
+    
+    let lineX = smoothstep(gridThickness, 0.0, gridX) + 
+                smoothstep(1.0 - gridThickness, 1.0, gridX);
+    let lineY = smoothstep(gridThickness, 0.0, gridY) + 
+                smoothstep(1.0 - gridThickness, 1.0, gridY);
+    
+    let grid = max(lineX, lineY);
+    
+    // Grid cells for dot placement
+    let cellX = floor(p.x * gridSize);
+    let cellY = floor(p.y * gridSize);
+    
+    // Pseudo-random dot placement
+    let cellHash = sin(cellX * 127.3 + cellY * 311.7) * 43758.5453;
+    let dotChance = fract(cellHash);
+    
+    // Create dots at random grid intersections
+    var dot = 0.0;
+    if (dotChance > 0.75) {
+        // Mod A: Dot movement between grid squares
+        let moveAmount = modA * 0.4; // 40% of grid cell size
+        let moveAngle = t * 2.0 + cellHash * 6.28;
+        let moveOffset = vec2<f32>(
+            cos(moveAngle) * moveAmount,
+            sin(moveAngle) * moveAmount
+        ) / gridSize;
+        
+        let cellCenter = vec2<f32>(
+            (cellX + 0.5) / gridSize / aspect,
+            (cellY + 0.5) / gridSize
+        ) + moveOffset;
+        
+        let dist = length(uv - cellCenter);
+        let dotSize = 0.008 + modA * 0.004;
+        dot = smoothstep(dotSize, dotSize * 0.5, dist);
+        
+        // Pulse dots with tempo
+        let pulse = sin(t + cellHash * 6.28) * 0.5 + 0.5;
+        dot *= 0.7 + pulse * 0.3;
+    }
+    
+    // Mix colors - Mod C controls intensity
+    var col = vec3<f32>(0.0);
+    let gridBrightness = 0.6 + modC * 0.4;
+    col += gradientColor * grid * gridBrightness;
+    
+    // Dot colors - alternate white and magenta
+    if (dot > 0.0) {
+        let dotColor = mix(
+            vec3<f32>(1.0, 1.0, 1.0),      // White
+            vec3<f32>(0.8, 0.2, 1.0),      // Magenta
+            step(0.5, fract(cellHash * 2.0))
+        );
+        // Mod C also boosts dot intensity
+        let dotIntensity = 0.7 + modC * 0.3;
+        col = mix(col, dotColor * dotIntensity, dot);
+    }
+    
+    return vec4<f32>(col, 1.0);
+}`
+            }
+        ];
+
+        // V2.6.0-B: Generate preset cards
+        // V2.6.0-C: Track thumbnail rendering contexts
+        // V2.6.0-E: Generate preset cards with static canvas thumbnails
+        async function generatePresetCards() {
+            const grid = document.getElementById('omsPresetGrid');
+            const currentOrientation = document.getElementById('presetOrientation').value;
+            
+            // Clear existing cards
+            grid.innerHTML = '';
+            
+            // Apply orientation class to grid
+            grid.className = `preset-grid ${currentOrientation}`;
+            
+            // Check WebGPU support
+            if (!navigator.gpu) {
+                grid.innerHTML = '<div style="padding: 20px; color: #999;">WebGPU not supported</div>';
+                return;
+            }
+            
+            // Create cards for each preset
+            for (let index = 0; index < omsPresets.length; index++) {
+                const preset = omsPresets[index];
+                
+                // Create card container
+                const card = document.createElement('div');
+                card.className = 'preset-card';
+                card.title = preset.name; // Tooltip
+                card.tabIndex = 0; // Make focusable for keyboard navigation
+                card.onclick = () => loadPreset(index);
+                
+                // Add keyboard navigation (Enter/Return to load preset)
+                card.onkeydown = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault(); // Prevent space from scrolling page
+                        loadPreset(index);
+                    }
+                };
+                
+                // Create canvas for thumbnail
+                const canvas = document.createElement('canvas');
+                
+                // Set canvas size based on orientation (reduced for smaller cards)
+                let width, height;
+                if (currentOrientation === 'portrait') {
+                    width = 90;
+                    height = 160;
+                } else if (currentOrientation === 'landscape') {
+                    width = 160;
+                    height = 90;
+                } else {
+                    width = 120;
+                    height = 120;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                
+                card.appendChild(canvas);
+                grid.appendChild(card);
+                
+                // Initialize WebGPU and render single frame for this thumbnail
+                try {
+                    await initThumbnailShader(canvas, preset.code, index);
+                } catch (error) {
+                    canvas.style.background = 'rgba(255,0,0,0.2)';
+                }
+            }
+        }
+
+        // V2.6.0-C: Initialize and render shader for thumbnail
+        // V2.6.0-E: Initialize and render shader thumbnail (single frame, static)
+        // V2.6.0-F: Render shader to offscreen canvas, copy to 2D display canvas
+        async function initThumbnailShader(displayCanvas, shaderCode, index) {
+            try {
+                const adapter = await navigator.gpu.requestAdapter();
+                if (!adapter) throw new Error('No GPU adapter');
+                
+                const device = await adapter.requestDevice();
+                
+                // Create offscreen canvas for WebGPU rendering
+                const offscreenCanvas = document.createElement('canvas');
+                offscreenCanvas.width = displayCanvas.width;
+                offscreenCanvas.height = displayCanvas.height;
+                
+                const context = offscreenCanvas.getContext('webgpu');
+                if (!context) throw new Error('Failed to get WebGPU context');
+                
+                const format = navigator.gpu.getPreferredCanvasFormat();
+                context.configure({
+                    device: device,
+                    format: format,
+                    alphaMode: 'premultiplied'
+                });
+                
+                // Vertex shader
+                const vertexShaderCode = `
+                    @vertex
+                    fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f32> {
+                        var pos = array<vec2<f32>, 6>(
+                            vec2<f32>(-1.0, -1.0),
+                            vec2<f32>( 1.0, -1.0),
+                            vec2<f32>( 1.0,  1.0),
+                            vec2<f32>(-1.0, -1.0),
+                            vec2<f32>( 1.0,  1.0),
+                            vec2<f32>(-1.0,  1.0)
+                        );
+                        return vec4<f32>(pos[vertexIndex], 0.0, 1.0);
+                    }
+                `;
+                
+                // Fragment shader with uniforms
+                const fragmentShaderCode = `
+                    struct Uniforms {
+                        time: f32,
+                        tempo: f32,
+                        modA: f32,
+                        modB: f32,
+                        modC: f32,
+                        padding1: f32,
+                        resolutionX: f32,
+                        resolutionY: f32,
+                        padding2: f32,
+                        padding3: f32,
+                        padding4: f32,
+                        padding5: f32
+                    }
+                    
+                    @group(0) @binding(0) var<uniform> uniforms: Uniforms;
+                    
+${shaderCode}
+                `;
+                
+                // Create shader module
+                const shaderModule = device.createShaderModule({
+                    code: vertexShaderCode + '\n' + fragmentShaderCode
+                });
+                
+                // Create uniform buffer (48 bytes for proper 16-byte alignment)
+                const uniformBufferSize = 48;
+                const uniformBuffer = device.createBuffer({
+                    size: uniformBufferSize,
+                    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+                });
+                
+                // Create bind group
+                const bindGroupLayout = device.createBindGroupLayout({
+                    entries: [{
+                        binding: 0,
+                        visibility: GPUShaderStage.FRAGMENT,
+                        buffer: { type: 'uniform' }
+                    }]
+                });
+                
+                const bindGroup = device.createBindGroup({
+                    layout: bindGroupLayout,
+                    entries: [{
+                        binding: 0,
+                        resource: { buffer: uniformBuffer }
+                    }]
+                });
+                
+                // Create pipeline
+                const pipeline = device.createRenderPipeline({
+                    layout: device.createPipelineLayout({
+                        bindGroupLayouts: [bindGroupLayout]
+                    }),
+                    vertex: {
+                        module: shaderModule,
+                        entryPoint: 'vs_main'
+                    },
+                    fragment: {
+                        module: shaderModule,
+                        entryPoint: 'fs_main',
+                        targets: [{ format: format }]
+                    },
+                    primitive: {
+                        topology: 'triangle-list'
+                    }
+                });
+                
+                // Set uniforms (time=2.0 for nice frame) - 12 floats = 48 bytes for alignment
+                const uniformData = new Float32Array([
+                    2.0,                        // time
+                    120.0,                      // tempo
+                    0.5,                        // modA
+                    0.5,                        // modB
+                    0.5,                        // modC
+                    0.0,                        // padding1
+                    offscreenCanvas.width,      // resolutionX
+                    offscreenCanvas.height,     // resolutionY
+                    0.0,                        // padding2
+                    0.0,                        // padding3
+                    0.0,                        // padding4
+                    0.0                         // padding5
+                ]);
+                
+                device.queue.writeBuffer(uniformBuffer, 0, uniformData);
+                
+                // Render to offscreen canvas
+                const commandEncoder = device.createCommandEncoder();
+                const textureView = context.getCurrentTexture().createView();
+                
+                const renderPass = commandEncoder.beginRenderPass({
+                    colorAttachments: [{
+                        view: textureView,
+                        loadOp: 'clear',
+                        storeOp: 'store',
+                        clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 }
+                    }]
+                });
+                
+                renderPass.setPipeline(pipeline);
+                renderPass.setBindGroup(0, bindGroup);
+                renderPass.draw(6);
+                renderPass.end();
+                
+                device.queue.submit([commandEncoder.finish()]);
+                
+                // Wait for render to complete
+                await device.queue.onSubmittedWorkDone();
+                
+                // Copy offscreen canvas to 2D display canvas
+                const ctx2d = displayCanvas.getContext('2d');
+                if (ctx2d) {
+                    ctx2d.drawImage(offscreenCanvas, 0, 0);
+                } else {
+                    throw new Error('Failed to get 2D context for display');
+                }
+                
+            } catch (error) {
+                // Draw error indicator on display canvas
+                const ctx = displayCanvas.getContext('2d');
+                if (ctx) {
+                    ctx.fillStyle = '#330000';
+                    ctx.fillRect(0, 0, displayCanvas.width, displayCanvas.height);
+                    ctx.fillStyle = '#ff0000';
+                    ctx.font = '10px monospace';
+                    ctx.fillText('Error', 5, 15);
+                }
+            }
+        }
+
+        // V2.6.0-B: Update card shapes when orientation changes
+        function updatePresetCardShapes() {
+            generatePresetCards(); // Regenerate library cards with new orientation
+            generateUserPresetCards(); // V2.6.0-S: Regenerate user preset cards with new orientation
+        }
+
+        // V2.6.0-B: Load preset into code editor and compile
+        function loadPreset(index) {
+            const preset = omsPresets[index];
+            
+            // Load code into editor
+            document.getElementById('shaderCode').value = preset.code;
+            
+            // Set orientation in Controls tab to match preset's default
+            document.getElementById('orientation').value = preset.orientation;
+            
+            // Compile shader
+            compileShader(true);
+            
+            // Show status
+            showStatus(`Loaded: ${preset.name}`);
+            
+            // Stay on Presets tab to preview more shaders
+            // (removed switchTab('controls') - user can manually switch if needed)
         }
 
         // V2.1.1-E: Drag & drop functionality
@@ -2981,6 +4229,73 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         reader.readAsText(file);
                     } else {
                         showStatus('Please drop a WGSL shader file (.txt or .wgsl)', 'error');
+                    }
+                }
+            }
+            
+            // V2.6.0-U: Shader .txt drag & drop on User Presets grid
+            const userPresetGrid = document.getElementById('userPresetGrid');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                userPresetGrid.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                userPresetGrid.addEventListener(eventName, () => {
+                    userPresetGrid.classList.add('drag-over');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                userPresetGrid.addEventListener(eventName, () => {
+                    userPresetGrid.classList.remove('drag-over');
+                }, false);
+            });
+            
+            userPresetGrid.addEventListener('drop', handlePresetDrop, false);
+            
+            async function handlePresetDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    let importedCount = 0;
+                    
+                    for (let file of files) {
+                        const validExtensions = ['.txt', '.wgsl'];
+                        const hasValidExtension = validExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+                        
+                        if (hasValidExtension) {
+                            try {
+                                const content = await file.text();
+                                const shaderName = extractShaderName(content, file.name);
+                                
+                                // Get existing user presets from localStorage
+                                const userPresets = getUserPresets();
+                                
+                                // Add new preset (with default portrait orientation)
+                                userPresets.push({
+                                    name: shaderName,
+                                    orientation: 'portrait',
+                                    code: content
+                                });
+                                
+                                // Save back to localStorage
+                                saveUserPresets(userPresets);
+                                importedCount++;
+                                
+                            } catch (error) {
+                                // (no-op)
+                            }
+                        }
+                    }
+                    
+                    // Regenerate user preset cards
+                    if (importedCount > 0) {
+                        generateUserPresetCards();
+                        showStatus(`Imported ${importedCount} shader${importedCount > 1 ? 's' : ''} via drag & drop!`, 'success');
+                    } else {
+                        showStatus('Import failed - check file types (.txt or .wgsl)', 'error');
                     }
                 }
             }
@@ -3213,6 +4528,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 showStatus('Audio End set to ' + secondsToTimeString(audioEndTime), 'success');
             }
         });
+
+        // V2.6.0-B: Initialize preset cards on page load
+        generatePresetCards();
+        generateUserPresetCards(); // V2.6.0-S: Initialize user preset cards
     </script>
 </body>
 </html>
