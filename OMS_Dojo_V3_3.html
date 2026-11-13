@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V3_2
+ONEMANSHYO Dojo App V3_3
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V3_2
+Version: V3_3
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V3_2]</title>
+    <title>ONEMANSHYO App [V3_3]</title>
     <style>
         * {
             margin: 0;
@@ -1143,6 +1143,30 @@ Version: V3_2
             border-radius: 3px;
             margin: 0 0;
         }
+        
+        /* V3.3.0_O: Zoom Control Styles */
+        .zoom-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 4px;
+        }
+        
+        .zoom-label {
+            font-size: 10px;
+            color: #888;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        
+        .zoom-value {
+            font-size: 11px;
+            color: #00ffff;
+            font-family: monospace;
+            font-weight: bold;
+        }
 
         .grid-corner {
             background: #2a2a2a;
@@ -1442,6 +1466,8 @@ Version: V3_2
             justify-content: center;
             padding: 2px 3px; /* V3.2.0-M: Small padding for buttons */
             gap: 2px; /* V3.2.0-M: Gap between button rows */
+            position: relative; /* V3.3.0_Q: For z-index to work */
+            z-index: 10; /* V3.3.0_Q: On top of waveforms */
         }
 
         /* V3.2.0-M: Button rows inside track control */
@@ -1514,6 +1540,8 @@ Version: V3_2
             height: 100%;
             background: #000;
             border-radius: 2px;
+            position: relative; /* V3.3.0_Q: For z-index to work */
+            z-index: 1; /* V3.3.0_Q: Behind controls */
         }
         
         /* V3.1.0-Q: Playhead indicator (fixed at center) */
@@ -1536,7 +1564,7 @@ Version: V3_2
     <!-- V2.1.1-A: Header now full-width outside container -->
     <div class="header">
         <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-        <span class="version">[V3_2]</span>
+        <span class="version">[V3_3]</span>
     </div>
     
     <div class="container">
@@ -2018,6 +2046,16 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             </div>
                         </div>
                         
+                        <!-- V3.4.0_BETA_A: Shader Preview -->
+                        <div style="margin-top: 20px; padding: 20px; border-top: 1px solid #333;">
+                            <div style="color: #00d4ff; font-size: 13px; font-weight: 500; margin-bottom: 10px; text-align: center;">
+                                LIVE SHADER OUTPUT
+                            </div>
+                            <div style="position: relative; width: 100%; padding-bottom: 56.25%; background: #000; border: 2px solid #00d4ff;">
+                                <canvas id="liveShaderCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                            </div>
+                        </div>
+                        
                         <!-- V2.9.0-L: Setup Library folder (not just audio) -->
                         <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #333;">
                             <div class="control-row">
@@ -2353,6 +2391,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             trackSolos: [false, false, false, false],
             masterVolume: 0.5, // V3.1.0-M: Default 50% volume (12 o'clock)
             masterTempo: 120,
+            zoomValue: 10, // V3.3.0_S: Default 10 px/sec = shows 64 bars @ 128 BPM (120 seconds)
+            minZoom: 10,   // V3.3.0_S: Dynamic minimum (full zoom out = entire longest track)
+            maxZoom: 200,  // V3.3.0_S: Fixed maximum (full zoom in)
             lastSceneLaunched: null
         };
         
@@ -7764,6 +7805,7 @@ ${shaderCode}
             initLiveMixer();
             initLiveWaveforms();
             initLiveTempo(); // V3.2.0-S: Initialize master tempo control
+            initLiveShader(); // V3.4.0_BETA_A: Initialize shader preview
             console.log('LIVE tab initialized (V3.1.0-H: Audio routing enabled)');
         }
 
@@ -7989,6 +8031,9 @@ ${shaderCode}
                                 trackAudioSources[track].disconnect();
                                 trackAudioSources[track] = null;
                                 trackAudioBuffers[track] = null;
+                                
+                                // V3.3.0_S: Recalculate zoom range when track stops
+                                recalculateZoomRange();
                                 
                                 // Remove green borders from all cells in track
                                 const allCellsInTrack = document.querySelectorAll(`.clip-slot[data-track="${track}"]`);
@@ -8324,6 +8369,141 @@ ${shaderCode}
             
             const muteBtnMaster = mixerMaster.querySelector('.track-btn.mute');
             muteBtnMaster.addEventListener('click', () => muteBtnMaster.classList.toggle('active'));
+            
+            // V3.3.0_O: Initialize Zoom Control in mixer-spacer
+            const mixerSpacer = document.querySelector('.mixer-spacer');
+            mixerSpacer.innerHTML = `
+                <div class="zoom-control">
+                    <div class="zoom-label">ZOOM</div>
+                    <canvas class="rotary-knob" id="rotaryZoom" width="60" height="60"></canvas>
+                    <div class="zoom-value" id="zoomValue">10</div>
+                </div>
+            `;
+            
+            // Initialize zoom rotary knob
+            const canvasZoom = document.getElementById('rotaryZoom');
+            const ctxZoom = canvasZoom.getContext('2d');
+            let isDraggingZoom = false;
+            let lastYZoom = 0;
+            
+            function drawZoomKnob() {
+                ctxZoom.clearRect(0, 0, 60, 60);
+                
+                // Background circle
+                ctxZoom.fillStyle = '#1a1a1a';
+                ctxZoom.beginPath();
+                ctxZoom.arc(30, 30, 28, 0, Math.PI * 2);
+                ctxZoom.fill();
+                
+                // V3.3.0_S: Use dynamic range (minZoom-maxZoom, map to 0-1)
+                const range = gridState.maxZoom - gridState.minZoom;
+                const normalizedValue = (gridState.zoomValue - gridState.minZoom) / range;
+                const startAngle = Math.PI * 0.75;
+                const endAngle = startAngle + (Math.PI * 1.5 * normalizedValue);
+                
+                ctxZoom.strokeStyle = '#00ffff'; // Cyan
+                ctxZoom.lineWidth = 4;
+                ctxZoom.lineCap = 'round';
+                ctxZoom.beginPath();
+                ctxZoom.arc(30, 30, 24, startAngle, endAngle);
+                ctxZoom.stroke();
+                
+                // Indicator dot
+                const angle = startAngle + (Math.PI * 1.5 * normalizedValue);
+                const dotX = 30 + Math.cos(angle) * 20;
+                const dotY = 30 + Math.sin(angle) * 20;
+                
+                ctxZoom.fillStyle = '#ffffff';
+                ctxZoom.beginPath();
+                ctxZoom.arc(dotX, dotY, 3, 0, Math.PI * 2);
+                ctxZoom.fill();
+            }
+            
+            function updateZoom(newValue) {
+                // V3.3.0_S: Clamp to dynamic range (prevents jumping when range changes)
+                gridState.zoomValue = Math.max(gridState.minZoom, Math.min(gridState.maxZoom, Math.round(newValue)));
+                drawZoomKnob();
+                
+                // Update display
+                document.getElementById('zoomValue').textContent = gridState.zoomValue;
+                
+                // V3.3.0_O: Redraw all waveforms with new zoom
+                for (let t = 1; t <= NUM_TRACKS; t++) {
+                    const containerData = trackContainerData[t - 1];
+                    if (containerData && trackAudioBuffers[t - 1]) {
+                        drawWaveformFromAudioBuffer(t, trackAudioBuffers[t - 1]);
+                    }
+                }
+            }
+            
+            // V3.3.0_S: Recalculate zoom range based on longest loaded track
+            // V3.3.0_T: Check BOTH playing buffers AND pre-loaded cell buffers
+            function recalculateZoomRange() {
+                // Find longest track duration from playing buffers
+                let longestDuration = 0;
+                for (let i = 0; i < NUM_TRACKS; i++) {
+                    if (trackAudioBuffers[i]) {
+                        longestDuration = Math.max(longestDuration, trackAudioBuffers[i].duration);
+                    }
+                }
+                
+                // Also check pre-loaded buffers in cells
+                for (let i = 0; i < gridState.cells.length; i++) {
+                    if (gridState.cells[i] && gridState.cells[i].audioBuffer) {
+                        longestDuration = Math.max(longestDuration, gridState.cells[i].audioBuffer.duration);
+                    }
+                }
+                
+                if (longestDuration > 0) {
+                    // Get waveforms container width
+                    const waveformsSection = document.querySelector('.waveforms-section');
+                    const containerWidth = waveformsSection ? waveformsSection.offsetWidth : 1200;
+                    
+                    // Min zoom = show entire longest track
+                    const calculatedMin = Math.max(1, Math.floor(containerWidth / longestDuration));
+                    gridState.minZoom = calculatedMin;
+                    
+                    console.log(`V3.3.0_T: Zoom range recalculated - longest track: ${longestDuration.toFixed(1)}s, min zoom: ${gridState.minZoom} px/sec`);
+                } else {
+                    // No tracks loaded, use default
+                    gridState.minZoom = 10;
+                }
+                
+                // Clamp current zoom to new range (no visual jumping)
+                if (gridState.zoomValue < gridState.minZoom) {
+                    gridState.zoomValue = gridState.minZoom;
+                } else if (gridState.zoomValue > gridState.maxZoom) {
+                    gridState.zoomValue = gridState.maxZoom;
+                }
+                
+                // Redraw knob and update display
+                drawZoomKnob();
+                document.getElementById('zoomValue').textContent = gridState.zoomValue;
+            }
+            
+            canvasZoom.addEventListener('mousedown', (e) => {
+                isDraggingZoom = true;
+                lastYZoom = e.clientY;
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDraggingZoom) return;
+                
+                const deltaY = lastYZoom - e.clientY;
+                const sensitivity = 0.5;
+                const change = deltaY * sensitivity;
+                
+                updateZoom(gridState.zoomValue + change);
+                lastYZoom = e.clientY;
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDraggingZoom = false;
+            });
+            
+            // Initial draw at 100
+            drawZoomKnob();
         }
 
         // Scene launching
@@ -8500,6 +8680,10 @@ ${shaderCode}
                             
                             // V3.2.0-E: Position waveform at playhead (align Bar 1 with red line)
                             positionAudioWaveformAtPlayhead(track + 1, audioBuffer);
+                            
+                            // V3.3.0_T: Update zoom range when new audio pre-loaded
+                            recalculateZoomRange();
+                            
                             console.log(`V3.2.0-H: Drew, reset, and positioned waveform for Track ${track + 1}`);
                         } else {
                             console.log(`V3.2.0-D: Track ${track + 1} is playing, waveform not updated`);
@@ -8603,6 +8787,24 @@ ${shaderCode}
                 // Update gridState
                 gridState.masterTempo = newTempo;
                 
+                // V3.3.0_U: Redraw all waveforms at new tempo (bars recalculated)
+                for (let track = 0; track < NUM_TRACKS; track++) {
+                    if (trackAudioBuffers[track]) {
+                        drawWaveformFromAudioBuffer(track + 1, trackAudioBuffers[track]);
+                    }
+                }
+                
+                // Also redraw pre-loaded waveforms (not currently playing)
+                for (let i = 0; i < gridState.cells.length; i++) {
+                    if (gridState.cells[i] && gridState.cells[i].audioBuffer) {
+                        const track = Math.floor(i / NUM_SCENES);
+                        // Only redraw if NOT currently playing
+                        if (!trackAudioBuffers[track]) {
+                            drawWaveformFromAudioBuffer(track + 1, gridState.cells[i].audioBuffer);
+                        }
+                    }
+                }
+                
                 // Update playback rates for all playing tracks
                 for (let track = 0; track < NUM_TRACKS; track++) {
                     if (trackAudioSources[track] && trackContainerData[track]) {
@@ -8622,6 +8824,17 @@ ${shaderCode}
                     }
                 }
                 
+                // V3.3.0_Z: Restart scroll animation for all playing tracks (tempo changed!)
+                for (let track = 0; track < NUM_TRACKS; track++) {
+                    if (trackAudioSources[track] && trackAudioBuffers[track]) {
+                        // Stop old animation
+                        stopAudioWaveformScroll(track);
+                        // Start new animation at new tempo
+                        startAudioWaveformScroll(track, trackAudioBuffers[track]);
+                        console.log(`V3.3.0_Z: Restarted scroll animation for track ${track + 1} at new tempo`);
+                    }
+                }
+                
                 // Auto-save project
                 autoSaveProject();
                 
@@ -8629,6 +8842,183 @@ ${shaderCode}
             });
             
             console.log('V3.2.0-V: LIVE master tempo control initialized');
+        }
+
+        // V3.4.0_BETA_A: Initialize LIVE shader preview
+        let liveShaderDevice = null;
+        let liveShaderPipeline = null;
+        let liveShaderUniformBuffer = null;
+        let liveShaderBindGroup = null;
+        let liveShaderAnimationId = null;
+        let liveShaderStartTime = 0;
+        
+        async function initLiveShader() {
+            const canvas = document.getElementById('liveShaderCanvas');
+            if (!canvas) {
+                console.log('V3.4.0_BETA_A: Live shader canvas not found');
+                return;
+            }
+            
+            // Set canvas size (16:9 ratio, scaled for display)
+            canvas.width = 640;
+            canvas.height = 360;
+            
+            // Initialize WebGPU
+            if (!navigator.gpu) {
+                canvas.getContext('2d').fillText('WebGPU not supported', 10, 180);
+                return;
+            }
+            
+            try {
+                const adapter = await navigator.gpu.requestAdapter();
+                liveShaderDevice = await adapter.requestDevice();
+                
+                const context = canvas.getContext('webgpu');
+                context.configure({
+                    device: liveShaderDevice,
+                    format: navigator.gpu.getPreferredCanvasFormat()
+                });
+                
+                // Create simple default shader or use current shader from Controls tab
+                const shaderCode = getShaderCodeForLive();
+                
+                const shaderModule = liveShaderDevice.createShaderModule({
+                    code: shaderCode
+                });
+                
+                // Create uniform buffer
+                liveShaderUniformBuffer = liveShaderDevice.createBuffer({
+                    size: 64, // iTime (f32) + iResolution (vec2) + padding
+                    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+                });
+                
+                // Create bind group layout and bind group
+                const bindGroupLayout = liveShaderDevice.createBindGroupLayout({
+                    entries: [{
+                        binding: 0,
+                        visibility: GPUShaderStage.FRAGMENT,
+                        buffer: { type: 'uniform' }
+                    }]
+                });
+                
+                liveShaderBindGroup = liveShaderDevice.createBindGroup({
+                    layout: bindGroupLayout,
+                    entries: [{
+                        binding: 0,
+                        resource: { buffer: liveShaderUniformBuffer }
+                    }]
+                });
+                
+                // Create render pipeline
+                liveShaderPipeline = liveShaderDevice.createRenderPipeline({
+                    layout: liveShaderDevice.createPipelineLayout({
+                        bindGroupLayouts: [bindGroupLayout]
+                    }),
+                    vertex: {
+                        module: shaderModule,
+                        entryPoint: 'vs_main'
+                    },
+                    fragment: {
+                        module: shaderModule,
+                        entryPoint: 'fs_main',
+                        targets: [{
+                            format: navigator.gpu.getPreferredCanvasFormat()
+                        }]
+                    },
+                    primitive: {
+                        topology: 'triangle-list'
+                    }
+                });
+                
+                liveShaderStartTime = Date.now();
+                renderLiveShader(canvas, context);
+                
+                console.log('V3.4.0_BETA_A: Live shader preview initialized');
+            } catch (error) {
+                console.error('V3.4.0_BETA_A: Shader init failed:', error);
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ff0066';
+                ctx.font = '14px monospace';
+                ctx.fillText('Shader Error', 10, 180);
+            }
+        }
+        
+        function getShaderCodeForLive() {
+            // Try to get current shader from Controls tab, otherwise use default
+            const controlsShader = editor ? editor.getValue() : null;
+            if (controlsShader && controlsShader.includes('fs_main')) {
+                return controlsShader;
+            }
+            
+            // Default simple shader (colorful gradient based on time)
+            return `
+struct Uniforms {
+    iTime: f32,
+    iResolution: vec2<f32>,
+}
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+
+struct VertexOutput {
+    @builtin(position) position: vec4<f32>,
+    @location(0) uv: vec2<f32>,
+}
+
+@vertex
+fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
+    var output: VertexOutput;
+    let x = f32((vertexIndex & 1u) << 2u);
+    let y = f32((vertexIndex & 2u) << 1u);
+    output.position = vec4<f32>(x - 1.0, 1.0 - y, 0.0, 1.0);
+    output.uv = vec2<f32>(x * 0.5, y * 0.5);
+    return output;
+}
+
+@fragment
+fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
+    let t = uniforms.iTime;
+    let col = 0.5 + 0.5 * cos(t + uv.xyx + vec3<f32>(0.0, 2.0, 4.0));
+    return vec4<f32>(col, 1.0);
+}
+            `;
+        }
+        
+        function renderLiveShader(canvas, context) {
+            if (!liveShaderDevice || !liveShaderPipeline) return;
+            
+            const currentTime = (Date.now() - liveShaderStartTime) / 1000.0;
+            
+            // Update uniforms
+            const uniformData = new Float32Array([
+                currentTime,
+                0, 0, 0, // padding
+                canvas.width,
+                canvas.height,
+                0, 0 // padding
+            ]);
+            liveShaderDevice.queue.writeBuffer(liveShaderUniformBuffer, 0, uniformData);
+            
+            // Render
+            const commandEncoder = liveShaderDevice.createCommandEncoder();
+            const renderPass = commandEncoder.beginRenderPass({
+                colorAttachments: [{
+                    view: context.getCurrentTexture().createView(),
+                    clearValue: { r: 0, g: 0, b: 0, a: 1 },
+                    loadOp: 'clear',
+                    storeOp: 'store'
+                }]
+            });
+            
+            renderPass.setPipeline(liveShaderPipeline);
+            renderPass.setBindGroup(0, liveShaderBindGroup);
+            renderPass.draw(3, 1, 0, 0);
+            renderPass.end();
+            
+            liveShaderDevice.queue.submit([commandEncoder.finish()]);
+            
+            liveShaderAnimationId = requestAnimationFrame(() => renderLiveShader(canvas, context));
         }
 
         function drawEmptyWaveform(ctx, canvas) {
@@ -8648,6 +9038,10 @@ ${shaderCode}
             const canvas = document.getElementById(`waveform${track}`);
             if (!canvas) return;
             
+            // V3.3.0_O: Resize canvas to match audio duration at zoom rate (pixels/sec)
+            // This MUST happen before reading width or drawing anything
+            canvas.width = Math.ceil(audioBuffer.duration * gridState.zoomValue);
+            
             const ctx = canvas.getContext('2d');
             const width = canvas.width;
             const height = canvas.height;
@@ -8656,41 +9050,74 @@ ${shaderCode}
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, width, height);
             
-            // V3.2.0-Z: Draw bar-style waveform (from Controls tab)
-            const barCount = Math.min(Math.floor(width / 6), 500);
-            const barWidth = width / barCount;
-            const barSpacing = 1;
-            const actualBarWidth = Math.max(barWidth - barSpacing, 2);
+            // V3.3.0_X: Get container data for tempo scaling
+            const containerData = trackContainerData[track - 1];
+            const audioBPM = containerData ? containerData.audioBPM : gridState.masterTempo;
+            const audioStartTime = containerData ? (containerData.audioStartTime || 0) : 0;
+            const audioEndTime = containerData ? (containerData.audioEndTime || audioBuffer.duration) : audioBuffer.duration;
+            
+            // V3.3.0_X: Scale audioStartTime/audioEndTime by tempo ratio (same as beat grid)
+            const tempoRatio = audioBPM / gridState.masterTempo;
+            const scaledStartTime = audioStartTime * tempoRatio;
+            const scaledEndTime = audioEndTime * tempoRatio;
+            
+            // V3.3.0_R: Draw bar-style waveform aligned with musical beats
+            // V3.3.0_V: Draw at TIME positions (not evenly distributed) to match beat grid
+            // V3.3.0_X: Start from scaledStartTime (snap to beat grid)
+            const masterTempo = gridState.masterTempo || 128;
+            const secondsPerBar = (4 / masterTempo) * 60; // 4 beats per bar
+            const secondsPerBeat = secondsPerBar / 4;
+            const pixelsPerSecond = gridState.zoomValue;
             
             const channelData = audioBuffer.getChannelData(0);
             const samples = channelData.length;
-            const samplesPerBar = Math.floor(samples / barCount);
+            const sampleRate = audioBuffer.sampleRate;
             
-            // Calculate RMS amplitude for each bar
+            // Calculate RMS amplitude for each BEAT (time-based, not evenly distributed)
+            // V3.3.0_X: Start from scaledStartTime, not 0
+            // V3.3.0_Y: Read samples from ORIGINAL positions, draw at SCALED positions
             let levels = [];
             let maxLevel = 0;
             
-            for (let i = 0; i < barCount; i++) {
-                const start = i * samplesPerBar;
-                const end = start + samplesPerBar;
+            let beatTime = scaledStartTime; // V3.3.0_X: Start where beat grid starts (PLAYBACK time)
+            while (beatTime <= scaledEndTime) { // V3.3.0_X: End where beat grid ends!
+                // V3.3.0_Y: Convert playback time back to ORIGINAL audio time
+                // When audio plays slower (e.g. 126→124), playback time is LONGER than original
+                // So we divide by tempoRatio to get back to original sample position
+                const originalTime = beatTime / tempoRatio;
+                const originalBeatDuration = secondsPerBeat / tempoRatio;
+                
+                // Calculate sample range from ORIGINAL time (where samples actually are in buffer)
+                const startSample = Math.floor(originalTime * sampleRate);
+                const endSample = Math.floor((originalTime + originalBeatDuration) * sampleRate);
                 
                 let sum = 0;
-                for (let j = start; j < end && j < samples; j++) {
+                let count = 0;
+                for (let j = startSample; j < endSample && j < samples; j++) {
                     sum += channelData[j] * channelData[j];
+                    count++;
                 }
-                const rms = Math.sqrt(sum / samplesPerBar);
-                levels.push(rms);
+                
+                const rms = count > 0 ? Math.sqrt(sum / count) : 0;
+                // Store with PLAYBACK time (where it will be drawn)
+                levels.push({ time: beatTime, amplitude: rms });
                 maxLevel = Math.max(maxLevel, rms);
+                
+                beatTime += secondsPerBeat; // Next beat at master tempo
             }
             
             // Normalize levels
             if (maxLevel > 0) {
-                levels = levels.map(l => l / maxLevel);
+                levels = levels.map(l => ({ time: l.time, amplitude: l.amplitude / maxLevel }));
             }
             
-            // Draw bars
-            for (let i = 0; i < barCount; i++) {
-                let amplitude = levels[i];
+            // Draw bars at TIME positions (matching beat grid)
+            const barWidthPx = secondsPerBeat * pixelsPerSecond;
+            const barSpacing = 1;
+            const actualBarWidth = Math.max(barWidthPx - barSpacing, 2);
+            
+            for (let i = 0; i < levels.length; i++) {
+                let amplitude = levels[i].amplitude;
                 amplitude = Math.pow(amplitude, 0.7); // Compression curve
                 
                 if (amplitude < 0.02) continue; // Skip quiet bars
@@ -8701,8 +9128,11 @@ ${shaderCode}
                 const intensity = Math.floor(150 + amplitude * 105);
                 const alpha = 0.7 + amplitude * 0.3;
                 
+                // Draw at TIME position (same as beat grid)
+                const x = levels[i].time * pixelsPerSecond;
+                
                 ctx.fillStyle = `rgba(0, ${intensity}, 255, ${alpha})`;
-                ctx.fillRect(i * barWidth, y, actualBarWidth, barHeight);
+                ctx.fillRect(x, y, actualBarWidth, barHeight);
             }
             
             // Draw center line
@@ -8714,7 +9144,7 @@ ${shaderCode}
             ctx.stroke();
             
             // V3.2.0-Z: Draw beat grid with correct audioStartTime offset
-            const containerData = trackContainerData[track - 1];
+            // V3.3.0_X: containerData already fetched earlier
             if (containerData && containerData.audioBPM) {
                 drawBeatGridOnWaveform(ctx, containerData, audioBuffer, width, height);
                 drawInfoOverlay(ctx, containerData, height);
@@ -8728,18 +9158,33 @@ ${shaderCode}
         
         // V3.1.0-R: Position waveform so Bar 1 (start) aligns with playhead (center)
         // V3.2.0-AB: Combined translateX + scaleX for tempo scaling
+        // V3.3.0_I: FIXED - Bar 1 is at audioStartTime position, NOT pixel 0!
+        // V3.3.0_W: Scale audioStartTime by tempo ratio (matches beat grid scaling)
         function positionAudioWaveformAtPlayhead(track, audioBuffer) {
-            console.log(`V3.2.0-AB: positionAudioWaveformAtPlayhead called for track ${track}`);
+            console.log(`V3.3.0_K: positionAudioWaveformAtPlayhead called for track ${track}`);
             
             const canvas = document.getElementById(`waveform${track}`);
             if (!canvas) {
-                console.log(`V3.2.0-AB: Canvas not found for track ${track}`);
+                console.log(`V3.3.0_K: Canvas not found for track ${track}`);
                 return;
             }
             
-            // Playhead is at center (50%) of the waveforms-section container
-            // But canvas is offset by: padding (5px) + label (~50px) + gap (8px)
-            // We need to position relative to the canvas, not the container
+            // Get container data
+            const containerData = trackContainerData[track - 1];
+            if (!containerData) return;
+            
+            const audioStartTime = containerData.audioStartTime || 0;
+            
+            // V3.3.0_W: Scale audioStartTime by tempo ratio (same as beat grid)
+            const tempoRatio = containerData.audioBPM / gridState.masterTempo;
+            const scaledStartTime = audioStartTime * tempoRatio;
+            
+            // V3.3.0_O: Use zoom value from control
+            // This is the key - ONE reference timeline for all tracks
+            const pixelsPerSecond = gridState.zoomValue;
+            const bar1PositionPx = scaledStartTime * pixelsPerSecond;
+            
+            console.log(`V3.3.0_W: Track ${track} - Bar 1 at ${audioStartTime.toFixed(3)}s (original) → ${scaledStartTime.toFixed(3)}s (scaled) = ${bar1PositionPx.toFixed(2)}px on canvas`);
             
             // Get waveforms-section width (parent container)
             const waveformsSection = canvas.closest('.waveforms-section');
@@ -8750,70 +9195,56 @@ ${shaderCode}
             // Playhead is at 50% of container
             const playheadPosition = containerWidth * 0.5;
             
-            // V3.2.0-AB: Get canvas position using offsetLeft (not affected by transform)
-            // getBoundingClientRect returns transformed position, offsetLeft returns CSS position
+            // Get canvas position using offsetLeft
             const canvasLeftOffset = canvas.offsetLeft;
             
-            // Calculate offset needed to align Bar 1 with playhead
-            // Bar 1 is at pixel 0 of canvas
-            // We need to shift it so pixel 0 lines up with the playhead
-            const offsetNeeded = playheadPosition - canvasLeftOffset;
+            // V3.3.0_K: Simple translation - move Bar 1 to playhead
+            // Bar 1 is at bar1PositionPx on canvas, needs to be at playhead
+            const playheadInCanvasSpace = playheadPosition - canvasLeftOffset;
+            const offsetNeeded = playheadInCanvasSpace - bar1PositionPx;
             
-            // V3.2.0-AC: Calculate tempo scaling ratio (CORRECTED)
-            // audioBPM / masterTempo = stretch if faster, compress if slower
-            const containerData = trackContainerData[track - 1];
-            console.log(`V3.2.0-AC: Track ${track} containerData:`, containerData);
+            // V3.3.0_K: NO SCALING! Just simple translateX
+            // Bars are already at master tempo spacing, no need to scale
+            canvas.style.transformOrigin = 'left center'; // Not used since no scaling
+            canvas.style.transform = `translateX(${offsetNeeded}px)`;
             
-            let scaleX = 1.0;
-            if (containerData && containerData.audioBPM) {
-                scaleX = containerData.audioBPM / gridState.masterTempo; // CORRECT RATIO
-                console.log(`V3.2.0-AC: Track ${track} scaleX = ${containerData.audioBPM} / ${gridState.masterTempo} = ${scaleX}`);
-            } else {
-                console.log(`V3.2.0-AC: Track ${track} no container data or audioBPM, using scaleX = 1.0`);
-            }
-            
-            // V3.2.0-AC: Scale from PLAYHEAD position (not Bar 1)
-            // This ensures bars align EVERYWHERE on the waveform, not just at playhead
-            // Like Serato - the entire grid is aligned across all tracks
-            const playheadPositionInCanvasSpace = playheadPosition - canvasLeftOffset;
-            console.log(`V3.2.0-AC: Track ${track} scaling from playhead at ${playheadPositionInCanvasSpace.toFixed(2)}px in canvas space`);
-            
-            // V3.2.0-AC: Apply BOTH transforms together (translateX + scaleX)
-            // Transform origin at playhead so bars align everywhere (Serato-style)
-            canvas.style.transformOrigin = `${playheadPositionInCanvasSpace}px center`;
-            canvas.style.transform = `translateX(${offsetNeeded}px) scaleX(${scaleX})`;
-            
-            console.log(`V3.2.0-AC: Track ${track} positioning + scaling:`, {
-                containerWidth,
-                playheadPosition,
-                canvasLeftOffset,
-                offsetNeeded,
-                audioBPM: containerData?.audioBPM,
-                masterTempo: gridState.masterTempo,
-                scaleX: scaleX.toFixed(4),
-                playheadPositionInCanvasSpace: playheadPositionInCanvasSpace.toFixed(2),
-                transformOrigin: `${playheadPositionInCanvasSpace.toFixed(2)}px center (PLAYHEAD - Serato-style)`
+            console.log(`V3.3.0_W: Track ${track} positioning:`, {
+                audioStartTime: audioStartTime.toFixed(3),
+                scaledStartTime: scaledStartTime.toFixed(3),
+                tempoRatio: tempoRatio.toFixed(4),
+                bar1PositionPx: bar1PositionPx.toFixed(2),
+                playheadInCanvasSpace: playheadInCanvasSpace.toFixed(2),
+                offsetNeeded: offsetNeeded.toFixed(2)
             });
         }
 
         // V3.2.0-Q: Draw beat grid on LIVE waveform canvas
         // V3.2.0-Z: Fixed to respect audioStartTime/audioEndTime + add visual markers
         // V3.2.0-AB: Draw at ORIGINAL BPM, scaleX will stretch/compress to master tempo
+        // V3.3.0_W: Scale audioStartTime by tempo ratio (time-stretch affects position)
         function drawBeatGridOnWaveform(ctx, containerData, audioBuffer, canvasWidth, canvasHeight) {
-            const audioBPM = containerData.audioBPM; // Original tempo
+            const audioBPM = containerData.audioBPM;
             const audioStartTime = containerData.audioStartTime || 0;
             const audioEndTime = containerData.audioEndTime || audioBuffer.duration;
             const duration = audioBuffer.duration;
             
-            // V3.2.0-AB: Draw bars at ORIGINAL BPM spacing
-            // The scaleX transform will stretch/compress them to master tempo spacing
-            const secondsPerBar = (4 / audioBPM) * 60;
+            // V3.3.0_W: When audio is time-stretched, positions scale by tempo ratio
+            // Example: 126 BPM track at 124 BPM master = positions stretch by 126/124
+            const tempoRatio = audioBPM / gridState.masterTempo;
+            const scaledStartTime = audioStartTime * tempoRatio;
+            const scaledEndTime = audioEndTime * tempoRatio;
             
-            // Calculate pixels per second
-            const pixelsPerSecond = canvasWidth / duration;
+            // V3.3.0_K: Draw bars at MASTER tempo spacing (NOT original BPM)
+            // All tracks use the same bar spacing = naturally aligned
+            const secondsPerBar = (4 / gridState.masterTempo) * 60; // MASTER tempo, not audio BPM
+            
+            // V3.3.0_O: Calculate pixels per second from zoom control
+            // This creates a COMMON reference timeline for all tracks
+            const pixelsPerSecond = gridState.zoomValue;
             
             // V3.2.0-Z: Draw audioStart marker (slime green)
-            const audioStartX = audioStartTime * pixelsPerSecond;
+            // V3.3.0_W: Use scaled position
+            const audioStartX = scaledStartTime * pixelsPerSecond;
             ctx.strokeStyle = '#7fff00'; // Slime green (chartreuse)
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -8822,7 +9253,8 @@ ${shaderCode}
             ctx.stroke();
             
             // V3.2.0-Z: Draw audioEnd marker (slime green)
-            const audioEndX = audioEndTime * pixelsPerSecond;
+            // V3.3.0_W: Use scaled position
+            const audioEndX = scaledEndTime * pixelsPerSecond;
             ctx.strokeStyle = '#7fff00'; // Slime green
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -8831,15 +9263,17 @@ ${shaderCode}
             ctx.stroke();
             
             // Draw beat grid (bars between start and end)
+            // V3.3.0_W: Start from scaled position
             let barNumber = 1;
-            let barTime = audioStartTime;
+            let barTime = scaledStartTime;
             
             // V3.2.0-Z: Stop at audioEndTime, not full duration
-            while (barTime <= audioEndTime) {
+            // V3.3.0_W: Use scaled end time
+            while (barTime <= scaledEndTime) {
                 const x = barTime * pixelsPerSecond;
                 
-                // V3.2.0-W: Phrase markers - magenta every 4 bars (2px, 75%), cyan otherwise (1px, 30%)
-                if (barNumber % 4 === 0) {
+                // V3.3.0_N: Phrase markers - magenta at bars 1, 5, 9, 13 (aligned with numbers)
+                if (barNumber % 4 === 1) {
                     // Phrase marker (every 4 bars) - MORE VISIBLE
                     ctx.strokeStyle = 'rgba(255, 0, 255, 0.75)'; // Magenta, 75% opacity
                     ctx.lineWidth = 2;
@@ -8865,7 +9299,7 @@ ${shaderCode}
                 barTime += secondsPerBar;
             }
             
-            console.log(`V3.2.0-AB: Drew beat grid at original tempo ${audioBPM} BPM (scaleX will stretch/compress to ${gridState.masterTempo} BPM)`);
+            console.log(`V3.3.0_K: Drew beat grid at MASTER tempo ${gridState.masterTempo} BPM (no scaling needed - all tracks same spacing)`);
         }
         
         // V3.2.0-Q: Draw container info overlay on waveform
@@ -8903,19 +9337,19 @@ ${shaderCode}
                 // Store when playback started
                 const startTime = audioContext.currentTime;
                 
-                // V3.2.0-AB: Read BOTH translateX and scaleX from current transform
+                // V3.3.0_K: Read translateX only (no scaleX anymore)
                 const currentTransform = canvas.style.transform || '';
                 const translateMatch = currentTransform.match(/translateX\(([^)]+)px\)/);
-                const scaleMatch = currentTransform.match(/scaleX\(([^)]+)\)/);
                 const initialOffset = translateMatch ? parseFloat(translateMatch[1]) : 0;
-                const scaleX = scaleMatch ? parseFloat(scaleMatch[1]) : 1.0;
                 
-                console.log(`V3.2.0-AE: Scroll animation preserving: translateX=${initialOffset}px, scaleX=${scaleX} (adjusting scroll speed by scaleX)`);
+                console.log(`V3.3.0_K: Simple scrolling - no scaling needed, bars pre-aligned at master tempo`);
                 
-                // Calculate pixels per second
-                const canvasWidth = canvas.width;
-                const audioDuration = audioBuffer.duration;
-                const pixelsPerSecond = canvasWidth / audioDuration;
+                // V3.3.0_K: Get the playbackRate from the audio source
+                const playbackRate = trackAudioSources[track].playbackRate.value;
+                console.log(`V3.3.0_K: Track ${track + 1} playbackRate=${playbackRate}`);
+                
+                // V3.3.0_O: Use zoom value from control
+                const pixelsPerSecond = gridState.zoomValue;
                 
                 function animate() {
                     // Check if source still exists
@@ -8924,17 +9358,16 @@ ${shaderCode}
                         return;
                     }
                     
-                    // Calculate elapsed time
-                    const elapsed = audioContext.currentTime - startTime;
+                    // Calculate elapsed REAL time
+                    const realTimeElapsed = audioContext.currentTime - startTime;
                     
-                    // V3.2.0-AE: Calculate scroll offset adjusted by scaleX
-                    // When visual is stretched (scaleX > 1), scroll faster to maintain sync
-                    // When visual is compressed (scaleX < 1), scroll slower to maintain sync
-                    // This makes all tracks scroll at the SAME visual speed (synced to master tempo)
-                    const scrollOffset = elapsed * pixelsPerSecond * scaleX;
+                    // V3.3.0_M: Scroll at MASTER tempo (real time), not playbackRate
+                    // Canvas drawn at master tempo, audio time-stretched to master tempo
+                    // Visual scroll must match musical tempo = real time
+                    const scrollOffset = realTimeElapsed * pixelsPerSecond;
                     
-                    // V3.2.0-AB: Apply BOTH transforms (preserve scaleX!)
-                    canvas.style.transform = `translateX(${initialOffset - scrollOffset}px) scaleX(${scaleX})`;
+                    // V3.3.0_M: Simple translateX only (no scaleX)
+                    canvas.style.transform = `translateX(${initialOffset - scrollOffset}px)`;
                     
                     // Continue animation
                     waveformAnimations[`track${track}`] = requestAnimationFrame(animate);
@@ -8942,7 +9375,7 @@ ${shaderCode}
                 
                 // Start animation
                 requestAnimationFrame(animate);
-                console.log(`V3.1.0-T: Started waveform scroll for track ${track + 1}`);
+                console.log(`V3.3.0_M: Started waveform scroll for track ${track + 1} (master tempo = real time)`);
             }, 50); // 50ms delay to let positioning settle
         }
         
@@ -9168,6 +9601,9 @@ ${shaderCode}
                         trackAudioSources[track].disconnect();
                         trackAudioSources[track] = null;
                         trackAudioBuffers[track] = null;
+                        
+                        // V3.3.0_S: Recalculate zoom range when track stops
+                        recalculateZoomRange();
                         
                         // V3.1.0-T: Stop waveform scrolling
                         stopAudioWaveformScroll(track);
