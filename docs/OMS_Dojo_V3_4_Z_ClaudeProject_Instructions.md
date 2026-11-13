@@ -1,31 +1,100 @@
-# OMS SHADER BAKER V3.3.0 - CLAUDE PROJECT INSTRUCTIONS
+# OMS SHADER BAKER V3.4.0 - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** V3.3.0
-**Date:** November 2025
+**Version:** V3.4.0
+**Date:** November 15, 2025
 **Purpose:** Complete project context for Claude AI development
 
 ---
 
-## CURRENT STATE: V3.3.0
+## PROJECT OVERVIEW
+
+### What is OMS Shader Baker?
+
+OMS Shader Baker is a **WebGPU-based shader creation and performance tool** for solo DJ/visual artists. It creates audio-reactive shader visualizations for live DJ performances, following the proven ONEMANSHYO workflow:
+
+1. Create shaders (with or without audio)
+2. Render as silent videos (WebM/MP4)
+3. Convert to ProRes 422 via FFmpeg
+4. Import into Ableton Live + EboSuite
+5. Perform live with synchronized audio-reactive visuals
+
+**Philosophy:** "Anyone can be a OneManShYo" - empowering solo creators to achieve professional audio-visual performances without teams or expensive commercial software.
+
+**Architecture:** Single HTML file (~445KB, 10,207 lines) with zero external dependencies. Complete portability, works offline, no build process.
+
+**License:** GPL-3.0 (open source, free forever, "ghost protocol")
+
+### Core Workflow
+
+**Shader Creation:**
+- WebGPU/WGSL shader rendering (GPU-accelerated)
+- Visual controls tab (no coding required)
+- Code editor tab (direct WGSL editing)
+- Three-modulator audio reactivity (bass, mids, treble)
+- 32768-sample FFT analysis
+- User-definable frequency mapping
+
+**Performance Workflow:**
+- 4-track × 8-scene performance grid (LIVE tab)
+- Multi-track audio with perfect beat grid synchronization
+- Master tempo control (60-200 BPM)
+- Time-stretching all tracks to master tempo
+- Professional mixer controls (volume, mute, solo, meters)
+- Dynamic zoom (10-200 px/sec)
+- Bar-style waveforms (Serato-style)
+
+**File Management:**
+- .oms containers (complete shader + audio + controls packages)
+- .omsp project states (entire LIVE tab session state)
+- Application folder (File System Access API)
+- Auto-save workflow
+- LIBRARY-first architecture
+
+### User Profile
+
+**Wes Jones (ONEMANSHYO):**
+- Electronic music producer/DJ with 35 years experience
+- 500+ releases, 7,000+ days in Beatport charts
+- Founder of Juice Recordings
+- YouTube channel: 100k monthly views
+- Livestream DJ performances with reactive visuals
+- Solo creator philosophy ("Anyone can be a OneManShYo")
+
+---
+
+## CURRENT STATE: V3.4.0
 
 ### Production Status
 
-**LIVE Tab - Production Ready:**
-- ✅ Perfect beat grid synchronization (53 iterations)
-- ✅ Multi-BPM track alignment (124/126/128 BPM all sync)
-- ✅ Master tempo control (60-200 BPM)
-- ✅ Time-stretching all tracks to master tempo
-- ✅ Synced waveform scrolling (Serato-style)
-- ✅ Complete audio timing data storage
-- ✅ Bar-style waveforms (mixing-optimized)
-- ✅ Multi-track audio playback (4 tracks)
-- ✅ Mixer controls (volume, mute, solo, meters)
-- ✅ Project States persistence (.omsp)
-- ✅ Keyboard navigation
-- ✅ Beat-aligned waveform bars (1 per beat)
-- ✅ Dynamic zoom range (10-200 px/sec)
-- ✅ Phrase markers (magenta every 4 bars)
-- ✅ Real-time shader preview (BETA)
+**V3.4.0 Complete (November 15, 2025):**
+✅ **UI/UX Refinement Release** (31 iterations, no new features)
+- MacBook Pro 14" optimized layout (1320px fits 1352px viewport)
+- Visual consistency - all mixer controls match perfectly
+- Single-letter tab names (C, P, L, W, S, LIVE)
+- Settings tab for application-level configuration
+- Waveform controls with modular aesthetic (sharp, tight)
+- Zoom knob matches volume knobs exactly (cyan arc, white line, border)
+- Shader output fixed at bottom (doesn't scroll)
+- Hidden scrollbars for cleaner UI
+- Refactored naming: audioLibrary → applicationFolder (42 variables, 4 functions, 3 IDs)
+- Professional hardware mixer aesthetic throughout
+
+**V3.3.0 Foundation (Still Functional - CRITICAL):**
+✅ **Perfect Beat Grid Synchronization** ("Soldiers at the goalpost" - 53 iterations)
+- Multi-BPM track alignment (124/126/128 BPM all sync)
+- Master tempo control (60-200 BPM)
+- Time-stretching all tracks to master tempo
+- Synced waveform scrolling (Serato-style)
+- Complete audio timing data storage
+- Bar-style waveforms (mixing-optimized)
+- Multi-track audio playback (4 tracks)
+- Mixer controls (volume, mute, solo, meters)
+- Project States persistence (.omsp)
+- Keyboard navigation
+- Beat-aligned waveform bars (1 per beat)
+- Dynamic zoom range (10-200 px/sec)
+- Phrase markers (magenta every 4 bars)
+- Real-time shader preview (BETA)
 
 **What Doesn't Work Yet:**
 - ❌ Scene launching (rows)
@@ -35,16 +104,92 @@
 - ❌ MIDI control
 - ❌ Ableton Link
 
-**File:** OMS_ShaderBaker_V3_3_0.html (10,219 lines, 445KB)
+**File:** OMS_ShaderBaker_V3_4_0.html (10,207 lines, 445KB)
 
 ---
 
-## V3.3.0 DEVELOPMENT SUMMARY
+## V3.4.0 DEVELOPMENT SUMMARY
 
-### 53 Iterations Total
+### Overview
 
-**The Core Achievement:**
-"Soldiers at the goalpost" - perfect beat grid alignment regardless of track BPM or master tempo setting. Professional DJ timing accuracy achieved through the "One Timeline" architecture.
+**Type:** UI/UX Refinement Release (No New Features)
+**Iterations:** 31 (V3_4_0_A through V3_4_0_AE)
+**Development Time:** 1 day (November 15, 2025)
+**Lines Modified:** ~440 lines across 31 iterations
+**Approach:** Surgical changes, one improvement per iteration
+
+### Major Achievements
+
+**1. MacBook Pro 14" Optimization**
+- Reduced total layout: 1470px → 1320px (-150px)
+- All 6 mixer columns visible at 1352px viewport width
+- Perfect fit with 32px breathing room
+- Calculated uniform column widths (153px each)
+- Asymmetric padding for visual balance (1px left, 4px right)
+
+**2. Visual Consistency**
+- Zoom knob matches volume knobs exactly (same drawing code)
+- Waveform controls modular look (sharp corners, 70px, no gaps)
+- Professional hardware mixer aesthetic throughout
+- All rotary knobs identical styling
+- Clean, tight spacing everywhere
+
+**3. Tab Organization**
+- Single-letter tab names: C (Controls), P (Presets), L (Library), W (WGSL Code), S (Settings), LIVE
+- Settings tab added for application-level controls
+- Library folder button moved to Settings (better separation of concerns)
+- Clean headers: "APPLICATION", "Containers"
+- Shader output only visible on LIVE tab
+
+**4. Shader Output Management**
+- Fixed at bottom of left panel (doesn't scroll with containers)
+- Only visible on LIVE tab (hidden on C, P, L, W, S)
+- Proper flexbox positioning (flex: 0 0 auto)
+- Recovered vertical space (removed redundant "LIVE SHADER OUTPUT" label)
+- Monitor shader while browsing library
+
+**5. Code Quality**
+- Naming refactor: audioLibrary → applicationFolder
+  - 42 variable renames
+  - 4 function renames
+  - 3 element ID updates
+  - Fixed 2 broken function calls
+- CSS borders instead of pseudo-elements (cleaner box model)
+- Hidden scrollbars (cross-browser support)
+- Better separation of concerns
+
+### Key Learnings from V3.4.0
+
+**1. Structural Consistency Over Visual Similarity**
+- If elements should align, they MUST use same layout structure
+- Visual matching requires identical HTML structure AND CSS properties
+- Don't fix with transforms or inline styles - use proper CSS
+
+**2. Flexbox Requires Container Matching**
+- Container width affects flex child behavior
+- Equal widths ensure consistent flex behavior
+- min-height: 0 critical for nested scrolling in flex containers
+
+**3. Modular Design = No Compromises**
+- Sharp corners, no padding, no gaps - fills space perfectly
+- Hardware mixer aesthetic requires precision, not approximation
+- Professional polish comes from eliminating ALL extra space
+
+**4. User Feedback Drives Iteration**
+- Direct, immediate feedback prevents wasted effort (e.g. "wait, WTF mate...this is worse...lol")
+- 31 iterations refined one concept to perfection
+- Sometimes the answer is simpler than you think
+
+---
+
+## V3.3.0 FOUNDATION (STILL CRITICAL)
+
+### The "Soldiers at the Goalpost" Achievement
+
+**The Core Innovation:**
+Perfect beat grid alignment regardless of track BPM or master tempo setting. Professional DJ timing accuracy achieved through the "One Timeline" architecture.
+
+**53 Iterations Total (V3_3_0_A through V3_3_0_BETA_A):**
 
 **Phase 1: Early Attempts (A-AF, 32 iterations)**
 - Explored scaleX transforms (failed)
@@ -81,7 +226,7 @@
 - One feature per iteration
 - Each iteration is a complete work session
 
-**Example:** V3_3_0_A → V3_3_0_B → V3_3_0_C (never A → C)
+**Example:** V3_5_0_A → V3_5_0_B → V3_5_0_C (never A → C)
 
 ### 2. Build Protocol (CRITICAL)
 
@@ -141,15 +286,37 @@ OMS_ShaderBaker_V{version}_Deliverables/
 **Update Claude Instructions ONLY on major releases** (not per iteration)
 
 **Example:**
-- V3_3_0_A → V3_3_0_B: No deliverables package
-- V3_3_0_Z → V3_3_0 (final): Full deliverables package with updated Z file
+- V3_5_0_A → V3_5_0_B: No deliverables package
+- V3_5_0_Z → V3_5_0 (final): Full deliverables package with updated _Z file
+
+---
+
+## VERSION NAMING CONVENTIONS (CRITICAL)
+
+### Production Release
+
+**Filename:** `OMS_ShaderBaker_V3_4_0.html`  
+**Title:** `v3.4.0` (lowercase v)  
+**Header:** `[V3.4.0]` (brackets, uppercase V)
+
+### Development Build
+
+**Filename:** `OMS_ShaderBaker_V3_5_0_A.html`  
+**Title:** `v3.5.0a` (lowercase v and letter)  
+**Header:** `[V3.5.0_A]` (underscore before letter, brackets)
+
+### CRITICAL RULE
+
+**Use underscores, not periods:** `V3_5_0_A` (NOT `V3.5.0_A`)
+
+**This was changed 50+ iterations ago and is now standard!**
 
 ---
 
 ## ROADMAP
 
-### V3.4.0: Scene Launching + MIDI
-**Status:** Planned Q1 2026
+### V3.5.0: Scene Launching + MIDI
+**Status:** Next Major Release (Q1 2026)
 
 **Features:**
 - Scene launching (trigger entire rows)
@@ -163,7 +330,7 @@ OMS_ShaderBaker_V{version}_Deliverables/
 
 **Why:** Complete the performance workflow with multi-track launching and hardware control
 
-### V3.5.0: Real-Time Shader Rendering
+### V3.6.0: Real-Time Shader Rendering
 **Status:** Planned Q2 2026
 
 **Features:**
@@ -187,28 +354,6 @@ OMS_ShaderBaker_V{version}_Deliverables/
 - Advanced session management
 - Professional-level control
 - "Anyone can be a OneManShYo"
-
----
-
-## VERSION NAMING CONVENTIONS (CRITICAL)
-
-### Production Release
-
-**Filename:** `OMS_ShaderBaker_V3_3_0.html`  
-**Title:** `v3.3.0` (lowercase v)  
-**Header:** `[V3.3.0]` (brackets, uppercase V)
-
-### Development Build
-
-**Filename:** `OMS_ShaderBaker_V3_3_0_A.html`  
-**Title:** `v3.3.0a` (lowercase v and letter)  
-**Header:** `[V3.3.0_A]` (underscore before letter, brackets)
-
-### CRITICAL RULE
-
-**Use underscores, not periods:** `V3_3_0_A` (NOT `V3.3.0_A`)
-
-**This was changed 50+ iterations ago and is now standard!**
 
 ---
 
@@ -265,8 +410,8 @@ What would you like? (answer as: 1.a, 2.b, 3.c, yes go)
 ### 4. Deliver Files
 
 **Per Iteration (development):**
-- HTML file: `OMS_ShaderBaker_V3_3_0_A.html`
-- Notes file: `OMS_ShaderBaker_V3_3_0_A_Notes.txt`
+- HTML file: `OMS_ShaderBaker_V3_5_0_A.html`
+- Notes file: `OMS_ShaderBaker_V3_5_0_A_Notes.txt`
 
 **Production Release:**
 - Full deliverables package (9 files)
@@ -340,134 +485,90 @@ const position = time * pixelsPerSecond;      // Same formula
 const tempoRatio = trackBPM / masterTempo;
 const scaledTime = originalTime * tempoRatio;
 
-// Playback rate
-playbackRate = masterTempo / trackBPM;
+// Playback rate adjustment
+const playbackRate = masterTempo / trackBPM;
+audioSource.playbackRate.value = playbackRate;
 
-// Visual scale (NOT USED - render at master tempo directly)
-// scaleX = trackBPM / masterTempo; // OLD WAY - removed!
+// Beat grid rendering
+const pixelsPerBar = secondsPerBar * pixelsPerSecond;
+const barPosition = barNumber * pixelsPerBar;
 
-// Scroll speed
-const scrollOffset = realTimeElapsed * pixelsPerSecond; // NO playbackRate!
+// Waveform scrolling
+const scrollPosition = currentTime * pixelsPerSecond;
+canvas.style.transform = `translateX(${-scrollPosition}px)`;
 ```
 
-**Critical Insight:** Don't use CSS transforms (scaleX) to fix timing. Render everything at master tempo from the start.
+**Why This Works:**
+- One reference tempo (master)
+- All visual calculations use master tempo
+- Audio playback rates adjust to master
+- Perfect alignment at any tempo
+- No CSS transforms for timing corrections
+- "Draw at target tempo from the start"
 
-### Beat Grid System
+### Shader System
 
-**Components:**
-- trackContainerData[] - Audio timing per track
-- drawBeatGridOnWaveform() - Canvas rendering at master tempo
-- Master tempo sync - Time-stretching engine
-- Synced scrolling - RequestAnimationFrame loop
+**Separation of Concerns:**
+- **Shader Module:** Visual timing controlled by Shader Tempo (BPM in Controls tab)
+- **Audio Module:** Audio positioning controlled by Audio BPM (Track BPM in LIVE tab)
+- These are independent systems with limited integration points through FFT analysis
 
-**Visual Elements:**
-- Cyan bars: Every musical bar (4 beats)
-- Magenta markers: Every 4 bars (phrase markers)
-- Bar numbers: 1, 5, 9, 13... (aligned with magenta)
-- Waveform bars: 1 per beat (beat-aligned)
+**Three-Modulator System:**
+- modA: Bass (default 30-500 Hz, targets kick drum)
+- modB: Mids (default 500-2000 Hz, targets vocals/synths)
+- modC: Treble (default 2000-20000 Hz, targets hi-hats/percussion)
+- User-definable frequency mapping in Controls tab
 
-### Audio Data Storage
+**FFT Analysis:**
+- 32768 samples (high precision)
+- Real-time frequency analysis
+- Per-frame modulator updates
+- GPU-accelerated rendering
 
-**Extended .oms Format:**
-```json
+### Audio System
+
+**Multi-Track Architecture:**
+- 4 independent audio contexts
+- Web Audio API for sample-accurate playback
+- Master tempo controls all tracks
+- Time-stretching via playback rate adjustment
+- Volume, mute, solo per track
+- Peak meters with decay
+
+**Beat Grid Synchronization:**
+- Bar lines (cyan) every bar
+- Phrase markers (magenta) every 4 bars
+- All tracks aligned to master timeline
+- Live tempo changes with instant visual update
+- "Soldiers at the goalpost" - perfect Bar 1 alignment
+
+### File Formats
+
+**.oms Container Format:**
+```javascript
 {
-  "shaderCode": "...",
-  "controlStates": {
-    "shader*": "...",
-    "audio*": "..."
-  },
-  "audioBPM": 128.0,
-  "audioPitch": 2.5,
-  "audioStartTime": 0.0,
-  "audioEndTime": 180.5,
-  "audioLoopIn": 64.0,
-  "audioLoopOut": 128.0
+  shaderCode: "WGSL shader code",
+  audioData: "base64 encoded audio",
+  audioFileName: "track.mp3",
+  controlStates: {/* all control values */},
+  bpm: 128,
+  loopStart: 0,
+  loopEnd: 8
 }
 ```
 
-**Clean Separation:**
-- Shader controls: shader* prefix
-- Audio controls: audio* prefix
-- Render settings: no prefix
-
----
-
-## CRITICAL LESSONS
-
-### From V3.3.0 Development
-
-**The 5 Core Insights:**
-
-1. **Don't Fix with Transforms**
-   - BAD: Draw at original tempo, use scaleX to stretch
-   - GOOD: Draw at target tempo from the start
-
-2. **One Timeline to Rule Them All**
-   - BAD: Per-track timelines with different scales
-   - GOOD: Single master timeline, all tracks reference it
-
-3. **Time Domains Matter**
-   - BAD: Mix original and scaled time values
-   - GOOD: Convert explicitly between domains
-   - Sample reading: original time
-   - Visual drawing: scaled time
-
-4. **Animation Lifecycle**
-   - BAD: Let old animations persist when parameters change
-   - GOOD: Restart animations when state changes
-
-5. **Start Simple, Iterate Complex**
-   - BAD: Try to build complete system immediately
-   - GOOD: Walking skeleton first, then enhance
-
-**The Quote:**
-"you do this every time mate..." - Make surgical changes, don't rewrite entire UI
-
----
-
-## COMMUNICATION
-
-### Wes's Patterns
-
-**Style:**
-- Direct and efficient
-- Numbered questions with lettered options
-- "yes go" means proceed
-- Corrects imprecise terminology immediately
-- Expects exact technical language
-
-**Decision Making:**
-- Answers efficiently ("1.a, 2.b, yes go")
-- Makes technical decisions quickly
-- Knows what he wants
-- Often multi-messages context
-
-**Workflow:**
-- Describes issue
-- May send 2-3 messages elaborating
-- Claude waits for full context
-- Claude asks confirmation
-- "yes go" triggers implementation
-
-### Claude's Response Pattern
-
-**Investigation Phase:**
-- Research the issue
-- Analyze code
-- Discuss options
-- NO building yet
-
-**Ask Phase:**
-- Numbered questions with lettered options
-- One concept per question
-- Clear and distinct options
-- Wait for answer
-
-**Implementation Phase:**
-- One feature per iteration
-- Complete context in notes
-- Reference documentation
-- Use exact technical language
+**.omsp Project State Format:**
+```javascript
+{
+  gridState: {
+    masterTempo: 120,
+    zoomValue: 68,
+    cells: [/* 32 cells with references */]
+  },
+  trackData: [/* 4 tracks with audio timing */],
+  version: "3.4.0"
+}
+```
 
 ---
 
@@ -570,13 +671,13 @@ const scrollOffset = realTimeElapsed * pixelsPerSecond; // NO playbackRate!
 
 ### Planned (Future Versions)
 
-**V3.4.0:**
+**V3.5.0:**
 - Scene launching
 - Quantized triggers
 - MIDI control
 - Ableton Link
 
-**V3.5.0:**
+**V3.6.0:**
 - Real-time shader rendering per track
 - Master output compositing
 - Visual blend modes
@@ -589,14 +690,14 @@ const scrollOffset = realTimeElapsed * pixelsPerSecond; // NO playbackRate!
 
 **Create folder first:**
 ```
-OMS_ShaderBaker_V3_3_0_Deliverables/
+OMS_ShaderBaker_V3_5_0_Deliverables/
   ├── (all 9 files inside)
   └── ...
 ```
 
 **Then zip:**
 ```
-OMS_ShaderBaker_V3_3_0_Deliverables.zip
+OMS_ShaderBaker_V3_5_0_Deliverables.zip
 ```
 
 **Provide ONE download link to the zip file**
@@ -626,23 +727,24 @@ OMS_ShaderBaker_V3_3_0_Deliverables.zip
 
 ## SUCCESS CRITERIA
 
-### V3.3.0 Complete ✅
+### V3.4.0 Complete ✅
 
-- ✅ Beat grid renders on waveforms
-- ✅ Master tempo controls all tracks
-- ✅ Waveforms scroll together perfectly
-- ✅ Audio timing data saves/loads
-- ✅ Multi-BPM tracks align at any tempo
-- ✅ Live tempo changes with zero drift
-- ✅ Professional visual timing reference
-- ✅ "Soldiers at the goalpost" achieved
+- ✅ MacBook Pro 14" optimization (1320px layout)
+- ✅ Visual consistency (all mixer controls match)
+- ✅ Single-letter tab names (C, P, L, W, S, LIVE)
+- ✅ Settings tab functional
+- ✅ Waveform controls modular aesthetic
+- ✅ Zoom knob matches volume knobs
+- ✅ Shader output fixed positioning
+- ✅ Professional hardware mixer aesthetic
 
-### V3.4.0 Complete When
+### V3.5.0 Complete When
 
 - ⏳ Scene launching works (trigger rows)
 - ⏳ Quantized launching (snap to bars)
 - ⏳ MIDI control functional
 - ⏳ Shader preview synced with Controls tab
+- ⏳ Hardware controller integration
 
 ---
 
@@ -655,7 +757,7 @@ OMS_ShaderBaker_V3_3_0_Deliverables.zip
 - Make surgical changes only
 - One feature per iteration
 - Test incrementally
-- Use underscores in version numbers (V3_3_0_A)
+- Use underscores in version numbers (V3_5_0_A)
 - Ask before building
 - Wait for full context
 
@@ -704,7 +806,8 @@ OMS_ShaderBaker_V3_3_0_Deliverables.zip
 **V3.0.0:** 330KB (LIVE UI shell)  
 **V3.1.0:** 390KB (+LIVE functionality)  
 **V3.2.0:** 421KB (+beat grid + tempo sync)  
-**V3.3.0:** 445KB (+perfect sync + shader preview)
+**V3.3.0:** 445KB (+perfect sync + shader preview)  
+**V3.4.0:** 445KB (UI/UX refinement, same size)
 
 **Target:** Keep under 500KB for fast loading
 
@@ -760,8 +863,8 @@ OMS_ShaderBaker_V3_3_0_Deliverables.zip
 
 ### Version Format
 
-**Production:** V3_3_0 (underscores!)  
-**Development:** V3_3_0_A (underscore before letter!)
+**Production:** V3_5_0 (underscores!)  
+**Development:** V3_5_0_A (underscore before letter!)
 
 ### Ask Before Build
 
@@ -790,8 +893,8 @@ OMS_ShaderBaker_V3_3_0_Deliverables.zip
 
 **END OF CLAUDE PROJECT INSTRUCTIONS**
 
-**Current Status:** V3.3.0 Production Ready  
-**Next Version:** V3.4.0 (Scene Launching + MIDI)  
+**Current Status:** V3.4.0 Production Ready  
+**Next Version:** V3.5.0 (Scene Launching + MIDI)  
 **Vision:** V4.0.0 (Complete Ableton + EboSuite replacement)
 
 **Quote:** "Soldiers at the goalpost" - all bars aligned perfectly ✓
@@ -799,6 +902,9 @@ OMS_ShaderBaker_V3_3_0_Deliverables.zip
 **Remember:**
 1. Ask before building
 2. Wait for full context
-3. Use underscores (V3_3_0_A)
+3. Use underscores (V3_5_0_A)
 4. Surgical changes only
 5. Deliverables in folder → zip → ONE link
+6. Never use VJ terminology
+7. Never suggest monetization/splitting files
+8. One Timeline architecture is sacred

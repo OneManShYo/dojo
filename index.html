@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V3_3
+ONEMANSHYO Dojo App V3_4
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V3_3
+Version: V3_4
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V3_3]</title>
+    <title>ONEMANSHYO App [V3_4]</title>
     <style>
         * {
             margin: 0;
@@ -39,40 +39,15 @@ Version: V3_3
         /* V3.0.0-H: App wrapper for centering entire app */
         /* V3.0.0-N: Added side borders for physical device feel */
         /* V3.1.0-V: Solid 10px borders for hardware mixer case aesthetic */
-        /* V3.1.0-V: Using pseudo-elements so borders sit on top */
+        /* V3_4_0_B: Changed from pseudo-elements to CSS borders (no overlap) */
         .app-wrapper {
-            max-width: 1470px;
+            max-width: 1340px; /* V3_4_0_B: 1320px content + 20px borders */
             margin: 0 auto;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            position: relative;
-        }
-        
-        /* V3.1.0-V: Left border as pseudo-element */
-        .app-wrapper::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 10px;
-            background: #666;
-            z-index: 9999;
-            pointer-events: none;
-        }
-        
-        /* V3.1.0-V: Right border as pseudo-element */
-        .app-wrapper::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 10px;
-            background: #666;
-            z-index: 9999;
-            pointer-events: none;
+            border-left: 10px solid #666;
+            border-right: 10px solid #666;
         }
 
         .container {
@@ -93,12 +68,14 @@ Version: V3_3
         }
 
         .preview-panel {
-            width: 1070px; /* V3.0.0-D: Fixed width to fit 14" MacBook Pro (1470px total with 400px left panel) */
-            min-width: 1070px;
-            max-width: 1070px;
+            width: 920px; /* V3_4_0_A: Reduced width to fit MBPro 14" at 1352px viewport (1320px total with 400px left panel) */
+            min-width: 920px;
+            max-width: 920px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
+            padding-left: 1px;  /* V3_4_0_AE: Reduce left gap */
+            padding-right: 4px; /* V3_4_0_AE: Increase right gap for symmetry */
         }
 
         .header {
@@ -173,6 +150,13 @@ Version: V3_3
             flex-direction: column;
             flex: 1;
             overflow-y: auto;
+            /* V3_4_0_AD: Hide scrollbar */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        .tab-content::-webkit-scrollbar {
+            display: none;  /* Chrome, Safari, Opera */
         }
 
         .tab-content.active {
@@ -1066,7 +1050,7 @@ Version: V3_3
         /* Fixed Headers Section */
         .grid-headers {
             display: grid;
-            grid-template-columns: 90px 196px 196px 196px 196px 196px; /* V3.0.0-F: 5 columns (90px scenes + 4 tracks + master × 196px = 1070px) */
+            grid-template-columns: 153px 153px 153px 153px 153px 153px; /* V3_4_0_AA: Equal columns (920px ÷ 6 = 153px, total 918px + 2px buffer) */
             gap: 0;
             background: #0c0c0c;
             padding: 0;
@@ -1083,7 +1067,7 @@ Version: V3_3
 
         .scenes-grid {
             display: grid;
-            grid-template-columns: 90px 196px 196px 196px 196px 196px; /* V3.0.0-F: 5 columns matching grid-headers */
+            grid-template-columns: 153px 153px 153px 153px 153px 153px; /* V3_4_0_AA: Equal columns */
             gap: 0;
             padding: 0;
             min-height: 100%;
@@ -1131,7 +1115,7 @@ Version: V3_3
             background: #1a1a1a;
             border-top: 2px solid #444;
             display: grid;
-            grid-template-columns: 90px 196px 196px 196px 196px 196px; /* V3.0.0-F: 5 columns matching grid layout */
+            grid-template-columns: 153px 153px 153px 153px 153px 153px; /* V3_4_0_AA: Equal columns */
             gap: 0;
             padding: 10px 0;
             flex-shrink: 0;
@@ -1141,7 +1125,10 @@ Version: V3_3
             background: #2a2a2a;
             border: 1px solid #444;
             border-radius: 3px;
-            margin: 0 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         
         /* V3.3.0_O: Zoom Control Styles */
@@ -1166,6 +1153,7 @@ Version: V3_3
             color: #00ffff;
             font-family: monospace;
             font-weight: bold;
+            display: none; /* V3_4_0_N: Hidden to match volume knob style */
         }
 
         .grid-corner {
@@ -1438,7 +1426,6 @@ Version: V3_3
             display: flex; /* V3.2.0-K: Back to flex, each track is independent */
             flex-direction: column;
             gap: 2px;
-            padding: 5px;
             flex-shrink: 0;
             position: relative; /* V3.1.0-Q: For playhead indicator positioning */
         }
@@ -1447,8 +1434,8 @@ Version: V3_3
         .waveform-track {
             flex: 1;
             display: grid; /* V3.2.0-K: Each row is a grid */
-            grid-template-columns: 90px 1fr; /* V3.2.0-K: Control (90px) + Canvas (1fr) */
-            gap: 2px;
+            grid-template-columns: 70px 1fr; /* V3_4_0_J: 70px to match control width */
+            gap: 0; /* V3_4_0_J: No gap - controls flush against canvas */
             background: transparent;
             border: none;
             border-radius: 0;
@@ -1459,30 +1446,40 @@ Version: V3_3
         .track-waveform-control {
             background: #2a2a2a; /* Match SCENES */
             border: 1px solid #444;
-            border-radius: 2px;
+            border-radius: 0; /* V3_4_0_I: Sharp corners for modular look */
             display: flex; /* V3.2.0-M: Flex for button rows */
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2px 3px; /* V3.2.0-M: Small padding for buttons */
-            gap: 2px; /* V3.2.0-M: Gap between button rows */
+            align-items: stretch; /* V3_4_0_K: Stretch to fill width (not center) */
+            justify-content: flex-start; /* V3_4_0_J: No centering - buttons start at top */
+            padding: 0; /* V3_4_0_I: No padding for modular look */
+            gap: 0; /* V3_4_0_I: No gap between rows */
             position: relative; /* V3.3.0_Q: For z-index to work */
             z-index: 10; /* V3.3.0_Q: On top of waveforms */
+            width: 70px; /* V3_4_0_H: Align with SCENES column */
+            height: 100%; /* V3_4_0_J: Fill track height */
         }
 
         /* V3.2.0-M: Button rows inside track control */
+        /* V3_4_0_H: Gap reduced to 2px for 70px container fit */
+        /* V3_4_0_I: Gap removed for modular look */
+        /* V3_4_0_J: Flex 1 to fill container height equally */
         .track-control-btn-row {
             display: flex;
-            gap: 3px;
+            gap: 0;
             align-items: center;
             justify-content: center;
+            flex: 1; /* V3_4_0_J: Fill available height */
         }
 
         /* V3.2.0-M: Track control buttons (base style) */
+        /* V3_4_0_G: Set width to 70px to align with SCENES column */
+        /* V3_4_0_H: Changed to 32px for even fit in 70px container */
+        /* V3_4_0_I: Changed to 35px, removed border-radius for modular look */
+        /* V3_4_0_J: Height 100% to fill row */
         .track-control-btn {
             background: #3a3a3a;
             border: 1px solid #555;
-            border-radius: 2px;
+            border-radius: 0;
             color: #888;
             font-size: 10px;
             font-weight: 600;
@@ -1490,7 +1487,8 @@ Version: V3_3
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 24px;
+            height: 100%; /* V3_4_0_J: Fill row height */
+            width: 35px;
         }
 
         .track-control-btn:hover {
@@ -1500,29 +1498,6 @@ Version: V3_3
 
         .track-control-btn:active {
             background: #2a2a2a;
-        }
-
-        /* V3.2.0-M: Quantize button */
-        .track-control-btn.quantize {
-            width: 24px;
-        }
-
-        .track-control-btn.quantize.active {
-            background: #00d4ff;
-            border-color: #00d4ff;
-            color: #000;
-        }
-
-        /* V3.2.0-M: Bar jump buttons */
-        .track-control-btn.bar-left,
-        .track-control-btn.bar-right {
-            width: 28px;
-        }
-
-        /* V3.2.0-M: Nudge buttons */
-        .track-control-btn.nudge-left,
-        .track-control-btn.nudge-right {
-            width: 40px;
         }
 
         /* V3.2.0-K: Waveform canvas container (right cell in each row) */
@@ -1564,18 +1539,20 @@ Version: V3_3
     <!-- V2.1.1-A: Header now full-width outside container -->
     <div class="header">
         <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-        <span class="version">[V3_3]</span>
+        <span class="version">[V3_4]</span>
     </div>
     
     <div class="container">
         <div class="left-panel">
             
             <!-- V2.1.0-C: Tab Bar -->
+            <!-- V3_4_0_C: Renamed tabs to single letters, added Settings tab -->
             <div class="tab-bar">
-                <button class="tab active" id="controlsTab" onclick="switchTab('controls')">Controls</button>
-                <button class="tab" id="presetsTab" onclick="switchTab('presets')">Presets</button>
-                <button class="tab" id="libraryTab" onclick="switchTab('library')">Library</button>
-                <button class="tab" id="codeTab" onclick="switchTab('code')">Code</button>
+                <button class="tab active" id="controlsTab" onclick="switchTab('controls')">C</button>
+                <button class="tab" id="presetsTab" onclick="switchTab('presets')">P</button>
+                <button class="tab" id="libraryTab" onclick="switchTab('library')">L</button>
+                <button class="tab" id="codeTab" onclick="switchTab('code')">W</button>
+                <button class="tab" id="settingsTab" onclick="switchTab('settings')">S</button>
                 <button class="tab" id="liveTab" onclick="switchTab('live')">LIVE</button>
             </div>
             
@@ -2012,8 +1989,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             <!-- V2.8.0-M: Library Tab Content (Reorganized) -->
             <div class="tab-content" id="libraryTabContent">
                 <div class="controls-section" style="flex: 1; display: flex; flex-direction: column; border-bottom: none;">
-                    <div class="controls" style="flex: 1; display: flex; flex-direction: column;">
-                        <div class="shader-header">Container Library</div>
+                    <div class="controls" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+                        <div class="shader-header">Containers</div>
                         
                         <!-- V2.8.0-M: Add Current / Import at top (daily use) -->
                         <div class="control-row" style="margin-bottom: 12px;">
@@ -2045,39 +2022,50 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                 No containers in library. Click "Add Current" to save your first container.
                             </div>
                         </div>
-                        
-                        <!-- V3.4.0_BETA_A: Shader Preview -->
-                        <div style="margin-top: 20px; padding: 20px; border-top: 1px solid #333;">
-                            <div style="color: #00d4ff; font-size: 13px; font-weight: 500; margin-bottom: 10px; text-align: center;">
-                                LIVE SHADER OUTPUT
-                            </div>
-                            <div style="position: relative; width: 100%; padding-bottom: 56.25%; background: #000; border: 2px solid #00d4ff;">
-                                <canvas id="liveShaderCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                    </div>
+                    
+                    <!-- V3.4.0_BETA_A: Shader Preview -->
+                </div>
+            </div><!-- End Library Tab Content -->
+            
+            <!-- V3_4_0_C: Settings Tab Content -->
+            <!-- V3_4_0_D: Added Library Folder button (moved from Library tab) -->
+            <div class="tab-content" id="settingsTabContent">
+                <div class="controls-section">
+                    <div class="shader-header">APPLICATION</div>
+                    
+                    <!-- V3_4_0_D: Library Folder Setup (moved from Library tab) -->
+                    <!-- V3_4_0_E: Renamed to Application Folder (where all files stored) -->
+                    <div style="margin-top: 20px;">
+                        <div class="control-row">
+                            <div class="control-group">
+                                <button class="btn" onclick="setupApplicationFolder()" id="setupApplicationFolderBtn">Set Application Folder</button>
                             </div>
                         </div>
                         
-                        <!-- V2.9.0-L: Setup Library folder (not just audio) -->
-                        <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #333;">
-                            <div class="control-row">
-                                <div class="control-group">
-                                    <button class="btn" onclick="setupAudioLibrary()" id="setupLibraryBtn">Set Library Folder</button>
-                                </div>
-                            </div>
-                            
-                            <!-- V2.9.0-L: Library Info Box -->
-                            <div class="control-state-info" id="audioLibraryInfo" style="display: none;">
-                                <div class="control-state-info-title">Library</div>
-                                <div class="control-state-info-content">
-                                    <div class="info-row">
-                                        <span style="color: #00d4ff;">✓</span>
-                                        <span id="audioLibraryFolderName">Not configured</span>
-                                    </div>
+                        <!-- Library Info Box -->
+                        <div class="control-state-info" id="applicationFolderInfo" style="display: none;">
+                            <div class="control-state-info-title">Application Folder</div>
+                            <div class="control-state-info-content">
+                                <div class="info-row">
+                                    <span style="color: #00d4ff;">✓</span>
+                                    <span id="applicationFolderName">Not configured</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div><!-- End Library Tab Content -->
+            </div><!-- End Settings Tab Content -->
+            
+            <!-- V3.4.0_M: Only visible on LIVE tab -->
+            <!-- V3.4.0_O: Removed label for more canvas space on MacBook Pro 14" -->
+            <!-- V3.4.0_Q: Moved outside .controls to fix at bottom (no scrolling) -->
+            <!-- V3_4_0_AC: Moved outside tab-content - direct child of left-panel for fixed bottom positioning -->
+            <div id="liveShaderOutputContainer" style="padding: 20px; border-top: 1px solid #333; display: none; flex: 0 0 auto;">
+                <div style="position: relative; width: 100%; padding-bottom: 56.25%; background: #000; border: 2px solid #00d4ff;">
+                    <canvas id="liveShaderCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                </div>
+            </div>
         </div>
         
         <div class="preview-panel">
@@ -2259,9 +2247,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             <div class="waveform-track">
                                 <div class="track-waveform-control">
                                     <div class="track-control-btn-row">
-                                        <button class="track-control-btn quantize" id="quantizeBtn1">Q</button>
                                         <button class="track-control-btn bar-left" id="barLeftBtn1">|&lt;</button>
-                                        <button class="track-control-btn bar-right" id="barRightBtn1">|&gt;</button>
+                                        <button class="track-control-btn bar-right" id="barRightBtn1">&gt;|</button>
                                     </div>
                                     <div class="track-control-btn-row">
                                         <button class="track-control-btn nudge-left" id="nudgeLeftBtn1">&lt;&lt;</button>
@@ -2275,9 +2262,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             <div class="waveform-track">
                                 <div class="track-waveform-control">
                                     <div class="track-control-btn-row">
-                                        <button class="track-control-btn quantize" id="quantizeBtn2">Q</button>
                                         <button class="track-control-btn bar-left" id="barLeftBtn2">|&lt;</button>
-                                        <button class="track-control-btn bar-right" id="barRightBtn2">|&gt;</button>
+                                        <button class="track-control-btn bar-right" id="barRightBtn2">&gt;|</button>
                                     </div>
                                     <div class="track-control-btn-row">
                                         <button class="track-control-btn nudge-left" id="nudgeLeftBtn2">&lt;&lt;</button>
@@ -2291,9 +2277,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             <div class="waveform-track">
                                 <div class="track-waveform-control">
                                     <div class="track-control-btn-row">
-                                        <button class="track-control-btn quantize" id="quantizeBtn3">Q</button>
                                         <button class="track-control-btn bar-left" id="barLeftBtn3">|&lt;</button>
-                                        <button class="track-control-btn bar-right" id="barRightBtn3">|&gt;</button>
+                                        <button class="track-control-btn bar-right" id="barRightBtn3">&gt;|</button>
                                     </div>
                                     <div class="track-control-btn-row">
                                         <button class="track-control-btn nudge-left" id="nudgeLeftBtn3">&lt;&lt;</button>
@@ -2307,9 +2292,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             <div class="waveform-track">
                                 <div class="track-waveform-control">
                                     <div class="track-control-btn-row">
-                                        <button class="track-control-btn quantize" id="quantizeBtn4">Q</button>
                                         <button class="track-control-btn bar-left" id="barLeftBtn4">|&lt;</button>
-                                        <button class="track-control-btn bar-right" id="barRightBtn4">|&gt;</button>
+                                        <button class="track-control-btn bar-right" id="barRightBtn4">&gt;|</button>
                                     </div>
                                     <div class="track-control-btn-row">
                                         <button class="track-control-btn nudge-left" id="nudgeLeftBtn4">&lt;&lt;</button>
@@ -4457,12 +4441,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('codeTabContent').classList.remove('active');
             document.getElementById('presetsTabContent').classList.remove('active');
             document.getElementById('libraryTabContent').classList.remove('active'); // V2.8.0-F
+            document.getElementById('settingsTabContent').classList.remove('active'); // V3_4_0_C
             
             // Deactivate all tabs
             document.getElementById('controlsTab').classList.remove('active');
             document.getElementById('codeTab').classList.remove('active');
             document.getElementById('presetsTab').classList.remove('active');
             document.getElementById('libraryTab').classList.remove('active'); // V2.8.0-F
+            document.getElementById('settingsTab').classList.remove('active'); // V3_4_0_C
             document.getElementById('liveTab').classList.remove('active'); // V3.0.0-B
             
             // V3.0.0-B: Hide/show right panel content based on tab
@@ -4470,6 +4456,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const waveformSection = document.querySelector('.waveform-section');
             const audioControlsStrip = document.querySelector('.audio-controls-strip');
             const liveMixerContainer = document.getElementById('liveMixerContainer');
+            
+            // V3_4_0_M: Live shader output container (only show on LIVE tab)
+            const liveShaderOutputContainer = document.getElementById('liveShaderOutputContainer');
             
             // Show selected tab content and activate tab
             if (tabName === 'controls') {
@@ -4480,6 +4469,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 waveformSection.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
+                liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
             } else if (tabName === 'code') {
                 document.getElementById('codeTabContent').classList.add('active');
                 document.getElementById('codeTab').classList.add('active');
@@ -4488,6 +4478,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 waveformSection.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
+                liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
             } else if (tabName === 'presets') {
                 document.getElementById('presetsTabContent').classList.add('active');
                 document.getElementById('presetsTab').classList.add('active');
@@ -4496,10 +4487,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 waveformSection.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
+                liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
             } else if (tabName === 'library') { // V2.8.0-F
                 // V3.2.0-X: Auto-trigger folder picker if LIBRARY not set
-                if (!audioLibraryHandle) {
-                    setupAudioLibrary();
+                if (!applicationFolderHandle) {
+                    setupApplicationFolder();
                     return; // Don't switch tab yet, let picker complete
                 }
                 
@@ -4511,16 +4503,26 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 waveformSection.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
+                liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
                 
                 // V2.9.0-P: Auto-focus first card for keyboard navigation
                 setTimeout(() => {
                     const firstCard = document.querySelector('.library-card');
                     if (firstCard) firstCard.focus();
                 }, 50);
+            } else if (tabName === 'settings') { // V3_4_0_C
+                document.getElementById('settingsTabContent').classList.add('active');
+                document.getElementById('settingsTab').classList.add('active');
+                // Show canvas, hide LIVE mixer
+                previewContainer.style.display = 'flex';
+                waveformSection.style.display = 'flex';
+                audioControlsStrip.style.display = 'flex';
+                liveMixerContainer.style.display = 'none';
+                liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
             } else if (tabName === 'live') { // V3.0.0-B
                 // V3.2.0-X: Auto-trigger folder picker if LIBRARY not set
-                if (!audioLibraryHandle) {
-                    setupAudioLibrary();
+                if (!applicationFolderHandle) {
+                    setupApplicationFolder();
                     return; // Don't switch tab yet, let picker complete
                 }
                 
@@ -4534,6 +4536,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 waveformSection.style.display = 'none';
                 audioControlsStrip.style.display = 'none';
                 liveMixerContainer.style.display = 'block';
+                liveShaderOutputContainer.style.display = 'block'; // V3_4_0_M: Show ONLY on LIVE tab
                 
                 // Initialize LIVE tab if not already initialized
                 if (!window.liveInitialized) {
@@ -4675,9 +4678,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         // V2.8.0-F: LIBRARY MANAGEMENT FUNCTIONS
         // V2.8.0-L: File System Access API for Audio Library
         
-        let audioLibraryHandle = null;
+        let applicationFolderHandle = null;
         
-        async function setupAudioLibrary() {
+        async function setupApplicationFolder() {
             try {
                 // Check if File System Access API is supported
                 if (!('showDirectoryPicker' in window)) {
@@ -4686,18 +4689,18 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 }
                 
                 // Request directory picker
-                audioLibraryHandle = await window.showDirectoryPicker({
+                applicationFolderHandle = await window.showDirectoryPicker({
                     mode: 'read',
                     startIn: 'music'
                 });
                 
                 // Store handle in IndexedDB for persistence
-                await storeAudioLibraryHandle(audioLibraryHandle);
+                await storeApplicationFolderHandle(applicationFolderHandle);
                 
                 // V2.8.0-M: Update UI - show info box and folder name
-                document.getElementById('audioLibraryInfo').style.display = 'block';
-                document.getElementById('audioLibraryFolderName').textContent = audioLibraryHandle.name;
-                document.getElementById('setupLibraryBtn').textContent = 'Change Library';
+                document.getElementById('applicationFolderInfo').style.display = 'block';
+                document.getElementById('applicationFolderName').textContent = applicationFolderHandle.name;
+                document.getElementById('setupApplicationFolderBtn').textContent = 'Change Folder';
                 
                 // V2.9.0-L: Load Control States from LIBRARY
                 await updateControlStatesDropdown();
@@ -4709,29 +4712,29 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // User must explicitly click "Load" to restore grid state
                 // await autoLoadDefaultProject();
                 
-                showStatus(`Library set: ${audioLibraryHandle.name}`, 'success');
+                showStatus(`Library set: ${applicationFolderHandle.name}`, 'success');
             } catch (error) {
                 if (error.name !== 'AbortError') {
-                    console.error('Failed to setup audio library:', error);
-                    showStatus('Failed to setup audio library', 'error');
+                    console.error('Failed to setup application folder:', error);
+                    showStatus('Failed to setup application folder', 'error');
                 }
             }
         }
         
-        async function storeAudioLibraryHandle(handle) {
+        async function storeApplicationFolderHandle(handle) {
             const db = await openLibraryDB();
             const tx = db.transaction('settings', 'readwrite');
-            await tx.objectStore('settings').put(handle, 'audioLibraryHandle');
+            await tx.objectStore('settings').put(handle, 'applicationFolderHandle');
         }
         
-        async function loadAudioLibraryHandle() {
+        async function loadApplicationFolderHandle() {
             console.log('V3.1.0-U: === LOADING LIBRARY HANDLE FROM INDEXEDDB ===');
             try {
                 const db = await openLibraryDB();
                 console.log('V3.1.0-U: IndexedDB opened successfully');
                 
                 const tx = db.transaction('settings', 'readonly');
-                const handle = await tx.objectStore('settings').get('audioLibraryHandle');
+                const handle = await tx.objectStore('settings').get('applicationFolderHandle');
                 
                 console.log('V3.1.0-U: Handle from IndexedDB:', handle ? 'FOUND' : 'NOT FOUND');
                 
@@ -4748,10 +4751,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         }
                         
                         // Handle works!
-                        audioLibraryHandle = handle;
-                        document.getElementById('audioLibraryInfo').style.display = 'block';
-                        document.getElementById('audioLibraryFolderName').textContent = handle.name;
-                        document.getElementById('setupLibraryBtn').textContent = 'Change Library';
+                        applicationFolderHandle = handle;
+                        document.getElementById('applicationFolderInfo').style.display = 'block';
+                        document.getElementById('applicationFolderName').textContent = handle.name;
+                        document.getElementById('setupApplicationFolderBtn').textContent = 'Change Folder';
                         
                         // V2.9.0-L: Load Control States from LIBRARY
                         await updateControlStatesDropdown();
@@ -4773,7 +4776,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         // Remove stale handle
                         const dbClear = await openLibraryDB();
                         const txClear = dbClear.transaction('settings', 'readwrite');
-                        await txClear.objectStore('settings').delete('audioLibraryHandle');
+                        await txClear.objectStore('settings').delete('applicationFolderHandle');
                         console.log('V3.1.0-U: Removed stale handle, user must re-select folder');
                     }
                 } else {
@@ -4800,12 +4803,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         }
         
         async function getAudioFromLibrary(filename) {
-            if (!audioLibraryHandle) {
-                throw new Error('No audio library configured');
+            if (!applicationFolderHandle) {
+                throw new Error('No application folder configured');
             }
             
             try {
-                const fileHandle = await audioLibraryHandle.getFileHandle(filename);
+                const fileHandle = await applicationFolderHandle.getFileHandle(filename);
                 const file = await fileHandle.getFile();
                 return file;
             } catch (error) {
@@ -4815,14 +4818,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // V2.9.0-L: Check if Library folder is set before saves
         async function checkLibrarySet(autoOpen = false) {
-            if (!audioLibraryHandle) {
-                showStatus('Set Library folder first to save', 'error');
+            if (!applicationFolderHandle) {
+                showStatus('Set Application folder first to save', 'error');
                 if (autoOpen) {
                     // V2.9.0-V: Auto-open Library picker
                     console.log('V2.9.0-V: Auto-opening Library folder picker');
-                    await setAudioLibrary();
+                    await setupApplicationFolder();
                     // Check again after picker
-                    return !!audioLibraryHandle;
+                    return !!applicationFolderHandle;
                 }
                 return false;
             }
@@ -4896,9 +4899,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // V2.9.0-T: Auto-save .oms file to LIBRARY folder (uses container.name)
         async function saveContainerToOMS(container) {
-            if (!audioLibraryHandle) {
+            if (!applicationFolderHandle) {
                 console.log('V2.9.0-T: LIBRARY not set up - skipping .oms save');
-                showStatus('Container saved to browser. Set Library folder to save .oms file.', 'info');
+                showStatus('Container saved to browser. Set Application folder to save .oms file.', 'info');
                 return;
             }
             
@@ -4912,7 +4915,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const omsContent = JSON.stringify(container, null, 2);
                 
                 // Write to LIBRARY folder
-                const fileHandle = await audioLibraryHandle.getFileHandle(omsFilename, { create: true });
+                const fileHandle = await applicationFolderHandle.getFileHandle(omsFilename, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(omsContent);
                 await writable.close();
@@ -5149,7 +5152,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             saveLibraryContainers(containers);
             
             // V2.9.0-T: Rename .oms file in LIBRARY
-            if (audioLibraryHandle) {
+            if (applicationFolderHandle) {
                 try {
                     const oldFilename = oldName + '.oms';
                     const newFilename = newName + '.oms';
@@ -5158,7 +5161,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     
                     // Delete old .oms file
                     try {
-                        await audioLibraryHandle.removeEntry(oldFilename);
+                        await applicationFolderHandle.removeEntry(oldFilename);
                         console.log('V2.9.0-T: Deleted old .oms file');
                     } catch (error) {
                         console.warn('V2.9.0-T: Could not delete old .oms file:', error);
@@ -5193,11 +5196,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // V2.9.0-T: Read .oms file from LIBRARY if available
             let containerData = container; // Default to localStorage data
             
-            if (audioLibraryHandle) {
+            if (applicationFolderHandle) {
                 try {
                     console.log('V2.9.0-T: Reading .oms file from LIBRARY:', container.name + '.oms');
                     const omsFilename = container.name + '.oms';
-                    const fileHandle = await audioLibraryHandle.getFileHandle(omsFilename);
+                    const fileHandle = await applicationFolderHandle.getFileHandle(omsFilename);
                     const file = await fileHandle.getFile();
                     const text = await file.text();
                     containerData = JSON.parse(text);
@@ -5237,9 +5240,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             if (containerData.audioFilename) {
                 console.log('V2.9.0-T: Attempting to load audio from LIBRARY...');
                 try {
-                    if (!audioLibraryHandle) {
+                    if (!applicationFolderHandle) {
                         console.log('V2.9.0-T: LIBRARY not set up');
-                        showStatus(`Container loaded. Set Library folder to load: ${containerData.audioFilename}`, 'info');
+                        showStatus(`Container loaded. Set Application folder to load: ${containerData.audioFilename}`, 'info');
                     } else {
                         console.log('V2.9.0-T: Getting audio file from LIBRARY...');
                         const file = await getAudioFromLibrary(containerData.audioFilename);
@@ -5409,10 +5412,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             }
             
             // V2.9.0-T: Delete .oms file from LIBRARY (uses container.name)
-            if (audioLibraryHandle) {
+            if (applicationFolderHandle) {
                 try {
                     const omsFilename = container.name + '.oms';
-                    await audioLibraryHandle.removeEntry(omsFilename);
+                    await applicationFolderHandle.removeEntry(omsFilename);
                     console.log('V2.9.0-T: Deleted .oms file:', omsFilename);
                 } catch (error) {
                     console.error('V2.9.0-T: Failed to delete .oms file:', error);
@@ -7318,7 +7321,7 @@ ${shaderCode}
                 const jsonContent = JSON.stringify(controlStateOms, null, 2);
                 
                 // Write to LIBRARY folder
-                const fileHandle = await audioLibraryHandle.getFileHandle(filename, { create: true });
+                const fileHandle = await applicationFolderHandle.getFileHandle(filename, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(jsonContent);
                 await writable.close();
@@ -7430,12 +7433,12 @@ ${shaderCode}
             }
             
             // V2.9.0-V: Load user states from LIBRARY folder (*_ControlState.oms files)
-            if (audioLibraryHandle) {
+            if (applicationFolderHandle) {
                 try {
                     const userStates = {};
                     
                     // Iterate through files in LIBRARY folder
-                    for await (const entry of audioLibraryHandle.values()) {
+                    for await (const entry of applicationFolderHandle.values()) {
                         if (entry.kind === 'file' && entry.name.endsWith('_ControlState.oms')) {
                             try {
                                 const file = await entry.getFile();
@@ -7503,11 +7506,11 @@ ${shaderCode}
             }
             
             // V2.9.0-V: Load user state from LIBRARY (*_ControlState.oms files)
-            if (audioLibraryHandle) {
+            if (applicationFolderHandle) {
                 try {
                     // Scan LIBRARY for matching ID
                     let foundState = null;
-                    for await (const entry of audioLibraryHandle.values()) {
+                    for await (const entry of applicationFolderHandle.values()) {
                         if (entry.kind === 'file' && entry.name.endsWith('_ControlState.oms')) {
                             const file = await entry.getFile();
                             const text = await file.text();
@@ -7755,14 +7758,14 @@ ${shaderCode}
         
         // V2.8.0-L: Load audio library handle from IndexedDB
         // V3.1.0-U: Auto-prompt if not found
-        loadAudioLibraryHandle().then(loaded => {
+        loadApplicationFolderHandle().then(loaded => {
             if (loaded) {
                 console.log('V3.1.0-U: Audio library handle restored automatically');
             } else {
                 console.log('V3.1.0-U: No library handle found, prompting user...');
                 // Auto-prompt for folder instead of making user click button
                 setTimeout(() => {
-                    setAudioLibrary();
+                    setupApplicationFolder();
                 }, 500); // Small delay to let page finish loading
             }
         });
@@ -8371,12 +8374,20 @@ ${shaderCode}
             muteBtnMaster.addEventListener('click', () => muteBtnMaster.classList.toggle('active'));
             
             // V3.3.0_O: Initialize Zoom Control in mixer-spacer
+            // V3_4_0_R: Use mixer-layout structure to align with volume knobs
+            // V3_4_0_S: Two-row structure - label aligns with M/S, knob aligns with volume
+            // V3_4_0_Y: Removed ALL inline styles - let CSS classes handle layout naturally
+            // V3_4_0_Z: gap: 0 removes empty space (no mixer-right in zoom control)
+            // V3_4_0_AB: Center label and knob in 153px column (all columns now equal width)
             const mixerSpacer = document.querySelector('.mixer-spacer');
             mixerSpacer.innerHTML = `
-                <div class="zoom-control">
+                <div class="track-control-row" style="justify-content: center;">
                     <div class="zoom-label">ZOOM</div>
-                    <canvas class="rotary-knob" id="rotaryZoom" width="60" height="60"></canvas>
-                    <div class="zoom-value" id="zoomValue">10</div>
+                </div>
+                <div class="mixer-layout" style="gap: 0; justify-content: center;">
+                    <div class="mixer-left">
+                        <canvas class="rotary-knob" id="rotaryZoom" width="60" height="60"></canvas>
+                    </div>
                 </div>
             `;
             
@@ -8395,28 +8406,36 @@ ${shaderCode}
                 ctxZoom.arc(30, 30, 28, 0, Math.PI * 2);
                 ctxZoom.fill();
                 
-                // V3.3.0_S: Use dynamic range (minZoom-maxZoom, map to 0-1)
-                const range = gridState.maxZoom - gridState.minZoom;
-                const normalizedValue = (gridState.zoomValue - gridState.minZoom) / range;
-                const startAngle = Math.PI * 0.75;
-                const endAngle = startAngle + (Math.PI * 1.5 * normalizedValue);
-                
-                ctxZoom.strokeStyle = '#00ffff'; // Cyan
-                ctxZoom.lineWidth = 4;
-                ctxZoom.lineCap = 'round';
-                ctxZoom.beginPath();
-                ctxZoom.arc(30, 30, 24, startAngle, endAngle);
+                // Border
+                ctxZoom.strokeStyle = '#444';
+                ctxZoom.lineWidth = 2;
                 ctxZoom.stroke();
                 
-                // Indicator dot
-                const angle = startAngle + (Math.PI * 1.5 * normalizedValue);
-                const dotX = 30 + Math.cos(angle) * 20;
-                const dotY = 30 + Math.sin(angle) * 20;
+                // V3.4.0_P: Match volume knob style exactly
+                // Normalize zoom value to 0-1 range
+                const range = gridState.maxZoom - gridState.minZoom;
+                const normalizedValue = (gridState.zoomValue - gridState.minZoom) / range;
                 
-                ctxZoom.fillStyle = '#ffffff';
+                // Arc range (-150° to +150°, 300° total range - same as volume knobs)
+                // Add Math.PI to rotate 180° (flip knobs over - same as volume knobs)
+                const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                const currentAngle = startAngle + (endAngle - startAngle) * normalizedValue;
+                
+                // Cyan arc (same as volume knobs)
+                ctxZoom.strokeStyle = '#00d4ff';
+                ctxZoom.lineWidth = 3;
                 ctxZoom.beginPath();
-                ctxZoom.arc(dotX, dotY, 3, 0, Math.PI * 2);
-                ctxZoom.fill();
+                ctxZoom.arc(30, 30, 22, startAngle, currentAngle);
+                ctxZoom.stroke();
+                
+                // Center indicator line (same as volume knobs)
+                ctxZoom.strokeStyle = '#fff';
+                ctxZoom.lineWidth = 2;
+                ctxZoom.beginPath();
+                ctxZoom.moveTo(30, 30);
+                ctxZoom.lineTo(30 + Math.cos(currentAngle) * 18, 30 + Math.sin(currentAngle) * 18);
+                ctxZoom.stroke();
             }
             
             function updateZoom(newValue) {
@@ -8424,8 +8443,7 @@ ${shaderCode}
                 gridState.zoomValue = Math.max(gridState.minZoom, Math.min(gridState.maxZoom, Math.round(newValue)));
                 drawZoomKnob();
                 
-                // Update display
-                document.getElementById('zoomValue').textContent = gridState.zoomValue;
+                // V3_4_0_R: Removed zoomValue display (no longer in UI)
                 
                 // V3.3.0_O: Redraw all waveforms with new zoom
                 for (let t = 1; t <= NUM_TRACKS; t++) {
@@ -8476,9 +8494,9 @@ ${shaderCode}
                     gridState.zoomValue = gridState.maxZoom;
                 }
                 
-                // Redraw knob and update display
+                // Redraw knob
+                // V3_4_0_R: Removed zoomValue display (no longer in UI)
                 drawZoomKnob();
-                document.getElementById('zoomValue').textContent = gridState.zoomValue;
             }
             
             canvasZoom.addEventListener('mousedown', (e) => {
@@ -9434,7 +9452,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                     console.log(`V3.2.0-D: Using pre-loaded buffer for "${cellData.name}"`);
                 } else {
                     // Fallback: Load audio file from LIBRARY (slower, async)
-                    if (!audioLibraryHandle) {
+                    if (!applicationFolderHandle) {
                         showStatus('LIBRARY folder not set', 'error');
                         return;
                     }
@@ -9876,13 +9894,13 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
         // Auto-save to default.omsp
         // V3.1.0-C: Auto-save immediately (no debounce)
         async function autoSaveProject() {
-            if (!audioLibraryHandle) return;
+            if (!applicationFolderHandle) return;
 
             try {
                 const projectState = getCurrentProjectState();
                 const filename = 'default.omsp';
 
-                const fileHandle = await audioLibraryHandle.getFileHandle(filename, { create: true });
+                const fileHandle = await applicationFolderHandle.getFileHandle(filename, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(JSON.stringify(projectState, null, 2));
                 await writable.close();
@@ -9896,10 +9914,10 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 
         // Auto-load default.omsp on startup
         async function autoLoadDefaultProject() {
-            if (!audioLibraryHandle) return;
+            if (!applicationFolderHandle) return;
 
             try {
-                const fileHandle = await audioLibraryHandle.getFileHandle('default.omsp');
+                const fileHandle = await applicationFolderHandle.getFileHandle('default.omsp');
                 const file = await fileHandle.getFile();
                 const text = await file.text();
                 const projectData = JSON.parse(text);
@@ -9966,7 +9984,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                     filename = `${baseName}_${dateStr}_${counterStr}.omsp`;
 
                     try {
-                        await audioLibraryHandle.getFileHandle(filename);
+                        await applicationFolderHandle.getFileHandle(filename);
                         counter++;
                     } catch {
                         fileExists = false;
@@ -9977,7 +9995,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                 const projectState = getCurrentProjectState();
                 projectState.name = baseName;
 
-                const fileHandle = await audioLibraryHandle.getFileHandle(filename, { create: true });
+                const fileHandle = await applicationFolderHandle.getFileHandle(filename, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(JSON.stringify(projectState, null, 2));
                 await writable.close();
@@ -10018,7 +10036,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                 // Special case: default.omsp
                 const filename = selectedValue === 'default' ? 'default.omsp' : selectedValue;
 
-                const fileHandle = await audioLibraryHandle.getFileHandle(filename);
+                const fileHandle = await applicationFolderHandle.getFileHandle(filename);
                 const file = await fileHandle.getFile();
                 const text = await file.text();
                 const projectData = JSON.parse(text);
@@ -10050,7 +10068,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
             if (!confirm) return;
 
             try {
-                await audioLibraryHandle.removeEntry(selectedValue);
+                await applicationFolderHandle.removeEntry(selectedValue);
 
                 await updateProjectStatesDropdown();
                 select.value = '';
@@ -10072,13 +10090,13 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 
             select.innerHTML = '<option value="">No Project Loaded</option>';
 
-            if (!audioLibraryHandle) return;
+            if (!applicationFolderHandle) return;
 
             try {
                 const projects = [];
 
                 // Scan for .omsp files
-                for await (const entry of audioLibraryHandle.values()) {
+                for await (const entry of applicationFolderHandle.values()) {
                     if (entry.kind === 'file' && entry.name.endsWith('.omsp')) {
                         try {
                             const file = await entry.getFile();
@@ -10166,10 +10184,10 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 
                     // Load project info for display
                     try {
-                        if (!audioLibraryHandle) return;
+                        if (!applicationFolderHandle) return;
                         
                         const filename = selectedValue === 'default' ? 'default.omsp' : selectedValue;
-                        const fileHandle = await audioLibraryHandle.getFileHandle(filename);
+                        const fileHandle = await applicationFolderHandle.getFileHandle(filename);
                         const file = await fileHandle.getFile();
                         const text = await file.text();
                         const projectData = JSON.parse(text);
