@@ -1,7 +1,7 @@
-# OMS BETA V4_7_0 - USER GUIDE
+# ONEMANSHYO BETA - USER GUIDE
 
-**Version:** Beta V4_7_0  
-**Date:** December 12, 2025  
+**Version:** Beta V4_8_0  
+**Date:** December 19, 2025  
 **License:** GPL-3.0
 
 ---
@@ -15,9 +15,10 @@
 5. Credits
 
 INDEX A: DJ 101 Foundation
-INDEX B: Claude Shader Creation
-INDEX C: FFmpeg Video Conversion
-INDEX D: Visual Vocabulary
+INDEX B: ONEMANSHYO Origin Story
+INDEX C: Shader Creation Guide
+INDEX D: FFmpeg Video Conversion
+INDEX E: Visual Vocabulary
 
 ---
 
@@ -32,7 +33,7 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 **Browser:** Chrome (WebGPU support required)  
 **Screen:** 1352×761 effective viewport (14" MacBook Pro)
 
-**File:** `OMS_Beta_V4_7_0.html`
+**File:** `OMS_Beta_V4_8_0.html`
 
 ---
 
@@ -43,14 +44,14 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 If you want to create visuals based on music timing without setting up a library:
 
 **Audio-Reactive Visuals (reacts to your music):**
-1. Open `OMS_Beta_V4_7_0.html`
+1. Open `OMS_Beta_V4_8_0.html`
 2. Drag your audio file (.mp3, .wav) onto the waveform
 3. Visuals automatically react to bass, mids, treble
 4. Click [Render Video]
 5. Get SILENT video with pre-baked reactivity
 
 **Tempo-Synced Visuals (animated to BPM, no audio needed):**
-1. Open `OMS_Beta_V4_7_0.html`
+1. Open `OMS_Beta_V4_8_0.html`
 2. Set tempo (e.g., 128 BPM)
 3. Set duration (e.g., 03:30.000)
 4. Click [Render Video]
@@ -123,11 +124,17 @@ A **shader** is GPU code that renders visuals in real-time.
 
 **Language:** WGSL (WebGPU Shading Language)
 
-**What it receives (uniforms):**
-- `uTime` - seconds since start
-- `uTempo` - beats per minute
-- `uModA`, `uModB`, `uModC` - modulators (0.0-1.0)
-- `uResolution` - canvas dimensions
+**What it receives (uniforms - auto-injected by app):**
+- `uniforms.time` - seconds since start
+- `uniforms.tempo` - beats per minute
+- `uniforms.beat` - tempo-synced beat position (V4_8_0)
+- `uniforms.modA`, `uniforms.modB`, `uniforms.modC` - combined modulators (0.0-1.0)
+- `uniforms.resolutionX`, `uniforms.resolutionY` - canvas dimensions
+
+**Independent modulator components (V4_8_0):**
+- `uniforms.shaderModAWave`, `shaderModBWave`, `shaderModCWave` - waveform output (0-1)
+- `uniforms.shaderModAGain`, `shaderModBGain`, `shaderModCGain` - gain value (0-1)
+- `uniforms.shaderModAFFT`, `shaderModBFFT`, `shaderModCFFT` - FFT level (0-1)
 
 **What it does:**
 - Runs once per pixel
@@ -135,16 +142,18 @@ A **shader** is GPU code that renders visuals in real-time.
 - Returns RGBA color
 
 **What it returns:**
-- Color for each pixel: `vec4f(r, g, b, a)`
+- Color for each pixel: `vec4<f32>(r, g, b, a)`
 
 **Example:**
 ```wgsl
 @fragment
-fn main(@builtin(position) pos: vec4f) -> @location(0) vec4f {
-    let pulse = sin(uTime * uTempo / 60.0) * 0.5 + 0.5;
-    return vec4f(pulse, 0.0, uModA, 1.0);
+fn fs_main(@builtin(position) pos: vec4<f32>) -> @location(0) vec4<f32> {
+    let pulse = sin(uniforms.time * uniforms.tempo / 60.0) * 0.5 + 0.5;
+    return vec4<f32>(pulse, 0.0, uniforms.modA * 0.2, 1.0);
 }
 ```
+
+**For complete shader creation guide, see INDEX B.**
 
 ---
 
@@ -175,7 +184,7 @@ fn main(@builtin(position) pos: vec4f) -> @location(0) vec4f {
 
 **Layer 1: Waveform**
 - Tempo-synced oscillator
-- Types: Sine, Square, Triangle, Sawtooth, Cycler, etc.
+- Types: None, Static, Sine, Square, Triangle, Sawtooth, Cycler, etc.
 - Subdivision: 1/4, 1/2, Whole, 2 Bars, etc.
 - Runs even without audio loaded
 
@@ -259,6 +268,7 @@ modulator = waveform × audioLevel × gain
 - Controls visual animation speed
 - NOT audio BPM
 - Higher = faster animation
+- **Disabled when audio loaded** (V4_8_0) - Audio Tempo becomes THE tempo
 
 **Duration** (text field: MM:SS.mmm)
 - Render length when no audio loaded
@@ -274,28 +284,45 @@ modulator = waveform × audioLevel × gain
 Each modulator (A, B, C) has:
 
 **Column 1: Subdivision** (dropdown)
-- Options: 1/4, 1/2, Whole, 2 Bars, 4 Bars, 8 Bars, 16 Bars
+- Options: None, 1/4, 1/2, Whole, 2 Bars, 4 Bars, 8 Bars, 16 Bars
 - How often waveform repeats
 - Example: "Whole" = once per bar
+- **None** = modulator disabled (outputs 0)
 
 **Column 2: Waveform** (dropdown)
-- Options: Sine, Square, Triangle, Sawtooth, Cycler, Chaosmode, Madmax, Psycho
+- Options: None, Static, Sine, Square, Triangle, Sawtooth, Cycler, Chaosmode, Madmax, Psycho
 - Shape of oscillation
 - Sine = smooth, Square = sharp
+- **None** = modulator disabled (outputs 0)
+- **Static** = no oscillation, gain controls value directly
 
-**Column 3: Gain** (number field: 0.0-2.0)
+**Modulator Modes Explained:**
+
+| Mode | Output | Use Case |
+|------|--------|----------|
+| **None** | Always 0 | Modulator disabled, shader ignores it |
+| **Static** | Gain value (0-1) | Manual control, no animation |
+| **Waveform** | Oscillating × Gain | Animated (sine, square, etc.) |
+
+**Performance Progression:** Start with None (static visual), move to Static (manual control), then add Waveforms (animated).
+
+**Column 3: Gain** (rotary knob: 0.0-1.0) (V4_8_0)
+- Visual knob control (drag up/down)
 - Amplitude multiplier
-- 1.0 = normal, 2.0 = double strength
+- 0.1 = default, 1.0 = maximum strength
+- With Static waveform: directly controls modulator value
 
-**Column 4: Freq1** (number field: Hz)
-- Audio frequency range start
-- Used during timeline analysis
+**Column 4: Freq1** (rotary knob: 20-24000 Hz) (V4_8_0)
+- Visual knob control (drag up/down)
+- Audio frequency range start (log scale)
+- **Disabled when no audio loaded** - FFT ranges meaningless without audio
 - Default: modA=30, modB=50, modC=100
 
-**Column 5: Freq2** (number field: Hz)
-- Audio frequency range end
-- Defines frequency band
-- Default: modA=50, modB=75, modC=500
+**Column 5: Freq2** (rotary knob: 20-24000 Hz) (V4_8_0)
+- Visual knob control (drag up/down)
+- Audio frequency range end (log scale)
+- **Disabled when no audio loaded**
+- Default: modA=120, modB=500, modC=8000
 
 ---
 
@@ -456,7 +483,22 @@ Each modulator (A, B, C) has:
 | Spacebar | Play/pause audio |
 | ← | Navigate one beat left |
 | → | Navigate one beat right |
+| Shift+< | Jump to previous grid line (4 bars) |
+| Shift+> | Jump to next grid line (4 bars) |
 | G | Toggle beatgrid |
+
+**Reactivity Mode (V4_8_0):**
+
+| Shortcut | Action |
+|----------|--------|
+| Shift+R | Enter/exit reactivity mode |
+| ← → | Navigate columns (Subdiv/Waveform/Gain/Freq1/Freq2) |
+| ↑ ↓ | Navigate rows (A/B/C) |
+| Shift+← | Decrease value |
+| Shift+→ | Increase value |
+| Escape | Exit reactivity mode |
+
+**Note:** Hold Shift+Arrow for progressive acceleration (faster changes).
 
 ---
 
@@ -1092,8 +1134,8 @@ Social / YouTube
 ## 5. Credits
 
 **Created by:** Wes Smith / ONEMANSHYO  
-**Version:** Beta V4_7_0  
-**Date:** December 12, 2025
+**Version:** Beta V4_8_0  
+**Date:** December 17, 2025
 
 **Technology:**
 - WebGPU / WGSL (shaders)
@@ -1120,39 +1162,33 @@ Understanding what DJing is and how it evolved from analog to digital performanc
 
 #### A.1.1 Basic DJing: Two Turntables and a Mixer
 
-Basic DJing with two turntables and a microphone involves a classic setup for seamlessly blending music and engaging a crowd. The core skills revolve around equipment operation, beatmatching, smooth transitions, and using the microphone for announcements or as part of a performance.
+The original DJing setup involves:
+
+**Two Turntables:** Play vinyl records. Each turntable allows the DJ to start, stop, and manipulate a record independently.
+
+**A Mixer:** Combines signals from the two turntables. The mixer typically has volume faders (one per channel), EQ controls (bass, mid, treble), a crossfader for smooth transitions, and a master volume control.
 
 ---
 
-#### A.1.2 Essential Equipment
+#### A.1.2 The Core Skill: Selecting Songs
 
-The "two turntables and a microphone" setup requires specific gear connected to a central mixer.
-
-**Two DJ Turntables:** These are the playback devices, ideally direct-drive models with pitch controls to adjust the playback speed (BPM).
-
-**DJ Mixer:** The central hub where both turntables and the microphone are connected. It allows you to control the volume, EQ (highs, mids, lows), and transition (fade) between the two music sources.
-
-**Microphone:** Used for speaking to the audience, making announcements, or for an MC (Master of Ceremonies) to rap or "toast" over the music.
-
-**DJ Headphones:** Essential for cueing (listening to the next track privately) without the audience hearing it through the main speakers.
-
-**Speakers/Monitors:** To output the final, mixed sound to the audience.
+The most fundamental skill in DJing is selecting the right song at the right time. Before any technical skills matter, a DJ must understand:
+- What the crowd responds to
+- Building energy throughout a set
+- Reading the room
+- Music theory and song structure
 
 ---
 
-#### A.1.3 Core DJ Techniques
+#### A.1.3 Beatmatching and Mixing
 
-The primary skills for this setup involve manipulating the records to create a continuous flow of music.
+Once song selection is mastered, the technical skills come into play:
 
-**Cueing:** Using your headphones to find the starting point (often the first beat or "the one") of the next track on the inactive turntable. You pull the record back and forth slightly to mark the spot.
+**Beatmatching:** Adjusting the tempo of the incoming track to match the playing track using the pitch slider.
 
-**Beatmatching:** The fundamental skill of adjusting the pitch (tempo fader) of the incoming track to match the beats per minute (BPM) of the track currently playing. You use your ears to ensure the kick drums and snares of both tracks align perfectly in rhythm.
+**Mixing:** Using the crossfader and EQs to smoothly transition between tracks, often swapping bass frequencies between the two tracks.
 
-**Phrasing:** Understanding the structure of songs (usually in groups of 32 beats or 8 bars) helps you start your mix at a musically appropriate point, ensuring a smooth transition where the music "feels" right.
-
-**Mixing/Blending:** Gradually transitioning between the two tracks using the mixer's channel faders or the crossfader, often adjusting the EQs (equalizers) to make the blend seamless. For example, you might lower the bass on the incoming track to avoid a muddy sound when both are playing.
-
-**Using the Microphone:** The microphone input is usually a separate channel on the mixer. You control its volume (gain) and can use it to interact with the crowd (call-and-response), introduce songs, or provide live commentary.
+**Phrasing:** Aligning the musical phrases (typically 8, 16, or 32 bars) so transitions happen at natural musical points.
 
 ---
 
@@ -1384,403 +1420,482 @@ Using a DAW for visuals leverages precise timing, MIDI mapping, and audio proces
 **END OF INDEX A**
 
 ---
-## INDEX B: Claude Shader Creation
-
-**Purpose:** Guide for creating WGSL shaders using Claude AI  
-**Updated for:** V4_7_0  
-**Date:** December 12, 2025
-
 ---
 
-### B.1 Quick Start
-
-**Basic Workflow:**
-
-1. **Open OMS Beta** in your browser
-2. **Click [Code] button** in CREATE tab to see shader editor
-3. **Copy the current shader code**
-4. **Open Claude.ai** in another tab/window
-5. **Paste shader code** and describe what you want
-6. **Claude generates new shader**
-7. **Copy new shader** back to Code view
-8. **See instant preview** in canvas
-9. **Test in PERFORM tab** with perfect grid alignment
-
-**That's it!** No shader programming knowledge required.
-
----
-
-### B.2 How to Ask Claude
-
-#### B.2.1 Effective Prompts
-
-**Good Examples:**
-
-```
-"Make this shader react more to bass frequencies in modA"
-
-"Add a tunneling effect that pulses with the beat"
-
-"Change the colors to purple and gold instead of cyan"
-
-"Make the patterns rotate clockwise with modB"
-
-"Create a kaleidoscope effect with 8-way symmetry"
-
-"Add a vignette effect around the edges"
-
-"Make it pulse harder when the kick drum hits"
-```
-
-**Bad Examples (Too Vague):**
-
-```
-"Make it better"
-"Add effects"
-"Make it cooler"
-```
-
-#### B.2.2 Be Specific About
-
-**Visual Elements:**
-- Colors (specific hues, RGB values)
-- Shapes (circles, rectangles, lines, fractals)
-- Patterns (grid, spiral, radial, noise)
-- Movement (rotation, oscillation, pulsing)
-
-**Audio Reactivity:**
-- Which modulator (modA=bass, modB=mids, modC=treble)
-- How to react (scale, brightness, speed, color)
-- Intensity (subtle vs dramatic)
-
-**Performance:**
-- Complexity (simple vs complex)
-- Smoothness (60fps target)
-- PERFORM tab compatibility
-
----
-
-### B.3 Shader Template Structure
-
-#### B.3.1 Standard WGSL Shader
-
-\`\`\`wgsl
-// Uniforms (values from app)
-@group(0) @binding(0) var<uniform> uTime: f32;
-@group(0) @binding(1) var<uniform> uResolution: vec2<f32>;
-@group(0) @binding(2) var<uniform> uModA: f32; // Bass (30-500 Hz)
-@group(0) @binding(3) var<uniform> uModB: f32; // Mids (500-2000 Hz)
-@group(0) @binding(4) var<uniform> uModC: f32; // Treble (2000-20000 Hz)
-
-// Vertex shader (full-screen quad)
-@vertex
-fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f32> {
-    var pos = array<vec2<f32>, 4>(
-        vec2(-1.0, -1.0), vec2(1.0, -1.0),
-        vec2(-1.0, 1.0), vec2(1.0, 1.0)
-    );
-    return vec4<f32>(pos[vertexIndex], 0.0, 1.0);
-}
-
-// Fragment shader (your creativity here!)
-@fragment
-fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
-    let uv = fragCoord.xy / uResolution;
-    
-    // Your shader magic here
-    var color = vec3<f32>(0.0);
-    
-    // Example: Bass-reactive gradient
-    color = vec3(uv.x * uModA, uv.y * uModB, 0.5 + uModC * 0.5);
-    
-    return vec4<f32>(color, 1.0);
-}
-\`\`\`
-
-#### B.3.2 What You Can Modify
-
-**Safe to Change:**
-- Everything inside \`fs_main()\` fragment shader
-- Color calculations
-- Pattern generation
-- Audio reactivity (using modA, modB, modC)
-- Mathematical formulas
-
-**Don't Change:**
-- Uniform declarations (\`@group\`, \`@binding\`)
-- Vertex shader (\`vs_main\` function)
-- Fragment shader signature (\`@fragment fn fs_main\`)
-- Return type (\`vec4<f32>\`)
-
----
-
-### B.4 Modulator System
-
-#### B.4.1 Understanding Modulators
-
-**modA (Bass):** 30-500 Hz
-- Kick drums, sub bass, bass drops
-- Best for: Big movements, main pulse, impact effects
-
-**modB (Mids):** 500-2000 Hz
-- Vocals, synths, guitars, snare hits
-- Best for: Color shifts, secondary motion, texture
-
-**modC (Treble):** 2000-20000 Hz
-- Hi-hats, cymbals, sparkle, air
-- Best for: Fine details, flickering, shimmer effects
-
-#### B.4.2 Using Modulators in Shaders
-
-**Basic Pattern:**
-
-\`\`\`wgsl
-// Scale something with bass
-let size = 0.5 + uModA * 0.5; // 0.5 to 1.0
-
-// Change brightness with mids
-let brightness = 0.3 + uModB * 0.7; // 0.3 to 1.0
-
-// Flicker with treble
-let flicker = 1.0 - uModC * 0.3; // 1.0 to 0.7
-\`\`\`
-
-**Combined Effects:**
-
-\`\`\`wgsl
-// Rotate with bass, scale with mids
-let angle = uTime + uModA * 3.14159;
-let radius = 0.5 + uModB * 0.5;
-
-// Color based on all three
-let red = uModA;
-let green = uModB;
-let blue = uModC;
-let color = vec3(red, green, blue);
-\`\`\`
-
-#### B.4.3 Prompting Claude for Audio Reactivity
-
-**Good Examples:**
-
-```
-"Make the circles pulse larger when modA (bass) is high"
-
-"Change color from blue to red based on modB (mids)"
-
-"Add rapid flickering to the edges using modC (treble)"
-
-"Use modA to control rotation speed"
-
-"Make brightness follow modB"
-
-"Create impact flash when modA peaks (kick drum)"
-```
-
----
-
-### B.5 Optimizing for Live Performance
-
-#### B.5.1 Performance Tips
-
-- Target 60fps (check in PERFORM tab with 4 tracks)
-- Avoid expensive operations in loops
-- Use smoothstep() for antialiasing
-- Test with actual music, not silence
-
-#### B.5.2 Workflow for PERFORM Tab
-
-1. **Create shader** in CREATE tab
-2. **Load audio** and set parameters
-3. **Add to Library** (analyzes FFT)
-4. **Save as .oms** container
-5. **PERFORM tab** - drag to grid
-6. **Launch** - see perfect alignment!
-7. **Press M** - verify with Master Grid
-
----
-
-### B.6 Common Patterns
-
-#### B.6.1 Bass-Driven Pulse
-
-**Prompt:**
-```
-"Create concentric circles that pulse with bass (modA)"
-```
-
-**Claude generates:**
-\`\`\`wgsl
-let center = vec2(0.5);
-let dist = length(uv - center);
-let circles = sin(dist * 20.0 - uTime * 2.0 + uModA * 5.0);
-let color = vec3(circles * (0.5 + uModA * 0.5));
-\`\`\`
-
-#### B.6.2 Frequency-Split Colors
-
-**Prompt:**
-```
-"Make RGB channels respond to bass/mid/treble separately"
-```
-
-#### B.6.3 Beat-Synced Rotation
-
-**Prompt:**
-```
-"Rotate shapes at tempo, speed up with mids"
-```
-
-#### B.6.4 Impact Effects
-
-**Prompt:**
-```
-"Create flash/burst effect when bass peaks (kick drum)"
-```
-
----
-
-### B.7 Troubleshooting
-
-#### B.7.1 Shader Won't Compile
-
-**Error:** "Failed to compile shader"
-
-**Solutions:**
-1. Check for missing semicolons
-2. Verify all parentheses match
-3. Ensure uniform names are correct (uTime, uResolution, uModA, etc.)
-4. Ask Claude: "This shader has a compile error, can you fix it?"
-
-#### B.7.2 No Audio Reactivity in PERFORM Tab
-
-**Problem:** Shader doesn't react to audio in performance
-
-**Solutions:**
-1. Re-save container with "Add to Library" (analyzes FFT)
-2. Verify audio file loaded in CREATE tab
-3. Check modulator usage in shader code
-
-#### B.7.3 Performance Issues
-
-**Slow Rendering:**
-- Simplify shader calculations
-- Reduce loop iterations
-- Test with 4 tracks in PERFORM tab
-- Ask Claude: "Make this shader more performant for live use"
-
----
-
-### B.8 Advanced Techniques
-
-#### B.8.1 Using Time Creatively
-
-\`\`\`wgsl
-// Slow pulsing
-let pulse = sin(uTime * 0.5) * 0.5 + 0.5;
-
-// Fast oscillation
-let flicker = sin(uTime * 10.0) * 0.5 + 0.5;
-
-// Wave motion
-let wave = sin(uv.x * 10.0 + uTime * 2.0);
-
-// Beat-synced (works in PERFORM tab!)
-let beat = sin(uTime * 2.0) * uModA;
-\`\`\`
-
-#### B.8.2 Combining Modulators
-
-\`\`\`wgsl
-// Bass controls size, mids control brightness, treble adds detail
-let size = 0.5 + uModA * 0.5;
-let brightness = 0.3 + uModB * 0.7;
-let detail = sin(uv.x * 50.0) * uModC * 0.2;
-let circle = smoothstep(size + 0.01, size, length(uv - 0.5));
-let color = vec3(circle * brightness + detail);
-\`\`\`
-
----
-
-### B.9 Example Conversations
-
-#### B.9.1 Beginner
-
-```
-You: "Create pulsing circles that react to bass"
-Claude: [generates shader]
-You: "Make them pulse more dramatically"
-Claude: [increases modA influence]
-You: "Perfect! Now add color shift with mids"
-Claude: [adds modB to color calculation]
-```
-
-#### B.9.2 Intermediate
-
-```
-You: "Create a tunnel effect synced to kick drums"
-Claude: [generates tunnel with modA]
-You: "Add rotation controlled by mids"
-Claude: [adds modB rotation]
-You: "Make the edges flicker with hi-hats"
-Claude: [adds modC edge effects]
-```
-
-#### B.9.3 Advanced
-
-```
-You: "Create particle system where bass creates bursts,
-      mids control particle color, and treble adds turbulence"
-Claude: [generates complex multi-layer system]
-You: "Optimize for 60fps with 4 tracks in PERFORM tab"
-Claude: [simplifies calculations while preserving effect]
-```
-
----
-
-### B.10 Resources
-
-**WGSL Documentation:**
-- https://www.w3.org/TR/WGSL/
-- https://google.github.io/tour-of-wgsl/
-
-**Shader Inspiration:**
-- https://thebookofshaders.com/
-- https://www.shadertoy.com/
-
-**Claude AI:**
-- https://claude.ai/
-- Ask for shader help anytime!
-
----
-
-### B.11 Conclusion
-
-Combined with Claude AI for shader creation, you can:
-
-1. **Create** stunning audio-reactive shaders
-2. **Prepare** with bar-aligned timeline analysis
-3. **Perform** with confidence knowing grids align
-4. **Verify** alignment with M key anytime
-
-No shader programming required - just describe what you want, and Claude translates that into WGSL code.
-
-**The power is in iteration:**
-- Start simple
-- Build complexity
-- Test in PERFORM tab
-- Press M to verify alignment
-- Refine for performance
-
----
+## INDEX B: ONEMANSHYO Origin Story
+
+### B.1 What ONEMANSHYO Is
+
+Wes Smith performs as **ONEMANSHYO** - a solo DJ/visual artist project. The original setup centered around:
+- **Ableton Live** (audio engine for DJing)
+- **EboSuite** (Max for Live plugin for video mixing in Ableton)
+- **MIDI Controller** (Midifighter Twister or Yaeltex for control)
+
+**What ONEMANSHYO Does:**
+- DJs audio (mixing tracks, building sets, live performance)
+- Runs live reactive visuals simultaneously
+- One person controls both audio AND visuals
+- Visuals react to audio in real-time (not pre-rendered canned videos)
+- **This is DJing with a visual element, NOT VJing**
+
+### B.2 Critical Distinction: DJing vs VJing
+
+**This is NOT VJing:**
+- VJing = mixing pre-made video clips (video DJing)
+- VJs mix visuals like DJs mix audio
+- Separate role from audio DJ
+
+**ONEMANSHYO = DJing WITH Visuals:**
+- Primary role: DJ (audio mixing and performance)
+- Secondary role: Visual control (shaders react to music)
+- One person, integrated workflow
+- Audio-first, visuals respond
+
+### B.3 Why OMS Was Created
+
+**Professional Tools Available:**
+- Resolume, ShowSync, TouchDesigner, EboSuite, etc.
+- All excellent, professional-grade platforms
+- Industry standard tools
+
+**But They're Designed For:**
+- Broad use cases (installations, theater, A/V productions, etc.)
+- Team workflows (VJ + DJ + technical crew + operators)
+- Complex multi-purpose pipelines
+- Generic video mixing capabilities
+- Multiple vendors, multiple products
+
+**The Old Workflow Challenge:**
+- Multiple vendor products (Ableton + EboSuite + hardware)
+- Static workflow with extensive prep work
+- Complex multi-part setup requiring technical knowledge
+- Fragmented ecosystem from different vendors
+- Expensive software licenses
+- Requires assembling pieces that weren't designed to work together
+
+### B.4 The OMS Vision
+
+**OMS Takes a Different Approach:**
+- Skip generic pipeline
+- Laser-focus on ONE specific workflow: solo DJ + live visuals
+- Single-source solution (not assembling pieces)
+- Web-native using modern technology (WebGPU, Web Audio, Web MIDI)
+- Integrated ecosystem (all parts designed to work together)
+- Open source (GPL-3.0) - freely accessible to anyone
+- No installation required - runs in browser
+
+OMS isn't a theoretical experiment or academic project. It's **codifying Wes's proven ONEMANSHYO workflow** (years of real performances) into a unified, browser-based solution purpose-built for solo DJ + live visuals.
+
+**Not Replacing Professional Platforms:**
+- Not competing with Resolume or TouchDesigner
+- Creating specialized tool for this specific use case
+- Making proven workflow accessible to anyone
+
+**"Anyone can be a OneManShYo" means:**
+- Anyone can DJ with live reactive visuals
+- No expensive software licenses required
+- No complex multi-vendor setup needed
+- No team or crew needed
+- Proven workflow, accessible tools, free and open
 
 **END OF INDEX B**
 
+
+## INDEX C: Shader Creation Guide
+
+**Purpose:** Everything needed to create WGSL shaders for OMS  
+**Usage:** Drop this entire INDEX into Claude to enable shader creation
+
 ---
 
-## INDEX C: FFmpeg Video Conversion
+### C.1 Technical Reference
 
-### C.1 Overview
+*For humans: the must-know contract, syntax, and troubleshooting*
+
+---
+
+#### C.1.1 Technical Contract (REQUIRED)
+
+**Language:** WGSL (WebGPU Shading Language) - NOT GLSL
+
+**Function Signature (exact):**
+```wgsl
+@fragment
+fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
+    // Your code here
+    return vec4<f32>(r, g, b, 1.0);
+}
+```
+
+**CRITICAL RULES:**
+- Function MUST be named `fs_main` (not `main`)
+- Struct is AUTO-INJECTED by app - do NOT include `struct Uniforms`
+- Do NOT include `@group(0) @binding(0)` - app handles this
+- Return alpha MUST be 1.0
+- Use `vec4<f32>` not `vec4f` (explicit types)
+
+---
+
+#### C.1.2 Available Uniforms
+
+The app auto-injects these. Just use them directly:
+
+**Core Uniforms:**
+
+| Uniform | Type | Range | Purpose |
+|---------|------|-------|---------|
+| `uniforms.time` | f32 | 0.0+ | Elapsed seconds |
+| `uniforms.tempo` | f32 | 60-200 | BPM for timing |
+| `uniforms.beat` | f32 | 0.0+ | Tempo-synced beat position (V4_8_0) |
+| `uniforms.modA` | f32 | 0.0-1.0 | Bass reactive (combined) |
+| `uniforms.modB` | f32 | 0.0-1.0 | Mids reactive (combined) |
+| `uniforms.modC` | f32 | 0.0-1.0 | Treble reactive (combined) |
+| `uniforms.resolutionX` | f32 | pixels | Canvas width |
+| `uniforms.resolutionY` | f32 | pixels | Canvas height |
+
+**Independent Modulator Components (V4_8_0):**
+
+| Uniform | Type | Range | Purpose |
+|---------|------|-------|---------|
+| `uniforms.shaderModAWave` | f32 | 0.0-1.0 | Mod A waveform output |
+| `uniforms.shaderModAGain` | f32 | 0.0-1.0 | Mod A gain value |
+| `uniforms.shaderModAFFT` | f32 | 0.0-1.0 | Mod A FFT level (0 if no audio) |
+| `uniforms.shaderModBWave` | f32 | 0.0-1.0 | Mod B waveform output |
+| `uniforms.shaderModBGain` | f32 | 0.0-1.0 | Mod B gain value |
+| `uniforms.shaderModBFFT` | f32 | 0.0-1.0 | Mod B FFT level |
+| `uniforms.shaderModCWave` | f32 | 0.0-1.0 | Mod C waveform output |
+| `uniforms.shaderModCGain` | f32 | 0.0-1.0 | Mod C gain value |
+| `uniforms.shaderModCFFT` | f32 | 0.0-1.0 | Mod C FFT level |
+
+**Legacy vs Independent:**
+- `modA/B/C` = combined value (Wave × Gain × FFT) - backward compatible
+- Independent uniforms let you access each component separately for custom combinations
+
+**Example - using independent uniforms:**
+```wgsl
+// Custom combination: wave controls size, FFT controls color
+let size = 0.3 + uniforms.shaderModAWave * 0.2;
+let colorIntensity = uniforms.shaderModAFFT;
+```
+
+---
+
+#### C.1.3 Modulator Behavior
+
+User controls each modulator (A/B/C) via dropdown in the app:
+
+| Mode | Output | Use Case |
+|------|--------|----------|
+| **None** | Always 0 | Modulator disabled |
+| **Static** | Gain value directly (0-1) | Manual control, no animation |
+| **Waveform** | Oscillating × Gain | Animated (sine, square, etc.) |
+
+**Design for this:** User may set any modulator to None/Static/Waveform. Shader should handle modA/B/C being 0.
+
+**Example - handling zero gracefully:**
+```wgsl
+// Safe: works when modA is 0
+let size = 0.3 + uniforms.modA * 0.2;
+
+// Dangerous: division by modA
+let bad = 1.0 / uniforms.modA;  // Crashes when modA = 0!
+```
+
+---
+
+#### C.1.4 Standard Setup Template
+
+```wgsl
+// Shader Name - Description
+// uniforms: time, tempo, modA/B/C (0-5), resolutionX/Y
+
+@fragment
+fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
+    let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
+    let uv = coord.xy / resolution;                    // 0.0 to 1.0
+    let centered = uv - 0.5;                           // -0.5 to 0.5
+    let aspect = resolution.x / resolution.y;
+    let p = vec2<f32>(centered.x * aspect, centered.y); // Aspect-corrected
+    
+    // Your effect code here
+    var color = vec3<f32>(0.0);
+    
+    return vec4<f32>(color, 1.0);
+}
+```
+
+---
+
+#### C.1.5 WGSL vs GLSL Differences
+
+| GLSL (Shadertoy) | WGSL (OMS) |
+|------------------|------------|
+| `vec2`, `vec3`, `vec4` | `vec2<f32>`, `vec3<f32>`, `vec4<f32>` |
+| `iTime` | `uniforms.time` |
+| `iResolution` | `vec2<f32>(uniforms.resolutionX, uniforms.resolutionY)` |
+| `fragCoord` | `coord.xy` (from function parameter) |
+| `void main()` | `fn fs_main(...) -> @location(0) vec4<f32>` |
+| `gl_FragColor = ` | `return vec4<f32>(...)` |
+| `mod(x, y)` | `x % y` or `fract(x/y)*y` |
+| `mix(a, b, t)` | `mix(a, b, t)` ✓ same |
+| `texture2D()` | Not available (no textures) |
+
+---
+
+#### C.1.6 Troubleshooting
+
+**"Failed to compile shader"**
+- Check function is named `fs_main` not `main`
+- Don't include struct Uniforms (app injects it)
+- Use `vec4<f32>` not `vec4f`
+- Check all parentheses match
+
+**Black output**
+- Is color calculation producing values > 0?
+- Return alpha must be 1.0
+- Test with: `return vec4<f32>(1.0, 0.0, 0.0, 1.0);` (should show red)
+
+**No audio reactivity**
+- Are you using `uniforms.modA/B/C`?
+- Is audio loaded in CREATE tab?
+- Is modulator mode set to something other than None?
+
+---
+
+#### C.1.7 Quick Reference
+
+```wgsl
+// Resolution
+let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
+
+// Normalized UV (0-1)
+let uv = coord.xy / resolution;
+
+// Centered (-0.5 to 0.5)
+let centered = uv - 0.5;
+
+// Aspect-corrected
+let aspect = resolution.x / resolution.y;
+let p = vec2<f32>(centered.x * aspect, centered.y);
+
+// Distance from center
+let dist = length(p);
+
+// Audio reactive (already 0-1, no normalization needed)
+let bass = uniforms.modA;
+let mids = uniforms.modB;
+let treble = uniforms.modC;
+
+// Beat-synced animation (V4_8_0)
+let pulse = fract(uniforms.beat);        // 0→1 each beat
+let barPulse = fract(uniforms.beat / 4.0); // 0→1 each bar
+
+// Always return with alpha 1.0
+return vec4<f32>(color, 1.0);
+```
+
+---
+
+### C.2 Development Workflow
+
+*For Claude: iterative shader building patterns and mappings*
+
+---
+
+#### C.2.1 Modulator Mapping Guidelines
+
+| Modulator | Frequency | Character | Best For |
+|-----------|-----------|-----------|----------|
+| `uniforms.modA` | Bass | Punchy, rhythmic | Size, pulse, impacts, zoom |
+| `uniforms.modB` | Mids | Melodic, sustained | Rotation, color shift, movement |
+| `uniforms.modC` | Treble | Crisp, transient | Sparkle, edges, fine detail |
+
+**Recommended patterns:**
+
+```wgsl
+// modA (Bass) → Size/Impact (values already 0-1)
+let size = 0.3 + uniforms.modA * 0.3;
+let zoom = 1.0 + uniforms.modA * 0.4;
+
+// modB (Mids) → Movement/Color
+let rotation = uniforms.time * (1.0 + uniforms.modB);
+let hue = uniforms.modB * 0.5;
+
+// modC (Treble) → Detail/Sparkle
+let sparkle = step(0.97, noise) * uniforms.modC;
+let edge = smoothstep(0.5 - uniforms.modC * 0.2, 0.5, pattern);
+```
+
+---
+
+#### C.2.2 Working Example
+
+```wgsl
+// Pulsing Rings - Bass=size, Mids=color, Treble=sparkle
+
+@fragment
+fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
+    let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
+    let uv = (coord.xy - resolution * 0.5) / min(resolution.x, resolution.y);
+    
+    let dist = length(uv);
+    let rings = sin(dist * 20.0 - uniforms.time * 3.0) * 0.5 + 0.5;
+    
+    // Bass pulses ring intensity (modA is 0-1)
+    let intensity = rings * (0.3 + uniforms.modA * 0.7);
+    
+    // Mids shift color
+    let hue = uniforms.modB * 0.4;
+    
+    // Treble adds sparkle
+    let sparkle = fract(sin(dot(uv, vec2<f32>(12.9898, 78.233)) + uniforms.time) * 43758.5453);
+    let sparkleAmount = step(0.97, sparkle) * uniforms.modC * 0.4;
+    
+    var color = vec3<f32>(intensity * (1.0 - hue), intensity * hue, intensity * 0.5);
+    color = color + vec3<f32>(sparkleAmount);
+    
+    return vec4<f32>(color, 1.0);
+}
+```
+
+---
+
+#### C.2.3 Shader Development Process
+
+**Recommended approach when creating shaders:**
+
+1. **Start with None** - Set all modulators to None
+   - Get the basic visual working first
+   - No animation, just the pattern
+
+2. **Add Static control** - Switch one modulator to Static
+   - Use gain slider to test parameter ranges
+   - Verify the effect looks good at min/max values
+
+3. **Add Waveforms** - Switch to animated waveforms
+   - Choose appropriate waveform type
+   - Set subdivision for timing
+
+4. **Test edge cases:**
+   - All modulators at 0
+   - All modulators at 5
+   - Mixed values
+
+---
+
+#### C.2.4 Common Patterns
+
+**Distance from center:**
+```wgsl
+let dist = length(p);
+```
+
+**Angle from center:**
+```wgsl
+let angle = atan2(p.y, p.x);
+```
+
+**Circle:**
+```wgsl
+let circle = smoothstep(radius + 0.01, radius, dist);
+```
+
+**Sine wave:**
+```wgsl
+let wave = sin(value * freq + uniforms.time * speed) * 0.5 + 0.5;
+```
+
+**Tempo-synced pulse:**
+```wgsl
+let beat = uniforms.time * uniforms.tempo / 60.0;
+let pulse = sin(beat * 3.14159 * 2.0) * 0.5 + 0.5;
+```
+
+**Simple noise:**
+```wgsl
+let noise = fract(sin(dot(uv, vec2<f32>(12.9898, 78.233))) * 43758.5453);
+```
+
+---
+
+### C.3 Recipes
+
+*Real examples showing the iterative flow in action*
+
+---
+
+#### C.3.1 Recipe #1: "No AI Problema"
+
+*How to work with Claude to develop shaders iteratively*
+
+---
+
+##### STEP 1: THE RECIPE
+
+**USER:** I want a shader inspired by Art of the Problem YouTube channel. Like a bicycle wheel with squiggly spokes. The concept:
+- **White** = all the world's knowledge
+- **Green** = humans reaching out with curiosity  
+- **Purple** = AI extending knowledge (but not questioning)
+
+**CLAUDE:** *[asks about distribution pattern, what modA should control]*
+
+---
+
+##### STEP 2: FIRST LAYER (WHITE)
+
+**USER:** Golden angle distribution, modA controls strand count 144 to 244
+
+**CLAUDE:** *[delivers static white squiggly spokes]*
+
+---
+
+##### STEP 3: SECOND LAYER (GREEN)
+
+**USER:** Add green spokes, same curved style. modB controls count 12 to 144
+
+**CLAUDE:** *[delivers green on top of white]*
+
+---
+
+##### STEP 4: THIRD LAYER (PURPLE)
+
+**USER:** Add purple on modC from 0 to 48
+
+**CLAUDE:** *[delivers three layers: modA=White, modB=Green, modC=Purple]*
+
+---
+
+##### STEP 5: ADD MOTION
+
+**USER:** Ideas to make it cooler?
+
+**CLAUDE:** *[offers options: rotation, pulsing, traveling waves, glow...]*
+
+**USER:** No pulsing, annoying. Focus on squiggles.
+
+**CLAUDE:** *[delivers squiggles animating outward along spokes]*
+
+---
+
+##### STEP 6: FILL THE CANVAS
+
+**USER:** The shader is round in the canvas. I'd like it to fill the canvas.
+
+**CLAUDE:** *[offers: extend radius, remove outer limit, scale coordinates]*
+
+**USER:** Go forever - no outer limit.
+
+**CLAUDE:** *[delivers strands extending to canvas edges]*
+
+---
+
+**END OF INDEX C**
+
+---
+
+## INDEX D: FFmpeg Video Conversion
+
+### D.1 Overview
 
 OMS Beta exports WebM format. Use FFmpeg to convert for different uses.
 
@@ -1791,9 +1906,9 @@ brew install ffmpeg
 
 ---
 
-### C.2 Common Conversions
+### D.2 Common Conversions
 
-#### C.2.1 H.264 (Social Media)
+#### D.2.1 H.264 (Social Media)
 
 **Standard quality:**
 ```bash
@@ -1812,7 +1927,7 @@ ffmpeg -i input.webm -c:v libx264 -preset fast -crf 23 -maxrate 5M -bufsize 10M 
 
 ---
 
-#### C.2.2 ProRes (Professional)
+#### D.2.2 ProRes (Professional)
 
 **ProRes 422:**
 ```bash
@@ -1831,7 +1946,7 @@ ffmpeg -i input.webm -c:v prores_ks -profile:v 4 -pix_fmt yuv422p10le output.mov
 
 ---
 
-#### C.2.3 H.265 (Archive)
+#### D.2.3 H.265 (Archive)
 
 **Standard:**
 ```bash
@@ -1850,7 +1965,7 @@ ffmpeg -i input.webm -c:v libx265 -preset slow -crf 23 -c:a aac -b:a 192k output
 
 ---
 
-### C.3 Batch Conversion
+### D.3 Batch Conversion
 
 **Bash Script (macOS):**
 
@@ -1867,616 +1982,397 @@ done
 **Usage:**
 1. Save as `convert.sh`
 2. Make executable: `chmod +x convert.sh`
-3. Run: `./convert.sh`
+3. Run in folder with WebM files: `./convert.sh`
 
 ---
 
-### C.4 Understanding Settings
+### D.4 Advanced Options
 
-#### C.4.1 CRF (Quality)
+#### D.4.1 Add Audio Track
 
-**Constant Rate Factor:**
-- Lower = better quality, larger file
-- Higher = lower quality, smaller file
+OMS exports silent video. To add audio:
 
-**Recommendations:**
-- CRF 18 = visually lossless
-- CRF 23 = high quality (default)
-- CRF 28 = acceptable quality
-
----
-
-#### C.4.2 Presets (Speed)
-
-**Encoding speed:**
-- ultrafast = fastest, largest files
-- fast = quick, good quality
-- medium = balanced (default)
-- slow = slower, better compression
-- veryslow = slowest, best compression
-
-**Recommendations:**
-- `fast` for quick previews
-- `medium` for general use
-- `slow` for final renders
-
----
-
-#### C.4.3 Audio Bitrates
-
-**Common values:**
-- 128k = acceptable
-- 192k = good
-- 256k = excellent
-- 320k = maximum
-
----
-
-### C.5 Troubleshooting
-
-**"Unknown encoder 'libx264'"**
-- Install FFmpeg: `brew install ffmpeg`
-
-**"Conversion failed"**
-- Check input file isn't corrupted
-- Try: `ffmpeg -i input.webm -c copy test.webm`
-
-**"Output too large"**
-- Increase CRF value (lower quality)
-- Use faster preset
-- Reduce resolution
-
-**"Playback stutters"**
-- Convert to ProRes for editing
-- Use H.264 for final delivery
-
----
-
-### C.6 Quick Reference
-
-**Social media (H.264):**
 ```bash
-ffmpeg -i input.webm -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k output.mp4
+ffmpeg -i video.webm -i audio.mp3 -c:v copy -c:a aac -b:a 192k output.mp4
 ```
 
-**Professional (ProRes):**
+#### D.4.2 Loop Video
+
+Create 10-minute loop from short video:
+
 ```bash
-ffmpeg -i input.webm -c:v prores_ks -profile:v 3 output.mov
+ffmpeg -stream_loop 10 -i input.webm -c copy output.webm
 ```
 
-**Archive (H.265):**
+#### D.4.3 Resize
+
+Scale to 720p:
+
 ```bash
-ffmpeg -i input.webm -c:v libx265 -preset medium -crf 28 -c:a aac -b:a 128k output.mp4
+ffmpeg -i input.webm -vf scale=1280:720 -c:v libx264 -crf 23 output.mp4
 ```
 
 ---
 
-**END OF USER GUIDE**
-## INDEX D: Visual Vocabulary
+### D.5 Quick Reference
 
+| Use Case | Command |
+|----------|---------|
+| Social media | `-c:v libx264 -crf 23` |
+| Professional | `-c:v prores_ks -profile:v 3` |
+| Archive | `-c:v libx265 -crf 23` |
+| Add audio | `-i video -i audio -c:v copy` |
 
 ---
 
+**END OF INDEX D**
 
-### D.1 Spatial Structures
+---
 
-Large-scale spatial arrangements that define the overall visual environment.
+## INDEX E: Visual Vocabulary
+
+A reference guide for shader effects, patterns, and terminology used in OMS.
+
+**Note:** All code examples use the OMS shader contract from INDEX B. Function must be `fs_main`, struct is auto-injected.
+
+---
+
+### E.1 Fundamental Shapes
+
+Basic geometric primitives that form the foundation of shader effects.
 
 | Term | Description | Core Math |
 |------|-------------|-----------|
-| **Tunnel** | Infinite depth illusion, camera moving forward | `1.0 / dist` with scrolling `uTime` |
-| **Vortex** | Spiral pulling toward center | `atan2` + radial distance |
-| **Grid** | Repeating cells/tiles | `fract(uv * count)` |
-| **Warp Grid** | Distorted grid (curved space) | Grid + sine displacement |
-| **Lattice** | 3D grid structure | Raymarched boxes |
-| **Corridor** | Rectangular tunnel | Box SDF with depth |
-| **Sphere Field** | Array of spheres in space | Raymarched with `mod` repetition |
-| **Hyperspace** | Streaking lines toward viewer | Radial lines + depth fade |
-| **Wormhole** | Twisted tunnel with rotation | Tunnel + angular distortion |
-| **Matrix** | Falling columns of symbols | Column-based animation |
+| **Circle** | Round shape from center | `length(uv - center) < radius` |
+| **Ring** | Hollow circle | `abs(length(uv) - radius) < thickness` |
+| **Rectangle** | Box shape | `step()` on x and y bounds |
+| **Line** | Thin stripe | `abs(uv.x - position) < thickness` |
+| **Triangle** | Three-sided polygon | Barycentric coordinates or SDF |
+| **Polygon** | N-sided shape | Angle-based segmentation |
+| **Grid** | Repeating cells | `fract(uv * count)` |
+| **Dot Pattern** | Array of circles | Grid + circle per cell |
 
 #### WGSL Examples
 
-**Basic Tunnel:**
+**Circle:**
 ```wgsl
-let center = uv - vec2(0.5);
-let dist = length(center);
-let angle = atan2(center.y, center.x);
-let tunnel = fract(1.0 / dist - uTime);
+let dist = length(p);
+let circle = smoothstep(0.31, 0.3, dist);  // Soft edge
 ```
 
-**Infinite Grid:**
+**Ring:**
 ```wgsl
-let gridSize = 10.0;
-let grid = fract(uv * gridSize);
-let lines = step(0.95, max(grid.x, grid.y));
+let dist = length(p);
+let ring = smoothstep(0.31, 0.3, dist) - smoothstep(0.29, 0.28, dist);
 ```
 
-**Warp Grid:**
+**Grid:**
 ```wgsl
-let warp = sin(uv.x * 10.0 + uTime) * 0.1;
-let warped = vec2(uv.x, uv.y + warp);
-let grid = fract(warped * 8.0);
+let grid = fract(uv * 10.0);  // 10x10 grid
+let cell = step(0.1, grid.x) * step(0.1, grid.y);  // Grid lines
 ```
 
 ---
 
-### D.2 Radial Patterns
+### E.2 Motion Types
 
-Patterns that emanate from or rotate around a center point.
+Ways that visual elements move or transform over time.
 
 | Term | Description | Core Math |
 |------|-------------|-----------|
-| **Ripple** | Concentric rings expanding outward | `sin(dist - uTime)` |
-| **Pulse** | Single expanding ring | `smoothstep` ring with time |
-| **Starburst** | Lines radiating from center | `atan2` segmentation |
-| **Kaleidoscope** | Mirrored angular segments | `mod(angle, PI/segments)` |
-| **Mandala** | Symmetric radial pattern | Kaleidoscope + layered shapes |
-| **Radar Sweep** | Rotating line/wedge | `atan2` comparison with time |
-| **Shockwave** | Single sharp expanding ring | Thin `smoothstep` ring |
-| **Sunburst** | Alternating radial segments | `step` on angle divisions |
-| **Spiral** | Rotating radial pattern | `angle + dist` |
-| **Bullseye** | Static concentric rings | `fract(dist * count)` |
+| **Rotation** | Spinning around center | `mat2x2(cos, -sin, sin, cos)` |
+| **Translation** | Moving position | `uv + vec2(offset)` |
+| **Scale/Zoom** | Size change | `uv * scale` or `uv / zoom` |
+| **Oscillation** | Back-and-forth motion | `sin(time)` |
+| **Orbit** | Circular path movement | `vec2(cos(t), sin(t)) * radius` |
+| **Drift** | Slow continuous movement | `uv + time * speed` |
+| **Pulse** | Rhythmic size change | `1.0 + sin(time) * amount` |
+| **Wave** | Undulating distortion | `sin(uv.x * freq + time)` |
+| **Spiral** | Rotation + radial motion | `angle + dist * twist` |
+
+#### WGSL Examples
+
+**Rotation:**
+```wgsl
+let angle = uniforms.time;
+let c = cos(angle);
+let s = sin(angle);
+let rotated = vec2<f32>(p.x * c - p.y * s, p.x * s + p.y * c);
+```
+
+**Pulse:**
+```wgsl
+let pulse = 1.0 + sin(uniforms.time * 4.0) * 0.2;
+let size = baseSize * pulse;
+```
+
+**Spiral:**
+```wgsl
+let dist = length(p);
+let angle = atan2(p.y, p.x);
+let spiral = sin(angle * 5.0 + dist * 10.0 - uniforms.time * 2.0);
+```
+
+---
+
+### E.3 Color Operations
+
+Methods for generating and manipulating colors.
+
+| Term | Description | Core Math |
+|------|-------------|-----------|
+| **Gradient** | Smooth color transition | `mix(colorA, colorB, factor)` |
+| **HSV/HSL** | Hue-based color model | Convert functions |
+| **Rainbow** | Full spectrum cycle | `hsv2rgb(vec3(time, 1, 1))` |
+| **Palette** | Predefined color set | Index into color array |
+| **Invert** | Negative colors | `1.0 - color` |
+| **Contrast** | Intensity difference | `(color - 0.5) * contrast + 0.5` |
+| **Saturation** | Color intensity | HSV manipulation |
+| **Brightness** | Light level | `color * brightness` |
+| **Hue Shift** | Color rotation | Add to H in HSV |
+
+#### WGSL Examples
+
+**Gradient:**
+```wgsl
+let gradient = mix(vec3<f32>(1.0, 0.0, 0.0), vec3<f32>(0.0, 0.0, 1.0), uv.x);
+```
+
+**HSV to RGB:**
+```wgsl
+fn hsv2rgb(c: vec3<f32>) -> vec3<f32> {
+    let p = abs(fract(vec3<f32>(c.x + 1.0, c.x + 2.0/3.0, c.x + 1.0/3.0)) * 6.0 - 3.0);
+    return c.z * mix(vec3<f32>(1.0), clamp(p - 1.0, vec3<f32>(0.0), vec3<f32>(1.0)), c.y);
+}
+```
+
+**Rainbow:**
+```wgsl
+let hue = fract(uniforms.time * 0.1);
+let color = hsv2rgb(vec3<f32>(hue, 1.0, 1.0));
+```
+
+---
+
+### E.4 Pattern Generation
+
+Techniques for creating repeating or structured visual patterns.
+
+| Term | Description | Core Math |
+|------|-------------|-----------|
+| **Tiling** | Repeating pattern | `fract(uv * count)` |
+| **Checkerboard** | Alternating squares | `mod(floor(x) + floor(y), 2)` |
+| **Stripes** | Parallel lines | `sin(uv.x * freq)` or `step` |
+| **Waves** | Sinusoidal pattern | `sin(uv.x * freq + phase)` |
+| **Brick** | Offset tiling | Offset every other row |
+| **Hexagonal** | Hex grid pattern | Complex UV transformation |
+| **Voronoi** | Cell-based pattern | Nearest point distance |
+| **Truchet** | Rotated tile variations | Random rotation per tile |
+
+#### WGSL Examples
+
+**Checkerboard:**
+```wgsl
+let check = (floor(uv.x * 8.0) + floor(uv.y * 8.0)) % 2.0;
+```
+
+**Stripes:**
+```wgsl
+let stripes = sin(uv.x * 30.0 + uniforms.time * 2.0) * 0.5 + 0.5;
+```
+
+---
+
+### E.5 Noise & Randomness
+
+Methods for introducing controlled chaos and organic textures.
+
+| Term | Description | Core Math |
+|------|-------------|-----------|
+| **White Noise** | Pure random | `fract(sin(dot(uv, vec2)) * 43758.5453)` |
+| **Value Noise** | Smooth random | Interpolated grid noise |
+| **Perlin Noise** | Gradient noise | Dot products + interpolation |
+| **Simplex Noise** | Optimized Perlin | Triangular grid |
+| **FBM** | Fractal Brownian Motion | Layered noise octaves |
+| **Turbulence** | Absolute FBM | `abs(noise)` layers |
+| **Worley/Cellular** | Cell-based noise | Distance to random points |
+
+#### WGSL Examples
+
+**Simple Hash (White Noise):**
+```wgsl
+fn hash(p: vec2<f32>) -> f32 {
+    return fract(sin(dot(p, vec2<f32>(12.9898, 78.233))) * 43758.5453);
+}
+```
+
+**Value Noise:**
+```wgsl
+fn valueNoise(p: vec2<f32>) -> f32 {
+    let i = floor(p);
+    let f = fract(p);
+    let u = f * f * (3.0 - 2.0 * f);  // Smoothstep
+    return mix(
+        mix(hash(i), hash(i + vec2<f32>(1.0, 0.0)), u.x),
+        mix(hash(i + vec2<f32>(0.0, 1.0)), hash(i + vec2<f32>(1.0, 1.0)), u.x),
+        u.y
+    );
+}
+```
+
+---
+
+### E.6 Distortion Effects
+
+Techniques that warp or bend the visual space.
+
+| Term | Description | Core Math |
+|------|-------------|-----------|
+| **Ripple** | Concentric wave distortion | `sin(length(uv) * freq)` offset |
+| **Twist** | Rotational distortion | Angle varies with distance |
+| **Bulge** | Center magnification | UV scaled by distance |
+| **Pinch** | Center compression | Inverse bulge |
+| **Wave Distort** | Sinusoidal UV offset | `uv.x + sin(uv.y * freq)` |
+| **Noise Distort** | Random UV offset | `uv + noise(uv) * amount` |
+| **Barrel** | Lens distortion | Radial UV scaling |
+| **Fisheye** | Extreme wide-angle | Spherical projection |
 
 #### WGSL Examples
 
 **Ripple:**
 ```wgsl
-let center = uv - vec2(0.5);
-let dist = length(center);
-let ripple = sin(dist * 20.0 - uTime * 4.0) * 0.5 + 0.5;
+let dist = length(p);
+let ripple = sin(dist * 20.0 - uniforms.time * 5.0) * 0.02;
+let distorted = p + normalize(p) * ripple;
 ```
 
-**Kaleidoscope (8-way):**
+**Twist:**
 ```wgsl
-let center = uv - vec2(0.5);
-let angle = atan2(center.y, center.x);
-let segments = 8.0;
+let dist = length(p);
+let twist = dist * 3.0 + uniforms.time;
+let c = cos(twist);
+let s = sin(twist);
+let twisted = vec2<f32>(p.x * c - p.y * s, p.x * s + p.y * c);
+```
+
+---
+
+### E.7 Blend Modes
+
+Methods for combining multiple visual layers.
+
+| Term | Description | Formula |
+|------|-------------|---------|
+| **Add** | Brightening blend | `a + b` |
+| **Multiply** | Darkening blend | `a * b` |
+| **Screen** | Inverse multiply | `1 - (1-a) * (1-b)` |
+| **Overlay** | Contrast blend | Multiply or screen based on base |
+| **Difference** | Absolute difference | `abs(a - b)` |
+| **Mix/Lerp** | Linear interpolation | `a * (1-t) + b * t` |
+| **Max** | Lighten | `max(a, b)` |
+| **Min** | Darken | `min(a, b)` |
+
+#### WGSL Examples
+
+**Screen:**
+```wgsl
+let screened = 1.0 - (1.0 - colorA) * (1.0 - colorB);
+```
+
+**Overlay:**
+```wgsl
+fn overlay(base: f32, blend: f32) -> f32 {
+    if (base < 0.5) {
+        return 2.0 * base * blend;
+    } else {
+        return 1.0 - 2.0 * (1.0 - base) * (1.0 - blend);
+    }
+}
+```
+
+---
+
+### E.8 Classic Effects
+
+Well-known visual effects commonly used in shader art.
+
+| Term | Description |
+|------|-------------|
+| **Tunnel** | Infinite depth illusion using polar coords |
+| **Kaleidoscope** | Mirrored angular segments |
+| **Plasma** | Colorful interference patterns |
+| **Fire** | Animated flame simulation |
+| **Water** | Rippling reflection effect |
+| **Starfield** | Parallax star layers |
+| **Matrix Rain** | Falling character columns |
+| **Metaballs** | Organic blob merging |
+
+#### WGSL Examples
+
+**Tunnel:**
+```wgsl
+let dist = length(p);
+let angle = atan2(p.y, p.x);
+let tunnel = fract(1.0 / dist - uniforms.time);
+let stripes = sin(angle * 8.0) * 0.5 + 0.5;
+let color = vec3<f32>(tunnel * stripes);
+```
+
+**Kaleidoscope:**
+```wgsl
+let angle = atan2(p.y, p.x);
+let segments = 6.0;
 let kaleidoAngle = abs(((angle / 3.14159) * segments) % 2.0 - 1.0);
 ```
 
-**Shockwave:**
+**Plasma:**
 ```wgsl
-let dist = length(uv - vec2(0.5));
-let ringPos = fract(uTime * 0.5);  // expanding ring
-let ring = smoothstep(ringPos - 0.02, ringPos, dist) 
-         - smoothstep(ringPos, ringPos + 0.02, dist);
-```
-
-**Spiral:**
-```wgsl
-let center = uv - vec2(0.5);
-let dist = length(center);
-let angle = atan2(center.y, center.x);
-let spiral = sin(angle * 5.0 + dist * 20.0 - uTime * 3.0);
+let plasma = sin(p.x * 10.0 + uniforms.time)
+           + sin(p.y * 10.0 + uniforms.time * 1.1)
+           + sin((p.x + p.y) * 10.0 + uniforms.time * 0.5)
+           + sin(length(p) * 10.0);
+let color = hsv2rgb(vec3<f32>(plasma * 0.1, 1.0, 1.0));
 ```
 
 ---
 
-### D.3 Flow Fields
+### E.9 Post-Processing
 
-Patterns suggesting movement, fluid dynamics, or particle systems.
+Effects typically applied to the final image.
 
 | Term | Description | Core Math |
 |------|-------------|-----------|
-| **Flow Field** | Directional streaming motion | Noise-based UV displacement |
-| **Particle Stream** | Dots moving along paths | Hash + velocity integration |
-| **Smoke/Fluid** | Organic flowing shapes | Layered noise with advection |
-| **Aurora** | Vertical color ribbons | Sine waves + gradient |
-| **Plasma** | Classic demo effect, shifting blobs | `sin(x) + sin(y) + sin(x+y)` |
-| **Lava Lamp** | Blobby morphing shapes | Metaballs or smooth noise |
-| **Fire** | Upward turbulent motion | Noise scrolling up + gradient |
-| **Water** | Reflective surface ripples | Layered sine distortion |
-| **Clouds** | Soft billowing shapes | FBM noise |
-| **Wind Lines** | Streaming directional marks | Elongated noise |
+| **Vignette** | Edge darkening | `1.0 - length(uv - 0.5)` |
+| **Glow/Bloom** | Bright area expansion | Blur + add |
+| **Film Grain** | Noise overlay | Random per pixel per frame |
+| **Scanlines** | CRT-style lines | `sin(y * freq)` |
+| **Chromatic Aberration** | Color channel offset | Separate RGB samples |
+| **Pixelate** | Low resolution | `floor(uv * pixels) / pixels` |
+| **CRT Effect** | Old monitor look | Barrel + scanlines + glow |
 
 #### WGSL Examples
-
-**Classic Plasma:**
-```wgsl
-let plasma = sin(uv.x * 10.0 + uTime)
-           + sin(uv.y * 10.0 + uTime * 1.1)
-           + sin((uv.x + uv.y) * 10.0 + uTime * 1.2)
-           + sin(length(uv - 0.5) * 10.0 - uTime);
-let color = plasma * 0.25 + 0.5;
-```
-
-**Aurora Effect:**
-```wgsl
-let wave1 = sin(uv.x * 3.0 + uTime) * 0.2;
-let wave2 = sin(uv.x * 5.0 - uTime * 1.3) * 0.15;
-let aurora = smoothstep(0.3 + wave1 + wave2, 0.5, uv.y);
-```
-
-**Simple Fire:**
-```wgsl
-// Requires noise function
-let fireUV = vec2(uv.x, uv.y + uTime * 0.5);
-let n = noise(fireUV * 5.0);
-let fire = smoothstep(0.5, 0.0, uv.y + n * 0.3);
-```
-
----
-
-### D.4 Geometric Primitives
-
-Basic shapes used as building blocks for complex patterns.
-
-| Term | Description | Core Math |
-|------|-------------|-----------|
-| **Circle** | Basic ring or filled disc | `length(uv - center)` |
-| **Ring** | Hollow circle | `abs(dist - radius)` |
-| **Box** | Rectangle/square | `max(abs(uv.x), abs(uv.y))` |
-| **Rounded Box** | Rectangle with soft corners | Box SDF with corner radius |
-| **Triangle** | Three-sided shape | Half-plane intersection |
-| **Polygon** | N-sided regular shape | `atan2` + `cos` |
-| **Cross** | Plus sign shape | `min(abs(x), abs(y))` |
-| **Star** | Pointed star shape | Polygon with alternating radii |
-| **Line** | Straight segment | Point-to-line distance |
-| **Arc** | Curved segment | Angle-limited ring |
-
-#### WGSL Examples
-
-**Circle (SDF):**
-```wgsl
-fn sdCircle(p: vec2<f32>, r: f32) -> f32 {
-    return length(p) - r;
-}
-
-// Usage
-let d = sdCircle(uv - vec2(0.5), 0.3);
-let circle = smoothstep(0.01, 0.0, d);
-```
-
-**Ring:**
-```wgsl
-let dist = length(uv - vec2(0.5));
-let ring = smoothstep(0.01, 0.0, abs(dist - 0.3) - 0.02);
-```
-
-**Box (SDF):**
-```wgsl
-fn sdBox(p: vec2<f32>, b: vec2<f32>) -> f32 {
-    let d = abs(p) - b;
-    return length(max(d, vec2(0.0))) + min(max(d.x, d.y), 0.0);
-}
-```
-
-**Regular Polygon:**
-```wgsl
-fn sdPolygon(p: vec2<f32>, r: f32, n: f32) -> f32 {
-    let angle = atan2(p.y, p.x);
-    let segment = 6.28318 / n;
-    let a = ((angle + segment * 0.5) % segment) - segment * 0.5;
-    return length(p) * cos(a) - r;
-}
-```
-
----
-
-### D.5 Fractal/Complex
-
-Self-similar and mathematically complex patterns.
-
-| Term | Description | Core Math |
-|------|-------------|-----------|
-| **Fractal Noise** | Self-similar layered noise | FBM (Fractional Brownian Motion) |
-| **Mandelbrot** | Classic fractal zoom | `z = z² + c` iteration |
-| **Julia Set** | Mandelbrot variant | Fixed c, varying start |
-| **Sierpinski** | Triangular fractal | Folding operations |
-| **Kaleido-Fractal** | Fractal with angular symmetry | Kaleidoscope + iteration |
-| **Voronoi** | Cell-based pattern | Nearest point calculation |
-| **Worley Noise** | Cellular texture | Distance to random points |
-| **Domain Warp** | Recursively distorted space | Noise feeding into noise |
-| **IFS** | Iterated Function System | Repeated transforms |
-| **Truchet** | Tile-based maze pattern | Random tile rotation |
-
-#### WGSL Examples
-
-**FBM (Fractal Brownian Motion):**
-```wgsl
-fn fbm(p: vec2<f32>) -> f32 {
-    var value = 0.0;
-    var amplitude = 0.5;
-    var pos = p;
-    for (var i = 0; i < 5; i++) {
-        value += amplitude * noise(pos);
-        pos *= 2.0;
-        amplitude *= 0.5;
-    }
-    return value;
-}
-```
-
-**Simple Voronoi:**
-```wgsl
-fn voronoi(p: vec2<f32>) -> f32 {
-    let cell = floor(p);
-    let local = fract(p);
-    var minDist = 1.0;
-    for (var y = -1; y <= 1; y++) {
-        for (var x = -1; x <= 1; x++) {
-            let neighbor = vec2(f32(x), f32(y));
-            let point = hash2(cell + neighbor);  // random point in cell
-            let diff = neighbor + point - local;
-            minDist = min(minDist, length(diff));
-        }
-    }
-    return minDist;
-}
-```
-
-**Domain Warp:**
-```wgsl
-let warpedUV = uv + vec2(
-    noise(uv * 4.0 + uTime),
-    noise(uv * 4.0 + 100.0 + uTime)
-) * 0.2;
-let color = noise(warpedUV * 8.0);
-```
-
----
-
-### D.6 Motion Types
-
-Categories of movement and animation behaviors.
-
-| Term | Description | Application |
-|------|-------------|-------------|
-| **Oscillate** | Back and forth | `sin(uTime)` |
-| **Rotate** | Spinning motion | `mat2` rotation matrix |
-| **Zoom** | Scale in/out | Multiply UV by time factor |
-| **Pan** | Lateral drift | Add time to UV |
-| **Breathe** | Gentle scale pulse | `1.0 + sin(uTime) * 0.1` |
-| **Strobe** | Hard on/off flash | `step(0.5, fract(uTime * freq))` |
-| **Flutter** | Rapid small variations | High-freq noise or sine |
-| **Drift** | Slow wandering | Low-freq noise offset |
-| **Bounce** | Elastic rebound | `abs(sin(uTime))` |
-| **Ease** | Smooth acceleration | Cubic/sine easing functions |
-| **Jitter** | Random micro-movement | Per-frame noise |
-| **Orbit** | Circular path around point | `sin`/`cos` position |
-
-#### WGSL Examples
-
-**Rotation Matrix:**
-```wgsl
-fn rotate2D(angle: f32) -> mat2x2<f32> {
-    let c = cos(angle);
-    let s = sin(angle);
-    return mat2x2<f32>(c, -s, s, c);
-}
-
-// Usage
-let rotatedUV = rotate2D(uTime) * (uv - 0.5) + 0.5;
-```
-
-**Breathing Scale:**
-```wgsl
-let breath = 1.0 + sin(uTime * 2.0) * 0.1;
-let scaledUV = (uv - 0.5) / breath + 0.5;
-```
-
-**Smooth Strobe:**
-```wgsl
-let strobe = smoothstep(0.4, 0.5, fract(uTime * 4.0));
-```
-
-**Orbit:**
-```wgsl
-let orbitRadius = 0.2;
-let orbitSpeed = 2.0;
-let orbitPos = vec2(
-    cos(uTime * orbitSpeed) * orbitRadius,
-    sin(uTime * orbitSpeed) * orbitRadius
-);
-let center = vec2(0.5) + orbitPos;
-```
-
----
-
-### D.7 Transitions/Events
-
-Effects triggered by audio or time, often used for emphasis.
-
-| Term | Description | Trigger |
-|------|-------------|---------|
-| **Flash** | Full-screen brightness spike | `uModA` peak (kick) |
-| **Impact** | Shockwave from center | `uModA` threshold |
-| **Glitch** | Digital corruption effect | Random UV displacement |
-| **Invert** | Color/brightness flip | `1.0 - color` |
-| **Bloom** | Glow bleeding outward | Blur + add |
-| **Vignette** | Edge darkening | Radial falloff |
-| **Fade** | Opacity transition | Linear interpolation |
-| **Cut** | Hard switch between states | Conditional branch |
-| **Wipe** | Directional reveal | Moving threshold |
-| **Dissolve** | Noise-based transition | Noise threshold |
-| **Shake** | Camera vibration | UV offset by noise |
-| **Zoom Punch** | Quick zoom in/out | Scale spike on beat |
-
-#### WGSL Examples
-
-**Bass Flash:**
-```wgsl
-let flash = uModA * uModA;  // squared for punch
-let color = baseColor + vec3(flash * 0.5);
-```
-
-**Impact Shockwave:**
-```wgsl
-let dist = length(uv - vec2(0.5));
-let shockRadius = uModA * 0.5;  // expands with bass
-let shock = smoothstep(shockRadius - 0.02, shockRadius, dist)
-          - smoothstep(shockRadius, shockRadius + 0.02, dist);
-```
-
-**Glitch:**
-```wgsl
-let glitchStrength = step(0.8, uModA);  // trigger on loud bass
-let offset = hash(floor(uv.y * 20.0 + uTime * 100.0)) * 0.1 * glitchStrength;
-let glitchedUV = vec2(uv.x + offset, uv.y);
-```
 
 **Vignette:**
 ```wgsl
-let dist = length(uv - vec2(0.5));
-let vignette = 1.0 - smoothstep(0.3, 0.7, dist);
-let color = baseColor * vignette;
-```
-
-**Zoom Punch:**
-```wgsl
-let punch = 1.0 + uModA * 0.2;  // scale up on bass
-let punchedUV = (uv - 0.5) / punch + 0.5;
-```
-
----
-
-### D.8 Color Operations
-
-Techniques for manipulating and generating color.
-
-| Term | Description | Core Math |
-|------|-------------|-----------|
-| **Gradient** | Smooth color blend | `mix(colorA, colorB, t)` |
-| **Palette Cycle** | Rotating through colors | `sin` RGB with phase offsets |
-| **Hue Shift** | Rotate color wheel | RGB→HSV→rotate→RGB |
-| **Saturation** | Color intensity | HSV S channel |
-| **Posterize** | Reduce color levels | `floor(color * levels) / levels` |
-| **Duotone** | Two-color mapping | Luminance → two colors |
-| **Rainbow** | Full spectrum sweep | `uv.x` or `dist` → hue |
-| **Complement** | Opposite color | `1.0 - color` or hue + 0.5 |
-| **Triadic** | Three evenly-spaced hues | Hue + 0.33, Hue + 0.66 |
-| **Temperature** | Warm/cool color shift | Blue-orange gradient |
-
-#### WGSL Examples
-
-**Palette Cycling:**
-```wgsl
-fn palette(t: f32) -> vec3<f32> {
-    let a = vec3(0.5, 0.5, 0.5);
-    let b = vec3(0.5, 0.5, 0.5);
-    let c = vec3(1.0, 1.0, 1.0);
-    let d = vec3(0.0, 0.33, 0.67);
-    return a + b * cos(6.28318 * (c * t + d));
-}
-
-// Usage
-let color = palette(uTime * 0.1 + length(uv - 0.5));
-```
-
-**HSV to RGB:**
-```wgsl
-fn hsv2rgb(hsv: vec3<f32>) -> vec3<f32> {
-    let h = hsv.x * 6.0;
-    let s = hsv.y;
-    let v = hsv.z;
-    let c = v * s;
-    let x = c * (1.0 - abs(h % 2.0 - 1.0));
-    let m = v - c;
-    var rgb: vec3<f32>;
-    if (h < 1.0) { rgb = vec3(c, x, 0.0); }
-    else if (h < 2.0) { rgb = vec3(x, c, 0.0); }
-    else if (h < 3.0) { rgb = vec3(0.0, c, x); }
-    else if (h < 4.0) { rgb = vec3(0.0, x, c); }
-    else if (h < 5.0) { rgb = vec3(x, 0.0, c); }
-    else { rgb = vec3(c, 0.0, x); }
-    return rgb + vec3(m);
-}
-```
-
-**Rainbow Gradient:**
-```wgsl
-let hue = fract(uv.x + uTime * 0.1);
-let color = hsv2rgb(vec3(hue, 1.0, 1.0));
-```
-
-**Posterize:**
-```wgsl
-let levels = 4.0;
-let posterized = floor(color * levels) / levels;
-```
-
-**Duotone:**
-```wgsl
-let luma = dot(color, vec3(0.299, 0.587, 0.114));
-let shadow = vec3(0.1, 0.0, 0.2);   // dark purple
-let highlight = vec3(1.0, 0.8, 0.2); // gold
-let duotone = mix(shadow, highlight, luma);
-```
-
----
-
-### D.9 Texture/Surface
-
-Surface qualities and textural effects.
-
-| Term | Description | Core Math |
-|------|-------------|-----------|
-| **Noise** | Random variation | Perlin, Simplex, Value noise |
-| **Grain** | Film-like texture | High-freq hash |
-| **Scanlines** | Horizontal lines | `mod(fragCoord.y, spacing)` |
-| **CRT** | Retro monitor effect | Scanlines + barrel distortion |
-| **Halftone** | Dot pattern | Threshold against dot grid |
-| **Dither** | Ordered noise pattern | Bayer matrix |
-| **Moire** | Interference pattern | Overlapping grids |
-| **Static** | TV noise | Per-pixel random |
-| **Chromatic Aberration** | RGB color fringing | Offset RGB channels |
-| **Pixelate** | Blocky low-res | `floor(uv * res) / res` |
-
-#### WGSL Examples
-
-**Simple Hash Noise:**
-```wgsl
-fn hash(p: vec2<f32>) -> f32 {
-    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-}
+let vignette = 1.0 - smoothstep(0.3, 0.7, length(uv - 0.5));
+color = color * vignette;
 ```
 
 **Film Grain:**
 ```wgsl
-let grain = hash(uv * 1000.0 + uTime * 100.0) * 0.1;
-let color = baseColor + vec3(grain - 0.05);
+let grain = hash(uv * 1000.0 + uniforms.time * 100.0) * 0.1;
+let color = baseColor + vec3<f32>(grain - 0.05);
 ```
 
 **Scanlines:**
 ```wgsl
-let scanline = sin(fragCoord.y * 3.14159) * 0.5 + 0.5;
+let scanline = sin(coord.y * 3.14159) * 0.5 + 0.5;
 let color = baseColor * (0.8 + scanline * 0.2);
-```
-
-**CRT Effect:**
-```wgsl
-// Barrel distortion
-let center = uv - 0.5;
-let dist = length(center);
-let barrel = center * (1.0 + dist * dist * 0.2);
-let crtUV = barrel + 0.5;
-
-// Scanlines
-let scan = sin(crtUV.y * uResolution.y * 3.14159) * 0.5 + 0.5;
-
-// Vignette
-let vignette = 1.0 - dist * 0.5;
-```
-
-**Chromatic Aberration:**
-```wgsl
-let aberration = 0.005;
-let r = textureSample(tex, samp, uv + vec2(aberration, 0.0)).r;
-let g = textureSample(tex, samp, uv).g;
-let b = textureSample(tex, samp, uv - vec2(aberration, 0.0)).b;
-let color = vec3(r, g, b);
-```
-
-**Pixelate:**
-```wgsl
-let pixelSize = 64.0;
-let pixelated = floor(uv * pixelSize) / pixelSize;
 ```
 
 ---
 
-### D.10 Depth/3D Illusions
+### E.10 Depth/3D Illusions
 
 Techniques that create the impression of three-dimensional space.
 
@@ -2487,60 +2383,28 @@ Techniques that create the impression of three-dimensional space.
 | **Fog** | Distance-based fade | `exp(-dist * density)` |
 | **Shadow** | Darkened regions | Secondary ray or fake |
 | **Reflection** | Mirror effect | Flipped coordinates |
-| **Refraction** | Bent light | UV displacement by normal |
-| **Depth of Field** | Focus blur | Distance-based blur |
-| **Ambient Occlusion** | Contact shadows | Local occlusion sampling |
-| **Glow/Emission** | Self-illumination | Add brightness |
-| **Fresnel** | Edge glow effect | View angle falloff |
 
 #### WGSL Examples
 
 **Parallax Layers:**
 ```wgsl
-let layer1 = texture(uv + vec2(uTime * 0.1, 0.0));  // slow
-let layer2 = texture(uv + vec2(uTime * 0.3, 0.0));  // medium
-let layer3 = texture(uv + vec2(uTime * 0.5, 0.0));  // fast (foreground)
+let layer1 = pattern(uv + vec2<f32>(uniforms.time * 0.1, 0.0));  // slow
+let layer2 = pattern(uv + vec2<f32>(uniforms.time * 0.3, 0.0));  // medium
+let layer3 = pattern(uv + vec2<f32>(uniforms.time * 0.5, 0.0));  // fast
 let color = mix(mix(layer1, layer2, 0.5), layer3, 0.5);
-```
-
-**Basic Raymarching:**
-```wgsl
-fn map(p: vec3<f32>) -> f32 {
-    // Sphere SDF
-    return length(p) - 1.0;
-}
-
-fn raymarch(ro: vec3<f32>, rd: vec3<f32>) -> f32 {
-    var t = 0.0;
-    for (var i = 0; i < 64; i++) {
-        let p = ro + rd * t;
-        let d = map(p);
-        if (d < 0.001) { break; }
-        t += d;
-        if (t > 100.0) { break; }
-    }
-    return t;
-}
 ```
 
 **Fog:**
 ```wgsl
 let fogDensity = 0.1;
-let fogColor = vec3(0.5, 0.6, 0.7);
+let fogColor = vec3<f32>(0.5, 0.6, 0.7);
 let fog = 1.0 - exp(-distance * fogDensity);
 let color = mix(objectColor, fogColor, fog);
 ```
 
-**Fresnel (Edge Glow):**
-```wgsl
-let viewDir = normalize(cameraPos - worldPos);
-let fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.0);
-let color = baseColor + glowColor * fresnel;
-```
-
 ---
 
-### D.11 Audio-Reactive Mappings
+### E.11 Audio-Reactive Mappings
 
 Best practices for connecting audio analysis to visual parameters.
 
@@ -2548,77 +2412,71 @@ Best practices for connecting audio analysis to visual parameters.
 
 | Modulator | Frequency Range | Character | Best For |
 |-----------|-----------------|-----------|----------|
-| `uModA` | 30-500 Hz (Bass) | Punchy, rhythmic | Big movements, main pulse, impacts |
-| `uModB` | 500-2000 Hz (Mids) | Melodic, sustained | Color shifts, rotation, secondary motion |
-| `uModC` | 2000-20000 Hz (Treble) | Crisp, transient | Fine detail, shimmer, edge effects |
+| `uniforms.modA` | 30-500 Hz (Bass) | Punchy, rhythmic | Big movements, main pulse, impacts |
+| `uniforms.modB` | 500-2000 Hz (Mids) | Melodic, sustained | Color shifts, rotation, secondary motion |
+| `uniforms.modC` | 2000-20000 Hz (Treble) | Crisp, transient | Fine detail, shimmer, edge effects |
 
 #### Recommended Mappings
 
-**uModA (Bass) → Structure**
+**uniforms.modA (Bass) → Structure**
 ```wgsl
-// Size/scale
-let size = 0.5 + uModA * 0.5;
+// Size/scale (modA is 0-1)
+let size = 0.5 + uniforms.modA * 0.3;
 
 // Brightness flash
-let brightness = baseColor + vec3(uModA * 0.3);
+let brightness = baseColor + vec3<f32>(uniforms.modA * 0.5);
 
 // Zoom punch
-let zoom = 1.0 + uModA * 0.2;
+let zoom = 1.0 + uniforms.modA * 0.4;
 let punchedUV = (uv - 0.5) / zoom + 0.5;
 
 // Ring expansion (shockwave)
-let ringRadius = uModA * 0.5;
+let ringRadius = uniforms.modA * 0.5;
 ```
 
-**uModB (Mids) → Movement**
+**uniforms.modB (Mids) → Movement**
 ```wgsl
 // Rotation speed
-let angle = uTime * (1.0 + uModB * 2.0);
+let angle = uniforms.time * (1.0 + uniforms.modB * 2.0);
 
 // Hue shift
-let hue = fract(baseHue + uModB * 0.2);
-
-// Pattern complexity
-let iterations = 3 + i32(uModB * 5.0);
+let hue = fract(baseHue + uniforms.modB * 0.2);
 
 // Wave amplitude
-let wave = sin(uv.x * 10.0) * uModB * 0.2;
+let wave = sin(uv.x * 10.0) * uniforms.modB * 0.2;
 ```
 
-**uModC (Treble) → Detail**
+**uniforms.modC (Treble) → Detail**
 ```wgsl
 // Noise intensity
-let noise = fbm(uv * 10.0) * uModC;
+let noise = valueNoise(uv * 10.0) * uniforms.modC;
 
 // Edge sharpness
-let edge = smoothstep(0.5 - uModC * 0.1, 0.5, pattern);
+let edge = smoothstep(0.5 - uniforms.modC * 0.1, 0.5, pattern);
 
 // Flicker/sparkle
-let sparkle = step(0.95, hash(uv + uTime)) * uModC;
-
-// Fine texture
-let grain = (hash(uv * 1000.0 + uTime) - 0.5) * uModC * 0.1;
+let sparkle = step(0.95, hash(uv + uniforms.time)) * uniforms.modC;
 ```
 
 #### Compound Effects
 
 **All Three Combined:**
 ```wgsl
-// Bass controls overall intensity
-let intensity = 0.5 + uModA * 0.5;
+// Bass controls overall intensity (modA is 0-1)
+let intensity = 0.5 + uniforms.modA * 0.5;
 
 // Mids control color
-let hue = fract(uTime * 0.1 + uModB * 0.3);
-let color = hsv2rgb(vec3(hue, 0.8, intensity));
+let hue = fract(uniforms.time * 0.1 + uniforms.modB * 0.3);
+let color = hsv2rgb(vec3<f32>(hue, 0.8, intensity));
 
 // Treble adds sparkle
-let sparkle = step(0.98, hash(uv * 500.0 + uTime)) * uModC;
-let finalColor = color + vec3(sparkle);
+let sparkle = step(0.98, hash(uv * 500.0 + uniforms.time)) * uniforms.modC;
+let finalColor = color + vec3<f32>(sparkle);
 ```
 
 ---
 
-### D.12 Combining Patterns
+### E.12 Combining Patterns
 
 Strategies for layering and mixing effects.
 
@@ -2637,40 +2495,40 @@ Strategies for layering and mixing effects.
 
 ```wgsl
 @fragment
-fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
-    let uv = fragCoord.xy / uResolution;
+fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
+    let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
+    let uv = coord.xy / resolution;
+    let p = (uv - 0.5) * vec2<f32>(resolution.x / resolution.y, 1.0);
     
     // Layer 1: Background gradient
-    let bg = mix(vec3(0.1, 0.0, 0.2), vec3(0.0, 0.1, 0.3), uv.y);
+    let bg = mix(vec3<f32>(0.1, 0.0, 0.2), vec3<f32>(0.0, 0.1, 0.3), uv.y);
     
-    // Layer 2: Tunnel structure (bass reactive)
-    let center = uv - vec2(0.5);
-    let dist = length(center);
-    let angle = atan2(center.y, center.x);
-    let tunnel = fract(1.0 / dist - uTime + uModA * 0.5);
-    let tunnelColor = vec3(tunnel * 0.5, tunnel * 0.3, tunnel);
+    // Layer 2: Tunnel structure (bass reactive, modA is 0-1)
+    let dist = length(p);
+    let angle = atan2(p.y, p.x);
+    let tunnel = fract(1.0 / (dist + 0.1) - uniforms.time + uniforms.modA * 0.5);
+    let tunnelColor = vec3<f32>(tunnel * 0.5, tunnel * 0.3, tunnel);
     
-    // Layer 3: Kaleidoscope overlay (mid reactive)
-    let segments = 8.0;
-    let kAngle = abs(((angle / 3.14159) * segments) % 2.0 - 1.0);
-    let kaleidoPattern = sin(kAngle * 20.0 + dist * 30.0 - uTime * 2.0);
-    let kaleidoColor = vec3(0.2, 0.5, 0.8) * kaleidoPattern * uModB;
+    // Layer 3: Rotating pattern (mid reactive)
+    let rotAngle = uniforms.time + uniforms.modB * 2.0;
+    let pattern = sin(angle * 8.0 + rotAngle) * 0.5 + 0.5;
+    let patternColor = vec3<f32>(0.2, 0.5, 0.8) * pattern * uniforms.modB;
     
     // Layer 4: Sparkle (treble reactive)
-    let sparkle = step(0.97, hash(uv * 500.0 + floor(uTime * 30.0))) * uModC;
+    let sparkle = step(0.97, fract(sin(dot(uv, vec2<f32>(12.9898, 78.233)) + floor(uniforms.time * 30.0)) * 43758.5453)) * uniforms.modC;
     
     // Composite
     var color = bg;
-    color = mix(color, tunnelColor, 0.6);           // Tunnel over background
-    color = color + kaleidoColor * 0.5;              // Additive kaleidoscope
-    color = color + vec3(sparkle);                   // Additive sparkle
+    color = mix(color, tunnelColor, 0.6);
+    color = color + patternColor;
+    color = color + vec3<f32>(sparkle);
     
-    // Post-processing
+    // Post-processing: vignette
     let vignette = 1.0 - smoothstep(0.3, 0.7, dist);
     color = color * vignette;
     
     // Bass flash
-    color = color + vec3(uModA * uModA * 0.2);
+    color = color + vec3<f32>(uniforms.modA * uniforms.modA * 0.2);
     
     return vec4<f32>(color, 1.0);
 }
@@ -2678,13 +2536,13 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
 
 ---
 
-### D.13 Quick Reference Cheat Sheet
+### E.13 Quick Reference Cheat Sheet
 
 #### Essential Functions
 
 ```wgsl
 // Distance from center
-let dist = length(uv - vec2(0.5));
+let dist = length(uv - vec2<f32>(0.5));
 
 // Angle from center
 let angle = atan2(uv.y - 0.5, uv.x - 0.5);
@@ -2696,7 +2554,9 @@ let tiled = fract(uv * 4.0);
 let edge = smoothstep(0.4, 0.5, value);
 
 // Rotation
-let rotated = mat2x2(cos(a), -sin(a), sin(a), cos(a)) * (uv - 0.5) + 0.5;
+let c = cos(angle);
+let s = sin(angle);
+let rotated = vec2<f32>(p.x * c - p.y * s, p.x * s + p.y * c);
 
 // Mix colors
 let blended = mix(colorA, colorB, factor);
@@ -2708,7 +2568,7 @@ let blended = mix(colorA, colorB, factor);
 |-----------|---------------|-------|
 | UV coordinates | 0.0 - 1.0 | Screen space |
 | Colors | 0.0 - 1.0 | Per channel |
-| Modulators | 0.0 - 1.0 | Audio input |
+| Modulators | 0.0 - 1.0 | Audio input (already normalized) |
 | Time | 0.0 - ∞ | Seconds |
 | Angles | -π to π | Radians |
 | Distances | 0.0 - ~0.7 | From center |
@@ -2717,13 +2577,13 @@ let blended = mix(colorA, colorB, factor);
 
 ```wgsl
 // Circles
-sin(length(uv - 0.5) * 20.0 - uTime * 2.0)
+sin(length(uv - 0.5) * 20.0 - uniforms.time * 2.0)
 
 // Stripes
-sin(uv.x * 30.0 + uTime)
+sin(uv.x * 30.0 + uniforms.time)
 
 // Checkerboard
-step(0.5, fract(uv.x * 8.0)) != step(0.5, fract(uv.y * 8.0))
+(floor(uv.x * 8.0) + floor(uv.y * 8.0)) % 2.0
 
 // Radial segments
 step(0.5, fract(atan2(uv.y-0.5, uv.x-0.5) * 4.0 / 6.28))
@@ -2734,20 +2594,21 @@ length(fract(uv * 8.0) - 0.5)
 
 ---
 
-### D.14 Version History
+### E.14 Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0.0 | December 2025 | Initial vocabulary catalog |
+| 1.1.0 | December 2025 | Updated for OMS shader contract (fs_main, auto-injected struct) |
 
 ---
 
-**END OF INDEX D**
+**END OF INDEX E**
 
 ---
 
 **END OF USER GUIDE**
 
-Version: Beta V4_7_0  
-Date: December 12, 2025  
+Version: Beta V4_8_0  
+Date: December 19, 2025  
 License: GPL-3.0

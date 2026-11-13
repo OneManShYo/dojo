@@ -1,7 +1,7 @@
-# ONEMANSHYO Beta V4_7_0 - CLAUDE PROJECT INSTRUCTIONS
+# ONEMANSHYO BETA - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** Beta V4_7_0  
-**Date:** December 12, 2025  
+**Version:** Beta V4_8_0  
+**Date:** December 19, 2025  
 **Purpose:** Working protocols and project context for Claude AI development
 
 ---
@@ -20,14 +20,13 @@ READ THE Deliverables and Iterations Instructions. Always provide: HTML file, MD
 
 1. [About Wes Smith - Creator Context](#about-wes-smith---creator-context)
 2. [ONEMANSHYO - The Origin Story](#onemanshyo---the-origin-story)
-3. [Reference Workflow](#reference-workflow)
-4. [Project Management](#project-management)
-5. [Development Protocols - CRITICAL](#development-protocols---critical)
-6. [Communication Guidelines](#communication-guidelines)
-7. [Key Architectural Principles](#key-architectural-principles)
-8. [Critical Terminology](#critical-terminology)
-9. [Documentation References](#documentation-references)
-10. [What Never to Suggest](#what-never-to-suggest)
+3. [Project Management](#project-management)
+4. [Development Protocols - CRITICAL](#development-protocols---critical)
+5. [Communication Guidelines](#communication-guidelines)
+6. [Key Architectural Principles](#key-architectural-principles)
+7. [Critical Terminology](#critical-terminology)
+8. [Documentation References](#documentation-references)
+9. [What Never to Suggest](#what-never-to-suggest)
 
 ---
 
@@ -167,103 +166,6 @@ OMS tools aren't theoretical experiments or academic projects. They're **codifyi
 
 ---
 
-## REFERENCE WORKFLOW
-
-**Context:** This pipeline represents a viable alternative approach that informed many OMS design decisions.
-
-### The Ableton + EboSuite Pipeline (Reference)
-```
-1. PREP FILES
-   └→ Organize audio tracks, samples, stems for DJ set
-
-2. CREATE SHADERS (OMS Shader Baker)
-   └→ Write/test audio-reactive WGSL shaders
-   └→ Configure frequency mapping (kick, bass, etc.)
-   └→ Set timing parameters
-
-3. COMBINE & EXPORT (Shader Baker Core Function)
-   └→ Load audio file in Shader Baker
-   └→ Set frequency mapping (30-50Hz kick, 50-75Hz bass, etc.)
-   └→ Configure render settings (resolution, FPS, duration)
-   └→ Render SILENT video (WebM format)
-   └→ Video has pre-baked audio reactivity
-
-4. VIDEO CONVERSION (FFmpeg)
-   └→ Convert WebM to ProRes 422
-   └→ ProRes optimized for real-time playback in EboSuite
-   └→ Command: ffmpeg -i input.webm -c:v prores_ks -profile:v 3 output.mov
-
-5. ABLETON LIVE SESSION SETUP
-   └→ Drag ProRes videos into Ableton clip slots
-   └→ EboSuite (Max for Live plugin) plays videos
-   └→ Audio tracks on separate channels
-   └→ Videos sync to audio via Ableton timeline
-   └→ MIDI map controller to trigger clips
-
-6. LIVE PERFORMANCE
-   └→ DJ audio (mix tracks, build set, effects)
-   └→ Trigger video clips with MIDI controller
-   └→ Videos display with pre-baked audio reactivity
-   └→ Result: Solo DJ with live reactive visuals
-```
-
-### Engine Separation - CRITICAL CONCEPT
-
-**THREE SEPARATE ENGINES** (Claude frequently forgets this):
-
-**1. OMS Shader Baker (Visual Creation Engine)**
-- Creates shader-based visuals
-- Audio analysis → bakes reactivity into video
-- Exports SILENT video files
-- **NOT a playback engine**
-- **NOT an audio engine**
-
-**2. Ableton Live (Audio Engine)**
-- Plays/mixes audio tracks
-- DJ mixing, effects, arrangement
-- Master timeline/tempo control
-- **NO video creation**
-- **NO shader rendering**
-
-**3. EboSuite (Video Playback Engine)**
-- Max for Live plugin in Ableton
-- Plays silent video files
-- Syncs to Ableton timeline
-- Video mixing/effects
-- **NO audio analysis**
-- **NO shader creation**
-
-**Why This Separation Matters:**
-
-When Claude suggests "add audio playback to Shader Baker" or "make Shader Baker play videos live" - **this violates the architecture**.
-
-- Shader Baker CREATES visuals
-- Ableton/EboSuite PLAYS them
-- The LIVE tab integrates both creation AND performance in one tool
-
-### What OMS LIVE Tab Replaces
-
-**Goal:** Replace Ableton + EboSuite with integrated LIVE tab in browser
-
-**OMS Workflow:**
-- Browser-based (no installation)
-- Audio + video in one tool
-- Real-time shader rendering (not pre-rendered)
-- MIDI control built-in (Web MIDI API)
-- Free and open source (GPL-3.0)
-- Can create and perform in same session
-
-**The Transition:**
-```
-REFERENCE:
-Shader Baker → FFmpeg → Ableton + EboSuite → Performance
-
-OMS CURRENT:
-Shader Baker (Controls/Library/Code tabs) + LIVE tab → Performance
-```
-
----
-
 ## PROJECT MANAGEMENT
 
 - Slow down and think before acting
@@ -331,7 +233,7 @@ Shader Baker (Controls/Library/Code tabs) + LIVE tab → Performance
 
 ### 4. Planning Chat Protocol
 
-Chats titled "Shader Baker Road Map Planning" (or similar) are for **brainstorming and backlog management ONLY** - not development.
+Chats titled "OMS Road Map Planning" (or similar) are for **brainstorming and backlog management ONLY** - not development.
 
 **In Planning Chats:**
 - Keep responses short
@@ -514,6 +416,7 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 ### Tempo Terms
 
 **Shader Tempo:** Visual timing (independent from audio)
+- V4_8_0: DISABLED when audio loaded (audio tempo becomes THE tempo)
 **Audio Tempo:** Track tempo for beatgrid alignment (V4_7_0: standardized from "Audio BPM")
 **Master Tempo:** LIVE tab global tempo (all tracks time-stretched to match)
 
@@ -528,10 +431,11 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 **Nodes:** Mid-level dependencies - trace before touching
 **Leafs:** Safe to modify - nothing depends on these
 
-### Message Bar System (V4_7_0)
+### Message Bar System (V4_7_0, V4_8_0)
 
 **Message Bar:** Single DOM element for ALL transient user communication (CORTEX)
-**showMessage(text, type):** The ONLY function to display user feedback
+**showMessage(text, type, onClick):** The ONLY function to display user feedback
+- V4_8_0: Optional `onClick` callback makes message clickable
 **Types:**
 - `'info'` = Cyan - help text, keyboard shortcuts (hover)
 - `'state'` = Orange - current values, confirmations (action)
@@ -549,14 +453,14 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 #### Always Loaded (Baseline)
 
-**OMS_Beta_V4_7_0_Z_ClaudeProject_Instructions.md** - This Document
+**OMS_Beta_V4_8_0_Z_ClaudeProject_Instructions.md** - This Document
 - Development protocols, communication guidelines
 - Architectural principles, terminology
 - What never to suggest
 
-**OMS_Beta_V4_7_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
+**OMS_Beta_V4_8_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
 - Leaf Node hierarchy (Cortex/Nodes/Leafs)
-- Complete function reference (182+ functions)
+- Complete function reference (~195 functions)
 - Data structures (.oms, .omsp, gridState)
 - File format specifications
 - DOM elements & controls
@@ -565,7 +469,7 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 #### On-Demand (Wes Provides When Relevant)
 
-**OMS_Beta_V4_7_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
+**OMS_Beta_V4_8_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
 - Application usage (tabs, features, workflows)
 - **INDEX A:** DJ 101 Foundation (industry context, equipment, techniques)
 - **INDEX B:** Claude Shader Creation (prompts, workflows, examples)
@@ -610,7 +514,6 @@ When Claude needs information:
 **Workflow Changes:**
 - ❌ Change DJ-centric workflow
 - ❌ Add VJ-style features
-- ❌ Change THREE ENGINES concept
 
 **Feature Creep:**
 - ❌ Add features Wes didn't request
@@ -628,18 +531,17 @@ When Claude needs information:
 **Core Principles:**
 1. Ask before building
 2. Wait for full context ("yes go")
-3. Use underscore-separated version numbers (Beta V4_7_00, two-digit patch)
+3. Use underscore-separated version numbers (Beta V4_8_0, two-digit patch)
 4. Never use VJ terminology
 5. Surgical changes only
 6. Single-file philosophy is sacred
 7. "One Timeline" architecture (master tempo rules all)
-8. THREE ENGINES concept (Shader Baker ≠ playback engine)
-9. Dual-domain architecture (shader controls ≠ audio controls)
-10. Master clock system (single timeline for all timing)
-11. Beat-based calculations (prevents drift)
-12. Leaf Node architecture (Cortex = sacred, Leafs = safe)
-13. Reference documentation instead of duplicating
-14. Ask for missing docs before proceeding
+8. Dual-domain architecture (shader controls ≠ audio controls)
+9. Master clock system (single timeline for all timing)
+10. Beat-based calculations (prevents drift)
+11. Leaf Node architecture (Cortex = sacred, Leafs = safe)
+12. Reference documentation instead of duplicating
+13. Ask for missing docs before proceeding
 
 **Development Workflow:**
 1. User describes feature

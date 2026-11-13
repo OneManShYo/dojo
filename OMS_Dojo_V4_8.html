@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V4_7
+ONEMANSHYO Dojo App V4_8
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V4_7
+Version: V4_8
 -->
 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V4_7]</title>
+    <title>ONEMANSHYO App [V4_8]</title>
     <!-- V4_3_0_sub6: JSZip for container export (loaded from CDN when needed) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -248,30 +248,111 @@ Version: V4_7
         }
 
         /* V2.7.0-C: Mod row control width adjustments */
-        /* V2.7.0-D: Updated - Subdivision and Waveform equal, narrower Gain/Freq */
-        /* Subdivision (1st): wider - equal to Waveform */
+        /* V4_8_01: Dropdowns can truncate, input fields (Gain/Freq1/Freq2) must be fully visible */
+        /* Subdivision (1st): shrunk to 1.0 - dropdown shows full on click */
         .control-row.mod-row .control-group:nth-child(1) {
-            flex: 1.9;
+            flex: 1.0;
         }
         
-        /* Waveform (2nd): wider - equal to Subdivision */
+        /* Waveform (2nd): shrunk to 1.0 - dropdown shows full on click */
         .control-row.mod-row .control-group:nth-child(2) {
-            flex: 1.9;
+            flex: 1.0;
         }
         
-        /* Gain (3rd): narrower - loses 20% total */
-        .control-row.mod-row .control-group:nth-child(3) {
-            flex: 0.8;
+        /* V4_8_11: Dropdowns (1st/2nd): equal flex for even space */
+        .control-row.mod-row .control-group:nth-child(1),
+        .control-row.mod-row .control-group:nth-child(2) {
+            flex: 1;
         }
         
-        /* Freq1 (4th): narrower - loses 20% total */
-        .control-row.mod-row .control-group:nth-child(4) {
-            flex: 0.8;
-        }
-        
-        /* Freq2 (5th): narrower - loses 20% total */
+        /* V4_8_11: Knobs (3rd/4th/5th): tighter grouping */
+        .control-row.mod-row .control-group:nth-child(3),
+        .control-row.mod-row .control-group:nth-child(4),
         .control-row.mod-row .control-group:nth-child(5) {
-            flex: 0.8;
+            flex: 0 0 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* V4_8_12: Modulator keyboard selection ring */
+        .mod-selected {
+            outline: 2px solid #00d4ff !important;
+            outline-offset: 2px;
+        }
+
+        /* V4_8_31: OmsDropdown component */
+        .oms-dropdown {
+            position: relative;
+            width: 100%;
+        }
+        .oms-dropdown-header {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            cursor: pointer;
+            min-height: 28px;
+        }
+        .oms-dropdown-header:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        .oms-dropdown-tn {
+            flex-shrink: 0;
+            margin-right: 8px;
+            border-radius: 2px;
+            background: #000;
+        }
+        .oms-dropdown-label {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 14px;
+            color: #fff;
+        }
+        .oms-dropdown-arrow {
+            margin-left: 8px;
+            color: #888;
+            font-size: 10px;
+        }
+        .oms-dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-top: none;
+            z-index: 1000;
+            display: none;
+        }
+        .oms-dropdown.open .oms-dropdown-list {
+            display: block;
+        }
+        .oms-dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #fff;
+        }
+        .oms-dropdown-item:hover,
+        .oms-dropdown-item.highlighted {
+            background: #333;
+        }
+        .oms-dropdown-item.selected {
+            background: rgba(0, 212, 255, 0.2);
+        }
+        .oms-dropdown-sep {
+            color: #666;
+            padding: 6px 8px;
+            font-size: 12px;
+            pointer-events: none;
         }
 
         .control-group label {
@@ -355,14 +436,7 @@ Version: V4_7
             margin: 0;
         }
 
-        /* V2.7.0-K: Disabled freq fields with cyan overlay */
-        input[id$="Freq1"]:disabled,
-        input[id$="Freq2"]:disabled {
-            background: rgba(0, 212, 255, 0.15);
-            border-color: rgba(0, 212, 255, 0.3);
-            cursor: not-allowed;
-            color: rgba(255, 255, 255, 0.5);
-        }
+        /* V4_8_09: Freq fields are now hidden + knobs - disabled CSS removed */
 
         .duration-display {
             display: flex;
@@ -2358,7 +2432,7 @@ Version: V4_7
     <div class="header">
         <div class="header-left">
             <div class="header-brand">ONEMANSHYO</div>
-            <div class="header-app">[Beta V4_7_0]</div>
+            <div class="header-app">[Beta V4_8_0]</div>
         </div>
         <div class="header-greeting" id="headerGreeting">Hi Friend, I'm Wes!</div>
     </div>
@@ -2397,12 +2471,11 @@ Version: V4_7
                     <div id="shaderControlsContent">
                     
                     <!-- V4_6_19: Name as single select (click to swap from presets) -->
+                    <!-- V4_8_31: Now uses OmsDropdown component with thumbnails -->
                     <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px;">Name</label>
                     <div class="control-row">
                         <div class="control-group" style="flex: 1;">
-                            <select id="shaderNameSelect" style="width: 100%;" onchange="onShaderNameSelect()" onfocus="populateShaderNameSelect()" title="Current shader - click to swap from presets">
-                                <option value="_current" selected>Untitled</option>
-                            </select>
+                            <div id="shaderNameDropdown" title="Current shader - click to swap from presets"></div>
                         </div>
                     </div>
                     
@@ -2464,9 +2537,10 @@ Version: V4_7
                     <div class="control-row mod-row">
                         <div class="control-group">
                             <select id="modASubdiv" title="Shader Mod A Note Duration">
+                                <option value="none" selected>None</option>
                                 <option value="4">Whole</option>
                                 <option value="2">Half</option>
-                                <option value="1" selected>1/4</option>
+                                <option value="1">1/4</option>
                                 <option value="0.5">1/8</option>
                                 <option value="0.25">1/16</option>
                                 <option disabled>---</option>
@@ -2478,7 +2552,9 @@ Version: V4_7
                         </div>
                         <div class="control-group">
                             <select id="modAWaveform" title="Shader Mod A Waveform">
-                                <option value="sine" selected>Sine</option>
+                                <option value="none" selected>None</option>
+                                <option value="static">Static</option>
+                                <option value="sine">Sine</option>
                                 <option value="cosine">Cosine</option>
                                 <option value="sawtooth">Sawtooth</option>
                                 <option value="triangle">Triangle</option>
@@ -2495,13 +2571,16 @@ Version: V4_7
                             </select>
                         </div>
                         <div class="control-group" id="modAGainGroup">
-                            <input type="number" id="modAGain" min="0" max="5" value="0.1" step="0.1" title="Shader Mod A Gain">
+                            <canvas id="modAGainKnob" width="30" height="30" style="cursor: pointer;" title="Shader Mod A Gain"></canvas>
+                            <input type="hidden" id="modAGain" value="0.1">
                         </div>
                         <div class="control-group">
-                            <input type="number" id="modAFreq1" min="20" max="24000" value="30" step="1" title="Mod A Freq 1 (Hz)" disabled>
+                            <canvas id="modAFreq1Knob" width="30" height="30" style="cursor: pointer;" title="Mod A Freq 1 (Hz)"></canvas>
+                            <input type="hidden" id="modAFreq1" value="30">
                         </div>
                         <div class="control-group">
-                            <input type="number" id="modAFreq2" min="20" max="24000" value="50" step="1" title="Mod A Freq 2 (Hz)" disabled>
+                            <canvas id="modAFreq2Knob" width="30" height="30" style="cursor: pointer;" title="Mod A Freq 2 (Hz)"></canvas>
+                            <input type="hidden" id="modAFreq2" value="50">
                         </div>
                     </div>
 
@@ -2509,7 +2588,8 @@ Version: V4_7
                     <div class="control-row mod-row">
                         <div class="control-group">
                             <select id="modBSubdiv" title="Shader Mod B Note Duration">
-                                <option value="4" selected>Whole</option>
+                                <option value="none" selected>None</option>
+                                <option value="4">Whole</option>
                                 <option value="2">Half</option>
                                 <option value="1">1/4</option>
                                 <option value="0.5">1/8</option>
@@ -2523,9 +2603,11 @@ Version: V4_7
                         </div>
                         <div class="control-group">
                             <select id="modBWaveform" title="Shader Mod B Waveform">
+                                <option value="none" selected>None</option>
+                                <option value="static">Static</option>
                                 <option value="sine">Sine</option>
                                 <option value="cosine">Cosine</option>
-                                <option value="sawtooth" selected>Sawtooth</option>
+                                <option value="sawtooth">Sawtooth</option>
                                 <option value="triangle">Triangle</option>
                                 <option value="square">Square</option>
                                 <option value="noise">Noise</option>
@@ -2540,13 +2622,16 @@ Version: V4_7
                             </select>
                         </div>
                         <div class="control-group" id="modBGainGroup">
-                            <input type="number" id="modBGain" min="0" max="5" value="0.1" step="0.1" title="Shader Mod B Gain">
+                            <canvas id="modBGainKnob" width="30" height="30" style="cursor: pointer;" title="Shader Mod B Gain"></canvas>
+                            <input type="hidden" id="modBGain" value="0.1">
                         </div>
                         <div class="control-group">
-                            <input type="number" id="modBFreq1" min="20" max="24000" value="50" step="1" title="Mod B Freq 1 (Hz)" disabled>
+                            <canvas id="modBFreq1Knob" width="30" height="30" style="cursor: pointer;" title="Mod B Freq 1 (Hz)"></canvas>
+                            <input type="hidden" id="modBFreq1" value="50">
                         </div>
                         <div class="control-group">
-                            <input type="number" id="modBFreq2" min="20" max="24000" value="75" step="1" title="Mod B Freq 2 (Hz)" disabled>
+                            <canvas id="modBFreq2Knob" width="30" height="30" style="cursor: pointer;" title="Mod B Freq 2 (Hz)"></canvas>
+                            <input type="hidden" id="modBFreq2" value="75">
                         </div>
                     </div>
 
@@ -2554,7 +2639,8 @@ Version: V4_7
                     <div class="control-row mod-row">
                         <div class="control-group">
                             <select id="modCSubdiv" title="Shader Mod C Note Duration">
-                                <option value="4" selected>Whole</option>
+                                <option value="none" selected>None</option>
+                                <option value="4">Whole</option>
                                 <option value="2">Half</option>
                                 <option value="1">1/4</option>
                                 <option value="0.5">1/8</option>
@@ -2568,10 +2654,12 @@ Version: V4_7
                         </div>
                         <div class="control-group">
                             <select id="modCWaveform" title="Shader Mod C Waveform">
+                                <option value="none" selected>None</option>
+                                <option value="static">Static</option>
                                 <option value="sine">Sine</option>
                                 <option value="cosine">Cosine</option>
                                 <option value="sawtooth">Sawtooth</option>
-                                <option value="triangle" selected>Triangle</option>
+                                <option value="triangle">Triangle</option>
                                 <option value="square">Square</option>
                                 <option value="noise">Noise</option>
                                 <option value="random">Random</option>
@@ -2585,13 +2673,16 @@ Version: V4_7
                             </select>
                         </div>
                         <div class="control-group" id="modCGainGroup">
-                            <input type="number" id="modCGain" min="0" max="5" value="0.1" step="0.1" title="Shader Mod C Gain">
+                            <canvas id="modCGainKnob" width="30" height="30" style="cursor: pointer;" title="Shader Mod C Gain"></canvas>
+                            <input type="hidden" id="modCGain" value="0.1">
                         </div>
                         <div class="control-group">
-                            <input type="number" id="modCFreq1" min="20" max="24000" value="100" step="1" title="Mod C Freq 1 (Hz)" disabled>
+                            <canvas id="modCFreq1Knob" width="30" height="30" style="cursor: pointer;" title="Mod C Freq 1 (Hz)"></canvas>
+                            <input type="hidden" id="modCFreq1" value="100">
                         </div>
                         <div class="control-group">
-                            <input type="number" id="modCFreq2" min="20" max="24000" value="500" step="1" title="Mod C Freq 2 (Hz)" disabled>
+                            <canvas id="modCFreq2Knob" width="30" height="30" style="cursor: pointer;" title="Mod C Freq 2 (Hz)"></canvas>
+                            <input type="hidden" id="modCFreq2" value="500">
                         </div>
                     </div>
 
@@ -2645,10 +2736,11 @@ Version: V4_7
 // OMS Shader Baker v2.0.3c - Flower Power
 // Available uniforms:
 //   uniforms.time - elapsed time in seconds
-//   uniforms.tempo - shader visual tempo (for modulator timing)
+//   uniforms.tempo - current tempo in BPM (audio tempo when audio loaded, shader tempo otherwise)
 //   uniforms.modA - modulation source A (0.0-1.0, tempo-synced, bass audio-reactive)
 //   uniforms.modB - modulation source B (0.0-1.0, tempo-synced, mid audio-reactive)
 //   uniforms.modC - modulation source C (0.0-1.0, tempo-synced, treble audio-reactive)
+//   uniforms.beat - current beat position (for tempo-synced visuals)
 //   uniforms.resolutionX, uniforms.resolutionY - canvas dimensions
 //
 // Note: Coordinates normalize by min(resolution.x, resolution.y) for consistent zoom across orientations
@@ -2658,6 +2750,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
     let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
     let time = uniforms.time;
     let tempo = uniforms.tempo;
+    let beat = uniforms.beat; // V4_8_31: Beat position for tempo-synced effects
     let modA = uniforms.modA;
     let modB = uniforms.modB;
     let modC = uniforms.modC;
@@ -3638,6 +3731,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         // V2.4.0-B: Grid display toggle
         let gridEnabled = false; // false = Grid hidden (default), true = Show bar grid on waveform
         
+        // V4_8_31: Grid snap spacing (in beats) - used for Shift+<> grid jump AND visual grid
+        // Must match drawBarGrid() which draws every 4 bars = 16 beats
+        let gridSnapBeats = 16;  // 1 = every beat, 4 = every bar, 16 = every 4 bars (phrase)
+        
         // V2.6.0-U: Track focused user preset for deletion
         let focusedUserPresetIndex = -1; // -1 = none, 0+ = preset index
         
@@ -3801,6 +3898,83 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             return 120.0;
         }
 
+        // V4_8_05: Parse BPM from ID3v2 TBPM tag in MP3 file
+        // Tries ID3v2.2, v2.3, v2.4 formats
+        async function parseBPMFromID3(file) {
+            try {
+                // Read first 128KB (ID3 tags are at start, usually < 10KB)
+                const buffer = await file.slice(0, 131072).arrayBuffer();
+                const data = new Uint8Array(buffer);
+                
+                // Check ID3v2 header: "ID3"
+                if (data[0] !== 0x49 || data[1] !== 0x44 || data[2] !== 0x33) {
+                    return null; // No ID3v2 tag
+                }
+                
+                // ID3v2 version
+                const majorVersion = data[3]; // 2, 3, or 4
+                
+                // ID3v2 size (syncsafe integer - 4 bytes, 7 bits each)
+                const tagSize = (data[6] << 21) | (data[7] << 14) | (data[8] << 7) | data[9];
+                
+                // Start reading frames after 10-byte header
+                let pos = 10;
+                const endPos = Math.min(10 + tagSize, data.length);
+                
+                while (pos < endPos - 10) {
+                    // Frame ID (4 bytes for v2.3/v2.4, 3 bytes for v2.2)
+                    let frameId, frameSize, headerSize;
+                    
+                    if (majorVersion === 2) {
+                        // ID3v2.2: 3-byte ID, 3-byte size
+                        frameId = String.fromCharCode(data[pos], data[pos + 1], data[pos + 2]);
+                        frameSize = (data[pos + 3] << 16) | (data[pos + 4] << 8) | data[pos + 5];
+                        headerSize = 6;
+                    } else {
+                        // ID3v2.3/v2.4: 4-byte ID, 4-byte size, 2-byte flags
+                        frameId = String.fromCharCode(data[pos], data[pos + 1], data[pos + 2], data[pos + 3]);
+                        
+                        if (majorVersion === 4) {
+                            // v2.4 uses syncsafe integers for frame size
+                            frameSize = (data[pos + 4] << 21) | (data[pos + 5] << 14) | (data[pos + 6] << 7) | data[pos + 7];
+                        } else {
+                            // v2.3 uses regular integers
+                            frameSize = (data[pos + 4] << 24) | (data[pos + 5] << 16) | (data[pos + 6] << 8) | data[pos + 7];
+                        }
+                        headerSize = 10;
+                    }
+                    
+                    // End of frames (padding or invalid)
+                    if (frameId[0] === '\0' || frameSize === 0) {
+                        break;
+                    }
+                    
+                    // Check for BPM frame: TBPM (v2.3/v2.4) or TBP (v2.2)
+                    if (frameId === 'TBPM' || frameId === 'TBP') {
+                        const dataStart = pos + headerSize;
+                        // Skip encoding byte, extract BPM string
+                        let bpmStr = '';
+                        for (let i = dataStart + 1; i < dataStart + frameSize && data[i] !== 0; i++) {
+                            bpmStr += String.fromCharCode(data[i]);
+                        }
+                        const bpm = parseFloat(bpmStr.trim());
+                        if (!isNaN(bpm) && bpm > 0 && bpm < 500) {
+                            console.log('V4_8_05: Found ID3 TBPM tag:', bpm);
+                            return Math.round(bpm);
+                        }
+                    }
+                    
+                    // Move to next frame
+                    pos += headerSize + frameSize;
+                }
+                
+                return null; // TBPM not found
+            } catch (e) {
+                console.warn('V4_8_05: ID3 parse error:', e);
+                return null;
+            }
+        }
+
         // V2.4.0-H: Clamp Loop In/Out to Audio Start/End range
         // V2.4.0-J: Updated to use bar.beat format
         function clampLoopToAudioRange() {
@@ -3839,6 +4013,16 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 
         // Waveform calculation functions
         function calculateMod(beat, subdivision, waveform) {
+            // V4_8_02: Handle "none" - return 0 (disabled)
+            if (waveform === 'none' || subdivision === 'none') {
+                return 0;
+            }
+            
+            // V4_8_04: Handle "static" - return 1.0 (gain controls directly)
+            if (waveform === 'static') {
+                return 1.0;
+            }
+            
             const freq = 1.0 / subdivision; // Convert subdivision to frequency multiplier
             const phase = (beat * freq) % 1.0;
             
@@ -4003,9 +4187,19 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 currentAudioFile = file;  // V2.8.0-L: Store File object for filename
                 showMessage(`Audio loaded: ${file.name}`, 'state');
                 
+                // V4_8_31: Disable shader tempo when audio loaded - audio tempo is THE tempo
+                const shaderTempoField = document.getElementById('tempo');
+                shaderTempoField.disabled = true;
+                shaderTempoField.style.opacity = '0.5';
+                shaderTempoField.title = 'Shader Tempo (disabled - audio tempo controls timing)';
+                
+                // V4_8_31: Enable freq knobs when audio loaded
+                setFreqKnobsDisabled(false);
+                
                 // V4_6_04: Use centralized buildContainerName for filename field
+                // V4_8_07: Only auto-generate if NOT editing existing container
                 const filenameField = document.getElementById('filename');
-                if (filenameField) {
+                if (filenameField && !currentLoadedContainerId) {
                     const shaderCode = document.getElementById('shaderCode').value;
                     filenameField.value = buildContainerName(file.name, shaderCode);
                 }
@@ -4025,50 +4219,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     // V4_4_0: markAsCustomState removed
                 };
                 
-                console.log('V2.7.0-AE: Audio loaded, attaching freq listeners...');
+                console.log('V2.7.0-AE: Audio loaded');
                 
-                // V2.7.0-AE: Enable freq fields and attach listeners with direct property assignment
-                const freqPairs = [
-                    { freq1: 'modAFreq1', freq2: 'modAFreq2' },
-                    { freq1: 'modBFreq1', freq2: 'modBFreq2' },
-                    { freq1: 'modCFreq1', freq2: 'modCFreq2' }
-                ];
-                
-                freqPairs.forEach(pair => {
-                    const freq1Field = document.getElementById(pair.freq1);
-                    const freq2Field = document.getElementById(pair.freq2);
-                    
-                    console.log(`Enabling and attaching listeners to ${pair.freq1} and ${pair.freq2}`);
-                    
-                    // Enable fields
-                    freq1Field.disabled = false;
-                    freq2Field.disabled = false;
-                    
-                    // Use direct property assignment (more reliable than addEventListener)
-                    freq1Field.oninput = function() {
-                        console.log(`${pair.freq1} changed to ${freq1Field.value}`);
-                        const freq1 = parseInt(freq1Field.value) || 0;
-                        const freq2 = parseInt(freq2Field.value) || 0;
-                        if (freq1 > freq2) {
-                            console.log(`Push behavior: ${pair.freq2} = ${freq1}`);
-                            freq2Field.value = freq1;
-                        }
-                        // V4_4_0: markAsCustomState removed
-                    };
-                    
-                    freq2Field.oninput = function() {
-                        console.log(`${pair.freq2} changed to ${freq2Field.value}`);
-                        const freq1 = parseInt(freq1Field.value) || 0;
-                        const freq2 = parseInt(freq2Field.value) || 0;
-                        if (freq2 < freq1) {
-                            console.log(`Push behavior: ${pair.freq1} = ${freq2}`);
-                            freq1Field.value = freq2;
-                        }
-                        // V4_4_0: markAsCustomState removed
-                    };
-                });
-                
-                console.log('V2.7.0-AE: All freq listeners attached');
+                // V4_8_09: Freq knob listeners removed - knobs handle push behavior directly
                 
                 // V2.7.0-AE: Disable renderDuration with magenta overlay (audio timing active)
                 const renderDurationField = document.getElementById('renderDuration');
@@ -4117,17 +4270,24 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         // V4_6_06: Wrapper for NEW audio loads - parses tempo from filename
         // Use this for: direct upload, drag/drop, swap (when NOT loading from container)
         // Container loads should use loadAudioFile() directly and restore saved tempo after
+        // V4_8_05: Try ID3v2 TBPM tag first, then fall back to filename
         async function loadAudioFileAndSetTempo(event) {
             const file = event.target.files[0];
             if (!file) return;
             
             await loadAudioFile(event);
             
-            // Parse tempo from filename and set
-            const detectedBPM = parseBPMFromFilename(file.name);
+            // V4_8_05: Try ID3 tag first (async), then fall back to filename
+            let detectedBPM = await parseBPMFromID3(file);
+            const source = detectedBPM ? 'ID3 tag' : 'filename';
+            
+            if (!detectedBPM) {
+                detectedBPM = parseBPMFromFilename(file.name);
+            }
+            
             audioTempo = detectedBPM;
             document.getElementById('audioTempoField').value = detectedBPM.toFixed(2);
-            console.log('V4_6_06: Set tempo from filename:', detectedBPM);
+            console.log('V4_8_05: Set tempo from', source + ':', detectedBPM);
         }
         
         // WAVEFORM VISUALIZATION - Static waveform generation (V2.0.0 MAJOR FEATURE)
@@ -4298,8 +4458,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const tempo = audioTempo;  // Use audio tempo
             const beatsPerSecond = tempo / 60.0;
             const secondsPerBeat = 1.0 / beatsPerSecond;
-            const secondsPerBar = secondsPerBeat * 4;  // 4 beats per bar
-            const secondsPerGridLine = secondsPerBar * 4;  // V2.4.0-E: Grid every 4 bars (16 beats)
+            const secondsPerGridLine = secondsPerBeat * gridSnapBeats;  // V4_8_31: Use gridSnapBeats variable
             
             // Calculate bar positions between Audio Start and Audio End
             const startTime = audioStartTime;
@@ -4578,12 +4737,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('audioEndField').disabled = true;
             
             // V2.7.0-AD: Disable freq fields when audio removed (listeners auto-removed when disabled)
-            document.getElementById('modAFreq1').disabled = true;
-            document.getElementById('modAFreq2').disabled = true;
-            document.getElementById('modBFreq1').disabled = true;
-            document.getElementById('modBFreq2').disabled = true;
-            document.getElementById('modCFreq1').disabled = true;
-            document.getElementById('modCFreq2').disabled = true;
+            // V4_8_31: Re-enable freq knob disabled state
+            setFreqKnobsDisabled(true);
             
             // V2.8.0-D: Reset and disable pitch field when audio removed
             audioPitch = 0;
@@ -4596,6 +4751,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             renderDurationField.style.background = '';
             renderDurationField.style.cursor = '';
             renderDurationField.title = 'Shader Render Duration (MM:SS.mmm) | Arrow keys: Up/Down=±0.1s, Left/Right=±1.0s';
+            
+            // V4_8_31: Re-enable shader tempo when audio removed
+            const shaderTempoField = document.getElementById('tempo');
+            shaderTempoField.disabled = false;
+            shaderTempoField.style.opacity = '';
+            shaderTempoField.title = 'Shader Tempo';
             
             showMessage('Audio removed', 'state');
         }
@@ -5122,33 +5283,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 }
             }
             
-            // Arrow keys for beat-grid navigation (V2.0.1 - now jumps 1 beat instead of 1 bar)
-            if (e.code === 'ArrowLeft' || e.code === 'ArrowRight') {
-                e.preventDefault(); // Prevent page scroll
-                
-                if (!audioLoaded || !audioElement) return;
-                
-                const tempo = audioTempo;
-                const beatsPerSecond = tempo / 60.0;
-                
-                // Get current position in beats
-                const currentBeat = Math.floor(audioElement.currentTime * beatsPerSecond);
-                
-                // V4_4_0: Navigate full file, not clamped to loop boundaries
-                let targetBeat;
-                if (e.code === 'ArrowLeft') {
-                    targetBeat = Math.max(0, currentBeat - 1); // Previous beat, clamp at 0
-                } else {
-                    const maxBeat = Math.floor(audioElement.duration * beatsPerSecond);
-                    targetBeat = Math.min(maxBeat, currentBeat + 1); // Next beat, clamp at file end
-                }
-                
-                // Convert target beat to seconds
-                const targetTime = targetBeat / beatsPerSecond;
-                
-                // Clamp to audio duration
-                audioElement.currentTime = Math.min(targetTime, audioElement.duration);
-            }
+            // V4_8_14: Arrow key audio scrub removed - use trackpad swipe on waveform instead
+            // Arrows now free for mod controls
         });
 
         // Initialize WebGPU
@@ -5251,6 +5387,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             `;
 
             // Add uniform structure to fragment shader with Tempo and Mods
+            // V4_8_31: Added independent modulator components (shaderModA/B/C Wave/Gain/FFT)
             const fragmentShaderCode = `
                 struct Uniforms {
                     time: f32,
@@ -5258,9 +5395,21 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     modA: f32,
                     modB: f32,
                     modC: f32,
-                    padding1: f32,
+                    beat: f32,
                     resolutionX: f32,
                     resolutionY: f32,
+                    shaderModAWave: f32,
+                    shaderModAGain: f32,
+                    shaderModAFFT: f32,
+                    shaderModBWave: f32,
+                    shaderModBGain: f32,
+                    shaderModBFFT: f32,
+                    shaderModCWave: f32,
+                    shaderModCGain: f32,
+                    shaderModCFFT: f32,
+                    padding1: f32,
+                    padding2: f32,
+                    padding3: f32,
                 }
 
                 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -5273,9 +5422,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     code: vertexShaderCode + '\n' + fragmentShaderCode
                 });
 
-                // Create uniform buffer - 48 bytes for proper 16-byte alignment
+                // Create uniform buffer - 80 bytes for 20 floats (V4_8_31: expanded for independent mods)
                 uniformBuffer = device.createBuffer({
-                    size: 48,
+                    size: 80,
                     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
                 });
 
@@ -5336,13 +5485,18 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 showMessage('Shader compiled - Tempo: ' + currentTempo + ' BPM | Mods: A/B/C Active', 'state');
                 
-                // V4_6_19: Update shader name in select dropdown
-                const nameSelect = document.getElementById('shaderNameSelect');
-                if (nameSelect && nameSelect.options.length > 0) {
+                // V4_8_31: Update shader name in OmsDropdown
+                if (window.shaderNameDropdown) {
                     const shaderName = parseShaderNameFromCode(shaderCode) || 'Untitled';
-                    nameSelect.options[0].textContent = shaderName;
-                    nameSelect.options[0].value = '_current';
-                    nameSelect.selectedIndex = 0;
+                    const currentCode = shaderCode;
+                    
+                    // Update current item in dropdown
+                    const items = window.shaderNameDropdown.items;
+                    if (items.length > 0 && items[0].value === '_current') {
+                        items[0].label = shaderName;
+                        items[0].shaderCode = currentCode;
+                    }
+                    window.shaderNameDropdown.setValue('_current', false);
                     
                     // V4_6_04: Use centralized buildContainerName for filename field
                     const filenameField = document.getElementById('filename');
@@ -5377,8 +5531,29 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             }
 
             const currentTime = (Date.now() - startTime) / 1000.0;
-            const beatsPerSecond = currentTempo / 60.0;
-            let beat = currentTime * beatsPerSecond;
+            
+            // V4_8_31: Calculate beat based on audio state
+            // When audio is loaded and playing, beat follows audio position
+            // Otherwise, beat follows elapsed time with shader tempo
+            let beat;
+            let rawBeat; // For uniforms.beat - raw position before loop wrapping
+            
+            if (audioLoaded && audioElement && !audioElement.paused) {
+                // Audio is playing - beat follows audio position
+                const audioBeatsPerSecond = audioTempo / 60.0;
+                beat = (audioElement.currentTime - audioStartTime) * audioBeatsPerSecond;
+            } else if (audioLoaded && audioElement) {
+                // Audio is loaded but paused - use audio tempo with elapsed time
+                const audioBeatsPerSecond = audioTempo / 60.0;
+                beat = currentTime * audioBeatsPerSecond;
+            } else {
+                // No audio - use shader tempo
+                const beatsPerSecond = currentTempo / 60.0;
+                beat = currentTime * beatsPerSecond;
+            }
+            
+            // Store raw beat for uniforms before any loop wrapping
+            rawBeat = beat;
             
             // Apply loop length wrapping
             const loopLengthValue = document.getElementById('loopLength').value;
@@ -5490,15 +5665,25 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 modCSubdiv = parseFloat(modCSubdivValue);
             }
             
-            // Calculate mod values
-            let modA = calculateMod(beat, modASubdiv, modAWaveform);
-            let modB = calculateMod(beat, modBSubdiv, modBWaveform);
-            let modC = calculateMod(beat, modCSubdiv, modCWaveform);
+            // V4_8_31: Calculate waveform values (store separately for independent uniforms)
+            const shaderModAWave = calculateMod(beat, modASubdiv, modAWaveform);
+            const shaderModBWave = calculateMod(beat, modBSubdiv, modBWaveform);
+            const shaderModCWave = calculateMod(beat, modCSubdiv, modCWaveform);
             
             // Get gain values
-            const modAGain = parseFloat(document.getElementById('modAGain').value);
-            const modBGain = parseFloat(document.getElementById('modBGain').value);
-            const modCGain = parseFloat(document.getElementById('modCGain').value);
+            const shaderModAGain = parseFloat(document.getElementById('modAGain').value);
+            const shaderModBGain = parseFloat(document.getElementById('modBGain').value);
+            const shaderModCGain = parseFloat(document.getElementById('modCGain').value);
+            
+            // V4_8_31: Track FFT values separately
+            let shaderModAFFT = 0;
+            let shaderModBFFT = 0;
+            let shaderModCFFT = 0;
+            
+            // Combined values for legacy modA/B/C
+            let modA = shaderModAWave;
+            let modB = shaderModBWave;
+            let modC = shaderModCWave;
             
             // Apply audio analysis if loaded, otherwise just use gains as multipliers
             if (audioLoaded && audioElement && !audioElement.paused) {
@@ -5525,30 +5710,46 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 }
                 
                 const audioLevels = analyzeAudio();
-                modA *= (audioLevels.bass * modAGain);
-                modB *= (audioLevels.mid * modBGain);
-                modC *= (audioLevels.treble * modCGain);
+                // V4_8_31: Store FFT values separately
+                shaderModAFFT = audioLevels.bass;
+                shaderModBFFT = audioLevels.mid;
+                shaderModCFFT = audioLevels.treble;
+                
+                // Legacy combined: waveform × FFT × gain
+                modA *= (shaderModAFFT * shaderModAGain);
+                modB *= (shaderModBFFT * shaderModBGain);
+                modC *= (shaderModCFFT * shaderModCGain);
             } else {
                 // No audio - gains just multiply the mod values directly
-                modA *= modAGain;
-                modB *= modBGain;
-                modC *= modCGain;
+                // FFT values stay at 0
+                modA *= shaderModAGain;
+                modB *= shaderModBGain;
+                modC *= shaderModCGain;
             }
             
-            // Update uniforms: 12 floats = 48 bytes for proper alignment
+            // V4_8_31: Update uniforms: 20 floats = 80 bytes
+            // When audio is loaded, use audio tempo; otherwise use shader tempo
+            const effectiveTempo = audioLoaded ? audioTempo : currentTempo;
+            
             const uniformData = new Float32Array([
                 currentTime,
-                currentTempo,
-                modA,
+                effectiveTempo,
+                modA,               // Legacy combined
                 modB,
                 modC,
-                0, // padding
+                rawBeat,
                 canvas.width,
                 canvas.height,
-                0, // padding
-                0, // padding
-                0, // padding
-                0  // padding
+                shaderModAWave,     // V4_8_31: Independent waveform
+                shaderModAGain,     // V4_8_31: Independent gain
+                shaderModAFFT,      // V4_8_31: Independent FFT
+                shaderModBWave,
+                shaderModBGain,
+                shaderModBFFT,
+                shaderModCWave,
+                shaderModCGain,
+                shaderModCFFT,
+                0, 0, 0             // Padding to 20 floats
             ]);
             
             device.queue.writeBuffer(uniformBuffer, 0, uniformData);
@@ -5765,10 +5966,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 
         // V4_7_0: Central message bar API - CORTEX
         // Types: 'info' (cyan), 'state' (orange), 'error' (magenta)
-        function showMessage(text, type = '') {
+        function showMessage(text, type = '', onClick = null) {
             const bar = document.getElementById('messageBar');
             bar.textContent = text;
             bar.className = 'message-bar ' + type;
+            bar.onclick = onClick;
+            bar.style.cursor = onClick ? 'pointer' : 'default';
         }
 
         // V2.1.1-C: Copy shader code to clipboard
@@ -6470,13 +6673,15 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         }
 
         // V2.6.0-A: Preset action placeholders (to be implemented in later iterations)
-        // V4_4_0: User presets stored in Presets folder as .wgsl files
+        // V4_4_0: User presets stored in Presets folder as .oms files
+        // V4_8_31: Also scan for raw .wgsl shader files
         let userPresetsCache = [];  // Cache loaded from folder
         
         // V4_4_0: Scan Presets folder and cache results
         // V4_4_0: Scan Presets folder for .oms files
         // V4_6_22: Use shaderCode property (consistent with containers)
         // V4_6_0: Try to get presetsFolderHandle if not set
+        // V4_8_31: Also scan .wgsl files
         async function refreshUserPresets() {
             // Try to get Presets folder if we have app folder but no presets handle
             if (!presetsFolderHandle && applicationFolderHandle) {
@@ -6495,6 +6700,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const presets = [];
             try {
                 for await (const entry of presetsFolderHandle.values()) {
+                    // V4_8_31: Handle .oms container files
                     if (entry.name.endsWith('.oms')) {
                         const file = await entry.getFile();
                         const text = await file.text();
@@ -6506,7 +6712,21 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             filename: entry.name,
                             orientation: data.controlStates?.orientation || 'portrait',
                             shaderCode: data.shaderCode,
-                            controlStates: data.controlStates
+                            controlStates: data.controlStates,
+                            isWgsl: false
+                        });
+                    }
+                    // V4_8_31: Handle raw .wgsl shader files
+                    else if (entry.name.endsWith('.wgsl')) {
+                        const file = await entry.getFile();
+                        const code = await file.text();
+                        const name = entry.name.replace(/\.wgsl$/i, '');
+                        
+                        presets.push({
+                            name: name,
+                            filename: entry.name,
+                            shaderCode: code,
+                            isWgsl: true
                         });
                     }
                 }
@@ -6798,6 +7018,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 libraryFolderHandle = await applicationFolderHandle.getDirectoryHandle('Library', { create: true });
                 console.log('V4_3_0_sub8: Library subfolder created/accessed');
                 
+                // V4_8_31: Create Presets subfolder (for user .oms and .wgsl files)
+                presetsFolderHandle = await applicationFolderHandle.getDirectoryHandle('Presets', { create: true });
+                console.log('V4_8_31: Presets subfolder created/accessed');
+                
                 // V4_4_0: Copy system presets to Library folder
                 await copyPresetsToLibrary();
                 
@@ -6852,7 +7076,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             } catch (error) {
                 if (error.name !== 'AbortError') {
                     console.error('Failed to setup application folder:', error);
-                    showMessage('Failed to setup application folder', 'error');
+                    showMessage('Set application folder to save content [Click Here]', 'state', setupApplicationFolder);
                 }
             }
         }
@@ -7174,6 +7398,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         // V4_6_06: Save current CREATE state to library, switch to ORGANIZE, open drawer
         // V4_6_02: Non-blocking save - UI transitions immediately, analysis runs in background
         async function saveToLibrary() {
+            // V4_8_06: If editing existing container, update instead of create
+            if (currentLoadedContainerId) {
+                await updateContainer(currentLoadedContainerId);
+                showMessage(`Updated: ${currentLoadedContainerId}`, 'state');
+                return;
+            }
+            
             // Check if folder is set - if not, show overlay (don't auto-open picker)
             if (!applicationFolderHandle) {
                 // V4_6_12: Set flag to resume save after folder setup
@@ -9021,166 +9252,131 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             select.style.display = 'none';
         }
         
-        // V4_6_21: Populate shader name select with Presets and Library sections
-        // V4_6_0: Call refreshUserPresets to ensure cache is populated
+        // V4_8_31: Populate shader name OmsDropdown with Presets and Library sections
         async function populateShaderNameSelect() {
-            const select = document.getElementById('shaderNameSelect');
-            if (!select) return;
+            if (!window.shaderNameDropdown) return;
             
-            // Get current shader name from first option
-            const currentName = select.options[0]?.textContent || 'Untitled';
+            // Get current shader code and name
+            const currentCode = document.getElementById('shaderCode')?.value || '';
+            const currentName = parseShaderNameFromCode(currentCode) || 'Untitled';
             
             // Refresh and get user presets
             await refreshUserPresets();
             const userPresets = getUserPresets();
             
-            // Rebuild options
-            select.innerHTML = '';
+            // Build items array
+            const items = [];
             
-            // First option: current shader (not selectable for swap)
-            const currentOpt = document.createElement('option');
-            currentOpt.value = '_current';
-            currentOpt.textContent = currentName;
-            select.appendChild(currentOpt);
+            // First item: current shader
+            items.push({
+                value: '_current',
+                label: currentName,
+                shaderCode: currentCode
+            });
             
-            // Presets section - combine system (omsPresets) + user presets
+            // Presets separator
+            items.push({ separator: true, label: '── Presets ──' });
+            
+            // Combine system + user presets
             const allPresets = [];
             
             // Add system presets
             omsPresets.forEach((preset, index) => {
                 allPresets.push({
-                    name: preset.name,
                     value: 'sysPreset:' + index,
-                    source: 'system'
+                    label: preset.name,
+                    shaderCode: preset.code
                 });
             });
             
-            // Add user presets
+            // Add user presets (.oms and .wgsl)
             userPresets.forEach(preset => {
                 allPresets.push({
-                    name: preset.name,
                     value: 'userPreset:' + (preset.id || preset.name),
-                    source: 'user'
+                    label: preset.name,
+                    shaderCode: preset.shaderCode
                 });
             });
             
-            // Sort all presets alphabetically
-            allPresets.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            // Sort and add
+            allPresets.sort((a, b) => (a.label || '').localeCompare(b.label || ''));
+            items.push(...allPresets);
             
-            if (allPresets.length > 0) {
-                const presetSep = document.createElement('option');
-                presetSep.disabled = true;
-                presetSep.textContent = '── Presets ──';
-                select.appendChild(presetSep);
-                
-                allPresets.forEach(preset => {
-                    const opt = document.createElement('option');
-                    opt.value = preset.value;
-                    opt.textContent = preset.name;
-                    select.appendChild(opt);
-                });
-            }
-            
-            // Library section
-            const librarySep = document.createElement('option');
-            librarySep.disabled = true;
-            librarySep.textContent = '── Library ──';
-            select.appendChild(librarySep);
+            // Library separator
+            items.push({ separator: true, label: '── Library ──' });
             
             if (!applicationFolderHandle) {
-                // No folder - show option to set one
-                const setFolderOpt = document.createElement('option');
-                setFolderOpt.value = '_setfolder';
-                setFolderOpt.textContent = 'Select Folder...';
-                select.appendChild(setFolderOpt);
+                items.push({
+                    value: '_setfolder',
+                    label: 'Select Folder...',
+                    shaderCode: ''
+                });
             } else {
-                // Folder set - show library containers
                 const containers = libraryContainersCache
                     .filter(c => c.shaderCode)
                     .sort((a, b) => (a.name || a.id).localeCompare(b.name || b.id));
                 
                 if (containers.length > 0) {
                     containers.forEach(container => {
-                        const opt = document.createElement('option');
-                        opt.value = 'library:' + container.id;
-                        opt.textContent = container.name || container.id;
-                        select.appendChild(opt);
+                        items.push({
+                            value: 'library:' + container.id,
+                            label: container.name || container.id,
+                            shaderCode: container.shaderCode
+                        });
                     });
                 } else {
-                    const emptyOpt = document.createElement('option');
-                    emptyOpt.disabled = true;
-                    emptyOpt.textContent = '(empty)';
-                    select.appendChild(emptyOpt);
+                    items.push({ separator: true, label: '(empty)' });
                 }
             }
             
-            // Keep current selected
-            select.selectedIndex = 0;
+            window.shaderNameDropdown.setItems(items);
+            window.shaderNameDropdown.setValue('_current', false);
         }
         
-        // V4_6_21: Handle shader name select change
-        async function onShaderNameSelect() {
-            const select = document.getElementById('shaderNameSelect');
-            const selectedValue = select.value;
-            
+        // V4_8_31: Handle shader name dropdown change
+        function onShaderNameSelect(value, item) {
             // If "_current" selected, do nothing
-            if (selectedValue === '_current') {
+            if (value === '_current') {
                 return;
             }
             
-            // If "_setfolder" selected, trigger folder setup (overlay is global, stays on CREATE)
-            if (selectedValue === '_setfolder') {
-                select.selectedIndex = 0;
+            // If "_setfolder" selected, trigger folder setup
+            if (value === '_setfolder') {
                 document.getElementById('appFolderOverlay').classList.add('active');
+                // Reset to current after opening overlay
+                setTimeout(() => {
+                    if (window.shaderNameDropdown) {
+                        window.shaderNameDropdown.setValue('_current', false);
+                    }
+                }, 100);
                 return;
             }
             
-            let shaderCode = null;
-            let shaderName = null;
-            
-            // Check type by prefix
-            if (selectedValue.startsWith('sysPreset:')) {
-                // System preset (omsPresets array)
-                const index = parseInt(selectedValue.substring(10));
-                if (omsPresets[index]) {
-                    shaderCode = omsPresets[index].code;
-                    shaderName = omsPresets[index].name;
+            // Load shader code from item
+            if (item && item.shaderCode) {
+                const shaderCodeEl = document.getElementById('shaderCode');
+                if (shaderCodeEl) {
+                    shaderCodeEl.value = item.shaderCode;
+                    compileShader(false);
+                    showMessage(`Loaded shader: ${item.label}`, 'state');
                 }
-            } else if (selectedValue.startsWith('userPreset:')) {
-                // User preset (userPresetsCache)
-                const presetId = selectedValue.substring(11);
-                const presets = getUserPresets();
-                const preset = presets.find(p => (p.id || p.name) === presetId);
-                if (preset) {
-                    shaderCode = preset.shaderCode;
-                    shaderName = preset.name;
-                }
-            } else if (selectedValue.startsWith('library:')) {
-                // Library container
-                const containerId = selectedValue.substring(8);
-                const container = libraryContainersCache.find(c => c.id === containerId);
-                if (container) {
-                    shaderCode = container.shaderCode;
-                    shaderName = container.name || container.id;
-                }
-            }
-            
-            if (!shaderCode) {
+            } else {
                 showMessage('Shader not found', 'error');
-                select.selectedIndex = 0;
-                return;
             }
+        }
+        
+        // V4_8_31: Initialize shader name dropdown
+        function initShaderNameDropdown() {
+            window.shaderNameDropdown = new OmsDropdown('shaderNameDropdown', {
+                showThumbnails: true,
+                thumbnailSize: { w: 32, h: 18 },
+                onChange: onShaderNameSelect,
+                onOpen: populateShaderNameSelect  // Refresh on every open
+            });
             
-            // Load shader code
-            const shaderCodeEl = document.getElementById('shaderCode');
-            if (shaderCodeEl) {
-                shaderCodeEl.value = shaderCode;
-                
-                // Compile shader (this will also update the select's first option)
-                compileShader(false);
-                
-                showMessage(`Loaded shader: ${shaderName}`, 'state');
-            }
+            // Initial populate
+            populateShaderNameSelect();
+            console.log('V4_8_31: Shader name dropdown initialized');
         }
         
         // V4_5_19: Remove audio from container
@@ -11172,6 +11368,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 `;
                 
                 // Fragment shader with uniforms
+                // V4_8_31: Added independent modulator components
                 const fragmentShaderCode = `
                     struct Uniforms {
                         time: f32,
@@ -11179,13 +11376,21 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         modA: f32,
                         modB: f32,
                         modC: f32,
-                        padding1: f32,
+                        beat: f32,
                         resolutionX: f32,
                         resolutionY: f32,
+                        shaderModAWave: f32,
+                        shaderModAGain: f32,
+                        shaderModAFFT: f32,
+                        shaderModBWave: f32,
+                        shaderModBGain: f32,
+                        shaderModBFFT: f32,
+                        shaderModCWave: f32,
+                        shaderModCGain: f32,
+                        shaderModCFFT: f32,
+                        padding1: f32,
                         padding2: f32,
                         padding3: f32,
-                        padding4: f32,
-                        padding5: f32
                     }
                     
                     @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -11198,8 +11403,8 @@ ${shaderCode}
                     code: vertexShaderCode + '\n' + fragmentShaderCode
                 });
                 
-                // Create uniform buffer (48 bytes for proper 16-byte alignment)
-                const uniformBufferSize = 48;
+                // Create uniform buffer (80 bytes for 20 floats - V4_8_31)
+                const uniformBufferSize = 80;
                 const uniformBuffer = device.createBuffer({
                     size: uniformBufferSize,
                     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
@@ -11241,20 +11446,26 @@ ${shaderCode}
                     }
                 });
                 
-                // Set uniforms (time=2.0 for nice frame) - 12 floats = 48 bytes for alignment
+                // Set uniforms (time=2.0 for nice frame) - V4_8_31: 20 floats = 80 bytes
                 const uniformData = new Float32Array([
                     2.0,                        // time
                     120.0,                      // tempo
-                    0.5,                        // modA
+                    0.5,                        // modA (legacy combined)
                     0.5,                        // modB
                     0.5,                        // modC
-                    0.0,                        // padding1
+                    4.0,                        // beat
                     offscreenCanvas.width,      // resolutionX
                     offscreenCanvas.height,     // resolutionY
-                    0.0,                        // padding2
-                    0.0,                        // padding3
-                    0.0,                        // padding4
-                    0.0                         // padding5
+                    0.5,                        // shaderModAWave
+                    1.0,                        // shaderModAGain
+                    0.5,                        // shaderModAFFT
+                    0.5,                        // shaderModBWave
+                    1.0,                        // shaderModBGain
+                    0.5,                        // shaderModBFFT
+                    0.5,                        // shaderModCWave
+                    1.0,                        // shaderModCGain
+                    0.5,                        // shaderModCFFT
+                    0.0, 0.0, 0.0               // padding
                 ]);
                 
                 device.queue.writeBuffer(uniformBuffer, 0, uniformData);
@@ -12171,17 +12382,17 @@ ${shaderCode}
                 renderDuration: getElementValue('renderDuration', '00:30.000') || "00:30.000",
                 shaderModASubdiv: parseNumeric(getElementValue('modASubdiv', '1'), 1, parseFloat),
                 shaderModAWaveform: getElementValue('modAWaveform', 'sine') || "sine",
-                shaderModAGain: parseNumeric(getElementValue('modAGain', '0.1'), 0.1, parseFloat),
+                shaderModAGain: parseNumeric(getElementValue('modAGain', '1'), 1.0, parseFloat),
                 shaderModAFreq1: parseNumeric(getElementValue('modAFreq1', '30'), 30, parseInt),
                 shaderModAFreq2: parseNumeric(getElementValue('modAFreq2', '50'), 50, parseInt),
                 shaderModBSubdiv: parseNumeric(getElementValue('modBSubdiv', '4'), 4, parseFloat),
                 shaderModBWaveform: getElementValue('modBWaveform', 'sawtooth') || "sawtooth",
-                shaderModBGain: parseNumeric(getElementValue('modBGain', '0.1'), 0.1, parseFloat),
+                shaderModBGain: parseNumeric(getElementValue('modBGain', '1'), 1.0, parseFloat),
                 shaderModBFreq1: parseNumeric(getElementValue('modBFreq1', '50'), 50, parseInt),
                 shaderModBFreq2: parseNumeric(getElementValue('modBFreq2', '75'), 75, parseInt),
                 shaderModCSubdiv: parseNumeric(getElementValue('modCSubdiv', '4'), 4, parseFloat),
                 shaderModCWaveform: getElementValue('modCWaveform', 'triangle') || "triangle",
-                shaderModCGain: parseNumeric(getElementValue('modCGain', '0.1'), 0.1, parseFloat),
+                shaderModCGain: parseNumeric(getElementValue('modCGain', '1'), 1.0, parseFloat),
                 shaderModCFreq1: parseNumeric(getElementValue('modCFreq1', '100'), 100, parseInt),
                 shaderModCFreq2: parseNumeric(getElementValue('modCFreq2', '500'), 500, parseInt),
                 orientation: getElementValue('orientation', 'portrait') || "portrait",
@@ -14883,9 +15094,9 @@ ${shaderCode}
                         code: shaderCode
                     });
                     
-                    // Create uniform buffer (48 bytes = 12 floats for container shaders)
+                    // Create uniform buffer (80 bytes = 20 floats - V4_8_31)
                     liveShaderUniformBuffers[track] = device.createBuffer({
-                        size: 48,
+                        size: 80,
                         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
                     });
                     
@@ -15015,7 +15226,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V4_7]</title>
+    <title>ONEMANSHYO App [V4_8]</title>
     <style>
         body {
             margin: 0;
@@ -15088,9 +15299,9 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                         code: shaderCode
                     });
                     
-                    // Create uniform buffer
+                    // Create uniform buffer (80 bytes = 20 floats - V4_8_31)
                     popOutUniformBuffers[track] = device.createBuffer({
-                        size: 48,
+                        size: 80,
                         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
                     });
                     
@@ -15218,20 +15429,28 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                 console.log(`V3_9_0_L_sub16: Provided shader code preview: ${providedShaderCode.substring(0, 200)}...`);
                 
                 const wrappedShader = `
-// V3_6_0_B: Container shader uniform structure (12 floats = 48 bytes)
+// V4_8_31: Container shader uniform structure (20 floats = 80 bytes)
 struct Uniforms {
     time: f32,
     tempo: f32,
     modA: f32,
     modB: f32,
     modC: f32,
+    beat: f32,
     resolutionX: f32,
     resolutionY: f32,
+    shaderModAWave: f32,
+    shaderModAGain: f32,
+    shaderModAFFT: f32,
+    shaderModBWave: f32,
+    shaderModBGain: f32,
+    shaderModBFFT: f32,
+    shaderModCWave: f32,
+    shaderModCGain: f32,
+    shaderModCFFT: f32,
     padding1: f32,
     padding2: f32,
     padding3: f32,
-    padding4: f32,
-    padding5: f32,
 }
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -15444,7 +15663,13 @@ ${providedShaderCode}
         // Translates DAW time (from trackAudioMasterClock) → Audio buffer position → Timeline array lookup
         function getTimelineModulatorValues(track) {
             // Default values (no reactivity)
-            const defaults = { modA: 0.0, modB: 0.0, modC: 0.0 };
+            // V4_8_31: Added independent modulator components
+            const defaults = { 
+                modA: 0.0, modB: 0.0, modC: 0.0,
+                shaderModAWave: 0.0, shaderModAGain: 1.0, shaderModAFFT: 0.0,
+                shaderModBWave: 0.0, shaderModBGain: 1.0, shaderModBFFT: 0.0,
+                shaderModCWave: 0.0, shaderModCGain: 1.0, shaderModCFFT: 0.0
+            };
             
             // Check if track is playing
             if (!trackAudioSources[track]) {
@@ -15541,10 +15766,24 @@ ${providedShaderCode}
                 const waveformB = calculateMod(elapsedBeats, modBSubdiv, modBWaveform);
                 const waveformC = calculateMod(elapsedBeats, modCSubdiv, modCWaveform);
                 
+                // V4_8_31: Return with independent components
+                const fftA = modATimeline[lastIndex] || 0.0;
+                const fftB = modBTimeline[lastIndex] || 0.0;
+                const fftC = modCTimeline[lastIndex] || 0.0;
+                
                 return {
-                    modA: (modATimeline[lastIndex] || 0.0) * waveformA,
-                    modB: (modBTimeline[lastIndex] || 0.0) * waveformB,
-                    modC: (modCTimeline[lastIndex] || 0.0) * waveformC
+                    modA: fftA * waveformA,
+                    modB: fftB * waveformB,
+                    modC: fftC * waveformC,
+                    shaderModAWave: waveformA,
+                    shaderModAGain: modAGain,
+                    shaderModAFFT: fftA,
+                    shaderModBWave: waveformB,
+                    shaderModBGain: modBGain,
+                    shaderModBFFT: fftB,
+                    shaderModCWave: waveformC,
+                    shaderModCGain: modCGain,
+                    shaderModCFFT: fftC
                 };
             }
             
@@ -15557,16 +15796,30 @@ ${providedShaderCode}
             
             // V4_0_0_A_sub3: Multiply timeline (audio reactivity) × waveform (oscillation)
             // This matches the Controls tab formula: audio × waveform = final modulator value
+            // V4_8_31: Store FFT values separately for independent uniforms
+            const fftA = modATimeline[timelineIndex] || 0.0;
+            const fftB = modBTimeline[timelineIndex] || 0.0;
+            const fftC = modCTimeline[timelineIndex] || 0.0;
+            
             const result = {
-                modA: (modATimeline[timelineIndex] || 0.0) * waveformA,
-                modB: (modBTimeline[timelineIndex] || 0.0) * waveformB,
-                modC: (modCTimeline[timelineIndex] || 0.0) * waveformC
+                modA: fftA * waveformA,
+                modB: fftB * waveformB,
+                modC: fftC * waveformC,
+                shaderModAWave: waveformA,
+                shaderModAGain: modAGain,
+                shaderModAFFT: fftA,
+                shaderModBWave: waveformB,
+                shaderModBGain: modBGain,
+                shaderModBFFT: fftB,
+                shaderModCWave: waveformC,
+                shaderModCGain: modCGain,
+                shaderModCFFT: fftC
             };
             
             // V4_0_0_A_sub3: Log values once per second (updated to show waveform layer)
             // V4_0_0_A_sub13: Gain shown but NOT applied to waveform (already in timeline)
             if (now - getTimelineModulatorValues.lastLog < 50) {  // Same log cycle
-                console.log(`  TIMELINE: modA=${modATimeline[timelineIndex].toFixed(3)}, modB=${modBTimeline[timelineIndex].toFixed(3)}, modC=${modCTimeline[timelineIndex].toFixed(3)}`);
+                console.log(`  TIMELINE: modA=${fftA.toFixed(3)}, modB=${fftB.toFixed(3)}, modC=${fftC.toFixed(3)}`);
                 console.log(`  WAVEFORM: A=${waveformA.toFixed(3)} (${modAWaveform},${modASubdiv}), B=${waveformB.toFixed(3)} (${modBWaveform},${modBSubdiv}), C=${waveformC.toFixed(3)} (${modCWaveform},${modCSubdiv})`);
                 console.log(`  GAINS: modA=${modAGain}, modB=${modBGain}, modC=${modCGain} (already in timeline, not applied to waveform)`);
                 console.log(`  FINAL: modA=${result.modA.toFixed(3)}, modB=${result.modB.toFixed(3)}, modC=${result.modC.toFixed(3)}`);
@@ -15578,13 +15831,16 @@ ${providedShaderCode}
         function renderLiveShader() {
             // Calculate master tempo-synced time (READ ONLY - doesn't modify trackMasterClockStart)
             let currentTime = 0;
+            let currentBeat = 0; // V4_8_31: Beat position for uniforms
             if (trackMasterClockStart !== null && trackAudioContext) {
                 const elapsed = trackAudioContext.currentTime - trackMasterClockStart;
                 const tempoScale = gridState.masterTempo / 120.0;
                 currentTime = elapsed * tempoScale;
+                currentBeat = elapsed * (gridState.masterTempo / 60.0); // V4_8_31: Calculate beat
             } else {
                 // Fallback if no audio session started yet
                 currentTime = (Date.now() - liveShaderStartTime) / 1000.0;
+                currentBeat = currentTime * (gridState.masterTempo / 60.0); // V4_8_31: Calculate beat
             }
             
             // Render each track
@@ -15605,15 +15861,26 @@ ${providedShaderCode}
                 // V4_0_0_A_sub1: Get timeline-based modulator values
                 const modulators = getTimelineModulatorValues(track);
                 
+                // V4_8_31: Updated uniform layout - 20 floats = 80 bytes
                 const uniformData = new Float32Array([
                     currentTime,
                     gridState.masterTempo,
                     modulators.modA,
                     modulators.modB,
                     modulators.modC,
+                    currentBeat,
                     canvas.width,
                     canvas.height,
-                    0, 0, 0, 0, 0 // padding
+                    modulators.shaderModAWave,
+                    modulators.shaderModAGain,
+                    modulators.shaderModAFFT,
+                    modulators.shaderModBWave,
+                    modulators.shaderModBGain,
+                    modulators.shaderModBFFT,
+                    modulators.shaderModCWave,
+                    modulators.shaderModCGain,
+                    modulators.shaderModCFFT,
+                    0, 0, 0  // padding
                 ]);
                 
                 device.queue.writeBuffer(uniformBuffer, 0, uniformData);
@@ -15661,15 +15928,26 @@ ${providedShaderCode}
                     // V4_0_0_A_sub1: Get timeline-based modulator values (same as inset)
                     const modulators = getTimelineModulatorValues(track);
                     
+                    // V4_8_31: Updated uniform layout - 20 floats = 80 bytes
                     const uniformData = new Float32Array([
                         currentTime,
                         gridState.masterTempo,
                         modulators.modA,
                         modulators.modB,
                         modulators.modC,
+                        currentBeat,
                         canvas.width,
                         canvas.height,
-                        0, 0, 0, 0, 0 // padding
+                        modulators.shaderModAWave,
+                        modulators.shaderModAGain,
+                        modulators.shaderModAFFT,
+                        modulators.shaderModBWave,
+                        modulators.shaderModBGain,
+                        modulators.shaderModBFFT,
+                        modulators.shaderModCWave,
+                        modulators.shaderModCGain,
+                        modulators.shaderModCFFT,
+                        0, 0, 0  // padding
                     ]);
                     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
                     
@@ -18102,7 +18380,882 @@ ${providedShaderCode}
         }
 
         // V3.1.0-A: Listen for project state selection changes
+        // V4_8_09: Frequency knob initialization
+        // V4_8_31: Global disabled state for freq knobs (disabled when no audio)
+        let freqKnobsDisabled = true;
+        let freqKnobRedrawFunctions = [];  // Store redraw functions for setFreqKnobsDisabled
+        
+        function initFreqKnobs() {
+            const MIN_FREQ = 20;
+            const MAX_FREQ = 24000;
+            
+            // Log scale conversion functions
+            function freqToKnob(freq) {
+                // Convert frequency (20-24000) to knob position (0-1) using log scale
+                const minLog = Math.log(MIN_FREQ);
+                const maxLog = Math.log(MAX_FREQ);
+                return (Math.log(freq) - minLog) / (maxLog - minLog);
+            }
+            
+            function knobToFreq(knob) {
+                // Convert knob position (0-1) to frequency (20-24000) using log scale
+                const minLog = Math.log(MIN_FREQ);
+                const maxLog = Math.log(MAX_FREQ);
+                return Math.round(Math.exp(minLog + knob * (maxLog - minLog)));
+            }
+            
+            // Setup each freq knob pair
+            const freqPairs = [
+                { freq1: 'modAFreq1', freq2: 'modAFreq2', knob1: 'modAFreq1Knob', knob2: 'modAFreq2Knob', color: '#9d4edd' },
+                { freq1: 'modBFreq1', freq2: 'modBFreq2', knob1: 'modBFreq1Knob', knob2: 'modBFreq2Knob', color: '#9d4edd' },
+                { freq1: 'modCFreq1', freq2: 'modCFreq2', knob1: 'modCFreq1Knob', knob2: 'modCFreq2Knob', color: '#9d4edd' }
+            ];
+            
+            freqPairs.forEach(pair => {
+                const freq1Input = document.getElementById(pair.freq1);
+                const freq2Input = document.getElementById(pair.freq2);
+                const knob1Canvas = document.getElementById(pair.knob1);
+                const knob2Canvas = document.getElementById(pair.knob2);
+                
+                if (!knob1Canvas || !knob2Canvas) return;
+                
+                const ctx1 = knob1Canvas.getContext('2d');
+                const ctx2 = knob2Canvas.getContext('2d');
+                
+                let knob1Value = freqToKnob(parseFloat(freq1Input.value) || 30);
+                let knob2Value = freqToKnob(parseFloat(freq2Input.value) || 50);
+                let isDragging1 = false;
+                let isDragging2 = false;
+                let lastY = 0;
+                
+                function drawFreqKnob(ctx, value, color) {
+                    ctx.clearRect(0, 0, 30, 30);
+                    
+                    // V4_8_31: Dim when disabled
+                    const effectiveColor = freqKnobsDisabled ? '#333' : color;
+                    const borderColor = freqKnobsDisabled ? '#222' : '#444';
+                    const indicatorColor = freqKnobsDisabled ? '#444' : '#fff';
+                    
+                    // Background circle
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.beginPath();
+                    ctx.arc(15, 15, 14, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Border
+                    ctx.strokeStyle = borderColor;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // Value arc (7 o'clock to 5 o'clock)
+                    const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                    const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                    const currentAngle = startAngle + (endAngle - startAngle) * value;
+                    
+                    ctx.strokeStyle = effectiveColor;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(15, 15, 11, startAngle, currentAngle);
+                    ctx.stroke();
+                    
+                    // Center indicator line
+                    ctx.strokeStyle = indicatorColor;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(15, 15);
+                    ctx.lineTo(15 + Math.cos(currentAngle) * 9, 15 + Math.sin(currentAngle) * 9);
+                    ctx.stroke();
+                }
+                
+                function updateKnob1(newValue) {
+                    knob1Value = Math.max(0, Math.min(1, newValue));
+                    const freq1 = knobToFreq(knob1Value);
+                    freq1Input.value = freq1;
+                    
+                    // Push behavior: if freq1 > freq2, push freq2 up
+                    const freq2 = parseInt(freq2Input.value);
+                    if (freq1 > freq2) {
+                        freq2Input.value = freq1;
+                        knob2Value = knob1Value;
+                        drawFreqKnob(ctx2, knob2Value, pair.color);
+                    }
+                    
+                    drawFreqKnob(ctx1, knob1Value, pair.color);
+                }
+                
+                function updateKnob2(newValue) {
+                    knob2Value = Math.max(0, Math.min(1, newValue));
+                    const freq2 = knobToFreq(knob2Value);
+                    freq2Input.value = freq2;
+                    
+                    // Push behavior: if freq2 < freq1, push freq1 down
+                    const freq1 = parseInt(freq1Input.value);
+                    if (freq2 < freq1) {
+                        freq1Input.value = freq2;
+                        knob1Value = knob2Value;
+                        drawFreqKnob(ctx1, knob1Value, pair.color);
+                    }
+                    
+                    drawFreqKnob(ctx2, knob2Value, pair.color);
+                }
+                
+                // Knob 1 events
+                knob1Canvas.addEventListener('mousedown', (e) => {
+                    if (freqKnobsDisabled) return;  // V4_8_31: No interaction when disabled
+                    isDragging1 = true;
+                    lastY = e.clientY;
+                });
+                
+                knob1Canvas.addEventListener('mouseenter', () => {
+                    if (freqKnobsDisabled) {
+                        showMessage('Freq Range Start (load audio to enable)', 'info');
+                        return;
+                    }
+                    const freq = knobToFreq(knob1Value);
+                    showMessage(`Freq Range Start: ${freq} Hz (drag ↑/↓)`, 'info');
+                });
+                knob1Canvas.addEventListener('mouseleave', () => {
+                    showMessage('', 'info');
+                });
+                
+                // Knob 2 events
+                knob2Canvas.addEventListener('mousedown', (e) => {
+                    if (freqKnobsDisabled) return;  // V4_8_31: No interaction when disabled
+                    isDragging2 = true;
+                    lastY = e.clientY;
+                });
+                
+                knob2Canvas.addEventListener('mouseenter', () => {
+                    if (freqKnobsDisabled) {
+                        showMessage('Freq Range End (load audio to enable)', 'info');
+                        return;
+                    }
+                    const freq = knobToFreq(knob2Value);
+                    showMessage(`Freq Range End: ${freq} Hz (drag ↑/↓)`, 'info');
+                });
+                knob2Canvas.addEventListener('mouseleave', () => {
+                    showMessage('', 'info');
+                });
+                
+                // Global mouse events for drag
+                window.addEventListener('mousemove', (e) => {
+                    if (isDragging1) {
+                        const deltaY = lastY - e.clientY;
+                        updateKnob1(knob1Value + deltaY * 0.005);
+                        lastY = e.clientY;
+                    }
+                    if (isDragging2) {
+                        const deltaY = lastY - e.clientY;
+                        updateKnob2(knob2Value + deltaY * 0.005);
+                        lastY = e.clientY;
+                    }
+                });
+                
+                window.addEventListener('mouseup', () => {
+                    isDragging1 = false;
+                    isDragging2 = false;
+                });
+                
+                // Initial draw
+                drawFreqKnob(ctx1, knob1Value, pair.color);
+                drawFreqKnob(ctx2, knob2Value, pair.color);
+                
+                // V4_8_31: Set initial cursor and store redraw functions
+                knob1Canvas.style.cursor = freqKnobsDisabled ? 'not-allowed' : 'pointer';
+                knob2Canvas.style.cursor = freqKnobsDisabled ? 'not-allowed' : 'pointer';
+                
+                freqKnobRedrawFunctions.push(() => {
+                    drawFreqKnob(ctx1, knob1Value, pair.color);
+                    drawFreqKnob(ctx2, knob2Value, pair.color);
+                    knob1Canvas.style.cursor = freqKnobsDisabled ? 'not-allowed' : 'pointer';
+                    knob2Canvas.style.cursor = freqKnobsDisabled ? 'not-allowed' : 'pointer';
+                });
+                
+                // Store update functions for external access (e.g., loading containers)
+                window[`update${pair.freq1}`] = (freq) => {
+                    knob1Value = freqToKnob(freq);
+                    freq1Input.value = freq;
+                    drawFreqKnob(ctx1, knob1Value, pair.color);
+                };
+                window[`update${pair.freq2}`] = (freq) => {
+                    knob2Value = freqToKnob(freq);
+                    freq2Input.value = freq;
+                    drawFreqKnob(ctx2, knob2Value, pair.color);
+                };
+            });
+            
+            console.log('V4_8_09: Freq knobs initialized');
+        }
+        
+        // V4_8_31: Enable/disable freq knobs based on audio state
+        function setFreqKnobsDisabled(disabled) {
+            freqKnobsDisabled = disabled;
+            freqKnobRedrawFunctions.forEach(fn => fn());
+            console.log(`V4_8_31: Freq knobs ${disabled ? 'disabled' : 'enabled'}`);
+        }
+
+        // V4_8_10: Gain knob initialization
+        function initGainKnobs() {
+            const MIN_GAIN = 0;
+            const MAX_GAIN = 1;  // V4_8_31: Changed from 5 to 1
+            
+            const gainConfigs = [
+                { id: 'modAGain', knobId: 'modAGainKnob', color: '#9d4edd', defaultVal: 1 },
+                { id: 'modBGain', knobId: 'modBGainKnob', color: '#9d4edd', defaultVal: 1 },
+                { id: 'modCGain', knobId: 'modCGainKnob', color: '#9d4edd', defaultVal: 1 }
+            ];
+            
+            gainConfigs.forEach(config => {
+                const gainInput = document.getElementById(config.id);
+                const knobCanvas = document.getElementById(config.knobId);
+                
+                if (!knobCanvas) return;
+                
+                const ctx = knobCanvas.getContext('2d');
+                let knobValue = parseFloat(gainInput.value) || config.defaultVal;  // V4_8_31: Direct value
+                let isDragging = false;
+                let lastY = 0;
+                
+                function drawGainKnob() {
+                    ctx.clearRect(0, 0, 30, 30);
+                    
+                    // Background circle
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.beginPath();
+                    ctx.arc(15, 15, 14, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Border
+                    ctx.strokeStyle = '#444';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // Value arc (7 o'clock to 5 o'clock)
+                    const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                    const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                    const currentAngle = startAngle + (endAngle - startAngle) * knobValue;
+                    
+                    ctx.strokeStyle = config.color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(15, 15, 11, startAngle, currentAngle);
+                    ctx.stroke();
+                    
+                    // Center indicator line
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(15, 15);
+                    ctx.lineTo(15 + Math.cos(currentAngle) * 9, 15 + Math.sin(currentAngle) * 9);
+                    ctx.stroke();
+                }
+                
+                function updateGain(newKnobValue) {
+                    knobValue = Math.max(0, Math.min(1, newKnobValue));
+                    const gain = knobValue.toFixed(2);  // V4_8_31: Direct value, 2 decimal precision
+                    gainInput.value = gain;
+                    drawGainKnob();
+                }
+                
+                // Mouse events
+                knobCanvas.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    lastY = e.clientY;
+                });
+                
+                knobCanvas.addEventListener('mouseenter', () => {
+                    const gain = knobValue.toFixed(2);  // V4_8_31: Direct value
+                    showMessage(`Gain: ${gain} (drag ↑/↓)`, 'info');
+                });
+                knobCanvas.addEventListener('mouseleave', () => {
+                    showMessage('', 'info');
+                });
+                
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const deltaY = lastY - e.clientY;
+                    updateGain(knobValue + deltaY * 0.005);
+                    lastY = e.clientY;
+                });
+                
+                window.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+                
+                // Initial draw
+                drawGainKnob();
+                
+                // Expose update function for container loading
+                window[`update${config.id}`] = (gain) => {
+                    // V4_8_31: Normalize old 0-5 values to 0-1
+                    if (gain > 1) gain = gain / 5;
+                    knobValue = Math.min(1, Math.max(0, gain));
+                    gainInput.value = knobValue.toFixed(2);
+                    drawGainKnob();
+                };
+            });
+            
+            console.log('V4_8_10: Gain knobs initialized');
+        }
+
+        // V4_8_31: OmsDropdown - Reusable dropdown component with thumbnail support
+        class OmsDropdown {
+            constructor(containerId, options = {}) {
+                this.container = document.getElementById(containerId);
+                if (!this.container) {
+                    console.error('OmsDropdown: Container not found:', containerId);
+                    return;
+                }
+                
+                this.options = {
+                    showThumbnails: true,
+                    thumbnailSize: { w: 32, h: 18 },
+                    onChange: null,
+                    onOpen: null,  // V4_8_31: Called when dropdown opens (for refresh)
+                    ...options
+                };
+                
+                this.items = [];
+                this.selectedValue = null;
+                this.highlightedIndex = -1;
+                this.isOpen = false;
+                this.thumbnailsRendered = false;
+                
+                this.buildDOM();
+                this.bindEvents();
+            }
+            
+            buildDOM() {
+                this.container.classList.add('oms-dropdown');
+                this.container.innerHTML = `
+                    <div class="oms-dropdown-header">
+                        <canvas class="oms-dropdown-tn" width="${this.options.thumbnailSize.w}" height="${this.options.thumbnailSize.h}"></canvas>
+                        <span class="oms-dropdown-label">Select...</span>
+                        <span class="oms-dropdown-arrow">▼</span>
+                    </div>
+                    <div class="oms-dropdown-list"></div>
+                `;
+                
+                this.header = this.container.querySelector('.oms-dropdown-header');
+                this.headerTn = this.container.querySelector('.oms-dropdown-header .oms-dropdown-tn');
+                this.headerLabel = this.container.querySelector('.oms-dropdown-label');
+                this.list = this.container.querySelector('.oms-dropdown-list');
+                
+                if (!this.options.showThumbnails) {
+                    this.headerTn.style.display = 'none';
+                }
+            }
+            
+            bindEvents() {
+                // Toggle on header click
+                this.header.addEventListener('click', () => this.toggle());
+                
+                // Close on outside click
+                document.addEventListener('click', (e) => {
+                    if (!this.container.contains(e.target)) {
+                        this.close();
+                    }
+                });
+                
+                // Keyboard navigation
+                this.container.addEventListener('keydown', (e) => {
+                    if (!this.isOpen) {
+                        if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            this.open();
+                        }
+                        return;
+                    }
+                    
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        this.close();
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        this.highlightNext();
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        this.highlightPrev();
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.selectHighlighted();
+                    }
+                });
+                
+                // Make focusable
+                this.container.setAttribute('tabindex', '0');
+            }
+            
+            setItems(items) {
+                this.items = items;
+                this.thumbnailsRendered = false;
+                this.renderList();
+                
+                // Select first non-separator if nothing selected
+                if (!this.selectedValue && items.length > 0) {
+                    const firstSelectable = items.find(item => !item.separator);
+                    if (firstSelectable) {
+                        this.setValue(firstSelectable.value, false);
+                    }
+                }
+            }
+            
+            renderList() {
+                this.list.innerHTML = '';
+                
+                this.items.forEach((item, index) => {
+                    if (item.separator) {
+                        const sep = document.createElement('div');
+                        sep.className = 'oms-dropdown-sep';
+                        sep.textContent = item.label;
+                        this.list.appendChild(sep);
+                    } else {
+                        const el = document.createElement('div');
+                        el.className = 'oms-dropdown-item';
+                        el.dataset.value = item.value;
+                        el.dataset.index = index;
+                        
+                        if (this.options.showThumbnails) {
+                            const canvas = document.createElement('canvas');
+                            canvas.className = 'oms-dropdown-tn';
+                            canvas.width = this.options.thumbnailSize.w;
+                            canvas.height = this.options.thumbnailSize.h;
+                            canvas.dataset.shaderCode = item.shaderCode || '';
+                            el.appendChild(canvas);
+                        }
+                        
+                        const label = document.createElement('span');
+                        label.textContent = item.label;
+                        el.appendChild(label);
+                        
+                        if (item.value === this.selectedValue) {
+                            el.classList.add('selected');
+                        }
+                        
+                        el.addEventListener('click', () => this.select(item.value));
+                        el.addEventListener('mouseenter', () => {
+                            this.highlightedIndex = index;
+                            this.updateHighlight();
+                        });
+                        
+                        this.list.appendChild(el);
+                    }
+                });
+            }
+            
+            async renderThumbnails() {
+                if (this.thumbnailsRendered) return;
+                
+                const canvases = this.list.querySelectorAll('.oms-dropdown-tn');
+                let count = 0;
+                
+                for (const canvas of canvases) {
+                    const shaderCode = canvas.dataset.shaderCode;
+                    if (shaderCode) {
+                        try {
+                            await initThumbnailShader(canvas, shaderCode, `dropdown-${count}`);
+                        } catch (e) {
+                            // Draw fallback
+                            const ctx = canvas.getContext('2d');
+                            ctx.fillStyle = '#333';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        }
+                        count++;
+                        
+                        // Yield every 3 to avoid blocking
+                        if (count % 3 === 0) {
+                            await new Promise(r => requestAnimationFrame(r));
+                        }
+                    }
+                }
+                
+                this.thumbnailsRendered = true;
+            }
+            
+            setValue(value, triggerChange = true) {
+                this.selectedValue = value;
+                const item = this.items.find(i => i.value === value);
+                
+                if (item) {
+                    this.headerLabel.textContent = item.label;
+                    
+                    // Update header thumbnail
+                    if (this.options.showThumbnails && item.shaderCode) {
+                        initThumbnailShader(this.headerTn, item.shaderCode, 'header').catch(() => {
+                            const ctx = this.headerTn.getContext('2d');
+                            ctx.fillStyle = '#333';
+                            ctx.fillRect(0, 0, this.headerTn.width, this.headerTn.height);
+                        });
+                    }
+                    
+                    // Update selected class
+                    this.list.querySelectorAll('.oms-dropdown-item').forEach(el => {
+                        el.classList.toggle('selected', el.dataset.value === value);
+                    });
+                    
+                    if (triggerChange && this.options.onChange) {
+                        this.options.onChange(value, item);
+                    }
+                }
+            }
+            
+            getValue() {
+                return this.selectedValue;
+            }
+            
+            select(value) {
+                this.setValue(value, true);
+                this.close();
+            }
+            
+            toggle() {
+                if (this.isOpen) {
+                    this.close();
+                } else {
+                    this.open();
+                }
+            }
+            
+            async open() {
+                // Call onOpen callback first (for refresh)
+                if (this.options.onOpen) {
+                    await this.options.onOpen();
+                }
+                
+                this.isOpen = true;
+                this.container.classList.add('open');
+                this.thumbnailsRendered = false;  // Force re-render after refresh
+                this.renderThumbnails();
+                
+                // Find and highlight current selection
+                const selectedIndex = this.items.findIndex(i => i.value === this.selectedValue);
+                this.highlightedIndex = selectedIndex >= 0 ? selectedIndex : 0;
+                this.updateHighlight();
+            }
+            
+            close() {
+                this.isOpen = false;
+                this.container.classList.remove('open');
+            }
+            
+            highlightNext() {
+                let next = this.highlightedIndex + 1;
+                while (next < this.items.length && this.items[next].separator) {
+                    next++;
+                }
+                if (next < this.items.length) {
+                    this.highlightedIndex = next;
+                    this.updateHighlight();
+                }
+            }
+            
+            highlightPrev() {
+                let prev = this.highlightedIndex - 1;
+                while (prev >= 0 && this.items[prev].separator) {
+                    prev--;
+                }
+                if (prev >= 0) {
+                    this.highlightedIndex = prev;
+                    this.updateHighlight();
+                }
+            }
+            
+            updateHighlight() {
+                this.list.querySelectorAll('.oms-dropdown-item').forEach(el => {
+                    el.classList.toggle('highlighted', parseInt(el.dataset.index) === this.highlightedIndex);
+                });
+                
+                // Scroll into view
+                const highlighted = this.list.querySelector('.oms-dropdown-item.highlighted');
+                if (highlighted) {
+                    highlighted.scrollIntoView({ block: 'nearest' });
+                }
+            }
+            
+            selectHighlighted() {
+                const item = this.items[this.highlightedIndex];
+                if (item && !item.separator) {
+                    this.select(item.value);
+                }
+            }
+        }
+        
+        // Make globally available
+        window.OmsDropdown = OmsDropdown;
+        console.log('V4_8_31: OmsDropdown component ready');
+
+        // V4_8_15: Modulator keyboard controls - Shift+R reactivity mode
+        // Selection state
+        let modReactivityMode = false;  // V4_8_15: Reactivity mode active
+        let modSelectedCol = 0;   // 0-4 = Subdiv/Wave/Gain/Freq1/Freq2
+        let modSelectedRow = 0;   // 0-2 = ModA/ModB/ModC
+        
+        const MOD_COL_NAMES = ['Subdiv', 'Wave', 'Gain', 'Freq1', 'Freq2'];
+        const MOD_ROW_NAMES = ['A', 'B', 'C'];
+        const MOD_ROW_IDS = ['modA', 'modB', 'modC'];
+        const MOD_COL_IDS = ['Subdiv', 'Waveform', 'Gain', 'Freq1', 'Freq2'];
+        
+        function getModControlId(row, col) {
+            // Map to actual element IDs
+            const rowPrefix = MOD_ROW_IDS[row];
+            if (col === 0) return rowPrefix + 'Subdiv';
+            if (col === 1) return rowPrefix + 'Waveform';
+            if (col === 2) return rowPrefix + 'Gain';
+            if (col === 3) return rowPrefix + 'Freq1';
+            if (col === 4) return rowPrefix + 'Freq2';
+            return null;
+        }
+        
+        function getModKnobCanvasId(row, col) {
+            const rowPrefix = MOD_ROW_IDS[row];
+            if (col === 2) return rowPrefix + 'GainKnob';
+            if (col === 3) return rowPrefix + 'Freq1Knob';
+            if (col === 4) return rowPrefix + 'Freq2Knob';
+            return null;
+        }
+        
+        function updateModSelection() {
+            // Clear all selection rings
+            document.querySelectorAll('.mod-selected').forEach(el => el.classList.remove('mod-selected'));
+            
+            if (!modReactivityMode) return;
+            
+            // For dropdowns (col 0-1), add class to select element
+            if (modSelectedCol <= 1) {
+                const id = getModControlId(modSelectedRow, modSelectedCol);
+                const el = document.getElementById(id);
+                if (el) el.classList.add('mod-selected');
+            }
+            // For knobs (col 2-4), add class to canvas
+            else {
+                const canvasId = getModKnobCanvasId(modSelectedRow, modSelectedCol);
+                const canvas = document.getElementById(canvasId);
+                if (canvas) canvas.classList.add('mod-selected');
+            }
+            
+            showMessage(`Mod ${MOD_ROW_NAMES[modSelectedRow]} ${MOD_COL_NAMES[modSelectedCol]} (↑↓←→ nav, ⇧←→ adjust, Esc exit)`, 'info');
+        }
+        
+        function exitReactivityMode() {
+            modReactivityMode = false;
+            modKeyRepeatCount = 0;  // V4_8_31: Reset acceleration
+            document.querySelectorAll('.mod-selected').forEach(el => el.classList.remove('mod-selected'));
+            showMessage('', 'info');
+        }
+        
+        // V4_8_15: Reactivity keyboard mode - track key repeat for acceleration
+        let modKeyRepeatCount = 0;
+        let modLastKeyTime = 0;
+        
+        function adjustModValue(delta) {
+            if (!modReactivityMode) return;
+            
+            const id = getModControlId(modSelectedRow, modSelectedCol);
+            const el = document.getElementById(id);
+            if (!el) return;
+            
+            // V4_8_31: Progressive acceleration - faster with repeated key presses
+            const now = Date.now();
+            if (now - modLastKeyTime < 150) {
+                modKeyRepeatCount = Math.min(modKeyRepeatCount + 1, 20); // Cap at 20x
+            } else {
+                modKeyRepeatCount = 0;
+            }
+            modLastKeyTime = now;
+            const accel = 1 + modKeyRepeatCount * 0.5; // 1x, 1.5x, 2x, 2.5x... up to 11x
+            
+            // Dropdowns (col 0-1)
+            if (modSelectedCol <= 1) {
+                const newIndex = el.selectedIndex + delta;
+                if (newIndex >= 0 && newIndex < el.options.length) {
+                    el.selectedIndex = newIndex;
+                    el.dispatchEvent(new Event('change'));
+                    showMessage(`Mod ${MOD_ROW_NAMES[modSelectedRow]} ${MOD_COL_NAMES[modSelectedCol]}: ${el.options[el.selectedIndex].text}`, 'state');
+                }
+            }
+            // Gain knob (col 2) - V4_8_31: range 0-1, step 0.01 with acceleration
+            else if (modSelectedCol === 2) {
+                let val = parseFloat(el.value);
+                if (isNaN(val)) val = 0.1;  // Only fallback if actually NaN, not 0
+                const step = 0.01 * accel;
+                val = Math.max(0, Math.min(1, val + delta * step));
+                el.value = val.toFixed(2);
+                // Update knob visual
+                const updateFn = window[`update${id}`];
+                if (updateFn) updateFn(val);
+                showMessage(`Mod ${MOD_ROW_NAMES[modSelectedRow]} Gain: ${val.toFixed(2)}`, 'state');
+            }
+            // Freq knobs (col 3-4) - log scale with acceleration
+            else {
+                let val = parseInt(el.value) || 100;
+                // Use log scale steps - multiply/divide by ratio (accelerated)
+                const ratio = 1.1 + (modKeyRepeatCount * 0.05); // 1.1, 1.15, 1.2... up to 2.1
+                if (delta > 0) {
+                    val = Math.min(24000, Math.round(val * ratio));
+                } else {
+                    val = Math.max(20, Math.round(val / ratio));
+                }
+                el.value = val;
+                // Update knob visual
+                const updateFn = window[`update${id}`];
+                if (updateFn) updateFn(val);
+                
+                // Check push behavior for freq pairs
+                const rowPrefix = MOD_ROW_IDS[modSelectedRow];
+                const freq1El = document.getElementById(rowPrefix + 'Freq1');
+                const freq2El = document.getElementById(rowPrefix + 'Freq2');
+                const freq1 = parseInt(freq1El.value);
+                const freq2 = parseInt(freq2El.value);
+                
+                if (modSelectedCol === 3 && freq1 > freq2) {
+                    freq2El.value = freq1;
+                    const updateFn2 = window[`update${rowPrefix}Freq2`];
+                    if (updateFn2) updateFn2(freq1);
+                } else if (modSelectedCol === 4 && freq2 < freq1) {
+                    freq1El.value = freq2;
+                    const updateFn1 = window[`update${rowPrefix}Freq1`];
+                    if (updateFn1) updateFn1(freq2);
+                }
+                
+                showMessage(`Mod ${MOD_ROW_NAMES[modSelectedRow]} ${MOD_COL_NAMES[modSelectedCol]}: ${val} Hz`, 'state');
+            }
+        }
+        
+        // Keyboard handler for modulator controls
+        document.addEventListener('keydown', (e) => {
+            // Don't handle if typing in input/textarea
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            // Shift+R: Toggle reactivity mode
+            if (e.shiftKey && (e.key === 'r' || e.key === 'R')) {
+                e.preventDefault();
+                if (modReactivityMode) {
+                    exitReactivityMode();
+                } else {
+                    modReactivityMode = true;
+                    updateModSelection();
+                }
+                return;
+            }
+            
+            // Escape: Exit reactivity mode
+            if (e.key === 'Escape' && modReactivityMode) {
+                e.preventDefault();
+                exitReactivityMode();
+                return;
+            }
+            
+            // Only handle arrows if in reactivity mode
+            if (!modReactivityMode) return;
+            
+            // Shift+Left/Right: Adjust value
+            if (e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+                e.preventDefault();
+                const delta = e.key === 'ArrowRight' ? 1 : -1;
+                adjustModValue(delta);
+                return;
+            }
+            
+            // Left/Right (no shift): Navigate columns
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (e.key === 'ArrowLeft') {
+                    modSelectedCol = (modSelectedCol - 1 + 5) % 5;
+                } else {
+                    modSelectedCol = (modSelectedCol + 1) % 5;
+                }
+                updateModSelection();
+                return;
+            }
+            
+            // Up/Down: Navigate rows
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (e.key === 'ArrowUp') {
+                    modSelectedRow = (modSelectedRow - 1 + 3) % 3;
+                } else {
+                    modSelectedRow = (modSelectedRow + 1) % 3;
+                }
+                updateModSelection();
+                return;
+            }
+        });
+        
+        console.log('V4_8_31: Modulator keyboard controls initialized');
+        
+        // V4_8_14: Trackpad scroll on waveform = audio scrub (smooth only)
         document.addEventListener('DOMContentLoaded', () => {
+            const waveformCanvas = document.getElementById('waveformCanvas');
+            const audioWaveformContainer = document.querySelector('.audio-waveform');
+            
+            if (audioWaveformContainer) {
+                audioWaveformContainer.addEventListener('wheel', (e) => {
+                    // Only handle horizontal scroll (deltaX)
+                    if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) return; // Ignore vertical scroll
+                    if (!audioLoaded || !audioElement) return;
+                    
+                    e.preventDefault();
+                    
+                    const beatsPerSecond = audioTempo / 60.0;
+                    // Smooth scrub: ~1 beat per 50px of scroll
+                    const beatsDelta = e.deltaX * 0.02;
+                    const newTime = audioElement.currentTime + (beatsDelta / beatsPerSecond);
+                    audioElement.currentTime = Math.max(0, Math.min(audioElement.duration, newTime));
+                }, { passive: false });
+                
+                console.log('V4_8_31: Trackpad waveform scrub initialized');
+            }
+        });
+        
+        // V4_8_31: Shift+< and Shift+> = jump to prev/next grid line
+        document.addEventListener('keydown', (e) => {
+            if (!e.shiftKey) return;
+            if (e.key !== '<' && e.key !== '>') return;
+            if (!audioLoaded || !audioElement) return;
+            
+            // Don't interfere with text inputs
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            e.preventDefault();
+            
+            const beatsPerSecond = audioTempo / 60.0;
+            const direction = e.key === '>' ? 1 : -1;
+            
+            // Calculate current position in grid units (relative to audioStartTime)
+            const currentGridPos = (audioElement.currentTime - audioStartTime) * beatsPerSecond / gridSnapBeats;
+            
+            // Jump to next/prev grid position
+            let targetGridPos;
+            if (direction > 0) {
+                // Forward: go to next grid line
+                targetGridPos = Math.floor(currentGridPos) + 1;
+            } else {
+                // Backward: floor-1
+                // - Stopped: you're on a line, go to previous
+                // - Playing: skip the line you just passed, go one more back
+                targetGridPos = Math.floor(currentGridPos) - 1;
+            }
+            
+            // Convert back to time
+            const targetBeats = targetGridPos * gridSnapBeats;
+            const newTime = audioStartTime + (targetBeats / beatsPerSecond);
+            audioElement.currentTime = Math.max(0, Math.min(newTime, audioElement.duration));
+            
+            // Show message
+            const barNum = Math.floor(targetBeats / 4) + 1;
+            showMessage(`Grid: Bar ${barNum}`, 'state');
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // V4_8_09: Initialize freq knobs
+            initFreqKnobs();
+            
+            // V4_8_10: Initialize gain knobs
+            initGainKnobs();
+            
+            // V4_8_31: Initialize shader name dropdown
+            initShaderNameDropdown();
+            
             const select = document.getElementById('projectStateSelect');
             if (select) {
                 select.addEventListener('change', async () => {
