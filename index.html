@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V4_3
+ONEMANSHYO Dojo App V4_4
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V4_3
+Version: V4_4
 -->
 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V4_3]</title>
+    <title>ONEMANSHYO App [V4_4]</title>
     <!-- V4_3_0_sub6: JSZip for container export (loaded from CDN when needed) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -161,6 +161,19 @@ Version: V4_3
             color: #00d4ff;
             border-bottom-color: #00d4ff;
         }
+
+        /* V4_4_0: Color-coded tabs by function */
+        /* Cyan: Creation tabs (no folder needed) */
+        .tab-cyan:hover { color: #00d4ff; }
+        .tab-cyan.active { color: #00d4ff; border-bottom-color: #00d4ff; }
+        
+        /* Magenta: Library/Performance tabs (folder needed) */
+        .tab-magenta:hover { color: #ff00ff; }
+        .tab-magenta.active { color: #ff00ff; border-bottom-color: #ff00ff; }
+        
+        /* Yellow: Utility tabs */
+        .tab-yellow:hover { color: #ffcc00; }
+        .tab-yellow.active { color: #ffcc00; border-bottom-color: #ffcc00; }
 
         .tab-content {
             display: none;
@@ -490,7 +503,13 @@ Version: V4_3
         }
 
         /* V2.1.0-A: New right panel sections */
-        .waveform-section {
+        /* V4_4_0: Audio Controls Section - wraps audio waveform + controls strip */
+        .audio-controls-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .audio-waveform {
             height: 120px;
             background: linear-gradient(180deg, #1e1e1e, #252525);
             border-top: 1px solid #333;
@@ -502,7 +521,7 @@ Version: V4_3
             position: relative; /* V3.0.0-O: For drag text overlay positioning */
         }
 
-        .waveform-section canvas {
+        .audio-waveform canvas {
             flex: 1;
             height: 100px;
             background: rgba(255,255,255,0.05);
@@ -511,7 +530,7 @@ Version: V4_3
             cursor: pointer;
         }
 
-        .waveform-section .btn-compact {
+        .audio-waveform .btn-compact {
             width: 50px;
             height: 100px;
             margin-left: 10px;
@@ -823,7 +842,7 @@ Version: V4_3
             background: rgba(0, 212, 255, 0.05) !important;
         }
 
-        .waveform-section.drag-over {
+        .audio-waveform.drag-over {
             background: rgba(0, 212, 255, 0.1) !important;
         }
 
@@ -1127,6 +1146,15 @@ Version: V4_3
         /* V3_7_0_ZD: Hide scrollbar (Chrome/Safari/Opera) */
         .scenes-scroll-container::-webkit-scrollbar {
             display: none;
+        }
+        
+        /* V4_4_0: Hide scrollbar on library list */
+        #libraryListRight {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+        #libraryListRight::-webkit-scrollbar {
+            display: none; /* Chrome/Safari/Opera */
         }
 
         .scenes-grid {
@@ -1944,7 +1972,7 @@ Version: V4_3
     <div class="header">
         <div class="header-left">
             <div class="header-brand">ONEMANSHYO</div>
-            <div class="header-app">Shader Baker [v4.3.0]</div>
+            <div class="header-app">[Beta V4_4_0]</div>
         </div>
         <div class="header-greeting" id="headerGreeting">Hi Friend, I'm Wes!</div>
     </div>
@@ -1954,18 +1982,21 @@ Version: V4_3
             
             <!-- V2.1.0-C: Tab Bar -->
             <!-- V3_4_0_C: Renamed tabs to single letters, added Settings tab -->
+            <!-- V4_4_0: Removed P tab - System presets now in Library -->
+            <!-- Tabs: C W | L LIVE | S U A -->
+            <!-- Color coding: Cyan (creation) | Magenta (library/performance) | Yellow (utility) -->
             <div class="tab-bar">
-                <button class="tab active" id="controlsTab" onclick="switchTab('controls')">C</button>
-                <button class="tab" id="presetsTab" onclick="switchTab('presets')">P</button>
-                <button class="tab" id="libraryTab" onclick="switchTab('library')">L</button>
-                <button class="tab" id="codeTab" onclick="switchTab('code')">W</button>
-                <button class="tab" id="settingsTab" onclick="switchTab('settings')">S</button>
-                <button class="tab" id="aboutTab" onclick="switchTab('about')">A</button>
-                <button class="tab" id="utilitiesTab" onclick="switchTab('utilities')">U</button>
-                <button class="tab" id="liveTab" onclick="switchTab('live')">LIVE</button>
+                <button class="tab tab-cyan active" id="controlsTab" onclick="switchTab('controls')">C</button>
+                <button class="tab tab-cyan" id="codeTab" onclick="switchTab('code')">W</button>
+                <button class="tab tab-magenta" id="libraryTab" onclick="switchTab('library')">L</button>
+                <button class="tab tab-magenta" id="liveTab" onclick="switchTab('live')">LIVE</button>
+                <button class="tab tab-yellow" id="settingsTab" onclick="switchTab('settings')">S</button>
+                <button class="tab tab-yellow" id="utilitiesTab" onclick="switchTab('utilities')">U</button>
+                <button class="tab tab-yellow" id="aboutTab" onclick="switchTab('about')">A</button>
             </div>
             
             <!-- V2.1.0-C: Controls Tab Content -->
+            <!-- V4_4_0: Controls is default tab -->
             <div class="tab-content active" id="controlsTabContent">
             <div class="controls-section">
                 <div class="controls">
@@ -2148,7 +2179,7 @@ Version: V4_3
                     </div>
 
                     <!-- Row 6: REMOVED in V2.1.0-A - Content moved to right panel -->
-                    <!-- Waveform and audio controls now in right panel waveform-section and audio-controls-strip -->
+                    <!-- Waveform and audio controls now in right panel audio-waveform and audio-controls-strip -->
                     <!-- Row 6 freed for future features -->
 
 
@@ -2187,50 +2218,7 @@ Version: V4_3
                         <button class="btn btn-compact" id="renderBtn" title="Render Video" onclick="startRender()">R</button>
                     </div>
 
-                    <!-- V2.7.0-L: Control States Section -->
-                    <div class="shader-header" style="margin-top: 20px;">Control States</div>
-                    
-                    <!-- Control States Row -->
-                    <div class="control-row">
-                        <div class="control-group" style="flex: 3;">
-                            <select id="controlStateSelect" title="Load Control State">
-                                <option value="custom" selected>Custom</option>
-                                <option disabled>--- Library ---</option>
-                                <option value="quickTest">Quick Test</option>
-                                <option value="hdRender">HD Render</option>
-                                <option value="4kFinal">4K Final</option>
-                                <option value="instagramStory">Instagram Story</option>
-                                <option value="tiktok">TikTok</option>
-                            </select>
-                        </div>
-                        <div class="control-group">
-                            <button class="btn" onclick="saveControlState()" title="Save Current Control State">Save</button>
-                        </div>
-                        <div class="control-group">
-                            <button class="btn" onclick="deleteControlState()" title="Delete Selected Control State">Delete</button>
-                        </div>
-                    </div>
-                    
-                    <!-- V2.7.0-S: Inline Save Input Row (hidden by default) -->
-                    <div id="saveInputRow" class="control-row" style="display: none;">
-                        <div class="control-group" style="flex: 3;">
-                            <input type="text" id="saveStateName" placeholder="Enter state name..." 
-                                   class="control-group input" 
-                                   style="background: rgba(255,255,255,0.1); border: 1px solid #00d4ff; color: #fff; padding: 6px 10px; border-radius: 0; font-size: 14px;">
-                        </div>
-                        <div class="control-group">
-                            <button class="btn" onclick="confirmSaveControlState()" title="Confirm Save">✓</button>
-                        </div>
-                        <div class="control-group">
-                            <button class="btn" onclick="cancelSaveControlState()" title="Cancel Save">✗</button>
-                        </div>
-                    </div>
-                    
-                    <!-- V2.7.0-M: Control State Info Box -->
-                    <div id="controlStateInfo" class="control-state-info" style="display: none;">
-                        <div class="control-state-info-title"></div>
-                        <div class="control-state-info-content"></div>
-                    </div>
+                    <!-- V4_4_0: Control States removed - use .oms containers in Presets/ instead -->
 
                 </div>
             </div>
@@ -2241,8 +2229,9 @@ Version: V4_3
             <div class="code-section">
                 <div class="code-header">
                     <button class="btn" onclick="compileShader(true)" title="Compile Shader">Compile</button>
-                    <button class="btn" onclick="copyShaderCode()" title="Copy Shader to Clipboard">Copy Code</button>
-                    <button class="btn" onclick="exportShaderTxt()" title="Export Shader as .txt File">Export .txt</button>
+                    <button class="btn" onclick="copyShaderCode()" title="Copy Shader to Clipboard">Copy</button>
+                    <button class="btn" onclick="addToLibrary()" title="Save to Library">Save</button>
+                    <button class="btn" onclick="exportShaderTxt()" title="Export Shader as .wgsl File">Export</button>
                 </div>
                 <textarea class="editor" id="shaderCode" placeholder="Paste your shader code here...">
 // OMS Shader Baker v2.0.3c - Flower Power
@@ -2311,94 +2300,20 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             </div>
             </div><!-- End Code Tab Content -->
             
-            <!-- V2.6.0-A: Presets Tab Content -->
-            <div class="tab-content" id="presetsTabContent">
-                <!-- V2.6.0-B: Preset Orientation Control -->
-                <div class="preset-orientation-control">
-                    <label for="presetOrientation">Preview As:</label>
-                    <select id="presetOrientation" onchange="updatePresetCardShapes()">
-                        <option value="portrait" selected>Portrait</option>
-                        <option value="landscape">Landscape</option>
-                        <option value="square">Square</option>
-                    </select>
-                </div>
-                
-                <!-- Library Section -->
-                <div class="preset-section">
-                    <div class="preset-section-header" onclick="togglePresetSection('omsLibrary')">
-                        <span>LIBRARY</span>
-                        <span class="arrow">▼</span>
-                    </div>
-                    <div class="preset-section-content" id="omsLibraryContent">
-                        <div class="preset-grid" id="omsPresetGrid">
-                            <!-- OMS preset cards will be generated here -->
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- User Presets Section -->
-                <div class="preset-section">
-                    <div class="preset-section-header" onclick="togglePresetSection('userPresets')">
-                        <span>USER PRESETS</span>
-                        <span class="arrow">▼</span>
-                    </div>
-                    <div class="preset-section-content" id="userPresetsContent">
-                        <div class="preset-grid" id="userPresetGrid">
-                            <!-- User preset cards will be generated here -->
-                        </div>
-                        <div class="preset-actions">
-                            <button class="btn" onclick="importPreset()">Import</button>
-                            <button class="btn" onclick="deletePreset()">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            </div><!-- End Presets Tab Content -->
+            <!-- V4_4_0: Presets Tab removed - System presets now in Library under "System" set -->
             
             <!-- V2.8.0-M: Library Tab Content (Reorganized) -->
             <!-- V4_3_0_sub4: Reworked header with I L U X buttons -->
             <div class="tab-content" id="libraryTabContent">
                 <div class="controls-section" style="flex: 1; display: flex; flex-direction: column; border-bottom: none;">
                     <div class="controls" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
-                        <div class="shader-header">Containers</div>
-                        
-                        <!-- V4_3_0_sub4: Header bar with function buttons -->
-                        <!-- V4_3_0_sub5: Rearranged - I L U + on left, X on right -->
-                        <!-- V4_3_0_sub6: Added E (Export) button -->
-                        <div class="control-row" style="margin-bottom: 12px;">
-                            <div class="control-group">
-                                <button class="btn" onclick="document.getElementById('omsFile').click()" title="Import .zip (containers, sets, projects)">I</button>
-                            </div>
-                            <div class="control-group">
-                                <button class="btn" id="libraryLoadBtn" onclick="loadSelectedContainer()" title="Load selected container">L</button>
-                            </div>
-                            <div class="control-group">
-                                <button class="btn" id="libraryUpdateBtn" onclick="updateSelectedContainer()" title="Update selected with current state">U</button>
-                            </div>
-                            <div class="control-group">
-                                <button class="btn" onclick="addToLibrary()" title="Add current to library">+</button>
-                            </div>
-                            <div class="control-group">
-                                <button class="btn" id="libraryExportBtn" onclick="exportSelectedContainer()" title="Export container + audio as .oms.zip">E</button>
-                            </div>
-                            <div style="flex: 1;"></div>
-                            <div class="control-group">
-                                <button class="btn" id="libraryDeleteBtn" onclick="removeSelectedContainer()" title="Delete selected container">X</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Inline input row for container name (hidden by default) -->
-                        <div id="addContainerRow" class="control-row" style="display: none; margin-bottom: 12px;">
-                            <div class="control-group" style="flex: 3;">
-                                <input type="text" id="containerNameInput" placeholder="Enter container name..." 
-                                       style="background: rgba(255,255,255,0.1); border: 1px solid #00d4ff; color: #fff; padding: 6px 10px; border-radius: 0; font-size: 14px;">
-                            </div>
-                            <div class="control-group">
-                                <button class="btn" onclick="confirmAddToLibrary()" title="Confirm">✓</button>
-                            </div>
-                            <div class="control-group">
-                                <button class="btn" onclick="cancelAddToLibrary()" title="Cancel">✗</button>
-                            </div>
-                        </div>
+                        <!-- V4_4_0: SET header and dropdown for LIVE tab -->
+                        <div class="shader-header">Set</div>
+                        <select id="liveSetSelector" onchange="onLiveSetChange()" style="background: rgba(255,255,255,0.1); border: 1px solid #555; color: #fff; padding: 8px 12px; font-size: 12px; margin-bottom: 12px;">
+                            <option value="presets" selected>Presets</option>
+                            <option value="all">All</option>
+                            <!-- Additional sets populated dynamically -->
+                        </select>
                         
                         <!-- V4_3_0: Sortable column headers -->
                         <div id="librarySortHeaders" style="display: flex; justify-content: space-between; padding: 4px 12px; margin-bottom: 4px; border-bottom: 1px solid #333; font-size: 11px; color: #888;">
@@ -2413,14 +2328,49 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         <!-- V2.8.0-M: Container list grows to fill space -->
                         <div class="library-list" id="libraryList" style="flex: 1; overflow-y: auto; min-height: 0;">
                             <div style="color: #666; text-align: center; padding: 40px 20px;">
-                                No containers in library. Click "+" to save your first container.
+                                No containers in library.
                             </div>
                         </div>
                     </div>
                     
                     <!-- V3.4.0_BETA_A: Shader Preview -->
                 </div>
-            </div><!-- End Library Tab Content -->
+            </div><!-- End Library Tab Content (used by LIVE tab) -->
+            
+            <!-- V4_4_0: Library left panel - SETS section -->
+            <div class="tab-content" id="librarySetsTabContent">
+                <div class="controls-section" style="flex: 1; display: flex; flex-direction: column; border-bottom: none;">
+                    <div class="controls" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+                        
+                        <!-- V4_4_0: SETS section -->
+                        <div class="shader-header" style="margin-bottom: 8px;">Sets</div>
+                        
+                        <!-- Sets list - alphabetical order -->
+                        <div id="librarySetsList" style="flex: 1; overflow-y: auto; min-height: 0;">
+                            <!-- All set - shows all containers from Library folder -->
+                            <div class="library-set-card" data-set-id="all" 
+                                 onclick="selectLibrarySet('all')"
+                                 style="background: rgba(255, 255, 255, 0.03); padding: 8px 12px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #333; cursor: pointer; font-size: 12px; color: #fff;">
+                                All
+                            </div>
+                            <!-- Presets set - shows embedded system presets -->
+                            <div class="library-set-card selected" data-set-id="presets" 
+                                 onclick="selectLibrarySet('presets')"
+                                 style="background: rgba(0, 212, 255, 0.15); padding: 8px 12px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #0ff; cursor: pointer; font-size: 12px; color: #fff;">
+                                Presets
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- V4_4_0: Shader Output Preview -->
+                    <div id="libraryShaderOutputContainer" style="padding: 10px; border-top: 1px solid #333; flex: 0 0 auto;">
+                        <div style="color: #00d4ff; font-weight: bold; font-size: 11px; margin-bottom: 10px;">Shader Output</div>
+                        <div style="position: relative; width: 100%; padding-bottom: 56.25%; background: #000; border: 1px solid #333;">
+                            <canvas id="libraryShaderCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End Library SETS Tab Content -->
             
             <!-- V3_4_0_C: Settings Tab Content -->
             <!-- V3_4_0_D: Added Library Folder button (moved from Library tab) -->
@@ -2542,11 +2492,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             <div class="tab-content" id="aboutTabContent">
                 <div class="controls-section">
                     <!-- App Identity -->
-                    <div class="shader-header" style="padding-left: 0; padding-right: 0;">SHADER BAKER</div>
+                    <div class="shader-header" style="padding-left: 0; padding-right: 0;">ONEMANSHYO</div>
                     
                     <div style="margin-top: 20px;">
                         <div style="color: #00d4ff; font-size: 16px; font-weight: 600; margin-bottom: 5px;">
-                            Version 3.8.0-Z
+                            Beta V4_4_0
                         </div>
                         <div style="color: #aaa; font-size: 14px; margin-bottom: 15px;">
                             Audio-Reactive WebGPU Shader Tool + Live Performance Mixer
@@ -2746,7 +2696,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         <div class="preview-panel">
             <!-- Canvas Section (Top - Flexible Height) -->
-            <div class="preview-container">
+            <!-- V4_4_0: Visible by default since Controls tab is now default -->
+            <div class="preview-container" style="display: flex;">
                 <canvas id="canvas" class="canvas"></canvas>
                 <div class="progress-overlay" id="progressOverlay">
                     <div class="progress-circle"></div>
@@ -2754,20 +2705,76 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 </div>
             </div>
             
-            <!-- Waveform Section (Middle - 120px Fixed Height) -->
-            <div class="waveform-section">
-                <!-- V3.0.0-O: "Drag Audio Here" text overlay (shown when no audio) -->
-                <div id="dragAudioText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; color: rgba(255,255,255,0.3); pointer-events: none; z-index: 1;">
-                    Drag Audio Here
+            <!-- V4_4_0: LIBRARY CONTAINERS - In Right Panel (replaces canvas when Library tab active) -->
+            <div id="libraryContainersRightPanel" style="display: none; flex: 1; overflow: hidden; padding: 20px;">
+                <div style="display: flex; flex-direction: column; height: 100%;">
+                    <div class="shader-header" style="margin-bottom: 12px;">Containers</div>
+                    
+                    <!-- Header bar with function buttons -->
+                    <div class="control-row" style="margin-bottom: 12px;">
+                        <div class="control-group">
+                            <button class="btn" id="libraryLoadBtn2" onclick="loadSelectedContainer()" title="Load selected container">Load</button>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" id="libraryUpdateBtn2" onclick="updateSelectedContainer()" title="Update selected with current state">Update</button>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" id="libraryExportBtn2" onclick="exportSelectedContainer()" title="Export container + audio as .oms.zip">Export</button>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" id="libraryAddBtn2" onclick="addToLibrary()" title="Add current audio/shader to library">Add Current</button>
+                        </div>
+                        <div style="flex: 1;"></div>
+                        <div class="control-group">
+                            <button class="btn" id="libraryDeleteBtn2" onclick="removeSelectedContainer()" title="Delete selected container">X</button>
+                        </div>
+                    </div>
+                    
+                    <!-- V4_4_0: Inline input row for container name (hidden by default) -->
+                    <div id="addContainerRow" class="control-row" style="display: none; margin-bottom: 12px;">
+                        <div class="control-group" style="flex: 3;">
+                            <input type="text" id="containerNameInput" placeholder="Enter container name..." 
+                                   style="background: rgba(255,255,255,0.1); border: 1px solid #00d4ff; color: #fff; padding: 6px 10px; border-radius: 0; font-size: 14px;">
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" onclick="confirmAddToLibrary()" title="Confirm">✓</button>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" onclick="cancelAddToLibrary()" title="Cancel">✗</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Sortable column headers -->
+                    <div id="librarySortHeaders2" style="display: flex; justify-content: space-between; padding: 4px 12px; margin-bottom: 4px; border-bottom: 1px solid #333; font-size: 11px; color: #888;">
+                        <div id="sortByName2" onclick="toggleLibrarySort('name')" style="cursor: pointer; user-select: none; flex: 1;">
+                            Name <span id="sortNameArrow2">▼</span>
+                        </div>
+                        <div id="sortByAudio2" onclick="toggleLibrarySort('audio')" style="cursor: pointer; user-select: none; width: 55px; text-align: center;">
+                            Audio <span id="sortAudioArrow2"></span>
+                        </div>
+                        <div id="sortByBPM2" onclick="toggleLibrarySort('bpm')" style="cursor: pointer; user-select: none; width: 50px; text-align: right;">
+                            BPM <span id="sortBPMArrow2"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Container list grows to fill space -->
+                    <div class="library-list" id="libraryListRight" style="flex: 1; overflow-y: auto; min-height: 0;">
+                        <div style="color: #666; text-align: center; padding: 40px 20px;">
+                            No containers in library. Click "+" to save your first container.
+                        </div>
+                    </div>
                 </div>
-                
+            </div>
+            
+            <!-- V4_4_0: Audio Controls Section - wraps audio waveform + controls strip -->
+            <div class="audio-controls-section">
+            
+            <!-- Audio Waveform (120px Fixed Height) -->
+            <div class="audio-waveform">
                 <!-- Waveform canvas (shown when audio loaded) -->
                 <canvas id="waveformCanvas" style="display: none;"></canvas>
                 
-                <!-- Upload button (shown when no audio) -->
-                <button class="btn" onclick="document.getElementById('audioFile').click()" id="uploadBtn" style="flex: 1;">
-                    <span id="audioFileName" style="display: none;">Upload Audio</span>
-                </button>
+                <!-- Hidden file inputs for programmatic use -->
                 <input type="file" id="audioFile" accept="audio/*" style="display: none;" onchange="loadAudioFile(event)">
                 <input type="file" id="omsFile" accept=".zip" style="display: none;" onchange="handleZipImport(event)">
             </div>
@@ -2789,8 +2796,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 <!-- CELL 2: Audio Start/End (flex: 1, min 200px) -->
                 <div class="controls-cell audio-timing">
                     <div class="cell-label-row">
-                        <div class="label-item clickable" onclick="setAudioStartToZero()" title="Audio Start | Click to reset">Audio Start</div>
-                        <div class="label-item clickable" onclick="setAudioEndToMax()" title="Audio End | Click to reset">Audio End</div>
+                        <div class="label-item clickable" onclick="setAudioStart(event)" title="Click = reset to 0 | Shift+click = set to playhead">Audio Start</div>
+                        <div class="label-item clickable" onclick="setAudioEnd(event)" title="Click = reset to max | Shift+click = set to playhead">Audio End</div>
                     </div>
                     <div class="cell-controls-row">
                         <input type="text" id="audioStartField" value="00:00.000" 
@@ -2829,7 +2836,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     </div>
                 </div>
                 
-                <!-- CELL 5: Grid/Snap/Upload/Remove + Last Bar (V4.0.0_D_sub22: Clean labels) -->
+                <!-- CELL 5: Grid/Snap/Remove + Last Bar -->
                 <div class="controls-cell actions">
                     <div class="cell-label-row">
                         <div class="label-item" style="width: 64px;">Beat Grid</div>
@@ -2840,12 +2847,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         <button class="btn btn-square inactive" id="audioGridBtn" onclick="toggleAudioGrid()" title="Grid: OFF (hidden) - Click to show">G</button>
                         <button class="btn btn-square" onclick="snapAudioEndToBar()" id="audioSnapBtn" style="display: none;" title="Calculate last complete bar">S</button>
                         <input type="text" id="audioSnapLastBarField" value="" readonly style="flex: 1; text-align: center;" title="Last complete bar from Audio Start">
-                        <button class="btn" onclick="document.getElementById('audioFile').click()" id="audioUploadBtn" title="Upload audio file" style="flex: 1;">Upload</button>
                         <button class="btn btn-square" onclick="removeAudio()" id="audioRemoveBtn" style="display: none;" title="Remove loaded audio">X</button>
                     </div>
                 </div>
                 
             </div>
+            </div><!-- End audio-controls-section -->
             
             <!-- ========================================
                  LIVE MIXER (V3.0.0-B) - In Right Panel
@@ -3396,13 +3403,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const file = event.target.files[0];
             if (!file) return;
             
-            // V2.1.0-A: Update UI - hide upload button, show waveform and remove button
-            // V3.0.0-K: Also toggle audioUploadBtn/removeBtn in Cell 5
-            // V3.0.0-O: Hide drag audio text
-            document.getElementById('uploadBtn').style.display = 'none';
-            document.getElementById('dragAudioText').style.display = 'none';
+            // V2.1.0-A: Update UI - show waveform and remove button
             document.getElementById('waveformCanvas').style.display = 'block';
-            document.getElementById('audioUploadBtn').style.display = 'none';
             document.getElementById('audioSnapBtn').style.display = 'inline-block';  // V4_0_0_D_sub13
             document.getElementById('audioRemoveBtn').style.display = 'inline-block';
             
@@ -3469,7 +3471,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     audioPitch = Math.max(-16, Math.min(16, newPitch));
                     audioPitchField.value = audioPitch.toFixed(2);
                     applyPitchToAudio();
-                    markAsCustomState();
+                    // V4_4_0: markAsCustomState removed
                 };
                 
                 console.log('V2.7.0-AE: Audio loaded, attaching freq listeners...');
@@ -3500,8 +3502,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             console.log(`Push behavior: ${pair.freq2} = ${freq1}`);
                             freq2Field.value = freq1;
                         }
-                        console.log('Calling markAsCustomState()');
-                        markAsCustomState();
+                        // V4_4_0: markAsCustomState removed
                     };
                     
                     freq2Field.oninput = function() {
@@ -3512,8 +3513,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             console.log(`Push behavior: ${pair.freq1} = ${freq2}`);
                             freq1Field.value = freq2;
                         }
-                        console.log('Calling markAsCustomState()');
-                        markAsCustomState();
+                        // V4_4_0: markAsCustomState removed
                     };
                 });
                 
@@ -3844,37 +3844,36 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const inX = canvas.width * inPercent;
             const outX = canvas.width * outPercent;
             
-            // VISUAL INDICATOR: Draw shaded region between In and Out (loop range)
-            ctx.fillStyle = 'rgba(255, 0, 110, 0.25)'; // Magenta loop region
-            ctx.fillRect(inX, 0, outX - inX, canvas.height);
-            
-            // VISUAL INDICATOR: Draw In line (magenta)
-            ctx.strokeStyle = '#ff006e'; // Magenta
-            ctx.lineWidth = 4; // Thicker for better visibility
-            ctx.beginPath();
-            ctx.moveTo(inX, 0);
-            ctx.lineTo(inX, canvas.height);
-            ctx.stroke();
-            
-            // VISUAL INDICATOR: Draw Out line (magenta - matches IN marker)
-            ctx.strokeStyle = '#ff006e'; // Magenta
-            ctx.lineWidth = 4; // Thicker for better visibility
-            ctx.beginPath();
-            ctx.moveTo(outX, 0);
-            ctx.lineTo(outX, canvas.height);
-            ctx.stroke();
+            // V4_4_0: Only draw loop region if loop enabled
+            if (audioLoopEnabled) {
+                // VISUAL INDICATOR: Draw shaded region between In and Out (loop range)
+                ctx.fillStyle = 'rgba(0, 255, 255, 0.25)'; // Cyan loop region
+                ctx.fillRect(inX, 0, outX - inX, canvas.height);
+                
+                // VISUAL INDICATOR: Draw In line (cyan)
+                ctx.strokeStyle = '#00ffff'; // Cyan
+                ctx.lineWidth = 4; // Thicker for better visibility
+                ctx.beginPath();
+                ctx.moveTo(inX, 0);
+                ctx.lineTo(inX, canvas.height);
+                ctx.stroke();
+                
+                // VISUAL INDICATOR: Draw Out line (cyan - matches IN marker)
+                ctx.strokeStyle = '#00ffff'; // Cyan
+                ctx.lineWidth = 4; // Thicker for better visibility
+                ctx.beginPath();
+                ctx.moveTo(outX, 0);
+                ctx.lineTo(outX, canvas.height);
+                ctx.stroke();
+            };
             
             // Draw progress overlay
             if (audioElement.duration > 0) {
                 const progress = audioElement.currentTime / audioElement.duration;
                 const progressWidth = canvas.width * progress;
                 
-                // Darken played portion
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                ctx.fillRect(0, 0, progressWidth, canvas.height);
-                
-                // Draw playhead line (thicker, bright orange - distinct from cyan brackets)
-                ctx.strokeStyle = '#ffaa00'; // Orange playhead
+                // Draw playhead line (magenta - matches LIVE tab playhead)
+                ctx.strokeStyle = '#ff00ff'; // Magenta playhead
                 ctx.lineWidth = 4;
                 ctx.beginPath();
                 ctx.moveTo(progressWidth, 0);
@@ -3966,13 +3965,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             audioBufferData = null;
             staticWaveformCache = null;
             
-            // V2.1.0-A: Reset UI - show upload button, hide waveform and remove button
-            // V3.0.0-K: Also toggle audioUploadBtn/removeBtn in Cell 5
-            // V3.0.0-O: Show drag audio text
-            document.getElementById('uploadBtn').style.display = 'flex';
-            document.getElementById('dragAudioText').style.display = 'block';
+            // V2.1.0-A: Reset UI - hide waveform and remove button
             document.getElementById('waveformCanvas').style.display = 'none';
-            document.getElementById('audioUploadBtn').style.display = 'inline-block';
             document.getElementById('audioSnapBtn').style.display = 'none';  // V4_0_0_D_sub13
             document.getElementById('audioRemoveBtn').style.display = 'none';
             document.getElementById('audioFile').value = '';
@@ -4535,21 +4529,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const audioPlayBtn = document.getElementById('audioPlayBtn');
                 
                 if (audioElement.paused) {
-                    // V2.4.0-B: Starting playback - check if we're in the In/Out range
-                    // V2.4.0-J: Parse bar.beat format
-                    // Beat positions are relative to Audio Start
-                    const inBeat = barBeatToBeats(document.getElementById('audioLoopInField').value);
-                    const outBeat = barBeatToBeats(document.getElementById('audioLoopOutField').value);
-                    const beatsPerSecond = audioTempo / 60.0;
-                    
-                    // Calculate current beat position relative to Audio Start
-                    const currentAudioBeat = (audioElement.currentTime - audioStartTime) * beatsPerSecond;
-                    
-                    // If outside In/Out range, jump to In beat (relative to Audio Start)
-                    if (currentAudioBeat < inBeat || currentAudioBeat >= outBeat) {
-                        audioElement.currentTime = audioStartTime + (inBeat / beatsPerSecond);
-                    }
-                    
+                    // V4_4_0: Removed loop range check - let users audition from any position
+                    // Loop-back at Out beat still works during playback if audioLoopEnabled
                     audioElement.play();
                     // V3_9_0_D_sub3: Update button text/class like mouse click
                     audioPlayBtn.textContent = 'Pause';
@@ -4568,20 +4549,19 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 if (!audioLoaded || !audioElement) return;
                 
-                // V2.4.0-J: Parse bar.beat format
-                const inBeat = barBeatToBeats(document.getElementById('audioLoopInField').value);
-                const outBeat = barBeatToBeats(document.getElementById('audioLoopOutField').value);
-                const tempo = audioTempo;  // FIX: Use audioTempo, not currentTempo
+                const tempo = audioTempo;
                 const beatsPerSecond = tempo / 60.0;
                 
                 // Get current position in beats
                 const currentBeat = Math.floor(audioElement.currentTime * beatsPerSecond);
                 
+                // V4_4_0: Navigate full file, not clamped to loop boundaries
                 let targetBeat;
                 if (e.code === 'ArrowLeft') {
-                    targetBeat = Math.max(inBeat, currentBeat - 1); // Go to previous beat, clamp at In beat
+                    targetBeat = Math.max(0, currentBeat - 1); // Previous beat, clamp at 0
                 } else {
-                    targetBeat = Math.min(outBeat - 1, currentBeat + 1); // Go to next beat, clamp before Out beat
+                    const maxBeat = Math.floor(audioElement.duration * beatsPerSecond);
+                    targetBeat = Math.min(maxBeat, currentBeat + 1); // Next beat, clamp at file end
                 }
                 
                 // Convert target beat to seconds
@@ -4990,6 +4970,19 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 
             device.queue.submit([commandEncoder.finish()]);
             
+            // V4_4_0: Copy main canvas to library shader preview when on Library tab
+            const libraryShaderCanvas = document.getElementById('libraryShaderCanvas');
+            if (libraryShaderCanvas && document.getElementById('librarySetsTabContent').classList.contains('active')) {
+                const ctx = libraryShaderCanvas.getContext('2d');
+                if (ctx) {
+                    // Set canvas size to match aspect ratio
+                    const container = libraryShaderCanvas.parentElement;
+                    libraryShaderCanvas.width = container.clientWidth;
+                    libraryShaderCanvas.height = container.clientHeight;
+                    ctx.drawImage(canvas, 0, 0, libraryShaderCanvas.width, libraryShaderCanvas.height);
+                }
+            }
+            
             // Update render progress counter if rendering
             if (isRendering && renderStartTime > 0) {
                 const elapsedTime = (Date.now() - renderStartTime) / 1000;
@@ -5277,17 +5270,31 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         }
 
         // V2.4.0-G: Quick reset for Audio Start/End via label click
-        function setAudioStartToZero() {
+        // V4_4_0: Click = reset to 0, Shift+click = set to playhead
+        function setAudioStart(event) {
             if (audioElement) {
-                audioStartTime = 0;
-                document.getElementById('audioStartField').value = '00:00.000';
+                if (event && event.shiftKey) {
+                    // Shift+click: Set to current playhead position
+                    audioStartTime = audioElement.currentTime;
+                } else {
+                    // Click: Reset to 0
+                    audioStartTime = 0;
+                }
+                document.getElementById('audioStartField').value = secondsToTimeString(audioStartTime);
                 requestAnimationFrame(drawProgress);
             }
         }
 
-        function setAudioEndToMax() {
+        // V4_4_0: Click = reset to max, Shift+click = set to playhead
+        function setAudioEnd(event) {
             if (audioElement && audioElement.duration > 0) {
-                audioEndTime = audioElement.duration;
+                if (event && event.shiftKey) {
+                    // Shift+click: Set to current playhead position
+                    audioEndTime = audioElement.currentTime;
+                } else {
+                    // Click: Reset to file end
+                    audioEndTime = audioElement.duration;
+                }
                 document.getElementById('audioEndField').value = secondsToTimeString(audioEndTime);
                 requestAnimationFrame(drawProgress);
             }
@@ -5367,12 +5374,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         });
 
         // V2.1.0-C: Tab switching function
+        // V4_4_0: Removed presetsTab handling
         function switchTab(tabName) {
             // Hide all tab contents in left panel
             document.getElementById('controlsTabContent').classList.remove('active');
             document.getElementById('codeTabContent').classList.remove('active');
-            document.getElementById('presetsTabContent').classList.remove('active');
             document.getElementById('libraryTabContent').classList.remove('active'); // V2.8.0-F
+            document.getElementById('librarySetsTabContent').classList.remove('active'); // V4_4_0
             document.getElementById('settingsTabContent').classList.remove('active'); // V3_4_0_C
             document.getElementById('aboutTabContent').classList.remove('active'); // V3_8_0_X
             document.getElementById('utilitiesTabContent').classList.remove('active'); // V4_3_0
@@ -5380,7 +5388,6 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // Deactivate all tabs
             document.getElementById('controlsTab').classList.remove('active');
             document.getElementById('codeTab').classList.remove('active');
-            document.getElementById('presetsTab').classList.remove('active');
             document.getElementById('libraryTab').classList.remove('active'); // V2.8.0-F
             document.getElementById('settingsTab').classList.remove('active'); // V3_4_0_C
             document.getElementById('aboutTab').classList.remove('active'); // V3_8_0_X
@@ -5389,9 +5396,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             // V3.0.0-B: Hide/show right panel content based on tab
             const previewContainer = document.querySelector('.preview-container');
-            const waveformSection = document.querySelector('.waveform-section');
+            const audioWaveform = document.querySelector('.audio-waveform');
             const audioControlsStrip = document.querySelector('.audio-controls-strip');
             const liveMixerContainer = document.getElementById('liveMixerContainer');
+            const libraryContainersRightPanel = document.getElementById('libraryContainersRightPanel'); // V4_4_0
             
             // V3_4_0_M: Live shader output container (only show on LIVE tab)
             const liveShaderOutputContainer = document.getElementById('liveShaderOutputContainer');
@@ -5400,60 +5408,62 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             if (tabName === 'controls') {
                 document.getElementById('controlsTabContent').classList.add('active');
                 document.getElementById('controlsTab').classList.add('active');
-                // Show canvas, hide LIVE mixer
+                // Show canvas, hide LIVE mixer and library containers
                 previewContainer.style.display = 'flex';
-                waveformSection.style.display = 'flex';
+                libraryContainersRightPanel.style.display = 'none';
+                audioWaveform.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
-                liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
+                liveShaderOutputContainer.style.display = 'none';
                 // V3_8_0_G: Hide overlay (no folder needed)
                 document.getElementById('appFolderOverlay').classList.remove('active');
+                // V4_4_0: Update canvas size now that container is visible
+                setTimeout(() => updateCanvasSize(), 10);
             } else if (tabName === 'code') {
                 document.getElementById('codeTabContent').classList.add('active');
                 document.getElementById('codeTab').classList.add('active');
-                // Show canvas, hide LIVE mixer
+                // Show canvas, hide LIVE mixer and library containers
                 previewContainer.style.display = 'flex';
-                waveformSection.style.display = 'flex';
+                libraryContainersRightPanel.style.display = 'none';
+                audioWaveform.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
-                liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
+                liveShaderOutputContainer.style.display = 'none';
                 // V3_8_0_G: Hide overlay (no folder needed)
                 document.getElementById('appFolderOverlay').classList.remove('active');
-            } else if (tabName === 'presets') {
-                document.getElementById('presetsTabContent').classList.add('active');
-                document.getElementById('presetsTab').classList.add('active');
-                // Show canvas, hide LIVE mixer
-                previewContainer.style.display = 'flex';
-                waveformSection.style.display = 'flex';
-                audioControlsStrip.style.display = 'flex';
-                liveMixerContainer.style.display = 'none';
-                liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
-                // V3_8_0_G: Hide overlay (no folder needed)
-                document.getElementById('appFolderOverlay').classList.remove('active');
+                // V4_4_0: Update canvas size now that container is visible
+                setTimeout(() => updateCanvasSize(), 10);
             } else if (tabName === 'library') { // V2.8.0-F
-                document.getElementById('libraryTabContent').classList.add('active');
+                // V4_4_0: Show SETS in left panel, CONTAINERS + Audio Controls in right panel
+                document.getElementById('librarySetsTabContent').classList.add('active');
                 document.getElementById('libraryTab').classList.add('active');
                 
                 // V3_8_0_G: Show app-level overlay if no folder
                 const appOverlay = document.getElementById('appFolderOverlay');
                 if (!applicationFolderHandle) {
-                    appOverlay.classList.add('active');
+                    // V4_4_0: Still show presets even without folder
+                    refreshLibraryListRight();
+                    // Only show overlay if not viewing presets
+                    if (window.selectedLiveSetId !== 'presets') {
+                        appOverlay.classList.add('active');
+                    }
                 } else {
                     appOverlay.classList.remove('active');
-                    refreshLibraryList(); // Update library display
+                    refreshLibraryListRight(); // V4_4_0: Update right panel containers
                 }
                 
-                // Show canvas, hide LIVE mixer
-                previewContainer.style.display = 'flex';
-                waveformSection.style.display = 'flex';
+                // V4_4_0: Hide canvas, show containers + audio controls
+                previewContainer.style.display = 'none';
+                libraryContainersRightPanel.style.display = 'block';
+                audioWaveform.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
-                liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
+                liveShaderOutputContainer.style.display = 'none';
                 
                 // V2.9.0-P: Auto-focus first card for keyboard navigation
                 if (applicationFolderHandle) {
                     setTimeout(() => {
-                        const firstCard = document.querySelector('.library-card');
+                        const firstCard = document.querySelector('#libraryListRight .library-card');
                         if (firstCard) firstCard.focus();
                     }, 50);
                 }
@@ -5469,24 +5479,30 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     appOverlay.classList.remove('active');
                 }
                 
-                // Show canvas, hide LIVE mixer
+                // Show canvas, hide LIVE mixer and library containers
                 previewContainer.style.display = 'flex';
-                waveformSection.style.display = 'flex';
+                libraryContainersRightPanel.style.display = 'none';
+                audioWaveform.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
-                liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
+                liveShaderOutputContainer.style.display = 'none';
+                // V4_4_0: Update canvas size now that container is visible
+                setTimeout(() => updateCanvasSize(), 10);
             } else if (tabName === 'about') { // V3_8_0_X
                 document.getElementById('aboutTabContent').classList.add('active');
                 document.getElementById('aboutTab').classList.add('active');
                 
-                // Show canvas, hide LIVE mixer
+                // Show canvas, hide LIVE mixer and library containers
                 previewContainer.style.display = 'flex';
-                waveformSection.style.display = 'flex';
+                libraryContainersRightPanel.style.display = 'none';
+                audioWaveform.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
-                liveShaderOutputContainer.style.display = 'none'; // V3_8_0_X: Hide on non-LIVE tabs
+                liveShaderOutputContainer.style.display = 'none';
                 // V3_8_0_X: Hide overlay (no folder needed)
                 document.getElementById('appFolderOverlay').classList.remove('active');
+                // V4_4_0: Update canvas size now that container is visible
+                setTimeout(() => updateCanvasSize(), 10);
             } else if (tabName === 'utilities') { // V4_3_0
                 document.getElementById('utilitiesTabContent').classList.add('active');
                 document.getElementById('utilitiesTab').classList.add('active');
@@ -5499,14 +5515,17 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     appOverlay.classList.remove('active');
                 }
                 
-                // Show canvas, hide LIVE mixer
+                // Show canvas, hide LIVE mixer and library containers
                 previewContainer.style.display = 'flex';
-                waveformSection.style.display = 'flex';
+                libraryContainersRightPanel.style.display = 'none';
+                audioWaveform.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
-                liveShaderOutputContainer.style.display = 'none'; // V4_3_0: Hide on non-LIVE tabs
+                liveShaderOutputContainer.style.display = 'none';
+                // V4_4_0: Update canvas size now that container is visible
+                setTimeout(() => updateCanvasSize(), 10);
             } else if (tabName === 'live') { // V3.0.0-B
-                // Show Library in left panel
+                // V4_4_0: Show containers in left panel (from "All" set)
                 document.getElementById('libraryTabContent').classList.add('active');
                 document.getElementById('liveTab').classList.add('active');
                 
@@ -5521,10 +5540,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 // Hide canvas/audio controls, show LIVE mixer
                 previewContainer.style.display = 'none';
-                waveformSection.style.display = 'none';
+                libraryContainersRightPanel.style.display = 'none';
+                audioWaveform.style.display = 'none';
                 audioControlsStrip.style.display = 'none';
                 liveMixerContainer.style.display = 'block';
-                liveShaderOutputContainer.style.display = 'block'; // V3_4_0_M: Show ONLY on LIVE tab
+                liveShaderOutputContainer.style.display = 'block';
                 
                 // V3_6_0_U: Remove focus from library cards (no selection highlighting on LIVE tab)
                 const focusedCard = document.querySelector('.library-card:focus');
@@ -5551,78 +5571,143 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         }
 
         // V2.6.0-A: Preset action placeholders (to be implemented in later iterations)
-        function importPreset() {
-            // Create file input element
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.txt,.wgsl';
-            fileInput.multiple = true; // Allow multiple file selection
+        // V4_4_0: User presets stored in Presets folder as .wgsl files
+        let userPresetsCache = [];  // Cache loaded from folder
+        
+        // V4_4_0: Scan Presets folder and cache results
+        // V4_4_0: Scan Presets folder for .oms files
+        async function refreshUserPresets() {
+            if (!presetsFolderHandle) {
+                userPresetsCache = [];
+                return [];
+            }
             
-            fileInput.onchange = async (e) => {
-                const files = e.target.files;
-                if (!files || files.length === 0) return;
-                
-                let importedCount = 0;
-                
-                for (let file of files) {
-                    try {
-                        const content = await file.text();
-                        const shaderName = extractShaderName(content, file.name);
+            const presets = [];
+            try {
+                for await (const entry of presetsFolderHandle.values()) {
+                    if (entry.name.endsWith('.oms')) {
+                        const file = await entry.getFile();
+                        const text = await file.text();
+                        const data = JSON.parse(text);
+                        const name = entry.name.replace(/\.oms$/i, '');
                         
-                        // Get existing user presets from localStorage
-                        const userPresets = getUserPresets();
-                        
-                        // Add new preset (with default portrait orientation)
-                        userPresets.push({
-                            name: shaderName,
-                            orientation: 'portrait',
-                            code: content
+                        presets.push({
+                            name: data.name || name,
+                            filename: entry.name,
+                            orientation: data.controlStates?.orientation || 'portrait',
+                            code: data.shaderCode,
+                            controlStates: data.controlStates
                         });
-                        
-                        // Save back to localStorage
-                        saveUserPresets(userPresets);
-                        importedCount++;
-                        
-                    } catch (error) {
-                        console.error(`Failed to import ${file.name}:`, error);
                     }
                 }
                 
-                // Regenerate user preset cards
-                if (importedCount > 0) {
-                    generateUserPresetCards();
-                    showStatus(`Imported ${importedCount} shader${importedCount > 1 ? 's' : ''}`);
-                } else {
-                    showStatus('Import failed - check console for errors');
+                // Sort alphabetically
+                presets.sort((a, b) => a.name.localeCompare(b.name));
+                
+            } catch (error) {
+                console.error('V4_4_0: Failed to scan Presets folder:', error);
+            }
+            
+            userPresetsCache = presets;
+            return presets;
+        }
+        
+        // V4_4_0: Get cached user presets (call refreshUserPresets first)
+        function getUserPresets() {
+            return userPresetsCache;
+        }
+        
+        // V4_4_0: Save current shader + settings as .oms preset
+        async function saveShaderToPresets() {
+            // If no app folder, prompt to set it
+            if (!applicationFolderHandle) {
+                const overlay = document.getElementById('appFolderOverlay');
+                if (overlay) {
+                    overlay.classList.add('active');
                 }
+                showStatus('Set application folder first', 'error');
+                return;
+            }
+            
+            // Create Presets folder if it doesn't exist
+            if (!presetsFolderHandle) {
+                try {
+                    presetsFolderHandle = await applicationFolderHandle.getDirectoryHandle('Presets', { create: true });
+                    console.log('V4_4_0: Created Presets folder on first save');
+                } catch (error) {
+                    console.error('V4_4_0: Failed to create Presets folder:', error);
+                    showStatus('Failed to create Presets folder', 'error');
+                    return;
+                }
+            }
+            
+            const code = document.getElementById('shaderCode').value;
+            if (!code.trim()) {
+                showStatus('No shader code to save', 'error');
+                return;
+            }
+            
+            // Get name from code or prompt
+            let presetName = extractShaderName(code, null);
+            presetName = prompt('Preset name:', presetName);
+            if (!presetName) return;
+            
+            // Sanitize filename
+            const safeFilename = sanitizeFilename(presetName) + '.oms';
+            
+            // Create .oms container with current settings (no audio)
+            const container = {
+                name: presetName,
+                version: 'V4_4_0',
+                created: new Date().toISOString(),
+                shaderCode: code,
+                controlStates: getCurrentControlState(),
+                // No audio fields - this is a preset
+                audioFilename: null,
+                audioBPM: null,
+                audioStartTime: null,
+                audioEndTime: null
             };
             
-            // Trigger file picker
-            fileInput.click();
+            try {
+                const fileHandle = await presetsFolderHandle.getFileHandle(safeFilename, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(JSON.stringify(container, null, 2));
+                await writable.close();
+                
+                console.log('V4_4_0: Saved preset as .oms:', safeFilename);
+                showStatus(`Saved preset: ${presetName}`, 'success');
+                
+                // Refresh preset cards
+                await refreshUserPresets();
+                await generateUserPresetCards();
+                
+            } catch (error) {
+                console.error('V4_4_0: Failed to save preset:', error);
+                showStatus('Failed to save preset', 'error');
+            }
         }
-
-        function deletePreset() {
-            const userPresets = getUserPresets();
-            if (userPresets.length === 0) {
-                showStatus('No user presets to delete');
-                return;
+        
+        // V4_4_0: Delete preset file from folder
+        async function deleteUserPreset(filename) {
+            if (!presetsFolderHandle) return;
+            
+            const name = filename.replace(/\.(wgsl|txt)$/i, '');
+            if (!confirm(`Delete preset "${name}"?`)) return;
+            
+            try {
+                await presetsFolderHandle.removeEntry(filename);
+                console.log('V4_4_0: Deleted preset:', filename);
+                showStatus(`Deleted: ${name}`, 'success');
+                
+                // Refresh preset cards
+                await refreshUserPresets();
+                await generateUserPresetCards();
+                
+            } catch (error) {
+                console.error('V4_4_0: Failed to delete preset:', error);
+                showStatus('Failed to delete preset', 'error');
             }
-            
-            // V2.6.0-U: Delete focused preset (no prompt)
-            if (focusedUserPresetIndex < 0 || focusedUserPresetIndex >= userPresets.length) {
-                showStatus('No preset selected - click or tab to a card first');
-                return;
-            }
-            
-            const deletedName = userPresets[focusedUserPresetIndex].name;
-            userPresets.splice(focusedUserPresetIndex, 1);
-            saveUserPresets(userPresets);
-            
-            // Reset focus tracking
-            focusedUserPresetIndex = -1;
-            
-            generateUserPresetCards();
-            showStatus(`Deleted: ${deletedName}`);
         }
 
         // V2.6.0-S: User Preset Helper Functions
@@ -5643,32 +5728,15 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             return 'Untitled Shader';
         }
         
-        // Get user presets from localStorage
-        function getUserPresets() {
-            try {
-                const stored = localStorage.getItem('omsUserPresets');
-                return stored ? JSON.parse(stored) : [];
-            } catch (error) {
-                console.error('Failed to load user presets:', error);
-                return [];
-            }
-        }
-        
-        // Save user presets to localStorage
-        function saveUserPresets(presets) {
-            try {
-                localStorage.setItem('omsUserPresets', JSON.stringify(presets));
-            } catch (error) {
-                console.error('Failed to save user presets:', error);
-                showStatus('Save failed - localStorage error');
-            }
-        }
+        // DEPRECATED: localStorage functions removed in V4_4_0
+        // User presets now stored in Presets folder
         
         // V2.8.0-F: LIBRARY MANAGEMENT FUNCTIONS
         // V2.8.0-L: File System Access API for Audio Library
         
         let applicationFolderHandle = null;
         let libraryFolderHandle = null;  // V4_3_0_sub8: Library subfolder handle
+        let presetsFolderHandle = null;  // V4_4_0: Presets subfolder handle
         
         // V3_8_0_E: Project management
         let activeProjectName = null;  // Current project subfolder name
@@ -5730,6 +5798,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 libraryFolderHandle = await applicationFolderHandle.getDirectoryHandle('Library', { create: true });
                 console.log('V4_3_0_sub8: Library subfolder created/accessed');
                 
+                // V4_4_0: Copy system presets to Library folder
+                await copyPresetsToLibrary();
+                
+                // V4_4_0: Presets folder removed - using Library for all containers
+                
                 // Store handle in IndexedDB for persistence
                 await storeApplicationFolderHandle(applicationFolderHandle);
                 
@@ -5738,18 +5811,21 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 document.getElementById('applicationFolderName').textContent = applicationFolderHandle.name;
                 document.getElementById('setupApplicationFolderBtn').textContent = 'Change Folder';
                 
-                // V2.9.0-L: Load Control States from LIBRARY
-                await updateControlStatesDropdown();
+                // V4_4_0: Control States and User Presets removed
                 
                 // V3.1.0-A: Load Project States from LIBRARY
                 await updateProjectStatesDropdown();
                 
                 // V3.2.0-B: REMOVED auto-load default project
                 // User must explicitly click "Load" to restore grid state
-                // await autoLoadDefaultProject();
+                await autoLoadDefaultProject();
                 
                 // V3_8_0_G: Hide app-level overlay
                 document.getElementById('appFolderOverlay').classList.remove('active');
+                
+                // V4_4_0: Refresh library lists so they load immediately
+                await refreshLibraryList();
+                await refreshLibraryListRight();
                 
                 showStatus(`Library set: ${applicationFolderHandle.name}/Library`, 'success');
             } catch (error) {
@@ -5757,6 +5833,58 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     console.error('Failed to setup application folder:', error);
                     showStatus('Failed to setup application folder', 'error');
                 }
+            }
+        }
+        
+        // V4_4_0: Copy embedded presets to Library folder as .oms files
+        async function copyPresetsToLibrary() {
+            if (!libraryFolderHandle) return;
+            
+            let copied = 0;
+            for (let i = 0; i < omsPresets.length; i++) {
+                const preset = omsPresets[i];
+                const filename = sanitizeFilename(preset.name) + '.oms';
+                
+                // Check if file already exists
+                try {
+                    await libraryFolderHandle.getFileHandle(filename);
+                    // File exists, skip
+                    console.log('V4_4_0: Preset already exists:', filename);
+                    continue;
+                } catch (e) {
+                    // File doesn't exist, create it
+                }
+                
+                // Create .oms container
+                const container = {
+                    name: preset.name,
+                    shaderCode: preset.code,
+                    controlStates: {
+                        orientation: preset.orientation || 'portrait'
+                    },
+                    audioFilename: null,
+                    audioBPM: null,
+                    audioStartTime: null,
+                    audioEndTime: null,
+                    version: 'V4_4_0',
+                    created: new Date().toISOString(),
+                    source: 'system-preset'
+                };
+                
+                try {
+                    const fileHandle = await libraryFolderHandle.getFileHandle(filename, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(JSON.stringify(container, null, 2));
+                    await writable.close();
+                    copied++;
+                    console.log('V4_4_0: Copied preset to Library:', filename);
+                } catch (e) {
+                    console.error('V4_4_0: Failed to copy preset:', preset.name, e);
+                }
+            }
+            
+            if (copied > 0) {
+                console.log(`V4_4_0: Copied ${copied} presets to Library`);
             }
         }
         
@@ -5796,19 +5924,24 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         libraryFolderHandle = await applicationFolderHandle.getDirectoryHandle('Library', { create: true });
                         console.log('V4_3_0_sub8: Library subfolder accessed');
                         
+                        // V4_4_0: Presets folder removed - using Library for all containers
+                        
                         document.getElementById('applicationFolderInfo').style.display = 'block';
                         document.getElementById('applicationFolderName').textContent = handle.name;
                         document.getElementById('setupApplicationFolderBtn').textContent = 'Change Folder';
                         
-                        // V2.9.0-L: Load Control States from LIBRARY
-                        await updateControlStatesDropdown();
+                        // V4_4_0: Control States and User Presets removed
                         
                         // V3.1.0-A: Load Project States from LIBRARY
                         await updateProjectStatesDropdown();
                         
                         // V3.2.0-B: REMOVED auto-load default project
                         // User must explicitly click "Load" to restore grid state
-                        // await autoLoadDefaultProject();
+                        await autoLoadDefaultProject();
+                        
+                        // V4_4_0: Refresh library lists on restore
+                        await refreshLibraryList();
+                        await refreshLibraryListRight();
                         
                         console.log('V3.1.0-U: ✅ LIBRARY folder restored successfully:', handle.name);
                         return true;
@@ -5885,38 +6018,34 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         let librarySortDir = 'asc';  // 'asc' or 'desc'
         
         // V4_3_0: Toggle library sort
-        function toggleLibrarySort(column) {
+        async function toggleLibrarySort(column) {
             if (librarySortBy === column) {
-                // Same column - toggle direction
                 librarySortDir = librarySortDir === 'asc' ? 'desc' : 'asc';
             } else {
-                // Different column - set to asc
                 librarySortBy = column;
                 librarySortDir = 'asc';
             }
             
-            // Update arrow indicators
             updateSortArrows();
-            
-            // Re-sort and refresh
-            refreshLibraryList();
-            
-            // Save to project
+            await refreshLibraryList();
+            await refreshLibraryListRight();
             autoSaveProject();
-            
-            console.log(`V4_3_0: Sort changed to ${librarySortBy} ${librarySortDir}`);
         }
         
         // V4_3_0: Update sort arrow indicators
         function updateSortArrows() {
             const nameArrow = document.getElementById('sortNameArrow');
             const bpmArrow = document.getElementById('sortBPMArrow');
+            const audioArrow = document.getElementById('sortAudioArrow');
             
             if (nameArrow) {
                 nameArrow.textContent = librarySortBy === 'name' ? (librarySortDir === 'asc' ? '▼' : '▲') : '';
             }
             if (bpmArrow) {
                 bpmArrow.textContent = librarySortBy === 'bpm' ? (librarySortDir === 'asc' ? '▼' : '▲') : '';
+            }
+            if (audioArrow) {
+                audioArrow.textContent = librarySortBy === 'audio' ? (librarySortDir === 'asc' ? '▼' : '▲') : '';
             }
         }
         
@@ -6101,6 +6230,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 audioSnapLastBar: audioSnapLastBar,  // V4.0.0_D_sub18: Last bar number audio end was snapped to
                 audioLoopIn: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopInField').value) : null,   // V3.2.0-P: Save loop in (beats)
                 audioLoopOut: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopOutField').value) : null, // V3.2.0-P: Save loop out (beats)
+                audioLoopEnabled: audioLoopEnabled,  // V4_4_0: Save loop on/off state
                 hasAudio: !!audioFilename,
                 shaderModATimeline: null,  // V3_9_0_L_sub1: Audio analysis timeline for shader mod A
                 shaderModBTimeline: null,  // V3_9_0_L_sub1: Audio analysis timeline for shader mod B
@@ -6145,6 +6275,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('addContainerRow').style.display = 'none';
             
             refreshLibraryList();
+            refreshLibraryListRight(); // V4_4_0: Also refresh right panel
         }
         
         function cancelAddToLibrary() {
@@ -6156,6 +6287,78 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         // V4_3_0_sub8: Scan Library subfolder for .oms files (folder = source of truth)
         async function refreshLibraryList() {
             const listDiv = document.getElementById('libraryList');
+            const selectedSet = window.selectedLiveSetId || document.getElementById('liveSetSelector')?.value || 'presets';
+            
+            // V4_4_0: Handle "Presets" section - show embedded omsPresets (no folder needed)
+            if (selectedSet === 'presets') {
+                const containers = omsPresets.map((preset, index) => ({
+                    id: `preset_${index}`,
+                    name: preset.name,
+                    system: true,
+                    shaderCode: preset.code,
+                    controlStates: { orientation: preset.orientation },
+                    audioBPM: null,
+                    audioFilename: null,
+                    hasAudio: false
+                }));
+                
+                // V4_4_0: Sort by current settings (all columns)
+                containers.sort((a, b) => {
+                    let comparison = 0;
+                    if (librarySortBy === 'name') {
+                        comparison = a.name.localeCompare(b.name);
+                    } else if (librarySortBy === 'bpm') {
+                        comparison = 0; // All presets have no BPM
+                    } else if (librarySortBy === 'audio') {
+                        comparison = 0; // All presets have no audio
+                    }
+                    return librarySortDir === 'asc' ? comparison : -comparison;
+                });
+                
+                // Update cache
+                libraryContainersCache = containers;
+                
+                let html = '';
+                containers.forEach((container, index) => {
+                    const isActive = currentLoadedContainerId === container.id;
+                    const activeDot = isActive ? '<span style="color: #0ff; font-size: 8px; margin-right: 6px;">●</span>' : '';
+                    html += `
+                        <div class="library-card" 
+                             data-container-id="${container.id}" 
+                             data-container-name="${container.name.replace(/"/g, '&quot;')}"
+                             data-index="${index}" 
+                             data-system="true"
+                             draggable="true"
+                             tabindex="0" 
+                             style="background: rgba(255, 255, 255, 0.03); padding: 8px 12px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #555; cursor: grab;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
+                                    ${activeDot}<span class="container-name" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${container.name}">${container.name}</span>
+                                </div>
+                                <div style="color: #666; font-size: 11px; margin-left: 12px; flex-shrink: 0;">Preset</div>
+                            </div>
+                        </div>`;
+                });
+                
+                listDiv.innerHTML = html;
+                
+                // Attach drag handlers to preset cards
+                document.querySelectorAll('#libraryList .library-card').forEach(card => {
+                    card.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', JSON.stringify({
+                            id: card.dataset.containerId,
+                            name: card.dataset.containerName
+                        }));
+                        e.dataTransfer.effectAllowed = 'copy';
+                        card.style.opacity = '0.5';
+                    });
+                    card.addEventListener('dragend', () => {
+                        card.style.opacity = '1';
+                    });
+                });
+                
+                return;
+            }
             
             // If no library folder set, show message
             if (!libraryFolderHandle) {
@@ -6209,6 +6412,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         const bpmA = a.audioBPM || 0;
                         const bpmB = b.audioBPM || 0;
                         comparison = bpmA - bpmB;
+                    } else if (librarySortBy === 'audio') {
+                        // V4_4_0: Sort by audio presence (Y before N)
+                        const audioA = (a.hasAudio || a.audioFilename) ? 1 : 0;
+                        const audioB = (b.hasAudio || b.audioFilename) ? 1 : 0;
+                        comparison = audioA - audioB;
                     }
                     return librarySortDir === 'asc' ? comparison : -comparison;
                 });
@@ -6314,9 +6522,15 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             cards[currentIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         }
                     } else if (e.key === 'Enter' && e.target === card) {
-                        // Enter on card itself → Load container
+                        // V4_4_0: Shift+Enter = shader only, Enter = full load
                         const containerId = card.dataset.containerId;
-                        if (containerId) loadContainer(containerId);
+                        if (containerId) {
+                            if (e.shiftKey) {
+                                loadShaderOnly(containerId);
+                            } else {
+                                loadContainer(containerId);
+                            }
+                        }
                     }
                 });
             });
@@ -6325,6 +6539,205 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 console.error('V4_3_0_sub9: Failed to scan Library folder:', error);
                 listDiv.innerHTML = '<div style="color: #f66; text-align: center; padding: 40px 20px;">Error scanning Library folder.</div>';
             }
+        }
+        
+        // V4_4_0: Render shader thumbnails for library cards
+        async function renderLibraryThumbnails(containers) {
+            // Render thumbnails in small batches to avoid blocking
+            for (let i = 0; i < containers.length; i++) {
+                const container = containers[i];
+                const canvas = document.querySelector(`.library-thumb[data-container-id="${container.id}"]`);
+                if (!canvas) continue;
+                
+                const shaderCode = container.shaderCode;
+                if (!shaderCode) {
+                    // No shader code - draw placeholder
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#222';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    continue;
+                }
+                
+                try {
+                    await initThumbnailShader(canvas, shaderCode, i);
+                } catch (e) {
+                    // Failed to render - draw error placeholder
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#400';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+                
+                // Yield to browser every 5 thumbnails
+                if (i % 5 === 4) {
+                    await new Promise(r => setTimeout(r, 0));
+                }
+            }
+        }
+        
+        // V4_4_0: Render containers to right panel (Library tab)
+        async function refreshLibraryListRight() {
+            const listDiv = document.getElementById('libraryListRight');
+            const selectedSet = window.selectedLiveSetId || 'presets';
+            
+            // V4_4_0: Presets section works without folder
+            if (selectedSet !== 'presets' && !libraryFolderHandle) {
+                listDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px;">Set Application Folder to access your library.</div>';
+                return;
+            }
+            
+            // V4_4_0: Refresh cache based on selected set
+            await refreshLibraryList();
+            
+            const containers = libraryContainersCache;
+            
+            if (containers.length === 0) {
+                listDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px;">No containers in Library folder. Click [+] to save your first container.</div>';
+                return;
+            }
+            
+            // Update sort arrows in right panel
+            const sortNameArrow2 = document.getElementById('sortNameArrow2');
+            const sortBPMArrow2 = document.getElementById('sortBPMArrow2');
+            const sortAudioArrow2 = document.getElementById('sortAudioArrow2');
+            if (sortNameArrow2) sortNameArrow2.textContent = librarySortBy === 'name' ? (librarySortDir === 'asc' ? '▲' : '▼') : '';
+            if (sortBPMArrow2) sortBPMArrow2.textContent = librarySortBy === 'bpm' ? (librarySortDir === 'asc' ? '▲' : '▼') : '';
+            if (sortAudioArrow2) sortAudioArrow2.textContent = librarySortBy === 'audio' ? (librarySortDir === 'asc' ? '▲' : '▼') : '';
+            
+            let html = '';
+            containers.forEach((container, index) => {
+                const isPreset = container.system || container.id.startsWith('preset_');
+                const hasAudio = container.hasAudio || container.audioFilename;
+                const audioText = hasAudio ? 'Y' : 'N';
+                const audioColor = hasAudio ? '#0f0' : '#666';
+                const bpmText = isPreset ? '—' : (container.audioBPM ? `${parseFloat(container.audioBPM).toFixed(0)}` : '—');
+                const isActive = currentLoadedContainerId === container.id;
+                const activeDot = isActive ? '<span style="color: #0ff; font-size: 8px; margin-right: 4px;">●</span>' : '';
+                
+                html += `
+                    <div class="library-card" 
+                         data-container-id="${container.id}" 
+                         data-container-name="${container.name.replace(/"/g, '&quot;')}"
+                         data-index="${index}" 
+                         draggable="true"
+                         ${isPreset ? 'data-system="true"' : ''}
+                         tabindex="0" 
+                         style="background: rgba(255, 255, 255, 0.03); padding: 6px 10px; margin-bottom: 4px; border-radius: 4px; border: 1px solid ${isPreset ? '#555' : '#333'}; cursor: ${isPreset ? 'pointer' : 'grab'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
+                                <canvas class="library-thumb" data-container-id="${container.id}" width="32" height="18" style="width: 32px; height: 18px; margin-right: 8px; border: 1px solid #333; flex-shrink: 0;"></canvas>
+                                ${activeDot}<span class="container-name" data-original-name="${container.name.replace(/"/g, '&quot;')}" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${container.name}">${container.name}</span>
+                            </div>
+                            <div style="color: ${audioColor}; font-size: 11px; width: 55px; text-align: center; flex-shrink: 0;">${audioText}</div>
+                            <div style="color: #666; font-size: 11px; width: 50px; text-align: right; flex-shrink: 0;">${bpmText}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listDiv.innerHTML = html;
+            
+            // V4_4_0: Render shader thumbnails
+            renderLibraryThumbnails(containers);
+            
+            // Attach event handlers to right panel cards
+            document.querySelectorAll('#libraryListRight .library-card').forEach(card => {
+                // Click handler - select card
+                card.addEventListener('click', (e) => {
+                    // Remove selected from all cards in this panel
+                    document.querySelectorAll('#libraryListRight .library-card').forEach(c => {
+                        c.style.border = '1px solid #333';
+                    });
+                    
+                    // Select this card
+                    card.style.border = '1px solid #0ff';
+                    window.selectedLibraryContainerId = card.dataset.containerId;
+                });
+                
+                // Double-click to load
+                card.addEventListener('dblclick', () => {
+                    const containerId = card.dataset.containerId;
+                    if (containerId) loadContainer(containerId);
+                });
+                
+                // Keyboard navigation
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        const cards = Array.from(document.querySelectorAll('#libraryListRight .library-card'));
+                        const currentIndex = cards.indexOf(card);
+                        
+                        if (e.key === 'ArrowDown' && currentIndex < cards.length - 1) {
+                            cards[currentIndex + 1].focus();
+                            cards[currentIndex + 1].click();
+                            cards[currentIndex + 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        } else if (e.key === 'ArrowUp' && currentIndex > 0) {
+                            cards[currentIndex - 1].focus();
+                            cards[currentIndex - 1].click();
+                            cards[currentIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                    } else if (e.key === 'Enter' && e.target === card) {
+                        // V4_4_0: Shift+Enter = shader only, Enter = full load
+                        const containerId = card.dataset.containerId;
+                        if (containerId) {
+                            if (e.shiftKey) {
+                                loadShaderOnly(containerId);
+                            } else {
+                                loadContainer(containerId);
+                            }
+                        }
+                    }
+                });
+                
+                // Drag start for grid cells
+                card.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        containerId: card.dataset.containerId,
+                        containerName: card.dataset.containerName
+                    }));
+                    e.dataTransfer.effectAllowed = 'copy';
+                });
+            });
+            
+            // V4_4_0: Refocus loaded card for arrow nav (centralized)
+            if (currentLoadedContainerId) {
+                const card = document.querySelector(`#libraryListRight .library-card[data-container-id="${currentLoadedContainerId}"]`);
+                if (card) card.focus();
+            }
+        }
+        
+        // V4_4_0: Select set in Library tab
+        async function selectLibrarySet(setId) {
+            // Update visual selection for set cards
+            document.querySelectorAll('.library-set-card').forEach(card => {
+                if (card.dataset.setId === setId) {
+                    card.style.border = '1px solid #0ff';
+                    card.style.background = 'rgba(0, 212, 255, 0.15)';
+                    card.classList.add('selected');
+                } else {
+                    card.style.border = '1px solid #333';
+                    card.style.background = 'rgba(255, 255, 255, 0.03)';
+                    card.classList.remove('selected');
+                }
+            });
+            
+            // Store selection BEFORE refresh
+            window.selectedLibrarySetId = setId;
+            window.selectedLiveSetId = setId;
+            
+            // Sync dropdown
+            const dropdown = document.getElementById('liveSetSelector');
+            if (dropdown) dropdown.value = setId;
+            
+            // Refresh both panels
+            await refreshLibraryList();
+            await refreshLibraryListRight();
+        }
+        
+        // V4_4_0: Handle SET dropdown change in LIVE tab
+        function onLiveSetChange() {
+            const selectedSet = document.getElementById('liveSetSelector').value;
+            console.log('V4_4_0: LIVE set changed to:', selectedSet);
+            selectLibrarySet(selectedSet);
         }
         
         // V4_3_0_sub4: Wrapper functions for header buttons (operate on selected card)
@@ -6623,6 +7036,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 showStatus(`Renamed: ${sanitizedNewName}`, 'success');
                 await refreshLibraryList();
+                refreshLibraryListRight(); // V4_4_0: Also refresh right panel
                 
             } catch (error) {
                 console.error('V4_3_0_sub11: Rename failed:', error);
@@ -6630,8 +7044,88 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             }
         }
         
+        // V4_4_0: Load shader only (keep audio) - for fast auditioning
+        async function loadShaderOnly(containerId) {
+            let shaderCode = null;
+            let presetName = null;
+            
+            // Get shader code from preset or file
+            if (containerId.startsWith('preset_')) {
+                const index = parseInt(containerId.replace('preset_', ''));
+                const preset = omsPresets[index];
+                if (!preset) {
+                    showStatus('Preset not found', 'error');
+                    return;
+                }
+                shaderCode = preset.code;
+                presetName = preset.name;
+            } else {
+                // Load from file
+                if (!libraryFolderHandle) {
+                    showStatus('Set Application folder first', 'error');
+                    return;
+                }
+                
+                try {
+                    const omsFilename = containerId + '.oms';
+                    const fileHandle = await libraryFolderHandle.getFileHandle(omsFilename);
+                    const file = await fileHandle.getFile();
+                    const text = await file.text();
+                    const containerData = JSON.parse(text);
+                    shaderCode = containerData.shaderCode;
+                    presetName = containerData.name || containerId;
+                } catch (error) {
+                    showStatus(`Container not found: ${containerId}`, 'error');
+                    return;
+                }
+            }
+            
+            // Load only shader code - keep audio intact
+            document.getElementById('shaderCode').value = shaderCode;
+            
+            // Compile shader
+            compileShader(false);
+            
+            showStatus(`Shader: ${presetName}`, 'success');
+        }
+        
         // V4_3_0_sub8: Load container directly from Library folder (folder = source of truth)
         async function loadContainer(containerId) {
+            // V4_4_0: Handle system presets (no folder needed)
+            if (containerId.startsWith('preset_')) {
+                const index = parseInt(containerId.replace('preset_', ''));
+                const preset = omsPresets[index];
+                
+                if (!preset) {
+                    showStatus('Preset not found', 'error');
+                    return;
+                }
+                
+                // Clear existing audio
+                removeAudio();
+                currentAudioFile = null;
+                
+                // Load shader code
+                document.getElementById('shaderCode').value = preset.code;
+                
+                // Set orientation
+                document.getElementById('orientation').value = preset.orientation || 'portrait';
+                
+                // Compile shader
+                compileShader(false);
+                
+                isDirty = false;
+                currentLoadedContainerId = containerId;
+                
+                showStatus(`Loaded: ${preset.name}`, 'success');
+                
+                // Refresh list to update active indicator
+                refreshLibraryList();
+                refreshLibraryListRight();
+                
+                return;
+            }
+            
             if (!libraryFolderHandle) {
                 showStatus('Set Application folder first', 'error');
                 return;
@@ -6755,6 +7249,24 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     console.log('V3.2.0-P: Restored audioLoopOut:', containerData.audioLoopOut, 'beats');
                 }
                 
+                // V4_4_0: Restore loop enabled state
+                if (containerData.audioLoopEnabled !== undefined) {
+                    audioLoopEnabled = containerData.audioLoopEnabled;
+                    const btn = document.getElementById('audioLoopBtn');
+                    if (audioLoopEnabled) {
+                        btn.classList.remove('inactive');
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.add('inactive');
+                        btn.classList.remove('active');
+                        // V4_4_0: If loop is off, position at audio start instead of loop in
+                        if (audioElement) {
+                            audioElement.currentTime = audioStartTime;
+                        }
+                    }
+                    console.log('V4_4_0: Restored audioLoopEnabled:', audioLoopEnabled);
+                }
+                
                 // V4.0.0_D_sub23: Restore snap last bar
                 if (containerData.audioSnapLastBar !== undefined && containerData.audioSnapLastBar !== null) {
                     audioSnapLastBar = containerData.audioSnapLastBar;
@@ -6775,10 +7287,16 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             // V2.9.0-M: Refresh library list to show active indicator
             refreshLibraryList();
+            refreshLibraryListRight(); // V4_4_0: Also refresh right panel
             
-            // V2.9.0-Q: Re-focus the loaded card after refresh
+            // V4_4_0: Re-focus the loaded card in correct panel
             setTimeout(() => {
-                const loadedCard = document.querySelector(`.library-card[data-container-id="${containerId}"]`);
+                // Check if Library tab is active (right panel) or LIVE tab (left panel)
+                const isLibraryTab = document.getElementById('librarySetsTabContent').classList.contains('active');
+                const selector = isLibraryTab 
+                    ? `#libraryListRight .library-card[data-container-id="${containerId}"]`
+                    : `.library-card[data-container-id="${containerId}"]`;
+                const loadedCard = document.querySelector(selector);
                 if (loadedCard) loadedCard.focus();
             }, 100);
             
@@ -6833,6 +7351,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 audioSnapLastBar: audioLoaded ? audioSnapLastBar : (existingContainer.audioSnapLastBar || null),  // V4.0.0_D_sub18: Last snap bar
                 audioLoopIn: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopInField').value) : (existingContainer.audioLoopIn || null),  // V3.2.0-Y: Save loop in
                 audioLoopOut: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopOutField').value) : (existingContainer.audioLoopOut || null),  // V3.2.0-Y: Save loop out
+                audioLoopEnabled: audioLoopEnabled,  // V4_4_0: Save loop on/off state
                 hasAudio: !!audioFilename,
                 // V4_0_0_D_sub137: ALWAYS preserve timeline arrays!
                 shaderModATimeline: existingContainer.shaderModATimeline || null,
@@ -6876,10 +7395,15 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             currentLoadedContainerId = containerId;  // Track as loaded
             isDirty = false; // V2.9.0-I: Clear dirty state after updating
             refreshLibraryList();
+            refreshLibraryListRight(); // V4_4_0: Also refresh right panel
             
-            // V2.9.0-Q: Re-focus the updated card
+            // V4_4_0: Re-focus the updated card in correct panel
             setTimeout(() => {
-                const updatedCard = document.querySelector(`.library-card[data-container-id="${containerId}"]`);
+                const isLibraryTab = document.getElementById('librarySetsTabContent').classList.contains('active');
+                const selector = isLibraryTab 
+                    ? `#libraryListRight .library-card[data-container-id="${containerId}"]`
+                    : `.library-card[data-container-id="${containerId}"]`;
+                const updatedCard = document.querySelector(selector);
                 if (updatedCard) updatedCard.focus();
             }, 100);
             
@@ -6888,7 +7412,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         }
         
         async function removeContainer(containerId) {
-            if (!confirm('Delete this container? This will remove it from browser storage and delete the .oms file.')) return;
+            if (!confirm('Delete this container? This will remove the .oms file and associated audio.')) return;
             
             const containers = getLibraryContainers();
             const container = containers.find(c => c.id === containerId);
@@ -6898,15 +7422,26 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 return;
             }
             
-            // V4_3_0_sub8: Delete .oms file from Library subfolder
+            // V4_4_0: Delete .oms file AND audio file from Library subfolder
             if (libraryFolderHandle) {
+                // Delete .oms file
                 try {
                     const omsFilename = container.name + '.oms';
                     await libraryFolderHandle.removeEntry(omsFilename);
-                    console.log('V4_3_0_sub8: Deleted .oms file from Library/:', omsFilename);
+                    console.log('V4_4_0: Deleted .oms file:', omsFilename);
                 } catch (error) {
-                    console.error('V4_3_0_sub8: Failed to delete .oms file:', error);
-                    // Continue with removal from localStorage even if .oms deletion fails
+                    console.error('V4_4_0: Failed to delete .oms file:', error);
+                }
+                
+                // Delete audio file if it exists
+                if (container.audioFilename) {
+                    try {
+                        await libraryFolderHandle.removeEntry(container.audioFilename);
+                        console.log('V4_4_0: Deleted audio file:', container.audioFilename);
+                    } catch (error) {
+                        console.error('V4_4_0: Failed to delete audio file:', error);
+                        // Audio may not exist or was never copied - that's OK
+                    }
                 }
             }
             
@@ -6921,6 +7456,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             showStatus('Container deleted', 'success');
             refreshLibraryList();
+            refreshLibraryListRight(); // V4_4_0: Also refresh right panel
         }
         
         function exportContainer(containerId) {
@@ -7131,10 +7667,16 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('omsFile').click();
         }
         
-        // Generate user preset cards (similar to OMS library cards)
+        // V4_4_0: User preset cards disabled - P tab removed
         async function generateUserPresetCards() {
+            // V4_4_0: P tab removed, grid no longer exists
             const grid = document.getElementById('userPresetGrid');
-            const currentOrientation = document.getElementById('presetOrientation').value;
+            if (!grid) return;
+            
+            const orientationSelect = document.getElementById('presetOrientation');
+            if (!orientationSelect) return;
+            
+            const currentOrientation = orientationSelect.value;
             
             // Clear existing cards
             grid.innerHTML = '';
@@ -7142,12 +7684,17 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // Apply orientation class to grid
             grid.className = `preset-grid ${currentOrientation}`;
             
-            // Get user presets from localStorage
+            // V4_4_0: Refresh presets from folder
+            await refreshUserPresets();
             const userPresets = getUserPresets();
+            
+            // V4_4_0: No messages - empty grid is fine. Folder created on first Save.
+            if (!presetsFolderHandle || userPresets.length === 0) {
+                return;
+            }
             
             // Check WebGPU support
             if (!navigator.gpu) {
-                grid.innerHTML = '<div style="padding: 20px; color: #999;">WebGPU not supported</div>';
                 return;
             }
             
@@ -7160,8 +7707,19 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 card.className = 'preset-card';
                 card.title = preset.name; // Tooltip
                 card.tabIndex = 0; // Make focusable for keyboard navigation
+                card.style.position = 'relative';
                 
-                // V2.6.0-U: Track focus for deletion
+                // V4_4_0: Add delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'X';
+                deleteBtn.style.cssText = 'position:absolute;top:2px;right:2px;width:16px;height:16px;padding:0;font-size:10px;background:#333;color:#f66;border:1px solid #666;border-radius:2px;cursor:pointer;z-index:10;';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteUserPreset(preset.filename);
+                };
+                card.appendChild(deleteBtn);
+                
+                // V4_4_0: Track focus for deletion
                 card.onfocus = () => {
                     focusedUserPresetIndex = index;
                 };
@@ -7722,10 +8280,16 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 
         // V2.6.0-B: Generate preset cards
         // V2.6.0-C: Track thumbnail rendering contexts
-        // V2.6.0-E: Generate preset cards with static canvas thumbnails
+        // V4_4_0: Preset cards disabled - P tab removed
         async function generatePresetCards() {
+            // V4_4_0: P tab removed, grid no longer exists
             const grid = document.getElementById('omsPresetGrid');
-            const currentOrientation = document.getElementById('presetOrientation').value;
+            if (!grid) return;
+            
+            const orientationSelect = document.getElementById('presetOrientation');
+            if (!orientationSelect) return;
+            
+            const currentOrientation = orientationSelect.value;
             
             // Clear existing cards
             grid.innerHTML = '';
@@ -7986,8 +8550,8 @@ ${shaderCode}
             // Set orientation in Controls tab to match preset's default
             document.getElementById('orientation').value = preset.orientation;
             
-            // Compile shader
-            compileShader(true);
+            // V4_4_0: Compile shader WITHOUT resetting audio
+            compileShader(false);
             
             isDirty = false; // V2.9.0-I: Clear dirty state after loading preset
             
@@ -7999,207 +8563,108 @@ ${shaderCode}
         }
 
         // V2.1.1-E: Drag & drop functionality
+        // V4_4_0: Cleaned up - unified handler now handles all drops
         function setupDragAndDrop() {
-            // Audio drag & drop on waveform section
-            const waveformSection = document.querySelector('.waveform-section');
-            
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                waveformSection.addEventListener(eventName, preventDefaults, false);
-            });
-            
             function preventDefaults(e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
             
-            ['dragenter', 'dragover'].forEach(eventName => {
-                waveformSection.addEventListener(eventName, () => {
-                    waveformSection.classList.add('drag-over');
-                }, false);
-            });
+            // V4_4_0: Unified drop zone on entire app - handles audio, code, and containers
+            const appContainer = document.querySelector('.container');
             
-            ['dragleave', 'drop'].forEach(eventName => {
-                waveformSection.addEventListener(eventName, () => {
-                    waveformSection.classList.remove('drag-over');
-                }, false);
-            });
+            // Create drop overlay
+            const dropOverlay = document.createElement('div');
+            dropOverlay.id = 'dropOverlay';
+            dropOverlay.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;gap:12px;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0ff" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span style="font-size:18px;color:#0ff;">Drop files here to add</span></div>';
+            dropOverlay.style.cssText = 'display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center;border:2px dashed #0ff;';
+            appContainer.style.position = 'relative';
+            appContainer.appendChild(dropOverlay);
             
-            waveformSection.addEventListener('drop', handleAudioDrop, false);
-            
-            function handleAudioDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                
-                if (files.length > 0) {
-                    const file = files[0];
-                    // Check if it's an audio file
-                    if (file.type.startsWith('audio/')) {
-                        // Create a fake event object that loadAudioFile expects
-                        const fakeEvent = {
-                            target: {
-                                files: [file]
-                            }
-                        };
-                        loadAudioFile(fakeEvent);
-                        showStatus('Audio file loaded via drag & drop!', 'success');
-                    } else {
-                        showStatus('Please drop an audio file (MP3, WAV, etc.)', 'error');
-                    }
-                }
+            // V4_4_0: Only intercept external file drops, not internal drags
+            // Check dataTransfer.types for 'Files' to distinguish
+            function isExternalFileDrop(e) {
+                return e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.includes('Files');
             }
             
-            // Shader .txt drag & drop on code editor
-            const shaderEditor = document.getElementById('shaderCode');
-            
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                shaderEditor.addEventListener(eventName, preventDefaults, false);
+                appContainer.addEventListener(eventName, (e) => {
+                    // Only prevent defaults for external file drops
+                    if (isExternalFileDrop(e)) {
+                        preventDefaults(e);
+                    }
+                }, false);
             });
             
+            // Visual indicator on drag over (only for external files)
             ['dragenter', 'dragover'].forEach(eventName => {
-                shaderEditor.addEventListener(eventName, () => {
-                    shaderEditor.classList.add('drag-over');
+                appContainer.addEventListener(eventName, (e) => {
+                    if (isExternalFileDrop(e)) {
+                        dropOverlay.style.display = 'flex';
+                    }
                 }, false);
             });
             
             ['dragleave', 'drop'].forEach(eventName => {
-                shaderEditor.addEventListener(eventName, () => {
-                    shaderEditor.classList.remove('drag-over');
+                appContainer.addEventListener(eventName, (e) => {
+                    if (eventName === 'drop' || !appContainer.contains(e.relatedTarget)) {
+                        dropOverlay.style.display = 'none';
+                    }
                 }, false);
             });
             
-            shaderEditor.addEventListener('drop', handleShaderDrop, false);
+            // V4_4_0: Unified drop handler - routes by file type and active tab
+            appContainer.addEventListener('drop', handleUnifiedDrop, false);
             
-            function handleShaderDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
+            async function handleUnifiedDrop(e) {
+                // Only handle external file drops
+                if (!isExternalFileDrop(e)) return;
                 
-                if (files.length > 0) {
-                    const file = files[0];
-                    // V2.1.1-F: Accept text-based WGSL shader files only
-                    // .txt (generic), .wgsl (official WebGPU)
-                    // RTF removed - loads formatting codes instead of plain text
-                    const validExtensions = ['.txt', '.wgsl'];
-                    const hasValidExtension = validExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
-                    
-                    if (hasValidExtension) {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            shaderEditor.value = event.target.result;
-                            showStatus(`Shader loaded from ${file.name}`, 'success');
-                        };
-                        reader.onerror = function() {
-                            showStatus('Failed to read shader file', 'error');
-                        };
-                        reader.readAsText(file);
-                    } else {
-                        showStatus('Please drop a WGSL shader file (.txt or .wgsl)', 'error');
-                    }
-                }
-            }
-            
-            // V2.6.0-U: Shader .txt drag & drop on User Presets grid
-            const userPresetGrid = document.getElementById('userPresetGrid');
-            
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                userPresetGrid.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                userPresetGrid.addEventListener(eventName, () => {
-                    userPresetGrid.classList.add('drag-over');
-                }, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                userPresetGrid.addEventListener(eventName, () => {
-                    userPresetGrid.classList.remove('drag-over');
-                }, false);
-            });
-            
-            userPresetGrid.addEventListener('drop', handlePresetDrop, false);
-            
-            async function handlePresetDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                
-                if (files.length > 0) {
-                    let importedCount = 0;
-                    
-                    for (let file of files) {
-                        const validExtensions = ['.txt', '.wgsl'];
-                        const hasValidExtension = validExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
-                        
-                        if (hasValidExtension) {
-                            try {
-                                const content = await file.text();
-                                const shaderName = extractShaderName(content, file.name);
-                                
-                                // Get existing user presets from localStorage
-                                const userPresets = getUserPresets();
-                                
-                                // Add new preset (with default portrait orientation)
-                                userPresets.push({
-                                    name: shaderName,
-                                    orientation: 'portrait',
-                                    code: content
-                                });
-                                
-                                // Save back to localStorage
-                                saveUserPresets(userPresets);
-                                importedCount++;
-                                
-                            } catch (error) {
-                                console.error(`Failed to import ${file.name}:`, error);
-                            }
-                        }
-                    }
-                    
-                    // Regenerate user preset cards
-                    if (importedCount > 0) {
-                        generateUserPresetCards();
-                        showStatus(`Imported ${importedCount} shader${importedCount > 1 ? 's' : ''} via drag & drop!`, 'success');
-                    } else {
-                        showStatus('Import failed - check file types (.txt or .wgsl)', 'error');
-                    }
-                }
-            }
-            
-            // V4_3_0_sub14: Audio drag & drop on Library panel - auto-create container
-            const libraryList = document.getElementById('libraryList');
-            
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                libraryList.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                libraryList.addEventListener(eventName, () => {
-                    libraryList.style.background = 'rgba(0, 255, 255, 0.1)';
-                    libraryList.style.border = '2px dashed #0ff';
-                }, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                libraryList.addEventListener(eventName, () => {
-                    libraryList.style.background = '';
-                    libraryList.style.border = '';
-                }, false);
-            });
-            
-            libraryList.addEventListener('drop', handleLibraryAudioDrop, false);
-            
-            async function handleLibraryAudioDrop(e) {
                 const dt = e.dataTransfer;
                 const files = dt.files;
                 
                 if (files.length === 0) return;
                 
                 const file = files[0];
+                const filename = file.name.toLowerCase();
+                const isLibraryTab = document.getElementById('librarySetsTabContent').classList.contains('active');
                 
-                // Check if it's an audio file
-                if (!file.type.startsWith('audio/')) {
-                    showStatus('Drop audio files to create containers', 'error');
-                    return;
+                // Route by file type
+                if (file.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac|flac)$/i.test(file.name)) {
+                    // Audio file
+                    if (isLibraryTab) {
+                        // Library tab: create container
+                        await handleLibraryAudioDrop(file);
+                    } else {
+                        // Other tabs: just load audio
+                        const fakeEvent = { target: { files: [file] } };
+                        loadAudioFile(fakeEvent);
+                        showStatus('Audio loaded: ' + file.name, 'success');
+                    }
+                } else if (filename.endsWith('.txt') || filename.endsWith('.wgsl')) {
+                    // Shader code file - load into editor
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById('shaderCode').value = e.target.result;
+                        showStatus('Shader code loaded: ' + file.name, 'success');
+                        compileShader();
+                    };
+                    reader.readAsText(file);
+                } else if (filename.endsWith('.zip')) {
+                    // Zip file - only on Library tab
+                    if (isLibraryTab) {
+                        const fakeEvent = { target: { files: [file] } };
+                        await handleZipImport(fakeEvent);
+                    } else {
+                        showStatus('Switch to Library tab to import .zip containers', 'error');
+                    }
+                } else {
+                    showStatus('Unsupported file type. Drop audio, .txt, .wgsl, or .zip', 'error');
                 }
+            }
+            
+            // Handle audio file drop on Library tab - create container
+            async function handleLibraryAudioDrop(file) {
                 
                 // Check library folder is set
                 if (!libraryFolderHandle) {
@@ -8213,9 +8678,7 @@ ${shaderCode}
                     // 1. Parse BPM from filename, use full filename (minus ext) as container name
                     const filename = file.name;
                     const parsedBPM = parseBPMFromFilename(filename);
-                    // V4_3_0: Use full filename as container name (user named it how they want)
                     const containerName = filename.replace(/\.(mp3|wav|ogg|m4a|aac|flac)$/i, '');
-                    // Sanitize for filesystem safety
                     const safeContainerName = sanitizeFilename(containerName);
                     
                     // 2. Copy audio file to Library/
@@ -8224,39 +8687,52 @@ ${shaderCode}
                     const audioWritable = await audioFileHandle.createWritable();
                     await audioWritable.write(audioArrayBuffer);
                     await audioWritable.close();
-                    console.log('V4_3_0: Copied audio to Library/:', filename);
+                    console.log('V4_4_0: Copied audio to Library/:', filename);
                     
-                    // 3. Create container with current shader and control states
+                    // 3. Load waveform (reuse loadAudioFile logic)
+                    const fakeEvent = { target: { files: [file] } };
+                    await loadAudioFile(fakeEvent);
+                    
+                    // 4. Set audio tempo if parsed from filename
+                    if (parsedBPM) {
+                        document.getElementById('audioTempoField').value = parsedBPM;
+                        audioTempo = parsedBPM;
+                    }
+                    
+                    // 5. Create container with current shader and control states
                     const containerData = {
                         name: safeContainerName,
                         id: Date.now().toString(),
                         created: new Date().toISOString(),
-                        version: '4.3.0',
+                        version: '4.4.13',
                         shaderCode: document.getElementById('shaderCode').value,
                         audioFilename: filename,
                         controlStates: getCurrentControlState()
                     };
                     
-                    // Set audio BPM if parsed
-                    if (parsedBPM) {
-                        containerData.controlStates.audioTempo = parsedBPM;
-                    }
-                    
-                    // 4. Save .oms file
+                    // 6. Save .oms file
                     const omsFilename = safeContainerName + '.oms';
                     const omsFileHandle = await libraryFolderHandle.getFileHandle(omsFilename, { create: true });
                     const omsWritable = await omsFileHandle.createWritable();
                     await omsWritable.write(JSON.stringify(containerData, null, 2));
                     await omsWritable.close();
-                    console.log('V4_3_0: Created container:', omsFilename);
+                    console.log('V4_4_0: Created container:', omsFilename);
                     
-                    // 5. Refresh list
+                    // 7. Refresh lists and select the new container
                     await refreshLibraryList();
+                    await refreshLibraryListRight();
+                    
+                    // 8. Set as current loaded container for active dot
+                    currentLoadedContainerId = safeContainerName;
+                    window.selectedLibraryContainerId = safeContainerName;
+                    
+                    // 9. Refresh again to show active dot
+                    await refreshLibraryListRight();
                     
                     showStatus(`Created: ${safeContainerName}` + (parsedBPM ? ` (${parsedBPM} BPM)` : ''), 'success');
                     
                 } catch (error) {
-                    console.error('V4_3_0_sub14: Failed to create container:', error);
+                    console.error('V4_4_0: Failed to create container:', error);
                     showStatus('Failed to create container: ' + error.message, 'error');
                 }
             }
@@ -8405,7 +8881,7 @@ ${shaderCode}
                 field.value = newValue.toFixed(2);
                 audioPitch = newValue;
                 applyPitchToAudio();
-                markAsCustomState();
+                // V4_4_0: markAsCustomState removed
                 showStatus(`Pitch: ${audioPitch >= 0 ? '+' : ''}${audioPitch.toFixed(2)}%`, 'success');
             }
         });
@@ -8882,64 +9358,8 @@ ${shaderCode}
             }
         });
 
-        // V2.7.0-L: Control States System
-        const CONTROL_STATE_LIBRARY = {
-            quickTest: {
-                name: "Quick Test",
-                tempo: 120,
-                loopLength: 16,
-                renderDuration: "00:30.000",
-                audioPitch: 0,  // V2.8.0-D
-                modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
-                modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
-                modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
-                orientation: "portrait", resolution: 720, fps: 24
-            },
-            hdRender: {
-                name: "HD Render",
-                tempo: 120,
-                loopLength: 16,
-                renderDuration: "01:00.000",
-                audioPitch: 0,  // V2.8.0-D
-                modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
-                modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
-                modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
-                orientation: "landscape", resolution: 1080, fps: 60
-            },
-            "4kFinal": {
-                name: "4K Final",
-                tempo: 120,
-                loopLength: 16,
-                renderDuration: "00:30.000",
-                audioPitch: 0,  // V2.8.0-D
-                modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
-                modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
-                modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
-                orientation: "landscape", resolution: 2160, fps: 60
-            },
-            instagramStory: {
-                name: "Instagram Story",
-                tempo: 120,
-                loopLength: 16,
-                renderDuration: "00:15.000",
-                audioPitch: 0,  // V2.8.0-D
-                modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
-                modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
-                modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
-                orientation: "portrait", resolution: 1080, fps: 30
-            },
-            tiktok: {
-                name: "TikTok",
-                tempo: 120,
-                loopLength: 16,
-                renderDuration: "00:30.000",
-                audioPitch: 0,  // V2.8.0-D
-                modASubdiv: 1, modAWaveform: "sine", modAGain: 0.1, modAFreq1: 30, modAFreq2: 50,
-                modBSubdiv: 4, modBWaveform: "sawtooth", modBGain: 0.1, modBFreq1: 50, modBFreq2: 75,
-                modCSubdiv: 4, modCWaveform: "triangle", modCGain: 0.1, modCFreq1: 100, modCFreq2: 500,
-                orientation: "portrait", resolution: 1080, fps: 60
-            }
-        };
+        // V4_4_0: Control States system removed - use .oms containers instead
+        // Kept: getCurrentControlState and applyControlState for .oms saving/loading
 
         function getCurrentControlState() {
             // V2.7.0-R: Added null checks for elements that might not exist on page load
@@ -9021,381 +9441,8 @@ ${shaderCode}
             currentTempo = state.shaderTempo;
         }
 
-        async function saveControlState() {
-            // V2.9.0-V: Check Library folder set, auto-open picker if not
-            const hasLibrary = await checkLibrarySet(true);
-            if (!hasLibrary) return;
-            
-            // V2.7.0-S: Show inline input instead of prompt dialog
-            const saveRow = document.getElementById('saveInputRow');
-            const saveInput = document.getElementById('saveStateName');
-            
-            saveRow.style.display = 'flex';
-            saveInput.value = '';
-            saveInput.focus();
-            
-            // Allow Enter key to confirm
-            saveInput.onkeypress = function(e) {
-                if (e.key === 'Enter') {
-                    confirmSaveControlState();
-                } else if (e.key === 'Escape') {
-                    cancelSaveControlState();
-                }
-            };
-        }
-        
-        async function confirmSaveControlState() {
-            const nameInput = document.getElementById('saveStateName');
-            const name = nameInput.value.trim();
-            
-            if (!name) {
-                showStatus('Please enter a name for the Control State', 'error');
-                return;
-            }
-            
-            const state = getCurrentControlState();
-            
-            // V2.9.0-V: Create Control State .oms structure
-            const controlStateOms = {
-                id: Date.now().toString(),
-                name: name,
-                type: "controlState",
-                controlStates: state,
-                created: new Date().toISOString()
-            };
-            
-            // V4_3_0_sub8: Save to Library subfolder as {Name}_ControlState.oms
-            try {
-                const filename = name + '_ControlState.oms';
-                
-                // Create JSON content
-                const jsonContent = JSON.stringify(controlStateOms, null, 2);
-                
-                // Write to Library subfolder
-                const fileHandle = await libraryFolderHandle.getFileHandle(filename, { create: true });
-                const writable = await fileHandle.createWritable();
-                await writable.write(jsonContent);
-                await writable.close();
-                
-                console.log('V4_3_0_sub8: Saved Control State to Library/:', filename);
-                
-                // Update dropdown (now loads from Library files)
-                await updateControlStatesDropdown();
-                
-                // Hide save input row
-                document.getElementById('saveInputRow').style.display = 'none';
-                
-                showStatus(`Control State saved: ${name} → Library/${filename}`, 'success');
-                
-            } catch (error) {
-                console.error('V2.9.0-V: Failed to save Control State:', error);
-                showStatus('Failed to save Control State: ' + error.message, 'error');
-            }
-        }
-        
-        function cancelSaveControlState() {
-            // Hide save input row
-            document.getElementById('saveInputRow').style.display = 'none';
-            showStatus('Save cancelled', 'info');
-        }
-        
-        // Legacy function - now just calls the new inline version
-        function saveControlState_OLD_PROMPT() {
-            const name = prompt("Enter name for this Control State:");
-            if (!name || name.trim() === "") return;
-            
-            const state = getCurrentControlState();
-            state.name = name.trim();
-            
-            // Get existing user states
-            let userStates = JSON.parse(localStorage.getItem('controlStates') || '{}');
-            
-            // Generate safe ID from name
-            const id = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
-            userStates[id] = state;
-            
-            // Save to localStorage
-            localStorage.setItem('controlStates', JSON.stringify(userStates));
-            
-            // Update dropdown
-            updateControlStatesDropdown();
-            
-            // Select the newly saved state
-            const select = document.getElementById('controlStateSelect');
-            select.value = id;
-            
-            // V2.7.0-Q: Update info box (Custom always visible now)
-            updateControlStateInfo();
-            
-            showStatus(`Control State "${name}" saved`, 'success');
-        }
-
-        function deleteControlState() {
-            const select = document.getElementById('controlStateSelect');
-            const selectedId = select.value;
-            
-            if (!selectedId || selectedId === "") {
-                showStatus('No Control State selected', 'error');
-                return;
-            }
-            
-            // Check if it's a library state (can't delete)
-            if (CONTROL_STATE_LIBRARY[selectedId]) {
-                showStatus('Cannot delete library Control States', 'error');
-                return;
-            }
-            
-            // Get user states
-            let userStates = JSON.parse(localStorage.getItem('controlStates') || '{}');
-            
-            if (!userStates[selectedId]) {
-                showStatus('Control State not found', 'error');
-                return;
-            }
-            
-            const stateName = userStates[selectedId].name;
-            delete userStates[selectedId];
-            
-            // Save updated states
-            localStorage.setItem('controlStates', JSON.stringify(userStates));
-            
-            // Update dropdown
-            updateControlStatesDropdown();
-            
-            // Reset selection to Default
-            select.value = "";
-            
-            showStatus(`Control State "${stateName}" deleted`, 'success');
-        }
-
-        async function updateControlStatesDropdown() {
-            const select = document.getElementById('controlStateSelect');
-            const currentSelection = select.value;
-            
-            // V2.7.0-M: Clear existing options and add Custom option (hidden by default)
-            select.innerHTML = '<option value="custom" style="display: none;">Custom</option><option value="">Default</option><option disabled>--- Library ---</option>';
-            
-            // Add library states
-            for (const [id, state] of Object.entries(CONTROL_STATE_LIBRARY)) {
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = state.name;
-                select.appendChild(option);
-            }
-            
-            // V4_3_0_sub8: Load user states from Library subfolder (*_ControlState.oms files)
-            if (libraryFolderHandle) {
-                try {
-                    const userStates = {};
-                    
-                    // Iterate through files in Library subfolder
-                    for await (const entry of libraryFolderHandle.values()) {
-                        if (entry.kind === 'file' && entry.name.endsWith('_ControlState.oms')) {
-                            try {
-                                const file = await entry.getFile();
-                                const text = await file.text();
-                                const stateOms = JSON.parse(text);
-                                
-                                // V2.9.0-V: Extract name from filename or use name from JSON
-                                const baseName = entry.name.replace('_ControlState.oms', '');
-                                const id = stateOms.id || baseName;
-                                
-                                userStates[id] = {
-                                    name: stateOms.name || baseName,
-                                    controlStates: stateOms.controlStates,
-                                    filename: entry.name
-                                };
-                            } catch (error) {
-                                console.error(`Failed to load Control State: ${entry.name}`, error);
-                            }
-                        }
-                    }
-                    
-                    // Add user states separator if any exist
-                    if (Object.keys(userStates).length > 0) {
-                        const separator = document.createElement('option');
-                        separator.disabled = true;
-                        separator.textContent = '--- User States ---';
-                        select.appendChild(separator);
-                        
-                        // Add user states
-                        for (const [id, state] of Object.entries(userStates)) {
-                            const option = document.createElement('option');
-                            option.value = id;
-                            option.textContent = state.name;
-                            select.appendChild(option);
-                        }
-                    }
-                } catch (error) {
-                    console.error('V2.9.0-V: Failed to load Control States from LIBRARY:', error);
-                }
-            }
-            
-            // V2.7.0-Q: Restore selection if still valid
-            if (currentSelection) {
-                select.value = currentSelection;
-            }
-        }
-
-        // Control State dropdown change handler
-        document.getElementById('controlStateSelect').addEventListener('change', async (e) => {
-            const selectedId = e.target.value;
-            
-            if (selectedId === "custom") {
-                // Custom state - show info box with current values
-                updateControlStateInfo();
-                return;
-            }
-            
-            // Check library states first
-            if (CONTROL_STATE_LIBRARY[selectedId]) {
-                applyControlState(CONTROL_STATE_LIBRARY[selectedId]);
-                // V2.7.0-Z: Delay info box update to ensure DOM updates complete
-                setTimeout(() => updateControlStateInfo(), 0);
-                showStatus(`Loaded library state: ${CONTROL_STATE_LIBRARY[selectedId].name}`, 'success');
-                return;
-            }
-            
-            // V4_3_0_sub8: Load user state from Library subfolder (*_ControlState.oms files)
-            if (libraryFolderHandle) {
-                try {
-                    // Scan Library subfolder for matching ID
-                    let foundState = null;
-                    for await (const entry of libraryFolderHandle.values()) {
-                        if (entry.kind === 'file' && entry.name.endsWith('_ControlState.oms')) {
-                            const file = await entry.getFile();
-                            const text = await file.text();
-                            const stateOms = JSON.parse(text);
-                            
-                            // Check if ID matches
-                            const baseName = entry.name.replace('_ControlState.oms', '');
-                            const entryId = stateOms.id || baseName;
-                            
-                            if (entryId === selectedId) {
-                                foundState = stateOms;
-                                break;
-                            }
-                        }
-                    }
-                    
-                    if (foundState) {
-                        applyControlState(foundState.controlStates);
-                        setTimeout(() => updateControlStateInfo(), 0);
-                        showStatus(`Loaded user state: ${foundState.name}`, 'success');
-                    } else {
-                        showStatus('Control State not found', 'error');
-                    }
-                } catch (error) {
-                    console.error('V4_3_0_sub8: Failed to load user Control State:', error);
-                    showStatus('Failed to load Control State', 'error');
-                }
-            }
-        });
-
-        // V2.7.0-M: Update Control State Info Box
-        // V2.7.0-P: Added debugging and error handling
-        function updateControlStateInfo() {
-            try {
-                const infoBox = document.getElementById('controlStateInfo');
-                if (!infoBox) {
-                    console.error('Info box element not found');
-                    return;
-                }
-                
-                const titleDiv = infoBox.querySelector('.control-state-info-title');
-                const contentDiv = infoBox.querySelector('.control-state-info-content');
-                if (!titleDiv || !contentDiv) {
-                    console.error('Info box title or content div not found');
-                    return;
-                }
-                
-                const selectedId = document.getElementById('controlStateSelect').value;
-                
-                // Get state info
-                let state, stateName;
-                if (selectedId === "custom") {
-                    state = getCurrentControlState();
-                    stateName = "Custom";
-                } else if (CONTROL_STATE_LIBRARY[selectedId]) {
-                    state = CONTROL_STATE_LIBRARY[selectedId];
-                    stateName = state.name;
-                } else {
-                    const userStates = JSON.parse(localStorage.getItem('controlStates') || '{}');
-                    state = userStates[selectedId];
-                    stateName = state ? state.name : "Unknown";
-                }
-                
-                if (!state) {
-                    infoBox.style.display = 'none';
-                    return;
-                }
-                
-                // V2.7.0-T: Hide title div (no state name shown)
-                titleDiv.style.display = 'none';
-                
-                const waveformNames = { sine: "Sine", square: "Square", sawtooth: "Sawtooth", triangle: "Triangle" };
-                const subdivNames = { 4: "Whole", 2: "Half", 1: "1/4", 0.5: "1/8", 0.25: "1/16", 16: "4 Bars", 32: "8 Bars", 64: "16 Bars", 128: "32 Bars" };
-                
-                const loopText = subdivNames[state.shaderLoopLength] || state.shaderLoopLength + ' beats';
-                
-                // V2.9.0-J: Simplified comma-separated format (no span wackiness)
-                contentDiv.innerHTML = `
-                    <div class="info-row-single"><strong>Timing:</strong> ${state.shaderTempo}bpm, ${loopText}, ${state.renderDuration}</div>
-                    <div class="info-row-single"><strong>Mod A:</strong> ${subdivNames[state.shaderModASubdiv] || state.shaderModASubdiv}, ${waveformNames[state.shaderModAWaveform] || state.shaderModAWaveform}, ${state.shaderModAGain}, ${state.shaderModAFreq1}-${state.shaderModAFreq2}Hz</div>
-                    <div class="info-row-single"><strong>Mod B:</strong> ${subdivNames[state.shaderModBSubdiv] || state.shaderModBSubdiv}, ${waveformNames[state.shaderModBWaveform] || state.shaderModBWaveform}, ${state.shaderModBGain}, ${state.shaderModBFreq1}-${state.shaderModBFreq2}Hz</div>
-                    <div class="info-row-single"><strong>Mod C:</strong> ${subdivNames[state.shaderModCSubdiv] || state.shaderModCSubdiv}, ${waveformNames[state.shaderModCWaveform] || state.shaderModCWaveform}, ${state.shaderModCGain}, ${state.shaderModCFreq1}-${state.shaderModCFreq2}Hz</div>
-                    <div class="info-row-single"><strong>Output:</strong> ${state.orientation.charAt(0).toUpperCase() + state.orientation.slice(1)}, ${state.resolution}p, ${state.fps} FPS</div>
-                `;
-                
-                infoBox.style.display = 'block';
-                console.log('Info box updated (no title)');
-            } catch (error) {
-                console.error('Error in updateControlStateInfo:', error);
-            }
-        }
-
-        // V2.7.0-M: Mark state as Custom when controls change
-        // V2.7.0-Q: Simplified - Custom always visible
-        function markAsCustomState() {
-            console.log('V2.7.0-AE: markAsCustomState() called');
-            isDirty = true; // V2.9.0-I: Track unsaved changes
-            const select = document.getElementById('controlStateSelect');
-            select.value = 'custom';
-            console.log('V2.7.0-AE: Dropdown set to custom, calling updateControlStateInfo()');
-            
-            // Update info box
-            updateControlStateInfo();
-            console.log('V2.7.0-AE: updateControlStateInfo() completed');
-        }
-
-        // V2.7.0-AD: Add change listeners to control fields
-        // Note: renderDuration and freq fields handled in audio load/remove handlers
-        const controlFields = [
-            'tempo', 'loopLength',
-            'modASubdiv', 'modAWaveform', 'modAGain',
-            'modBSubdiv', 'modBWaveform', 'modBGain',
-            'modCSubdiv', 'modCWaveform', 'modCGain',
-            'orientation', 'resolution', 'fps'
-        ];
-
-        controlFields.forEach(fieldId => {
-            const field = document.getElementById(fieldId);
-            if (field) {
-                field.addEventListener('change', markAsCustomState);
-                field.addEventListener('input', markAsCustomState);
-            }
-        });
-
-        // V2.7.0-AE: Add renderDuration listener with debugging
-        const renderDurationField = document.getElementById('renderDuration');
-        if (renderDurationField) {
-            console.log('V2.7.0-AE: Attaching renderDuration listener');
-            renderDurationField.oninput = function() {
-                console.log(`renderDuration changed to ${renderDurationField.value}`);
-                console.log('Calling markAsCustomState() from renderDuration');
-                markAsCustomState();
-            };
-        }
+        // V4_4_0: Control States UI and functions removed - use .oms containers instead
+        // Kept: getCurrentControlState() and applyControlState() for .oms saving/loading
 
         // V2.8.0-A: BroadcastChannel communication for ShaderBakerLive
         function announcePresence() {
@@ -9488,22 +9535,14 @@ ${shaderCode}
             }
         };
 
-        // V2.7.0-L: Initialize control states dropdown on load
-        updateControlStatesDropdown();
-        
-        // V2.7.0-Q: Show info box on load with Custom state
-        updateControlStateInfo();
+        // V4_4_0: Control States and Preset Cards initialization removed
+        // System presets now handled through Library tab
 
-        // V2.6.0-B: Initialize preset cards on page load
-        generatePresetCards()
-;
-        generateUserPresetCards(); // V2.6.0-S: Initialize user preset cards
-        
         // V2.8.0-A: Initialize BroadcastChannel
         announcePresence(); // Announce on page load
         broadcastLibrary(); // V2.9.0-A: Broadcast library on page load
         startHeartbeat(); // Start 5-second heartbeat
-        console.log('OMS Shader Baker V2.9.0 initialized');
+        console.log('ONEMANSHYO Beta V4_4_0 initialized');
         console.log(`Instance ID: ${instanceId}`);
         console.log('Broadcasting on oms-live-channel (announcements + library + canvas snapshots)');
         
@@ -10359,7 +10398,7 @@ ${shaderCode}
                             startTime = audioStart;
                         }
                         
-                        await playCellAudio(track, scene, cellData, startTime);
+                        await launchCell(track, scene, cellData, startTime);
                         
                         // V3_9_0_L_sub16: Update shader for double-click launch (now async/await)
                         try {
@@ -11376,7 +11415,7 @@ ${shaderCode}
                 const cellData = gridState.cells[cellIndex];
                 
                 if (cellData) {
-                    playCellAudio(track, sceneIndex, cellData, startTime);
+                    launchCell(track, sceneIndex, cellData, startTime);
                 } else {
                     // Empty cell - stop this track
                     if (trackAudioSources[track]) {
@@ -12136,7 +12175,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V4_3]</title>
+    <title>ONEMANSHYO App [V4_4]</title>
     <style>
         body {
             margin: 0;
@@ -12508,7 +12547,9 @@ ${providedShaderCode}
         // V3_7_0_J: Calculate final shader opacity for a track
         // Considers: manual override, shader mute/solo, volume-based fallback
         function calculateTrackShaderOpacity(track) {
-            const isPlaying = trackAudioSources[track] !== null;
+            // V4_4_0: Check if track has a playing cell (audio or shader-only)
+            const playingCell = document.querySelector(`.clip-slot[data-track="${track}"].playing`);
+            const isPlaying = playingCell !== null;
             
             // Check shader mute
             if (trackShaderMute[track]) {
@@ -12524,6 +12565,11 @@ ${providedShaderCode}
             // If manual override is active, use manual opacity
             if (trackShaderManual[track]) {
                 return isPlaying ? trackShaderOpacity[track] : 0;
+            }
+            
+            // V4_4_0: For shader-only containers, use full opacity if playing
+            if (isPlaying && !trackAudioSources[track]) {
+                return trackShaderOpacity[track] || 1.0;
             }
             
             // Otherwise use volume-based opacity (V3.6.0 auto behavior)
@@ -13614,7 +13660,8 @@ ${providedShaderCode}
         }
 
         // V3.1.0-I: Play audio from cell (fixed to match loadContainer approach)
-        async function playCellAudio(track, scene, cellData, startTime = null) {
+        // V4_4_0: Renamed from playCellAudio - handles both audio+shader and shader-only containers
+        async function launchCell(track, scene, cellData, startTime = null) {
             try {
                 // V3.1.0-I: Resume trackAudioContext (browser security requirement)
                 // V4_0_0_D_sub44: Non-blocking - don't await, let it resume in background
@@ -13627,11 +13674,13 @@ ${providedShaderCode}
                 const containers = getLibraryContainers();
                 const container = containers.find(c => c.id === cellData.id);
                 
-                if (!container || !container.audioFilename) {
-                    console.log(`V3.1.0-I: Container "${cellData.name}" has no audio file`);
-                    showStatus('No audio file in container', 'error');
+                if (!container) {
+                    console.log(`V4_4_0: Container "${cellData.name}" not found`);
+                    showStatus('Container not found', 'error');
                     return;
                 }
+                
+                const hasAudio = container.audioFilename;
                 
                 // Stop any currently playing audio on this track
                 if (trackAudioSources[track]) {
@@ -13651,88 +13700,85 @@ ${providedShaderCode}
                 const allCellsInTrack = document.querySelectorAll(`.clip-slot[data-track="${track}"]`);
                 allCellsInTrack.forEach(cell => cell.classList.remove('playing'));
                 
-                // V3.2.0-D: Check for pre-loaded audio buffer first
-                const cellIndex = track * NUM_SCENES + scene;
-                let audioBuffer;
-                
-                if (gridState.cells[cellIndex] && gridState.cells[cellIndex].audioBuffer) {
-                    // Use pre-loaded buffer (instant, no async delay)
-                    audioBuffer = gridState.cells[cellIndex].audioBuffer;
-                    console.log(`V3.2.0-D: Using pre-loaded buffer for "${cellData.name}"`);
-                } else {
-                    // Fallback: Load audio file from LIBRARY (slower, async)
-                    if (!applicationFolderHandle) {
-                        showStatus('LIBRARY folder not set', 'error');
-                        return;
+                // V4_4_0: Handle audio if container has it
+                if (hasAudio) {
+                    // V3.2.0-D: Check for pre-loaded audio buffer first
+                    const cellIndex = track * NUM_SCENES + scene;
+                    let audioBuffer;
+                    
+                    if (gridState.cells[cellIndex] && gridState.cells[cellIndex].audioBuffer) {
+                        // Use pre-loaded buffer (instant, no async delay)
+                        audioBuffer = gridState.cells[cellIndex].audioBuffer;
+                        console.log(`V3.2.0-D: Using pre-loaded buffer for "${cellData.name}"`);
+                    } else {
+                        // Fallback: Load audio file from LIBRARY (slower, async)
+                        if (!applicationFolderHandle) {
+                            showStatus('LIBRARY folder not set', 'error');
+                            return;
+                        }
+                        
+                        console.log(`V3.2.0-D: Loading audio (not pre-loaded): ${container.audioFilename}`);
+                        const file = await getAudioFromLibrary(container.audioFilename);
+                        const arrayBuffer = await file.arrayBuffer();
+                        audioBuffer = await trackAudioContext.decodeAudioData(arrayBuffer);
                     }
                     
-                    console.log(`V3.2.0-D: Loading audio (not pre-loaded): ${container.audioFilename}`);
-                    const file = await getAudioFromLibrary(container.audioFilename);
-                    const arrayBuffer = await file.arrayBuffer();
-                    audioBuffer = await trackAudioContext.decodeAudioData(arrayBuffer);
+                    // Create and configure audio source
+                    const source = trackAudioContext.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.loop = true; // Loop forever
+                    
+                    // V3.2.0-Q: Apply master tempo sync (time-stretch to match session BPM)
+                    const containerData = trackContainerData[track];
+                    if (containerData && containerData.audioBPM) {
+                        // Calculate playback rate: masterTempo / originalBPM
+                        const playbackRate = gridState.masterTempo / containerData.audioBPM;
+                        source.playbackRate.value = playbackRate;
+                        console.log(`V3.2.0-Q: Track ${track + 1} playback rate: ${playbackRate.toFixed(4)} (${containerData.audioBPM} → ${gridState.masterTempo} BPM)`);
+                    } else {
+                        console.log(`V3.2.0-Q: Track ${track + 1} no tempo sync (no container data)`);
+                    }
+                    
+                    // Connect to track gain node
+                    source.connect(trackGainNodes[track]);
+                    
+                    // V3.2.0-A: Start playback at specified time (or immediately if no time given)
+                    // V4_0_0_B_sub13: Start FROM Bar 1 (audioStartTime), not file position 0
+                    const audioStartTime = containerData.audioStartTime || 0;
+                    
+                    if (startTime !== null) {
+                        source.start(startTime, audioStartTime);
+                        console.log(`V4_0_0_B_sub13: Audio starts at context time ${startTime.toFixed(3)}, FROM Bar 1 at ${audioStartTime.toFixed(3)}s in file`);
+                    } else {
+                        source.start(0, audioStartTime);
+                        console.log(`V4_0_0_B_sub13: Audio starts immediately, FROM Bar 1 at ${audioStartTime.toFixed(3)}s in file`);
+                    }
+                    
+                    // Store reference
+                    trackAudioSources[track] = source;
+                    trackAudioBuffers[track] = audioBuffer;
+                    
+                    // V3_9_0_L_sub13: Track when audio actually starts (for timeline lookup)
+                    trackAudioStartContextTime[track] = startTime || trackAudioContext.currentTime;
+                    console.log(`V3_9_0_L_sub13: Track ${track + 1} audio starts at audioContext time: ${trackAudioStartContextTime[track].toFixed(3)}`);
+                    
+                    // V3_9_0_F_sub2: Track beat position when this track launched (for waveform scrolling)
+                    if (startTime !== null) {
+                        trackLaunchBeats[track] = trackAudioMasterClock.getBeatAtTime(startTime);
+                    } else {
+                        trackLaunchBeats[track] = trackAudioMasterClock.getCurrentBeat();
+                    }
+                    console.log(`V3_9_0_G_sub13: Track ${track + 1} launched at beat ${trackLaunchBeats[track].toFixed(3)}`);
+                    
+                    // V3_9_0_A: Log master clock state after launch
+                    trackAudioMasterClock.logState(`Track ${track + 1} launched`);
+                    
+                    // V3_9_0_G_sub13: ALWAYS reposition Bar 1 at playhead on launch
+                    positionTrackAudioWaveformAtPlayhead(track + 1, audioBuffer);
+                    
+                    // V3.1.0-T: Start waveform scrolling animation
+                    startAudioWaveformScroll(track, audioBuffer);
                 }
-                
-                // Create and configure audio source
-                const source = trackAudioContext.createBufferSource();
-                source.buffer = audioBuffer;
-                source.loop = true; // Loop forever
-                
-                // V3.2.0-Q: Apply master tempo sync (time-stretch to match session BPM)
-                const containerData = trackContainerData[track];
-                if (containerData && containerData.audioBPM) {
-                    // Calculate playback rate: masterTempo / originalBPM
-                    const playbackRate = gridState.masterTempo / containerData.audioBPM;
-                    source.playbackRate.value = playbackRate;
-                    console.log(`V3.2.0-Q: Track ${track + 1} playback rate: ${playbackRate.toFixed(4)} (${containerData.audioBPM} → ${gridState.masterTempo} BPM)`);
-                } else {
-                    console.log(`V3.2.0-Q: Track ${track + 1} no tempo sync (no container data)`);
-                }
-                
-                // Connect to track gain node
-                source.connect(trackGainNodes[track]);
-                
-                // V3.2.0-A: Start playback at specified time (or immediately if no time given)
-                // V4_0_0_B_sub13: Start FROM Bar 1 (audioStartTime), not file position 0
-                const audioStartTime = containerData.audioStartTime || 0;
-                
-                if (startTime !== null) {
-                    source.start(startTime, audioStartTime);
-                    console.log(`V4_0_0_B_sub13: Audio starts at context time ${startTime.toFixed(3)}, FROM Bar 1 at ${audioStartTime.toFixed(3)}s in file`);
-                } else {
-                    source.start(0, audioStartTime);
-                    console.log(`V4_0_0_B_sub13: Audio starts immediately, FROM Bar 1 at ${audioStartTime.toFixed(3)}s in file`);
-                }
-                
-                // Store reference
-                trackAudioSources[track] = source;
-                trackAudioBuffers[track] = audioBuffer;
-                
-                // V3_9_0_L_sub13: Track when audio actually starts (for timeline lookup)
-                trackAudioStartContextTime[track] = startTime || trackAudioContext.currentTime;
-                console.log(`V3_9_0_L_sub13: Track ${track + 1} audio starts at audioContext time: ${trackAudioStartContextTime[track].toFixed(3)}`);
-                
-                // V3_9_0_F_sub2: Track beat position when this track launched (for waveform scrolling)
-                if (startTime !== null) {
-                    trackLaunchBeats[track] = trackAudioMasterClock.getBeatAtTime(startTime);
-                } else {
-                    trackLaunchBeats[track] = trackAudioMasterClock.getCurrentBeat();
-                }
-                console.log(`V3_9_0_G_sub13: Track ${track + 1} launched at beat ${trackLaunchBeats[track].toFixed(3)}`);
-                
-                // V3_9_0_A: Log master clock state after launch
-                trackAudioMasterClock.logState(`Track ${track + 1} launched`);
-                
-                // V3_9_0_F_sub17: DON'T redraw waveform on launch!
-                // Waveform is already correctly drawn when container loads
-                // Redrawing causes visual glitch/jump
-                // drawWaveformFromAudioBuffer(track + 1, audioBuffer); // REMOVED
-                
-                // V3_9_0_G_sub13: ALWAYS reposition Bar 1 at playhead on launch
-                // This ensures track starts at 1.1.1 every time, even if relaunching
-                positionTrackAudioWaveformAtPlayhead(track + 1, audioBuffer);
-                
-                // V3.1.0-T: Start waveform scrolling animation
-                startAudioWaveformScroll(track, audioBuffer);
                 
                 // Visual feedback - add green border to playing cell
                 const cell = document.querySelector(`.clip-slot[data-track="${track}"][data-scene="${scene}"]`);
@@ -13743,12 +13789,17 @@ ${providedShaderCode}
                 // V3_6_0_W: Update waveform overlay (container name + shader thumbnail)
                 updateWaveformOverlay(track, container);
                 
-                console.log(`V3.1.0-I: Playing "${container.audioFilename}" on Track ${track + 1}`);
-                showStatus(`Playing: ${container.audioFilename}`, 'success');
+                if (hasAudio) {
+                    console.log(`V3.1.0-I: Playing "${container.audioFilename}" on Track ${track + 1}`);
+                    showStatus(`Playing: ${container.audioFilename}`, 'success');
+                } else {
+                    console.log(`V4_4_0: Shader-only launch "${container.name}" on Track ${track + 1}`);
+                    showStatus(`Launched: ${container.name} (shader only)`, 'success');
+                }
                 
             } catch (error) {
-                console.error('V3.1.0-I: Audio playback failed:', error);
-                showStatus('Failed to play audio', 'error');
+                console.error('V4_4_0: Cell launch failed:', error);
+                showStatus('Failed to launch cell', 'error');
             }
         }
 
@@ -14431,7 +14482,7 @@ ${providedShaderCode}
                         }
                         
                         // Launch audio with calculated time
-                        playCellAudio(track, scene, cellData, startTime);
+                        launchCell(track, scene, cellData, startTime);
                         
                         console.log(`🎹 sub133: Launching Track ${track + 1}, Scene ${scene + 1} at bar ${startBar}`);
                         showStatus(`Launching Track ${track + 1}, Scene ${scene + 1}`, 'success');
@@ -14592,7 +14643,9 @@ ${providedShaderCode}
                 librarySort: {
                     sortBy: librarySortBy,
                     sortDir: librarySortDir
-                }
+                },
+                // V4_4_0: Selected set in LIVE tab
+                selectedSetId: window.selectedLiveSetId || 'presets'
             };
         }
 
@@ -14802,6 +14855,11 @@ ${providedShaderCode}
                     librarySortDir = projectData.librarySort.sortDir;
                 }
                 updateSortArrows();
+            }
+            
+            // V4_4_0: Apply selected set
+            if (projectData.selectedSetId) {
+                await selectLibrarySet(projectData.selectedSetId);
             }
 
             showStatus('Project state applied', 'success');
@@ -15184,6 +15242,10 @@ ${providedShaderCode}
                     console.log('V3_8_0_B: Header greeting changed to:', appSettings.headerGreeting);
                 });
             }
+            
+            // V4_4_0: Removed - selectedLiveSetId is restored from .omsp
+            // window.selectedLiveSetId = 'presets';
+            // window.selectedLibrarySetId = 'presets';
         });
 
     </script>
