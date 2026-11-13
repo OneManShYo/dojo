@@ -1,7 +1,7 @@
-# OMS BETA V4_6_0 - USER GUIDE
+# OMS BETA V4_7_0 - USER GUIDE
 
-**Version:** Beta V4_6_0  
-**Date:** December 10, 2025  
+**Version:** Beta V4_7_0  
+**Date:** December 12, 2025  
 **License:** GPL-3.0
 
 ---
@@ -32,7 +32,7 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 **Browser:** Chrome (WebGPU support required)  
 **Screen:** 1352×761 effective viewport (14" MacBook Pro)
 
-**File:** `OMS_Beta_V4_6_0.html`
+**File:** `OMS_Beta_V4_7_0.html`
 
 ---
 
@@ -43,14 +43,14 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 If you want to create visuals based on music timing without setting up a library:
 
 **Audio-Reactive Visuals (reacts to your music):**
-1. Open `OMS_Beta_V4_6_0.html`
+1. Open `OMS_Beta_V4_7_0.html`
 2. Drag your audio file (.mp3, .wav) onto the waveform
 3. Visuals automatically react to bass, mids, treble
 4. Click [Render Video]
 5. Get SILENT video with pre-baked reactivity
 
 **Tempo-Synced Visuals (animated to BPM, no audio needed):**
-1. Open `OMS_Beta_V4_6_0.html`
+1. Open `OMS_Beta_V4_7_0.html`
 2. Set tempo (e.g., 128 BPM)
 3. Set duration (e.g., 03:30.000)
 4. Click [Render Video]
@@ -230,7 +230,7 @@ modulator = waveform × audioLevel × gain
 
 #### 3.2.4 Controls View
 
-##### 3.2.4.1 Name Section (V4_6_0)
+##### 3.2.4.1 Name Section (V4_7_0)
 
 **Shader Name** (dropdown)
 - Shows current shader name
@@ -240,7 +240,7 @@ modulator = waveform × audioLevel × gain
 
 ---
 
-##### 3.2.4.2 Orientation Section (V4_6_0)
+##### 3.2.4.2 Orientation Section (V4_7_0)
 
 **Orientation** (dropdown)
 - Options: Landscape, Portrait, Square
@@ -302,7 +302,7 @@ Each modulator (A, B, C) has:
 ##### 3.2.4.5 OUTPUT Section
 
 **Filename** (text field)
-- Auto-populated with shader name + audio name (V4_6_0)
+- Auto-populated with shader name + audio name (V4_7_0)
 - Result: `OMS_[filename]_[resolution]_[fps]fps.webm`
 - Edit anytime, used for both render and save
 
@@ -324,7 +324,7 @@ Each modulator (A, B, C) has:
 
 #### 3.2.5 Audio Section
 
-##### 3.2.5.0 Audio Controls Header (V4_6_0)
+##### 3.2.5.0 Audio Controls Header (V4_7_0)
 
 **Header Controls:**
 - **[Swap]** - Open Library audio picker dropdown
@@ -344,7 +344,7 @@ Each modulator (A, B, C) has:
 - Drag .mp3 or .wav onto waveform area
 - Loads automatically
 
-**Swap Button (V4_6_0)**
+**Swap Button (V4_7_0)**
 - Click Swap in header
 - Select from Library audio files
 - Loads immediately
@@ -390,7 +390,7 @@ Each modulator (A, B, C) has:
 | [S] | Snap Audio End to last bar |
 | Last Bar | Total bars (read-only) |
 
-**Loop Defaults (V4_6_0):**
+**Loop Defaults (V4_7_0):**
 - Change Loop In/Out → saves to project file
 - Fresh audio uses your defaults
 - Existing containers keep their own values
@@ -562,7 +562,7 @@ A **collection** bundles multiple containers for distribution.
 - Containers from /Library/ folder
 - Everything you've created
 
-**[All Audio]** (V4_6_0)
+**[All Audio]** (V4_7_0)
 - Containers that have audio attached
 - Quick filter for audio-enabled content
 
@@ -617,11 +617,11 @@ A **collection** bundles multiple containers for distribution.
 
 Each shows:
 - Shader thumbnail (32×18 preview)
-- Container name (click to edit - V4_6_0)
+- Container name (click to edit - V4_7_0)
 - Tempo value (white text)
 - Audio indicator (Y/N)
 
-**Click-to-Edit Names (V4_6_0):**
+**Click-to-Edit Names (V4_7_0):**
 - Click container name in list
 - Edit inline
 - Press Enter to save
@@ -959,9 +959,33 @@ The PERFORM tab is a 4-track DJ mixer for live performance with reactive visuals
 
 | Shortcut | Action |
 |----------|--------|
-| M | Master Grid toggle |
-| T | Track Grid toggle |
-| W | Waveform toggle |
+| Shift+M | Master Grid toggle |
+| Shift+T | Track Grid toggle |
+| Shift+W | Waveform toggle |
+
+#### 3.4.9 Message Bar Feedback (V4_7_0)
+
+The message bar at the bottom of the screen provides instant feedback:
+
+**Color Meanings:**
+
+| Color | Type | Example |
+|-------|------|---------|
+| Cyan | Help | "Audio Volume (↑/↓)" |
+| Orange | State | "Track 1 Shader: 80%" |
+| Magenta | Error | "Container not found" |
+
+**How it works:**
+- **Hover** any control → cyan help message
+- **Press** any key → orange state message  
+- **Leave** control → message clears
+- **Error** occurs → magenta error message
+
+**Examples:**
+- Hover volume knob: "Audio Volume (↑/↓)"
+- Press `1`: "Track 1 selected"
+- Press `←`: "Track 1 Shader: 78%"
+- Press `,`: "Track 1 Audio: Muted (,)"
 
 ---
 
@@ -1068,8 +1092,8 @@ Social / YouTube
 ## 5. Credits
 
 **Created by:** Wes Smith / ONEMANSHYO  
-**Version:** Beta V4_6_0  
-**Date:** December 10, 2025
+**Version:** Beta V4_7_0  
+**Date:** December 12, 2025
 
 **Technology:**
 - WebGPU / WGSL (shaders)
@@ -1363,8 +1387,8 @@ Using a DAW for visuals leverages precise timing, MIDI mapping, and audio proces
 ## INDEX B: Claude Shader Creation
 
 **Purpose:** Guide for creating WGSL shaders using Claude AI  
-**Updated for:** V4_6_0  
-**Date:** December 10, 2025
+**Updated for:** V4_7_0  
+**Date:** December 12, 2025
 
 ---
 
@@ -2724,6 +2748,6 @@ length(fract(uv * 8.0) - 0.5)
 
 **END OF USER GUIDE**
 
-Version: Beta V4_6_0  
-Date: December 10, 2025  
+Version: Beta V4_7_0  
+Date: December 12, 2025  
 License: GPL-3.0
