@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V3_4
+ONEMANSHYO Dojo App V3_5
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V3_4
+Version: V3_5
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V3_4]</title>
+    <title>ONEMANSHYO App [V3_5]</title>
     <style>
         * {
             margin: 0;
@@ -74,8 +74,8 @@ Version: V3_4
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            padding-left: 1px;  /* V3_4_0_AE: Reduce left gap */
-            padding-right: 4px; /* V3_4_0_AE: Increase right gap for symmetry */
+            padding-left: 3px;  /* V3_5_0_N: Balanced padding */
+            padding-right: 7px; /* V3_5_0_N: Balanced padding (equal black gaps on both sides) */
         }
 
         .header {
@@ -1071,6 +1071,7 @@ Version: V3_4
             gap: 0;
             padding: 0;
             min-height: 100%;
+            border-right: 1px solid #444; /* V3_5_0_N: Right border for Master column definition */
         }
 
         /* V3.2.0-S: LIVE Master Tempo Control */
@@ -1232,6 +1233,12 @@ Version: V3_4
             background: #00d4ff;
             color: #000;
             font-weight: 600;
+        }
+
+        /* V3_5_0_H: Scene cursor selection (distinct from hover and active) */
+        .scene-trigger.selected {
+            border: 2px solid #00d4ff;
+            border-color: #00d4ff !important;
         }
 
         .scene-number {
@@ -1539,7 +1546,7 @@ Version: V3_4
     <!-- V2.1.1-A: Header now full-width outside container -->
     <div class="header">
         <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-        <span class="version">[V3_4]</span>
+        <span class="version">[V3_5]</span>
     </div>
     
     <div class="container">
@@ -7801,6 +7808,9 @@ ${shaderCode}
         // V3.1.0-N: Global array for knob draw functions (to force redraws)
         const knobDrawFunctions = [];
 
+        // V3_5_0_L: Master clock for quantized launching
+        let sessionStartTime = null; // When first track launched (audioContext.currentTime)
+
         function initLiveTab() {
             initAudioRouting();
             initLiveHeaders();
@@ -7809,7 +7819,45 @@ ${shaderCode}
             initLiveWaveforms();
             initLiveTempo(); // V3.2.0-S: Initialize master tempo control
             initLiveShader(); // V3.4.0_BETA_A: Initialize shader preview
+            updateSceneSelectionVisuals(); // V3_5_0_H: Show initial scene cursor
             console.log('LIVE tab initialized (V3.1.0-H: Audio routing enabled)');
+        }
+
+        // V3_5_0_L: Master Clock Functions for Quantized Launching
+        
+        // Check if any tracks are currently playing
+        function isAnyTrackPlaying() {
+            return trackAudioSources.some(source => source !== null);
+        }
+        
+        // Start master clock on first launch (sets timing reference)
+        function startMasterClock(actualStartTime) {
+            if (!sessionStartTime) {
+                // V3_5_0_M: Use ACTUAL start time (not current time)
+                // This accounts for the 200ms buffer
+                sessionStartTime = actualStartTime;
+                console.log(`V3_5_0_M: Master clock started at ${sessionStartTime.toFixed(3)}`);
+            }
+        }
+        
+        // Calculate when the next bar boundary will occur
+        function getNextBarBoundary() {
+            if (!sessionStartTime) {
+                console.error('V3_5_0_L: Cannot calculate bar boundary - no session start time');
+                return null;
+            }
+            
+            const elapsed = audioContext.currentTime - sessionStartTime;
+            const masterTempo = gridState.masterTempo;
+            const secondsPerBar = (4 / masterTempo) * 60; // 4 beats per bar
+            
+            const currentBar = elapsed / secondsPerBar;
+            const nextBar = Math.ceil(currentBar);
+            const nextBarTime = sessionStartTime + (nextBar * secondsPerBar);
+            
+            console.log(`V3_5_0_L: Current bar ${currentBar.toFixed(3)}, next bar ${nextBar} at ${nextBarTime.toFixed(3)}`);
+            
+            return nextBarTime;
         }
 
         // V3.1.0-H: Initialize Web Audio routing
@@ -7918,7 +7966,13 @@ ${shaderCode}
                 trigger.className = 'scene-trigger';
                 trigger.innerHTML = `<div class="scene-number">Scene ${s + 1}</div>`;
                 trigger.dataset.scene = s;
-                trigger.addEventListener('click', () => launchScene(s));
+                trigger.addEventListener('click', () => {
+                    // V3_5_0_I: Clicking scene trigger returns to scene mode (deselects cell)
+                    selectedCell = null;
+                    updateSelectionVisuals();
+                    
+                    launchScene(s);
+                });
                 scenes.appendChild(trigger);
 
                 // Clip slots for tracks 1-4
@@ -8203,6 +8257,10 @@ ${shaderCode}
                 // Initial draw at 50% (12 o'clock)
                 updateVolume(0.5);
                 
+                // V3_5_0_C: Store updateVolume function (not just drawKnob) for keyboard control
+                // updateVolume() updates local volume variable + label + gain + gridState + redraws
+                knobDrawFunctions[t - 1] = updateVolume;
+                
                 // Mute/Solo buttons
                 const muteBtn = mixer.querySelector('.track-btn.mute');
                 const soloBtn = mixer.querySelector('.track-btn.solo');
@@ -8370,6 +8428,9 @@ ${shaderCode}
             // V3.1.0-M: Initial draw at 50% (12 o'clock)
             updateVolumeMaster(0.5);
             
+            // V3_5_0_C: Store updateVolumeMaster function in global array at index 4
+            knobDrawFunctions[4] = updateVolumeMaster;
+            
             const muteBtnMaster = mixerMaster.querySelector('.track-btn.mute');
             muteBtnMaster.addEventListener('click', () => muteBtnMaster.classList.toggle('active'));
             
@@ -8528,8 +8589,23 @@ ${shaderCode}
         function launchScene(sceneIndex) {
             console.log(`Launching Scene ${sceneIndex + 1}`);
             
-            // V3.2.0-I: Add 200ms buffer for sync prep time
-            const startTime = audioContext ? audioContext.currentTime + 0.2 : null;
+            // V3_5_0_L: Quantized launching - wait for next bar if tracks playing
+            let startTime;
+            
+            if (isAnyTrackPlaying()) {
+                // Tracks already playing - quantize to next bar boundary
+                startTime = getNextBarBoundary();
+                if (!startTime) {
+                    // Fallback if something went wrong
+                    startTime = audioContext.currentTime + 0.2;
+                }
+                console.log(`V3_5_0_L: Quantized launch - waiting for bar boundary`);
+            } else {
+                // No tracks playing - start immediately (with 200ms buffer)
+                startTime = audioContext.currentTime + 0.2;
+                startMasterClock(startTime); // V3_5_0_M: Pass ACTUAL start time
+                console.log(`V3_5_0_M: First launch - starting master clock at ${startTime.toFixed(3)}`);
+            }
             
             // V3.2.0-A: Launch all tracks in this scene
             for (let track = 0; track < NUM_TRACKS; track++) {
@@ -8954,18 +9030,20 @@ ${shaderCode}
                 console.log('V3.4.0_BETA_A: Live shader preview initialized');
             } catch (error) {
                 console.error('V3.4.0_BETA_A: Shader init failed:', error);
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#000';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#ff0066';
-                ctx.font = '14px monospace';
-                ctx.fillText('Shader Error', 10, 180);
+                // V3_5_0_A: Can't use 2D context on WebGPU canvas - just log error
+                // const ctx = canvas.getContext('2d');
+                // ctx.fillStyle = '#000';
+                // ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // ctx.fillStyle = '#ff0066';
+                // ctx.font = '14px monospace';
+                // ctx.fillText('Shader Error', 10, 180);
             }
         }
         
         function getShaderCodeForLive() {
             // Try to get current shader from Controls tab, otherwise use default
-            const controlsShader = editor ? editor.getValue() : null;
+            // V3_5_0_A: Fixed ReferenceError - editor may not be defined
+            const controlsShader = (typeof editor !== 'undefined' && editor) ? editor.getValue() : null;
             if (controlsShader && controlsShader.includes('fs_main')) {
                 return controlsShader;
             }
@@ -9535,6 +9613,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
         
         // Track selected knob and cell for keyboard control
         let selectedKnobIndex = -1; // -1 = none, 0-3 = tracks, 4 = master
+        let selectedSceneIndex = 0; // V3_5_0_H: Scene cursor for W/S navigation (0-7)
         let selectedCell = null; // { track, scene }
         let draggedCell = null; // { track, scene } during drag
         
@@ -9546,6 +9625,39 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
             
             // Ignore if typing in input field
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            // V3_5_0_A: Number keys 1-5 - select track/master
+            if (e.key >= '1' && e.key <= '5') {
+                e.preventDefault();
+                
+                const keyNum = parseInt(e.key);
+                if (keyNum >= 1 && keyNum <= 4) {
+                    // Tracks 1-4
+                    selectedKnobIndex = keyNum - 1;
+                    console.log(`Track selected: ${keyNum} (index ${selectedKnobIndex})`);
+                } else if (keyNum === 5) {
+                    // Master
+                    selectedKnobIndex = 4;
+                    console.log('Master track selected (index 4)');
+                }
+                
+                selectedCell = null; // Deselect cell when selecting track
+                updateSelectionVisuals();
+                
+                // V3_5_0_B: Force redraw ALL knobs to update cyan ring immediately
+                // V3_5_0_C: Call updateVolume functions with current values to redraw
+                for (let i = 0; i < 4; i++) {
+                    if (knobDrawFunctions[i]) {
+                        knobDrawFunctions[i](gridState.trackVolumes[i]);
+                    }
+                }
+                // Master knob
+                if (knobDrawFunctions[4]) {
+                    knobDrawFunctions[4](gridState.masterVolume);
+                }
+                
+                return;
+            }
             
             // V3.1.0-N: Tab/Shift+Tab - cycle through knobs
             if (e.key === 'Tab') {
@@ -9575,34 +9687,38 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
             }
             
             // V3.1.0-S: Spacebar - stop/start all playing tracks
+            // V3_5_0_F: Changed to global play/pause (suspend/resume audioContext)
             if (e.code === 'Space') {
                 e.preventDefault();
+                
+                if (!audioContext) {
+                    showStatus('No audio context', 'info');
+                    return;
+                }
                 
                 // Check if any tracks are playing
                 const anyPlaying = trackAudioSources.some(source => source !== null);
                 
-                if (anyPlaying) {
-                    // Stop all playing tracks
-                    for (let i = 0; i < 4; i++) {
-                        if (trackAudioSources[i]) {
-                            trackAudioSources[i].stop();
-                            trackAudioSources[i].disconnect();
-                            trackAudioSources[i] = null;
-                            
-                            // V3.1.0-T: Stop waveform scrolling
-                            stopAudioWaveformScroll(i);
-                            
-                            // Remove playing visual feedback
-                            const cells = document.querySelectorAll(`.clip-slot[data-track="${i}"]`);
-                            cells.forEach(cell => cell.classList.remove('playing'));
-                        }
-                    }
-                    showStatus('Stopped all tracks', 'success');
-                } else {
-                    // No tracks playing - could optionally start something here
-                    // For now, just show a message
+                if (!anyPlaying) {
                     showStatus('No tracks playing (click cells to start)', 'info');
+                    return;
                 }
+                
+                // Toggle pause/resume using audioContext state
+                if (audioContext.state === 'running') {
+                    // Currently playing - pause it
+                    audioContext.suspend().then(() => {
+                        showStatus('Paused', 'info');
+                        console.log('V3_5_0_F: Space - paused (audioContext suspended)');
+                    });
+                } else if (audioContext.state === 'suspended') {
+                    // Currently paused - resume it
+                    audioContext.resume().then(() => {
+                        showStatus('Playing', 'success');
+                        console.log('V3_5_0_F: Space - resumed (audioContext resumed)');
+                    });
+                }
+                
                 return;
             }
             
@@ -9649,6 +9765,8 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
             if (selectedKnobIndex >= 0 && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
                 e.preventDefault();
                 
+                console.log(`V3_5_0_B DEBUG: Arrow ${e.key} pressed, selectedKnobIndex=${selectedKnobIndex}`);
+                
                 const delta = e.key === 'ArrowUp' ? 0.02 : -0.02; // 2% per press
                 
                 if (selectedKnobIndex === 4) {
@@ -9656,42 +9774,309 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                     const currentVol = gridState.masterVolume;
                     const newVol = Math.max(0, Math.min(1, currentVol + delta));
                     
-                    // Update via the master knob's updateVolumeMaster function
-                    // This is a bit hacky but works - we manually trigger it
-                    if (window.updateVolumeMaster) {
-                        window.updateVolumeMaster(newVol);
-                    } else {
-                        // Fallback if function not exposed
-                        gridState.masterVolume = newVol;
-                        if (masterGainNode) {
-                            masterGainNode.gain.value = newVol;
-                        }
+                    console.log(`V3_5_0_B DEBUG: Master volume ${currentVol.toFixed(2)} → ${newVol.toFixed(2)}`);
+                    
+                    // V3_5_0_C: Call updateVolumeMaster function
+                    if (knobDrawFunctions[4]) {
+                        knobDrawFunctions[4](newVol);
                     }
                 } else {
                     // Track knob
                     const currentVol = gridState.trackVolumes[selectedKnobIndex];
                     const newVol = Math.max(0, Math.min(1, currentVol + delta));
-                    gridState.trackVolumes[selectedKnobIndex] = newVol;
                     
-                    // Update gain node
-                    if (trackGainNodes[selectedKnobIndex]) {
-                        const isMuted = gridState.trackMutes[selectedKnobIndex];
-                        const anySolo = gridState.trackSolos.some(s => s);
-                        const isSolo = gridState.trackSolos[selectedKnobIndex];
-                        
-                        if (isMuted || (anySolo && !isSolo)) {
-                            trackGainNodes[selectedKnobIndex].gain.value = 0;
-                        } else {
-                            trackGainNodes[selectedKnobIndex].gain.value = newVol;
-                        }
+                    console.log(`V3_5_0_B DEBUG: Track ${selectedKnobIndex + 1} volume ${currentVol.toFixed(2)} → ${newVol.toFixed(2)}`);
+                    
+                    // V3_5_0_C: Call updateVolume function which handles everything
+                    // (updates local volume var + label + gain + gridState + redraws)
+                    if (knobDrawFunctions[selectedKnobIndex]) {
+                        knobDrawFunctions[selectedKnobIndex](newVol);
                     }
-                    
-                    // Redraw knob - need to trigger the canvas redraw
-                    // This is done automatically by the knob's draw function on mouse move,
-                    // but for keyboard we need to manually trigger it
-                    // For now, this will update the audio but not the visual
-                    // Full visual update requires refactoring knob code
                 }
+            }
+            
+            // V3_5_0_G: , key (comma) - toggle mute on selected track (1-4 only)
+            if (e.key === ',') {
+                if (selectedKnobIndex >= 0 && selectedKnobIndex < 4) {
+                    e.preventDefault();
+                    
+                    const trackIndex = selectedKnobIndex;
+                    const trackNum = trackIndex + 1;
+                    const muteBtn = document.querySelector(`.track-btn.mute[data-track="${trackNum}"]`);
+                    
+                    if (muteBtn) {
+                        // Toggle mute state
+                        muteBtn.classList.toggle('active');
+                        const isMuted = muteBtn.classList.contains('active');
+                        
+                        // Update audio
+                        if (trackGainNodes[trackIndex]) {
+                            trackGainNodes[trackIndex].gain.value = isMuted ? 0 : (gridState.trackVolumes[trackIndex] || 0.5);
+                        }
+                        
+                        // Update gridState
+                        gridState.trackMutes[trackIndex] = isMuted;
+                        autoSaveProject();
+                        
+                        console.log(`V3_5_0_G: Track ${trackNum} ${isMuted ? 'muted' : 'unmuted'} (comma key)`);
+                    } else {
+                        console.error(`V3_5_0_G: Mute button not found for track ${trackNum}`);
+                    }
+                }
+                return;
+            }
+            
+            // V3_5_0_G: . key (period) - toggle solo on selected track (1-4 only)
+            if (e.key === '.') {
+                if (selectedKnobIndex >= 0 && selectedKnobIndex < 4) {
+                    e.preventDefault();
+                    
+                    const trackIndex = selectedKnobIndex;
+                    const trackNum = trackIndex + 1;
+                    const soloBtn = document.querySelector(`.track-btn.solo[data-track="${trackNum}"]`);
+                    
+                    if (soloBtn) {
+                        // Toggle solo state
+                        soloBtn.classList.toggle('active');
+                        const isSolo = soloBtn.classList.contains('active');
+                        
+                        // Update gridState
+                        gridState.trackSolos[trackIndex] = isSolo;
+                        
+                        // Apply solo logic to all tracks
+                        const anySolo = gridState.trackSolos.some(s => s);
+                        
+                        if (anySolo) {
+                            // Mute all non-solo tracks
+                            for (let i = 0; i < 4; i++) {
+                                if (trackGainNodes[i]) {
+                                    if (gridState.trackSolos[i]) {
+                                        // Solo'd track - unmute (unless also muted)
+                                        trackGainNodes[i].gain.value = gridState.trackMutes[i] ? 0 : (gridState.trackVolumes[i] || 0.5);
+                                    } else {
+                                        // Not solo'd - mute it
+                                        trackGainNodes[i].gain.value = 0;
+                                    }
+                                }
+                            }
+                            console.log(`V3_5_0_G: Solo mode active - Track ${trackNum} solo'd (period key)`);
+                        } else {
+                            // No solos - restore all tracks
+                            for (let i = 0; i < 4; i++) {
+                                if (trackGainNodes[i]) {
+                                    trackGainNodes[i].gain.value = gridState.trackMutes[i] ? 0 : (gridState.trackVolumes[i] || 0.5);
+                                }
+                            }
+                            console.log(`V3_5_0_G: Solo mode off (period key)`);
+                        }
+                        
+                        autoSaveProject();
+                    } else {
+                        console.error(`V3_5_0_G: Solo button not found for track ${trackNum}`);
+                    }
+                }
+                return;
+            }
+            
+            // V3_5_0_I: Esc key - deselect cell (return to scene mode) OR emergency stop
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                
+                // V3_5_0_I: If cell selected, deselect it and return to scene mode
+                if (selectedCell) {
+                    selectedCell = null;
+                    updateSelectionVisuals();
+                    console.log(`V3_5_0_I: Exited cell mode, returned to scene mode (Esc key)`);
+                    showStatus('Scene mode', 'info');
+                    return;
+                }
+                
+                // V3_5_0_D: No cell selected - emergency stop all tracks (reset positions)
+                let stoppedCount = 0;
+                
+                for (let i = 0; i < 4; i++) {
+                    if (trackAudioSources[i]) {
+                        trackAudioSources[i].stop();
+                        trackAudioSources[i].disconnect();
+                        trackAudioSources[i] = null;
+                        trackAudioBuffers[i] = null;
+                        
+                        // Stop waveform scrolling
+                        stopAudioWaveformScroll(i);
+                        
+                        // Clear waveform
+                        const canvas = document.getElementById(`waveform${i + 1}`);
+                        if (canvas) {
+                            const ctx = canvas.getContext('2d');
+                            drawEmptyWaveform(ctx, canvas);
+                        }
+                        
+                        // Remove playing visual
+                        const cells = document.querySelectorAll(`.clip-slot[data-track="${i}"]`);
+                        cells.forEach(cell => cell.classList.remove('playing'));
+                        
+                        stoppedCount++;
+                    }
+                }
+                
+                if (stoppedCount > 0) {
+                    // V3_5_0_L: Reset master clock when all tracks stopped
+                    sessionStartTime = null;
+                    console.log(`V3_5_0_D: Emergency stop - ${stoppedCount} tracks stopped (Esc key)`);
+                    console.log(`V3_5_0_L: Master clock reset`);
+                    showStatus(`Emergency stop - ${stoppedCount} tracks stopped`, 'success');
+                    recalculateZoomRange();
+                } else {
+                    console.log(`V3_5_0_D: Emergency stop - no tracks playing (Esc key)`);
+                }
+                
+                return;
+            }
+            
+            // V3_5_0_I: W/S/A/D keys - dual mode navigation
+            // Mode 1: No cell selected = Scene cursor mode (W/S moves scene cursor, Enter launches scene)
+            // Mode 2: Cell selected = Cell cursor mode (W/S/A/D moves cell, Enter launches cell)
+            
+            // W key - Move up (scene cursor OR cell cursor)
+            if (e.key === 'w' || e.key === 'W') {
+                e.preventDefault();
+                
+                if (selectedCell) {
+                    // V3_5_0_I: Cell mode - move cell cursor up
+                    const { track, scene } = selectedCell;
+                    if (scene > 0) {
+                        selectedCell = { track, scene: scene - 1 };
+                        updateSelectionVisuals();
+                        console.log(`V3_5_0_I: Cell cursor moved up to Track ${track + 1}, Scene ${scene} (W key)`);
+                    }
+                } else {
+                    // V3_5_0_H: Scene mode - move scene cursor up
+                    if (selectedSceneIndex > 0) {
+                        selectedSceneIndex--;
+                        updateSceneSelectionVisuals();
+                        console.log(`V3_5_0_H: Scene cursor moved up to Scene ${selectedSceneIndex + 1} (W key)`);
+                    }
+                }
+                
+                return;
+            }
+            
+            // S key - Move down (scene cursor OR cell cursor)
+            if (e.key === 's' || e.key === 'S') {
+                e.preventDefault();
+                
+                if (selectedCell) {
+                    // V3_5_0_I: Cell mode - move cell cursor down
+                    const { track, scene } = selectedCell;
+                    if (scene < NUM_SCENES - 1) {
+                        selectedCell = { track, scene: scene + 1 };
+                        updateSelectionVisuals();
+                        console.log(`V3_5_0_I: Cell cursor moved down to Track ${track + 1}, Scene ${scene + 2} (S key)`);
+                    }
+                } else {
+                    // V3_5_0_H: Scene mode - move scene cursor down
+                    if (selectedSceneIndex < NUM_SCENES - 1) {
+                        selectedSceneIndex++;
+                        updateSceneSelectionVisuals();
+                        console.log(`V3_5_0_H: Scene cursor moved down to Scene ${selectedSceneIndex + 1} (S key)`);
+                    }
+                }
+                
+                return;
+            }
+            
+            // V3_5_0_I: A key - Move left in cell grid (select cell if none selected)
+            if (e.key === 'a' || e.key === 'A') {
+                e.preventDefault();
+                
+                if (selectedCell) {
+                    // Cell mode - move cell cursor left
+                    const { track, scene } = selectedCell;
+                    if (track > 0) {
+                        selectedCell = { track: track - 1, scene };
+                        selectedKnobIndex = -1; // Deselect knob when navigating cells
+                        updateSelectionVisuals();
+                        console.log(`V3_5_0_I: Cell cursor moved left to Track ${track}, Scene ${scene + 1} (A key)`);
+                    }
+                } else {
+                    // No cell selected - select first cell (Track 1, current scene cursor position)
+                    selectedCell = { track: 0, scene: selectedSceneIndex };
+                    selectedKnobIndex = -1; // Deselect knob
+                    updateSelectionVisuals();
+                    console.log(`V3_5_0_I: Entered cell mode - Track 1, Scene ${selectedSceneIndex + 1} (A key)`);
+                }
+                
+                return;
+            }
+            
+            // V3_5_0_I: D key - Move right in cell grid (select cell if none selected)
+            if (e.key === 'd' || e.key === 'D') {
+                e.preventDefault();
+                
+                if (selectedCell) {
+                    // Cell mode - move cell cursor right
+                    const { track, scene } = selectedCell;
+                    if (track < 3) { // 0-3 = 4 tracks
+                        selectedCell = { track: track + 1, scene };
+                        selectedKnobIndex = -1; // Deselect knob when navigating cells
+                        updateSelectionVisuals();
+                        console.log(`V3_5_0_I: Cell cursor moved right to Track ${track + 2}, Scene ${scene + 1} (D key)`);
+                    }
+                } else {
+                    // No cell selected - select first cell (Track 1, current scene cursor position)
+                    selectedCell = { track: 0, scene: selectedSceneIndex };
+                    selectedKnobIndex = -1; // Deselect knob
+                    updateSelectionVisuals();
+                    console.log(`V3_5_0_I: Entered cell mode - Track 1, Scene ${selectedSceneIndex + 1} (D key)`);
+                }
+                
+                return;
+            }
+            
+            // V3_5_0_I: Enter key - dual mode (launch scene OR launch cell)
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                
+                if (selectedCell) {
+                    // V3_5_0_I: Cell mode - launch single cell
+                    const { track, scene } = selectedCell;
+                    const cellIndex = track * NUM_SCENES + scene;
+                    const cellData = gridState.cells[cellIndex];
+                    
+                    if (cellData) {
+                        // V3_5_0_L: Quantized launching - wait for next bar if tracks playing
+                        let startTime;
+                        
+                        if (isAnyTrackPlaying()) {
+                            // Tracks already playing - quantize to next bar boundary
+                            startTime = getNextBarBoundary();
+                            if (!startTime) {
+                                // Fallback if something went wrong
+                                startTime = audioContext.currentTime + 0.2;
+                            }
+                            console.log(`V3_5_0_L: Quantized cell launch - waiting for bar boundary`);
+                        } else {
+                            // No tracks playing - start immediately (with 200ms buffer)
+                            startTime = audioContext.currentTime + 0.2;
+                            startMasterClock(startTime); // V3_5_0_M: Pass ACTUAL start time
+                            console.log(`V3_5_0_M: First cell launch - starting master clock at ${startTime.toFixed(3)}`);
+                        }
+                        
+                        playCellAudio(track, scene, cellData, startTime);
+                        console.log(`V3_5_0_I: Launched cell Track ${track + 1}, Scene ${scene + 1} (Enter key)`);
+                        showStatus(`Launched Track ${track + 1}, Scene ${scene + 1}`, 'success');
+                    } else {
+                        console.log(`V3_5_0_I: Cell empty - Track ${track + 1}, Scene ${scene + 1}`);
+                        showStatus(`Cell empty`, 'info');
+                    }
+                } else {
+                    // V3_5_0_H: Scene mode - launch full scene (all 4 tracks)
+                    launchScene(selectedSceneIndex);
+                    console.log(`V3_5_0_H: Launched Scene ${selectedSceneIndex + 1} (Enter key)`);
+                    showStatus(`Launched Scene ${selectedSceneIndex + 1}`, 'success');
+                }
+                
+                return;
             }
         });
         
@@ -9700,21 +10085,35 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
             // Clear all cell outlines
             document.querySelectorAll('.clip-slot').forEach(cell => {
                 cell.style.outline = '';
+                cell.style.boxShadow = ''; // V3_5_0_K: Also clear box-shadow
             });
             
-            // Highlight selected cell with yellow outline
+            // Highlight selected cell with yellow box-shadow (inset)
             if (selectedCell) {
                 const { track, scene } = selectedCell;
                 const cell = document.querySelector(`.clip-slot[data-track="${track}"][data-scene="${scene}"]`);
                 if (cell) {
-                    cell.style.outline = '2px solid #ffff00';
-                    cell.style.outlineOffset = '2px';
+                    // V3_5_0_K: Use inset box-shadow instead of outline
+                    // Inset draws INSIDE the element, not outside like outline
+                    cell.style.boxShadow = 'inset 0 0 0 3px #ffff00';
                 }
             }
             
             // Knobs will show cyan selection ring on next redraw
             // (rings are drawn in drawKnob/drawKnobMaster based on selectedKnobIndex)
             // Redraw happens automatically when using arrow keys or dragging knob
+        }
+        
+        // V3_5_0_H: Update scene cursor visual (cyan border on selected scene)
+        function updateSceneSelectionVisuals() {
+            const triggers = document.querySelectorAll('.scene-trigger');
+            triggers.forEach((trigger, index) => {
+                if (index === selectedSceneIndex) {
+                    trigger.classList.add('selected');
+                } else {
+                    trigger.classList.remove('selected');
+                }
+            });
         }
         
         // V3.1.0-M: Cell selection handler (click to select)

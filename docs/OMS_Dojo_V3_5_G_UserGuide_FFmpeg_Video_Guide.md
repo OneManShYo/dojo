@@ -1,7 +1,7 @@
-# FFMPEG VIDEO EXPORT GUIDE - OMS SHADER BAKER V3.4.0
+# FFMPEG VIDEO EXPORT GUIDE - OMS SHADER BAKER V3.5.0
 
 **Purpose:** Export shaders as ProRes 422 video for Ableton Live + EboSuite  
-**Version:** V3.4.0  
+**Version:** V3.5.0  
 **Date:** November 15, 2025
 
 ---
@@ -618,7 +618,7 @@ ffmpeg -i shader.webm -c:v prores_ks -profile:v 3 output.mov
 
 **END OF FFMPEG VIDEO EXPORT GUIDE**
 
-Version: V3.4.0  
+Version: V3.5.0  
 Date: November 15, 2025  
 License: GPL-3.0  
 Website: https://onemanshyo.com
