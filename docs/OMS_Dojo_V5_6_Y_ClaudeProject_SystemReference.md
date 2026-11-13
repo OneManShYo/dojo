@@ -1,9 +1,10 @@
-# ONEMANSHYO App [Beta V5_5_0] - SYSTEM REFERENCE
+# ONEMANSHYO App [Beta V5_6_0] - SYSTEM REFERENCE
 
-**Date:** January 3, 2026  
-**Version:** V5_5_0  
-**Purpose:** Complete technical implementation reference  
-**Line Count:** 4,927 (V5_4_0) → 5,290 (V5_5_0)
+**Version:** Beta V5_6_0  
+**Date:** January 11, 2026  
+**License:** GPL-3.0  
+**Line Count:** 5,290 (V5_5_0) → 5,542 (V5_6_0)  
+**Document Purpose:** Complete technical implementation reference for Claude AI development
 
 ---
 
@@ -104,6 +105,7 @@ V4_9_15 consolidated the shader contract into 3 constants. Before this, the unif
 
 ```javascript
 // CORTEX CONSTANT 1: WGSL struct definition (injected into every shader)
+// V5_6_0: shaderModAFFT renamed to shaderModAAudio (and B/C) - reflects actual pipeline
 const SHADER_UNIFORM_STRUCT = `
 struct Uniforms {
     time: f32,
@@ -116,13 +118,13 @@ struct Uniforms {
     resolutionY: f32,
     shaderModAWave: f32,
     shaderModAGain: f32,
-    shaderModAFFT: f32,
+    shaderModAAudio: f32,
     shaderModBWave: f32,
     shaderModBGain: f32,
-    shaderModBFFT: f32,
+    shaderModBAudio: f32,
     shaderModCWave: f32,
     shaderModCGain: f32,
-    shaderModCFFT: f32,
+    shaderModCAudio: f32,
     transformRotation: f32,
     transformScaleX: f32,
     transformScaleY: f32,
@@ -146,9 +148,9 @@ function createUniformData(p) {
     return new Float32Array([
         p.time, p.tempo, p.modA, p.modB, p.modC, p.beat,
         p.resolutionX, p.resolutionY,
-        p.shaderModAWave, p.shaderModAGain, p.shaderModAFFT,
-        p.shaderModBWave, p.shaderModBGain, p.shaderModBFFT,
-        p.shaderModCWave, p.shaderModCGain, p.shaderModCFFT,
+        p.shaderModAWave, p.shaderModAGain, p.shaderModAAudio,
+        p.shaderModBWave, p.shaderModBGain, p.shaderModBAudio,
+        p.shaderModCWave, p.shaderModCGain, p.shaderModCAudio,
         p.transformRotation,
         p.transformScaleX, p.transformScaleY,
         p.transformTranslateX, p.transformTranslateY,
@@ -158,6 +160,12 @@ function createUniformData(p) {
     ]);
 }
 ```
+
+**V5_6_0 CORTEX Rename:** `shaderModAFFT` → `shaderModAAudio`
+- The "FFT" name was misleading - actual pipeline uses bandpass → peak detection → ADSR
+- Renamed to "Audio" to accurately reflect what it measures
+- Same rename for B and C modulators
+- **Breaking change:** Existing shaders using `uniforms.shaderModAFFT` must update
 
 **Adding a New Uniform (4 steps):**
 1. Add field to SHADER_UNIFORM_STRUCT (maintain GPU alignment)
@@ -170,7 +178,7 @@ function createUniformData(p) {
 - After V4_9_15: 3 constants, 4-step process
 - Thumbnail buffer bug fixed (was 96, needed 112)
 
-**V5_0_0 Uniform Struct (28 floats = 112 bytes):**
+**V5_0_0 Uniform Struct (28 floats = 112 bytes), V5_6_0 Rename:**
 
 | Index | Uniform | Type | Range | Purpose |
 |-------|---------|------|-------|---------|
@@ -184,13 +192,13 @@ function createUniformData(p) {
 | 7 | resolutionY | f32 | pixels | Canvas height |
 | 8 | shaderModAWave | f32 | 0-1 | Mod A waveform output |
 | 9 | shaderModAGain | f32 | 0-1 | Mod A gain value |
-| 10 | shaderModAFFT | f32 | 0-1 | Mod A FFT level |
+| 10 | shaderModAAudio | f32 | 0-1 | Mod A audio level (V5_6_0 rename from FFT) |
 | 11 | shaderModBWave | f32 | 0-1 | Mod B waveform output |
 | 12 | shaderModBGain | f32 | 0-1 | Mod B gain value |
-| 13 | shaderModBFFT | f32 | 0-1 | Mod B FFT level |
+| 13 | shaderModBAudio | f32 | 0-1 | Mod B audio level (V5_6_0 rename from FFT) |
 | 14 | shaderModCWave | f32 | 0-1 | Mod C waveform output |
 | 15 | shaderModCGain | f32 | 0-1 | Mod C gain value |
-| 16 | shaderModCFFT | f32 | 0-1 | Mod C FFT level |
+| 16 | shaderModCAudio | f32 | 0-1 | Mod C audio level (V5_6_0 rename from FFT) |
 | 17 | transformRotation | f32 | radians | Rotation angle (V5_0_0) |
 | 18 | transformScaleX | f32 | 0-4 | Scale X (V5_0_0) |
 | 19 | transformScaleY | f32 | 0-4 | Scale Y (V5_0_0) |
@@ -441,10 +449,66 @@ MAIN Bus → DSP Compressor → MAIN Gain → Master Output (Speakers)
 
 **Speed Control:** Trackpad scroll adjusts speed exponentially (0.03× to 256×)
 
-**FX Overlay System (V5_5_0):**
+**FX Overlay System (V5_5_0, V5_6_0 Per-Track):**
 - `fxOverlayVisible` - Panel visibility state
-- `trackVFXValues[track][slot]` - Per-track VFX values (placeholder)
-- `trackFXValues[track][slot]` - Per-track FX values (R/D/W)
+- `trackVFXValues[track][slot]` - Per-track VFX values [4 tracks][3 slots] (V5_6_0: functional)
+- `trackRGBValues[track][channel]` - Per-track RGB gain [4 tracks][3 channels] (V5_6_0)
+- `trackFXValues[track][slot]` - Per-track audio FX values [4 tracks][3 slots]
+- `trackVFXKilled[track][slot]` - Kill state per VFX slot
+- `trackRGBKilled[track][channel]` - Kill state per RGB channel
+- `trackFXKilled[track][slot]` - Kill state per FX slot
+
+**Unified Mic System (V5_6_0):**
+- `micEnabled` - Mic input active state
+- `micGainNode` - Mic input gain node
+- `micAnalyser` - Mic analyser node
+- `micStream` - MediaStream from getUserMedia
+- `micDeviceId` - Selected input device ID
+- `micMuted` - Mic mute state
+- `micVolume` - Mic input level (0-100)
+
+**Mic System State Logic:**
+```javascript
+// Audio source priority
+if (audioBuffer) {
+    // File audio takes precedence
+    source = audioBuffer;
+} else if (micEnabled && micStream) {
+    // Mic input when no file
+    source = micStream;
+} else {
+    // Wave × Gain only (no audio analysis)
+    source = null;
+}
+
+// Freq knobs enabled when:
+freqKnobsEnabled = (audioBuffer !== null) || (micEnabled && micStream);
+```
+
+**Effect Pool System (V5_6_0):**
+- `vfxPool` - Array of 10 visual effects
+- `fxPool` - Array of 10 audio effects
+- `vfxAssignments` - {A: effectName, B: effectName, C: effectName}
+- `fxAssignments` - {R: effectName, D: effectName, W: effectName}
+
+**VFX Pool (10 effects):**
+```javascript
+['RGB Split', 'Glitch', 'Pixelate', 'Scanlines', 'Feedback',
+ 'Mirror', 'Kaleidoscope', 'VHS', 'Shake', 'Off']
+```
+
+**FX Pool (10 effects):**
+```javascript
+['Washout', 'Dubby', 'Break', 'Reverb', 'Flanger',
+ 'Phaser', 'Bitcrush', 'Filter', 'Delay', 'Off']
+```
+
+**Per-Track RGB Control (V5_6_0):**
+- `trackRGBValues[track][0]` - Red gain (0-1, 0.75=unity)
+- `trackRGBValues[track][1]` - Green gain (0-1, 0.75=unity)
+- `trackRGBValues[track][2]` - Blue gain (0-1, 0.75=unity)
+- Unity at 0.75 (not 0.5) for boost headroom
+- Click-to-kill toggles channel on/off
 
 ---
 
@@ -1414,13 +1478,13 @@ uniforms = {
   resolutionY: 1080,      // Canvas height
   shaderModAWave: 0.0,    // Mod A waveform output
   shaderModAGain: 0.1,    // Mod A gain value
-  shaderModAFFT: 0.0,     // Mod A FFT level
+  shaderModAAudio: 0.0,   // Mod A audio level (V5_6_0 rename from FFT)
   shaderModBWave: 0.0,    // Mod B waveform
   shaderModBGain: 0.1,    // Mod B gain
-  shaderModBFFT: 0.0,     // Mod B FFT
+  shaderModBAudio: 0.0,   // Mod B audio level
   shaderModCWave: 0.0,    // Mod C waveform
   shaderModCGain: 0.1,    // Mod C gain
-  shaderModCFFT: 0.0,     // Mod C FFT
+  shaderModCAudio: 0.0,   // Mod C audio level
   transformRotation: 0.0, // Rotation (radians)
   transformScaleX: 1.0,   // Scale X
   transformScaleY: 1.0,   // Scale Y
@@ -1446,7 +1510,7 @@ fn fs_main(@builtin(position) pos: vec4<f32>) -> @location(0) vec4<f32> {
   let t = uniforms.time;
   let bass = uniforms.modA;           // Legacy combined
   let bassWave = uniforms.shaderModAWave;  // Just waveform
-  let bassFFT = uniforms.shaderModAFFT;    // Just FFT
+  let bassAudio = uniforms.shaderModAAudio;  // Just audio level (V5_6_0)
   
   return vec4<f32>(r, g, b, 1.0);
 }
@@ -1493,19 +1557,19 @@ FFT   // Audio frequency level (0-1) - 0 when no audio loaded
 **Legacy Combined Value:**
 ```javascript
 // For backward compatibility, modA/B/C combine all three:
-modA = Wave × Gain × FFT  // When audio loaded
-modA = Wave × Gain        // When no audio (FFT treated as 1.0)
+modA = Wave × Gain × Audio  // When audio loaded (V5_6_0 terminology)
+modA = Wave × Gain          // When no audio (Audio treated as 1.0)
 ```
 
-**Independent Shader Access:**
+**Independent Shader Access (V5_6_0 Rename):**
 ```javascript
 // Shaders can access components separately:
 uniforms.shaderModAWave   // Just the waveform
 uniforms.shaderModAGain   // Just the gain knob value
-uniforms.shaderModAFFT    // Just the FFT level
+uniforms.shaderModAAudio  // Just the audio level (V5_6_0 rename from FFT)
 
 // Enables custom combinations:
-let customMod = uniforms.shaderModAWave * uniforms.shaderModBFFT;
+let customMod = uniforms.shaderModAWave * uniforms.shaderModBAudio;
 ```
 
 **Works Without Audio:**
@@ -1513,12 +1577,12 @@ let customMod = uniforms.shaderModAWave * uniforms.shaderModBFFT;
 // When no audio loaded:
 - Wave functions normally (tempo-synced oscillation)
 - Gain functions normally (user-controlled)
-- FFT = 0 (no audio to analyze)
-- Freq knobs disabled (meaningless without audio)
+- Audio = 0 (no audio to analyze)
+- Freq knobs disabled (meaningless without audio/mic)
 
-// When audio loaded:
+// When audio loaded OR mic active (V5_6_0):
 - All three components active
-- Freq knobs enable, define FFT analysis range
+- Freq knobs enable, define analysis range
 ```
 
 **Four-Track Compositing:**
@@ -2594,19 +2658,22 @@ bumprSlideout                   // 80px panel inside preview-container
 bumprSlotRow[0-9]               // Slot rows with thumbnails
 ```
 
-**FX Overlay (V5_5_0):**
+**FX Overlay (V5_5_0, V5_6_0 Per-Track):**
 ```javascript
 // Orange FX button in MAIN column
 fxOverlayBtn                    // [FX] button (orange, opens slideout)
 fxOverlayPanel                  // 120px slideout panel
 
-// Per-track modules (4 tracks × 2 rows)
-trackVFXKnobs[track][slot]      // VFX knobs: A, B, C (20×20, purple)
-trackFXKnobs[track][slot]       // FX knobs: R, D, W (20×20, orange)
-// R = Reverb placeholder, D = Dubby, W = Washout
+// Per-track modules (4 tracks × 3 rows) - V5_6_0
+trackVFXKnobs[track][slot]      // VFX knobs: A, B, C (20×20, purple arcs)
+trackRGBKnobs[track][channel]   // RGB knobs: R, G, B (20×20, cyan arcs) - V5_6_0
+trackFXKnobs[track][slot]       // FX knobs: R, D, W (20×20, orange arcs)
+// VFX: Assigned from vfxPool (10 effects)
+// RGB: R=Red, G=Green, B=Blue gain (0.75=unity)
+// FX: Assigned from fxPool (10 effects)
 ```
 
-**PIP Camera (V5_5_0):**
+**PIP Camera (V5_5_0, V5_6_0 Position Dropdown):**
 ```javascript
 // Camera overlay (all tabs)
 cameraOverlay                   // Full-screen video overlay
@@ -2630,7 +2697,7 @@ pipColorPicker                  // 9-swatch popup
 pipColorSwatches[color]         // Individual color buttons
 ```
 
-**ADMIN Tab - Video Sources (V5_5_0):**
+**ADMIN Tab - Video Sources (V5_5_0, V5_6_0):**
 ```javascript
 // Video Sources section
 videoSourceDeviceDropdown       // Camera device selector (OmsDropdown)
@@ -2638,18 +2705,48 @@ videoSourceMirrorToggle         // Mirror mode checkbox
 testCameraBtn                   // Test camera button
 copyDiagnosticBtn               // Copy diagnostic report button
 
-// PIP Configuration
+// PIP Configuration (V5_6_0: 3 dropdowns per PIP)
 pip1ShapeDropdown               // PIP 1 shape selector
 pip1ColorDropdown               // PIP 1 color selector
+pip1PositionDropdown            // PIP 1 position selector (V5_6_0)
 pip2ShapeDropdown               // PIP 2 shape selector
 pip2ColorDropdown               // PIP 2 color selector
+pip2PositionDropdown            // PIP 2 position selector (V5_6_0)
 pip3ShapeDropdown               // PIP 3 shape selector
 pip3ColorDropdown               // PIP 3 color selector
+pip3PositionDropdown            // PIP 3 position selector (V5_6_0)
+```
+
+**ADMIN Tab - Effect Pool Configuration (V5_6_0):**
+```javascript
+// VFX Pool Assignments
+vfxSlotADropdown                // VFX slot A effect selector
+vfxSlotBDropdown                // VFX slot B effect selector
+vfxSlotCDropdown                // VFX slot C effect selector
+
+// Audio FX Pool Assignments
+fxSlotRDropdown                 // FX slot R effect selector
+fxSlotDDropdown                 // FX slot D effect selector
+fxSlotWDropdown                 // FX slot W effect selector
+```
+
+**ADMIN Tab - Unified Mic System (V5_6_0):**
+```javascript
+// Mic Input section (under Audio Card)
+micDeviceDropdown               // Mic input device selector (OmsDropdown)
+testMicBtn                      // Test mic input button
+micLevelMeterCanvas             // Real-time mic level display
 ```
 
 ---
 
-### Keyboard Shortcuts (CREATE Tab) (V5_2_0)
+### Keyboard Shortcuts (CREATE Tab) (V5_2_0, V5_6_0 Updates)
+
+**Global (V5_6_0):**
+| Shortcut | Action |
+|----------|--------|
+| R | Start render (V5_6_0: bare key) |
+| T | Quick timeline test (V5_6_0: bare key) |
 
 **Audio Navigation:**
 | Shortcut | Action |
@@ -2681,21 +2778,23 @@ pip3ColorDropdown               // PIP 3 color selector
 | ↑/↓ | Navigate rows (A/B/C) |
 | Shift+← | Decrease value |
 | Shift+→ | Increase value |
+| , (comma) | Mute selected mod (V5_6_0) |
+| . (period) | Solo selected mod (V5_6_0) |
 | N | Toggle Mod Tuning panel (V5_3_0) |
 | Escape | Exit mode |
 
-**Transform Focus Mode:**
+**Transform Focus Mode (V5_6_0 Redesign):**
 | Shortcut | Action |
 |----------|--------|
 | Shift+T | Enter/exit transform focus mode |
-| ←/→ | Navigate columns (Rotation/Scale/Tile/XY/Pivot) |
-| Shift+← | Decrease value |
-| Shift+→ | Increase value |
-| 0 | Stop mode (V5_5_0) |
-| 1 | CW/Grow/Increase mode (V5_5_0) |
-| 2 | CCW/Shrink/Decrease mode (V5_5_0) |
-| 3 | PingPong mode (V5_5_0) |
-| Trackpad scroll | Adjust animation speed (V5_5_0: 0.03×-256×) |
+| 1-5 | Select control (1=Rotation, 2=Scale, 3=Tile, 4=XY, 5=Pivot) |
+| 0 | Stop animation mode |
+| 1 | CW/Grow/Increase mode (when control selected) |
+| 2 | CCW/Shrink/Decrease mode |
+| 3 | PingPong mode |
+| Enter | Freeze/Resume animation |
+| Enter×2 | Reset to default (double-tap) |
+| Trackpad scroll | Adjust animation speed (0.03×-256×) |
 | Escape | Exit mode |
 
 **Music Timing Focus Mode (V5_1_0):**
@@ -2727,7 +2826,7 @@ pip3ColorDropdown               // PIP 3 color selector
 
 ---
 
-### Keyboard Shortcuts (PERFORM Tab) - V5_4_0, V5_5_0 Updates
+### Keyboard Shortcuts (PERFORM Tab) - V5_4_0, V5_5_0, V5_6_0 Updates
 
 **Note:** In V4_5_0, this tab is labeled "PERFORM" but internal references remain "live" for code continuity.
 
@@ -2739,7 +2838,7 @@ pip3ColorDropdown               // PIP 3 color selector
 | Esc | First press: Warning message "Press ESC again to stop all" |
 | Esc Esc | Double-tap within 500ms: Stop All |
 
-**Track Selection (V5_5_0 - Bare Keys):**
+**Track Selection (V5_5_0, V5_6_0 - Bare Keys):**
 | Key | Action |
 |-----|--------|
 | 1 | Select track 1 (no modifier!) |
@@ -2759,12 +2858,18 @@ pip3ColorDropdown               // PIP 3 color selector
 | SHIFT+Left | Return focus to library |
 | Enter | Load selected container to cursor |
 
+**Overlay Toggles (V5_6_0):**
+| Key | Action |
+|-----|--------|
+| E | Toggle EQ overlay for selected track |
+| F | Toggle FX overlay for selected track |
+| V | Toggle VFX overlay for selected track |
+| A | Toggle All overlays off |
+
 **Panel Access (V5_2_0):**
 | Key | Action |
 |-----|--------|
 | C | Open Cue panel for selected track |
-| E | Open EQ panel for selected track |
-| F | Open FX panel for selected track |
 
 **PIP Camera (V5_5_0):**
 | Key | Action |
@@ -2776,7 +2881,8 @@ pip3ColorDropdown               // PIP 3 color selector
 - Safety: `Esc` (double-tap) (V5_4_0)
 - Track Selection: `1-4`, `0` (V5_5_0: bare keys)
 - Quick-Load: `SHIFT+Right/Left` (V5_5_0)
-- Panel Access: `C/E/F` (V5_2_0)
+- Overlay Toggles: `E/F/V/A` (V5_6_0)
+- Panel Access: `C` (V5_2_0)
 - PIP: `O`, `P` (V5_5_0)
 - Grid Navigation: `W/A/S/D`
 - Playback: `Enter`, `Space`, `Delete`
@@ -4506,6 +4612,147 @@ audioCuePoints: audioCuePoints.slice()  // 5 elements
 
 ---
 
+### UNIFIED MIC SYSTEM DOMAIN (V5_6_0)
+
+**Mic Input Management:**
+```javascript
+initMicSystem()
+  // Initialize mic input system
+  // Creates: analyser, gain node
+  // Enumerates available input devices
+
+startMicInput(deviceId)
+  // Start mic stream from getUserMedia
+  // Args: deviceId (string or null for default)
+  // Connects: stream → gain → analyser
+
+stopMicInput()
+  // Stop mic stream
+  // Disconnects: all mic nodes
+  // Releases: MediaStream
+
+toggleMic()
+  // Toggle mic on/off (tap behavior)
+  // When enabling: starts stream if not active
+  // When disabling: mutes but keeps stream
+
+updateMicVolume(value)
+  // Update mic input gain
+  // Args: value (0-100)
+  // Uses: dB mapping same as track volume
+
+setMicDevice(deviceId)
+  // Change mic input device
+  // Args: deviceId (string)
+  // Restarts stream with new device
+```
+
+**Mic UI:**
+```javascript
+drawMicKnob(canvas, value, muted)
+  // Draw 18×18 mic knob in CREATE header
+  // Args: canvas, value (0-100), muted (boolean)
+  // Style: cyan arc, red when muted
+
+drawMicMeter(canvas, level)
+  // Draw mic level meter
+  // Args: canvas, level (0-1)
+  // Location: ADMIN → Audio Card section
+
+updateMicLevelDisplay()
+  // Update real-time mic level
+  // Called: requestAnimationFrame when mic active
+```
+
+---
+
+### PER-TRACK VFX DOMAIN (V5_6_0)
+
+**VFX Pipeline:**
+```javascript
+initTrackVFXPipeline(trackIndex)
+  // Initialize VFX pipeline for track
+  // Creates: WebGPU compute/render pipeline
+  // Args: trackIndex (0-3)
+
+applyTrackVFX(trackIndex, slot, value)
+  // Apply VFX effect to track
+  // Args: trackIndex, slot (0-2 for A/B/C), value (0-1)
+  // Routes to assigned effect from vfxPool
+
+getVFXShaderForEffect(effectName)
+  // Get WGSL shader code for effect
+  // Args: effectName (from vfxPool)
+  // Returns: shader string
+
+killTrackVFX(trackIndex, slot)
+  // Toggle kill state for VFX slot
+  // Args: trackIndex, slot
+  // Bypasses effect when killed
+```
+
+**RGB Control:**
+```javascript
+applyTrackRGB(trackIndex, channel, value)
+  // Apply RGB gain to track output
+  // Args: trackIndex, channel (0-2 for R/G/B), value (0-1)
+  // 0.75 = unity, 0 = kill, 1.0 = boost
+
+killTrackRGB(trackIndex, channel)
+  // Toggle kill state for RGB channel
+  // Args: trackIndex, channel
+  // Sets channel to 0 when killed
+
+drawRGBKnob(canvas, value, killed)
+  // Draw RGB knob visual
+  // Args: canvas, value, killed (boolean)
+  // Style: cyan arc, 0.75 marker for unity
+```
+
+---
+
+### EFFECT POOL DOMAIN (V5_6_0)
+
+**Pool Management:**
+```javascript
+initEffectPools()
+  // Initialize VFX and FX pools
+  // Sets: default assignments for A/B/C and R/D/W
+
+getVFXPool()
+  // Get available VFX effects
+  // Returns: array of 10 effect names
+
+getFXPool()
+  // Get available audio FX effects
+  // Returns: array of 10 effect names
+
+setVFXAssignment(slot, effectName)
+  // Assign effect to VFX slot
+  // Args: slot ('A', 'B', 'C'), effectName
+  // Persists: to project state
+
+setFXAssignment(slot, effectName)
+  // Assign effect to FX slot
+  // Args: slot ('R', 'D', 'W'), effectName
+  // Persists: to project state
+```
+
+**Pool Constants:**
+```javascript
+const VFX_POOL = [
+  'RGB Split', 'Glitch', 'Pixelate', 'Scanlines', 'Feedback',
+  'Mirror', 'Kaleidoscope', 'VHS', 'Shake', 'Off'
+];
+
+const FX_POOL = [
+  'Washout', 'Dubby', 'Break', 'Reverb', 'Flanger',
+  'Phaser', 'Bitcrush', 'Filter', 'Delay', 'Off'
+];
+```
+
+---
+
 ### AUDIO DOMAIN (Controls Tab)
 
 **Audio Loading/Playback:**
@@ -5276,9 +5523,10 @@ function migrateContainer(containerData) {
 - BumpR thumbnails cached as data URLs
 - VFX pipeline cached per effect (V5_4_0)
 
-**Browser Requirements (V5_4_0):**
+**Browser Requirements (V5_4_0, V5_6_0):**
 - WebGPU support (Chrome 113+, Edge 113+)
 - setSinkId API (Chrome 110+, Edge 110+) - for Audio Card
+- getUserMedia API (all modern browsers) - for Unified Mic (V5_6_0)
 - Web Audio API (all modern browsers)
 - File System Access API (Chrome/Edge only)
 - WebM VP9 alpha (Chrome/Edge for BumpR)
@@ -5288,3 +5536,7 @@ function migrateContainer(containerData) {
 ---
 
 ## END OF SYSTEM REFERENCE
+
+**Version:** Beta V5_6_0  
+**Date:** January 11, 2026  
+**License:** GPL-3.0

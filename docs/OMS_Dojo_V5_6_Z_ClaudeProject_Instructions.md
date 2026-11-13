@@ -1,8 +1,10 @@
-# ONEMANSHYO App [Beta V5_5_0] - CLAUDE PROJECT INSTRUCTIONS
+# ONEMANSHYO App [Beta V5_6_0] - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** Beta V5_5_0  
-**Date:** January 3, 2026  
-**Purpose:** Working protocols and project context for Claude AI development
+**Version:** Beta V5_6_0  
+**Date:** January 11, 2026  
+**License:** GPL-3.0  
+**Line Count:** 739 (V5_5_0) → 778 (V5_6_0)  
+**Document Purpose:** Working protocols and project context for Claude AI development
 
 ---
 
@@ -577,13 +579,13 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 ---
 
-## 8. WGSL SHADER CONVENTIONS (V5_5_0)
+## 8. WGSL SHADER CONVENTIONS (V5_6_0)
 
 ### Shader File Naming
 
 `OMS_Shader_[Name]_[AppVersion]_V[ShaderVersion].wgsl`
 
-Example: `OMS_Shader_Lava_Lamp_Metaballs_V5_5_0_V3.wgsl`
+Example: `OMS_Shader_Lava_Lamp_Metaballs_V5_6_0_V3.wgsl`
 
 ### Header Template
 
@@ -591,7 +593,7 @@ Every shader MUST include these tags in order:
 ```
 // @name [Display Name - no version]
 // @app ONEMANSHYO
-// @appVersion BETA V5_5_0
+// @appVersion BETA V5_6_0
 // @url http://www.itswessmithyo.com
 // @credit [Inspiration source or empty]
 // @creditUrl [URL or empty]
@@ -608,11 +610,25 @@ Every shader MUST include these tags in order:
 - Beat-synced timing via `uniforms.beat`
 - Modulators are 0-1 range (no `/5.0` normalization)
 
+### V5_6_0 Breaking Change: Uniform Rename
+
+**`shaderModAFFT` → `shaderModAAudio`** (and B/C)
+
+The "FFT" name was misleading - actual pipeline uses bandpass → peak detection → ADSR, not FFT bin averaging. Update existing shaders:
+```wgsl
+// OLD (V5_5_0 and earlier)
+let bass = uniforms.shaderModAFFT;
+
+// NEW (V5_6_0+)
+let bass = uniforms.shaderModAAudio;
+```
+
 ### When Updating Shaders
 
 - Increment version in filename (V2 → V3)
-- Update `@app` to current app version
+- Update `@appVersion` to current app version
 - Ensure transform chain matches current app standard
+- **V5_6_0:** Update any `shaderModAFFT` references to `shaderModAAudio`
 
 ---
 
@@ -624,12 +640,12 @@ Every shader MUST include these tags in order:
 
 #### Always Loaded (Baseline)
 
-**OMS_App_Beta_V5_5_0_Z_ClaudeProject_Instructions.md** - This Document
+**OMS_App_Beta_V5_6_0_Z_ClaudeProject_Instructions.md** - This Document
 - Development protocols, communication guidelines
 - Architectural principles, terminology
 - What never to suggest
 
-**OMS_App_Beta_V5_5_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
+**OMS_App_Beta_V5_6_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
 - Leaf Node hierarchy (Cortex/Nodes/Leafs)
 - Complete function reference (~310 functions)
 - Data structures (.oms, .omsp, gridState)
@@ -640,12 +656,13 @@ Every shader MUST include these tags in order:
 
 #### On-Demand (Wes Provides When Relevant)
 
-**OMS_App_Beta_V5_5_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
+**OMS_App_Beta_V5_6_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
 - Application usage (tabs, features, workflows)
-- **INDEX A:** DJ 101 Foundation (industry context, equipment, techniques)
-- **INDEX B:** Claude Shader Creation (prompts, workflows, examples)
-- **INDEX C:** FFmpeg Video Conversion (commands, settings)
-- **INDEX D:** Visual Vocabulary (shader patterns, WGSL examples, audio-reactive mappings)
+- **APPENDIX A:** DJ 101 Foundation (industry context, equipment, techniques)
+- **APPENDIX B:** What ONEMANSHYO Is (project philosophy)
+- **APPENDIX C:** Shader Development (prompts, workflows, **RECIPES**)
+- **APPENDIX D:** FFmpeg Video Conversion (commands, settings)
+- **INDEX A:** Visual Vocabulary (shader patterns, WGSL examples, audio-reactive mappings)
 
 **USE FOR:**
 - Shader development and visual effect naming
@@ -653,19 +670,37 @@ Every shader MUST include these tags in order:
 - User-facing feature documentation
 - FFmpeg conversion commands
 
+### Shader Recipe Awareness (V5_6_0)
+
+**IMPORTANT:** The User Guide contains detailed **Shader Recipes** (APPENDIX C.3) that document real development journeys - not just final code, but the debugging process, decisions made, and lessons learned.
+
+**Before shader work, Claude should:**
+1. Request the User Guide if not already loaded
+2. Review relevant recipes for similar patterns
+3. Apply lessons learned (e.g., "don't bake transforms", "Wave×Gain works alone", "subtle beats dramatic")
+4. Document new learnings in the same recipe format
+
+**Recipe format shows:**
+- Design goals and constraints
+- Development phases with version progression
+- Problems encountered and solutions found
+- Key learnings for future work
+- Tuning tips for different audio sources
+
 ### Document Priority Order
 
 When Claude needs information:
 1. **Check System Reference** → Technical implementation, function signatures
-2. **Request User Guide** → Shader patterns, DJ context, user features
+2. **Request User Guide** → Shader patterns, DJ context, user features, **shader recipes**
 3. **Still unclear?** → Ask Wes, who will point to correct doc or provide it
 
 ### Claude should NOT:
 - Duplicate information from these docs
 - Maintain separate version of technical details
 - Guess at implementation details when docs exist
-- Proceed with shader work without requesting User Guide (INDEX D)
-- Proceed with DJ workflow changes without requesting User Guide (INDEX A)
+- Proceed with shader work without requesting User Guide (APPENDIX C, INDEX A)
+- Proceed with DJ workflow changes without requesting User Guide (APPENDIX A)
+- Ignore shader recipe learnings when they apply to current work
 
 ---
 
@@ -737,3 +772,7 @@ When Claude needs information:
 ---
 
 **END OF CLAUDE PROJECT INSTRUCTIONS**
+
+**Version:** Beta V5_6_0  
+**Date:** January 11, 2026  
+**License:** GPL-3.0

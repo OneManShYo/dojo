@@ -1,9 +1,10 @@
-# ONEMANSHYO App [Beta V5_5_0] - USER GUIDE
+# ONEMANSHYO App [Beta V5_6_0] - USER GUIDE
 
-**Version:** Beta V5_5_0  
-**Date:** January 3, 2026  
+**Version:** Beta V5_6_0  
+**Date:** January 11, 2026  
 **License:** GPL-3.0  
-**Line Count:** 3,687 (V5_4_0) → 3,913 (V5_5_0)
+**Line Count:** 3,899 (V5_5_0) → 4,144 (V5_6_0)  
+**Document Purpose:** Comprehensive user and reference guide for all application features
 
 ---
 
@@ -35,7 +36,7 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 **Browser:** Chrome (WebGPU support required)  
 **Screen:** 1352×761 effective viewport (14" MacBook Pro)
 
-**File:** `OMS_App_Beta_V5_5_0.html`
+**File:** `OMS_App_Beta_V5_6_0.html`
 
 ---
 
@@ -46,14 +47,14 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 If you want to create visuals based on music timing without setting up a library:
 
 **Audio-Reactive Visuals (reacts to your music):**
-1. Open `OMS_App_Beta_V5_5_0.html`
+1. Open `OMS_App_Beta_V5_6_0.html`
 2. Drag your audio file (.mp3, .wav) onto the waveform
 3. Visuals automatically react to bass, mids, treble
 4. Click [Render Video]
 5. Get SILENT video with pre-baked reactivity
 
 **Tempo-Synced Visuals (animated to BPM, no audio needed):**
-1. Open `OMS_App_Beta_V5_5_0.html`
+1. Open `OMS_App_Beta_V5_6_0.html`
 2. Set tempo (e.g., 128 BPM)
 3. Set duration (e.g., 03:30.000)
 4. Click [Render Video]
@@ -136,7 +137,7 @@ A **shader** is GPU code that renders visuals in real-time.
 **Independent modulator components (V4_8_0):**
 - `uniforms.shaderModAWave`, `shaderModBWave`, `shaderModCWave` - waveform output (0-1)
 - `uniforms.shaderModAGain`, `shaderModBGain`, `shaderModCGain` - gain value (0-1)
-- `uniforms.shaderModAFFT`, `shaderModBFFT`, `shaderModCFFT` - FFT level (0-1)
+- `uniforms.shaderModAAudio`, `shaderModBAudio`, `shaderModCAudio` - audio level (0-1) *(V5_6_0 rename from shaderModAFFT)*
 
 **Transform uniforms (V5_0_0):**
 - `uniforms.transformRotation` - rotation in radians
@@ -847,6 +848,46 @@ AUDIO | [Vol] | [Container Name (scrolling)] | [Time] | [SWAP] [X]
 
 ---
 
+##### 3.2.5.9 Unified Mic System (V5_6_0)
+
+**Purpose:** Real-time audio input for testing audio reactivity without loaded audio files.
+
+**CREATE Header Controls (V5_6_0):**
+```
+AUDIO | [Mic 18×18] | [Vol 18×18] | [Container Name] | [Time] | [SWAP] [X]
+```
+
+**Mic Knob (18×18):**
+- **Tap:** Toggle mute (cyan arc = active, grey = muted)
+- **Drag vertical:** Adjust mic input level (0-100%)
+- **Arc color:** Cyan when active, grey when muted
+
+**Volume Knob (18×18):**
+- **Tap:** Toggle mute
+- **Drag vertical:** Adjust output volume (0-100%)
+
+**Freq Knobs State Logic:**
+- **With Audio File:** Freq knobs enabled (define analysis range)
+- **With Mic Input:** Freq knobs enabled (live analysis)
+- **No Audio/No Mic:** Freq knobs disabled (no source to analyze)
+
+**Audio Source Priority:**
+1. Loaded audio file (highest priority)
+2. Mic input (when no file loaded)
+3. Wave × Gain only (when neither present)
+
+**Device Selection:**
+- Configure in ADMIN → Audio Card → Input Device
+- Dropdown lists available input devices
+- Selected device persists in project state
+
+**Use Cases:**
+- Testing audio reactivity with voice/claps before selecting music
+- Live microphone input during performance
+- Previewing shader response to transient sounds
+
+---
+
 #### 3.2.6 Code View
 
 **Access:** Click [Code] button in tab header
@@ -897,6 +938,8 @@ AUDIO | [Vol] | [Container Name (scrolling)] | [Time] | [SWAP] [X]
 
 #### 3.2.8 CREATE Keyboard Shortcuts
 
+**Basic Controls:**
+
 | Shortcut | Action |
 |----------|--------|
 | Spacebar | Play/pause audio |
@@ -905,6 +948,8 @@ AUDIO | [Vol] | [Container Name (scrolling)] | [Time] | [SWAP] [X]
 | Shift+< | Jump to previous grid line (4 bars) |
 | Shift+> | Jump to next grid line (4 bars) |
 | G | Toggle beatgrid |
+| R | Start render (V5_6_0) |
+| T | Quick timeline test (V5_6_0) |
 
 **Audio Focus Mode (V5_2_0):**
 
@@ -920,7 +965,7 @@ AUDIO | [Vol] | [Container Name (scrolling)] | [Time] | [SWAP] [X]
 | Enter | Activate (jump/kill) |
 | Escape | Exit panel or mode |
 
-**Reactivity Mode (V4_8_0):**
+**Reactivity Mode (V4_8_0, V5_6_0):**
 
 | Shortcut | Action |
 |----------|--------|
@@ -930,19 +975,28 @@ AUDIO | [Vol] | [Container Name (scrolling)] | [Time] | [SWAP] [X]
 | Shift+← | Decrease value |
 | Shift+→ | Increase value |
 | N | Toggle Mod Tuning panel (V5_3_0) |
+| , (comma) | Mute selected mod (V5_6_0) |
+| . (period) | Solo selected mod (V5_6_0) |
 | Escape | Exit reactivity mode |
 
 **Note:** Hold Shift+Arrow for progressive acceleration (faster changes).
 
-**Transform Mode (V5_0_0):**
+**Transform Mode (V5_0_0, V5_6_0):**
 
 | Shortcut | Action |
 |----------|--------|
 | Shift+T | Enter/exit transform mode |
 | ← → | Navigate controls (Rotation/Scale/Tile/XY/Pivot) |
+| 1-5 | Select transform control directly (V5_6_0) |
 | Shift+← → | Adjust encoder values |
 | Shift+↑↓←→ | Move XY/Pivot pads |
-| Shift+Enter×2 | Reset selected to default |
+| 0 | Stop animation mode (V5_6_0) |
+| 1 | CW/Grow/Increase mode (V5_6_0) |
+| 2 | CCW/Shrink/Decrease mode (V5_6_0) |
+| 3 | PingPong mode (V5_6_0) |
+| Enter | Freeze/Resume animation (V5_6_0) |
+| Enter×2 | Reset selected to default |
+| Trackpad scroll | Adjust animation speed (V5_6_0) |
 | Escape | Exit transform mode |
 
 **Shift+Trackpad (V5_0_0):**
@@ -1609,7 +1663,7 @@ Click **VFX** button in MAIN column to open the effects slideout.
 
 ---
 
-#### 3.4.9 FX Overlay (V5_5_0)
+#### 3.4.9 FX Overlay (V5_5_0, V5_6_0)
 
 Click the **FX** button (orange) in the MAIN column to open the per-track effects overlay.
 
@@ -1617,31 +1671,54 @@ Click the **FX** button (orange) in the MAIN column to open the per-track effect
 - 120px slideout panel
 - 4 track modules (one per track)
 - VFX section (top): 3 knobs per track
+- RGB section (middle): 3 knobs per track (V5_6_0)
 - FX section (bottom): 3 knobs per track
 
-**VFX Knobs (Purple Arc):**
+**VFX Knobs (Purple Arc) - V5_6_0:**
 
-| Knob | Effect |
-|------|--------|
-| A | VFX slot A (placeholder) |
-| B | VFX slot B (placeholder) |
-| C | VFX slot C (placeholder) |
+| Knob | Default | Description |
+|------|---------|-------------|
+| A | RGB Split | VFX slot A (assigned in ADMIN) |
+| B | Glitch | VFX slot B (assigned in ADMIN) |
+| C | Pixelate | VFX slot C (assigned in ADMIN) |
 
-*Note: VFX knobs are interactive but backend not yet connected in V5_5_0.*
+*Per-track visual effects processing. Each track has independent VFX chain.*
+
+**RGB Knobs (Cyan Arc) - V5_6_0:**
+
+| Knob | Default | Range | Description |
+|------|---------|-------|-------------|
+| R | 0.75 | 0-1 | Red channel gain (0.75 = unity) |
+| G | 0.75 | 0-1 | Green channel gain (0.75 = unity) |
+| B | 0.75 | 0-1 | Blue channel gain (0.75 = unity) |
+
+**RGB Interaction:**
+- **Drag vertical:** Adjust gain (0-1)
+- **Click:** Kill/restore channel
+- **Unity:** 0.75 = no change (default)
+- **Boost:** 0.75-1.0 = brighten channel
+- **Cut:** 0-0.75 = darken channel
+- **Kill:** Click to toggle 0/restore
 
 **FX Knobs (Orange Arc):**
 
-| Knob | Effect |
-|------|--------|
-| R | Washout (highpass sweep) |
-| D | Dubby (dub delay) |
-| W | Break (vinyl stop) |
+| Knob | Default | Description |
+|------|---------|-------------|
+| R | Washout | Audio FX slot R (assigned in ADMIN) |
+| D | Dubby | Audio FX slot D (assigned in ADMIN) |
+| W | Break | Audio FX slot W (assigned in ADMIN) |
+
+*Per-track audio effects processing. Each track has independent FX chain.*
 
 **Visual Standardization:**
 - All knobs are 20×20 pixels
-- Purple arcs for VFX
-- Orange arcs for FX
+- Purple arcs for VFX (visual effects)
+- Cyan arcs for RGB (color control)
+- Orange arcs for FX (audio effects)
 - Consistent with PERFORM tab design
+
+**Effect Assignment:**
+Configure which effects are assigned to each slot in ADMIN → Effect Pool.
 
 ---
 
@@ -1685,7 +1762,7 @@ Go to ADMIN → Application Labels to edit all scene labels and colors.
 
 ---
 
-#### 3.4.12 PERFORM Keyboard Shortcuts (V5_4_0, V5_5_0)
+#### 3.4.12 PERFORM Keyboard Shortcuts (V5_4_0, V5_5_0, V5_6_0)
 
 **Track Selection (V5_5_0):**
 
@@ -1703,6 +1780,15 @@ Go to ADMIN → Application Labels to edit all scene labels and colors.
 **Visual Feedback (V5_5_0):**
 - Track header highlights yellow when selected
 - Press 1-4: Yellow ring on track header
+
+**Overlay Toggles (V5_6_0):**
+
+| Shortcut | Action |
+|----------|--------|
+| E | Toggle EQ overlay for selected track |
+| F | Toggle FX overlay |
+| V | Toggle VFX overlay |
+| A | Toggle All overlays off |
 
 **Quick-Load Workflow (V5_5_0):**
 
@@ -2031,7 +2117,7 @@ Manage tags across your entire library.
 
 ---
 
-#### 3.5.7 Video Sources (V5_5_0)
+#### 3.5.7 Video Sources (V5_5_0, V5_6_0)
 
 Configure camera for PIP overlays.
 
@@ -2044,14 +2130,25 @@ Configure camera for PIP overlays.
 - Flips video horizontally
 - Useful for webcams (natural mirror view)
 
-**PIP Shape/Color Configuration:**
+**PIP Configuration (V5_6_0 - Three Dropdowns per PIP):**
 
-Each PIP (1, 2, 3) has independent settings:
+Each PIP (1, 2, 3) has three independent dropdowns:
 
-| Setting | Options |
-|---------|---------|
-| Shape | Landscape (16:9), Portrait (9:16), Square (1:1), Circle |
-| Color | None, Cyan, Magenta, Orange, Yellow, Green, Purple, Pink, White |
+| Dropdown | Options | Purpose |
+|----------|---------|---------|
+| Shape | Landscape (16:9), Portrait (9:16), Square (1:1), Circle | Aspect ratio |
+| Color | None, Cyan, Magenta, Orange, Yellow, Green, Purple, Pink, White | Border color |
+| Position | Corner, Center, Slideout | Placement on canvas |
+
+**PIP Locations:**
+- **PIP 1:** PERFORM tab only, slideout position
+- **PIP 2:** CREATE/ORGANIZE/ADMIN tabs, corner position
+- **PIP 3:** CREATE/ORGANIZE/ADMIN tabs, center position (V5_6_0)
+
+**Render Composite (V5_6_0):**
+- WYSIWYG: Rendered output matches preview exactly
+- PIP overlays included in render when visible
+- Position and styling preserved in output
 
 **Test Camera:**
 - Preview camera output
@@ -2230,7 +2327,63 @@ When BumpR mode is active:
 
 ---
 
-#### 3.5.9 ADMIN Keyboard Shortcuts (V5_4_0)
+#### 3.5.9 Effect Pool Configuration (V5_6_0)
+
+**Purpose:** Configure which effects are assigned to each slot in the FX Overlay (PERFORM tab).
+
+**Visual VFX Pool (10 effects):**
+
+| Effect | Description |
+|--------|-------------|
+| RGB Split | Chromatic aberration offset |
+| Glitch | Digital distortion |
+| Pixelate | Block reduction |
+| Scanlines | CRT-style horizontal lines |
+| Feedback | Frame buffer delay |
+| Mirror | Horizontal/vertical reflection |
+| Kaleidoscope | Multi-fold symmetry |
+| VHS | Tape degradation emulation |
+| Shake | Camera shake effect |
+| Off | No effect (passthrough) |
+
+**Audio FX Pool (10 effects):**
+
+| Effect | Description |
+|--------|-------------|
+| Washout | Highpass sweep (20Hz → 2kHz) |
+| Dubby | Dub delay (375ms, feedback) |
+| Break | Vinyl stop (playbackRate 1.0 → 0.1) |
+| Reverb | Room reverb simulation |
+| Flanger | Comb filter sweep |
+| Phaser | Phase modulation |
+| Bitcrush | Sample rate reduction |
+| Filter | Resonant lowpass/highpass |
+| Delay | Tempo-synced echo |
+| Off | No effect (dry signal) |
+
+**Per-Slot Assignment:**
+
+| VFX Slots | Default |
+|-----------|---------|
+| A | RGB Split |
+| B | Glitch |
+| C | Pixelate |
+
+| FX Slots | Default |
+|----------|---------|
+| R | Washout |
+| D | Dubby |
+| W | Break |
+
+**Configuration:**
+1. Go to ADMIN tab
+2. Navigate to "Effect Pool" section
+3. Select effect for each slot from dropdown
+4. Settings persist in project state (.omsp)
+
+---
+
+#### 3.5.10 ADMIN Keyboard Shortcuts (V5_4_0)
 
 **Section Navigation (V5_4_0):**
 
@@ -2768,29 +2921,31 @@ The app auto-injects these. Just use them directly:
 | `uniforms.resolutionX` | f32 | pixels | Canvas width |
 | `uniforms.resolutionY` | f32 | pixels | Canvas height |
 
-**Independent Modulator Components (V4_8_0):**
+**Independent Modulator Components (V4_8_0, V5_6_0 rename):**
 
 | Uniform | Type | Range | Purpose |
 |---------|------|-------|---------|
 | `uniforms.shaderModAWave` | f32 | 0.0-1.0 | Mod A waveform output |
 | `uniforms.shaderModAGain` | f32 | 0.0-1.0 | Mod A gain value |
-| `uniforms.shaderModAFFT` | f32 | 0.0-1.0 | Mod A FFT level (0 if no audio) |
+| `uniforms.shaderModAAudio` | f32 | 0.0-1.0 | Mod A audio level (0 if no audio) |
 | `uniforms.shaderModBWave` | f32 | 0.0-1.0 | Mod B waveform output |
 | `uniforms.shaderModBGain` | f32 | 0.0-1.0 | Mod B gain value |
-| `uniforms.shaderModBFFT` | f32 | 0.0-1.0 | Mod B FFT level |
+| `uniforms.shaderModBAudio` | f32 | 0.0-1.0 | Mod B audio level |
 | `uniforms.shaderModCWave` | f32 | 0.0-1.0 | Mod C waveform output |
 | `uniforms.shaderModCGain` | f32 | 0.0-1.0 | Mod C gain value |
-| `uniforms.shaderModCFFT` | f32 | 0.0-1.0 | Mod C FFT level |
+| `uniforms.shaderModCAudio` | f32 | 0.0-1.0 | Mod C audio level |
+
+**V5_6_0 Rename:** The audio uniforms were renamed from `shaderModAFFT` to `shaderModAAudio` (and B/C) to accurately reflect the audio analysis pipeline (bandpass → peak detection → ADSR), not FFT bin averaging.
 
 **Legacy vs Independent:**
-- `modA/B/C` = combined value (Wave × Gain × FFT) - backward compatible
+- `modA/B/C` = combined value (Wave × Gain × Audio) - backward compatible
 - Independent uniforms let you access each component separately for custom combinations
 
 **Example - using independent uniforms:**
 ```wgsl
-// Custom combination: wave controls size, FFT controls color
+// Custom combination: wave controls size, audio controls color
 let size = 0.3 + uniforms.shaderModAWave * 0.2;
-let colorIntensity = uniforms.shaderModAFFT;
+let colorIntensity = uniforms.shaderModAAudio;
 ```
 
 **Transform Uniforms (V5_0_0):**
@@ -3098,72 +3253,163 @@ let noise = fract(sin(dot(uv, vec2<f32>(12.9898, 78.233))) * 43758.5453);
 
 ### C.3 Recipes
 
-*Real examples showing the iterative flow in action*
+*Real examples showing the iterative development process - not just "user says, Claude delivers" but the debugging and discovery journey*
 
 ---
 
 #### C.3.1 Recipe #1: "No AI Problema"
 
-*How to work with Claude to develop shaders iteratively*
+*A three-layer spoke shader showing how problems lead to better solutions*
+
+**Overview:**
+Inspired by Art of the Problem YouTube channel - a bicycle wheel metaphor with squiggly spokes:
+- White = all the world's knowledge
+- Green = humans reaching out with curiosity
+- Purple = AI extending knowledge
+
+**Design Goals:**
+1. Voice-friendly (responds well to speech, not just music)
+2. Gain control (visible change from quiet to loud)
+3. Base motion (never completely static)
+4. Electric ripple effect (energy traveling along spokes)
+5. Thinning effect (spokes narrow on loud peaks)
+
+**Development Phases:**
+
+*V14 - Static Foundation:*
+- Golden-angle distribution (137.5°) for natural spiral
+- Three layers with different spoke counts per modulator
+- Problem discovered: looked too static
+
+*V15 - Audio Reactivity Attempt:*
+- Added modA controlling overall rotation
+- Problem: removed base sway entirely - looked dead when quiet
+- Learning: NEVER remove base motion for audio control
+
+*V16 - Layered Motion:*
+- Restored base sway (slow rotation via time)
+- Added electric ripple OVER base motion
+- Added spoke thinning on peaks
+- Formula: `motion = baseSway + (modA * rippleAmount)`
+
+*V17 - Per-Spoke Phase:*
+- Each spoke gets unique ripple offset
+- Ripples travel at different speeds per spoke
+- Creates more organic, less mechanical look
+
+*V18 - Final (Doubled Color Counts):*
+- Increased spoke counts for denser visual
+- Fine-tuned thinning multiplier
+- Adjusted ripple frequency for voice
+
+**Key Learnings:**
+- Always keep base motion - audio ADDS to it, never replaces
+- Layer effects: base + primary + secondary
+- Per-element phase offsets create organic motion
+- Audio × Gain = controllable intensity
+- Thickness feedback (thinning) adds perceived energy
+- Test with N-panel to verify dynamics
+
+**Tuning Tips:**
+
+*For Voice:*
+```
+Mod A: Freq 100-300Hz, Q 1.5, Attack 10ms, Decay 50ms
+Mod B: Freq 300-800Hz, Q 1.0, Attack 5ms, Decay 30ms
+Mod C: Freq 2k-8kHz, Q 0.7, Attack 2ms, Decay 20ms
+Gain: Start at 0.3, increase for more dramatic response
+```
+
+*For Music:*
+```
+Mod A: Freq 30-80Hz (kicks), Q 2.0, Attack 5ms, Decay 20ms
+Mod B: Freq 200-500Hz (snares), Q 1.0, Attack 10ms, Decay 40ms
+Mod C: Freq 8k-16kHz (hats), Q 0.5, Attack 2ms, Decay 15ms
+```
 
 ---
 
-##### STEP 1: THE RECIPE
+#### C.3.2 Recipe #2: "Diwali Rangoli"
 
-**USER:** I want a shader inspired by Art of the Problem YouTube channel. Like a bicycle wheel with squiggly spokes. The concept:
-- **White** = all the world's knowledge
-- **Green** = humans reaching out with curiosity  
-- **Purple** = AI extending knowledge (but not questioning)
+*A four-fold pinwheel pattern showing a different development approach*
 
-**CLAUDE:** *[asks about distribution pattern, what modA should control]*
+**Overview:**
+Traditional Indian rangoli art - geometric patterns created during festivals. Four-fold symmetry with rotating pinwheel design.
 
----
+**Design Goals:**
+1. Static first (get geometry right before adding motion)
+2. Flat colors (no gradients - authentic to traditional rangoli)
+3. Wave × Gain testing (prove reactivity works without audio)
+4. Geometry changes (audio affects SHAPES not brightness)
+5. Subtle amounts (0.015 beats 0.15)
 
-##### STEP 2: FIRST LAYER (WHITE)
+**Development Phases:**
 
-**USER:** Golden angle distribution, modA controls strand count 144 to 244
+*Phase 1 - Reference Study:*
+- Watched YouTube videos of rangoli creation
+- Noted 4-fold symmetry is most common
+- Key insight: patterns ROTATE around center, not pulse
 
-**CLAUDE:** *[delivers static white squiggly spokes]*
+*Phase 2 - Static Geometry (V1-V4):*
+- Built basic 4-fold pinwheel
+- Problem V2: baked rotation into shader
+- V3: removed baked rotation, used transforms
+- V4: correct geometry, no animation
 
----
+*Phase 3 - Color Mapping (V5-V8):*
+- Added flat color fills (no gradients)
+- Wave × Gain works with NO audio loaded
+- Tested with cycler waveform, gain 0.5
+- Proves reactivity before committing to audio
 
-##### STEP 3: SECOND LAYER (GREEN)
+*Phase 4 - Geometry Reactivity (V9-V14):*
+- Audio changes SEGMENT COUNT not brightness
+- modA controls petal count (4 to 8)
+- modB controls inner ring segments
+- modC controls outer fringe density
+- Problem V11: too much change = jarring
+- V12-14: reduced multipliers dramatically
 
-**USER:** Add green spokes, same curved style. modB controls count 12 to 144
+*Phase 5 - Amount Tuning (V15-V18):*
+- Started with 0.15 multiplier - way too much
+- Reduced to 0.05 - still jumpy
+- Final: 0.015 - subtle but visible
+- Learning: SUBTLE BEATS DRAMATIC for geometry changes
 
-**CLAUDE:** *[delivers green on top of white]*
+**Key Learnings:**
+- Separation of concerns: geometry vs color vs motion
+- Don't bake transforms - let app control rotation
+- Geometry changes need tiny amounts (0.01-0.03)
+- Wave × Gain proves reactivity without audio
+- Flat colors = flat colors (resist gradient temptation)
+- Study reference material before coding
 
----
+**Tuning Tips:**
 
-##### STEP 4: THIRD LAYER (PURPLE)
+*Modulator Mapping:*
+```
+Mod A → Segment count (geometry change)
+Mod B → Pattern shake (small XY offset)  
+Mod C → Detail split (line thickness)
+```
 
-**USER:** Add purple on modC from 0 to 48
+*Color Cycling Formula:*
+```wgsl
+// 4-color cycle based on segment index
+let colors = array<vec3<f32>, 4>(
+    vec3(1.0, 0.2, 0.1),   // Orange-red
+    vec3(0.9, 0.8, 0.1),   // Gold
+    vec3(0.2, 0.6, 0.9),   // Sky blue
+    vec3(0.8, 0.2, 0.6)    // Magenta
+);
+let colorIndex = u32(segment) % 4u;
+```
 
-**CLAUDE:** *[delivers three layers: modA=White, modB=Green, modC=Purple]*
-
----
-
-##### STEP 5: ADD MOTION
-
-**USER:** Ideas to make it cooler?
-
-**CLAUDE:** *[offers options: rotation, pulsing, traveling waves, glow...]*
-
-**USER:** No pulsing, annoying. Focus on squiggles.
-
-**CLAUDE:** *[delivers squiggles animating outward along spokes]*
-
----
-
-##### STEP 6: FILL THE CANVAS
-
-**USER:** The shader is round in the canvas. I'd like it to fill the canvas.
-
-**CLAUDE:** *[offers: extend radius, remove outer limit, scale coordinates]*
-
-**USER:** Go forever - no outer limit.
-
-**CLAUDE:** *[delivers strands extending to canvas edges]*
+*Geometry Reactivity:*
+```wgsl
+// TINY amount - 0.015 not 0.15
+let petalCount = 4.0 + uniforms.shaderModAAudio * 0.015 * 4.0;
+```
 
 ---
 
@@ -3884,6 +4130,7 @@ length(fract(uv * 8.0) - 0.5)
 | 2.3.0 | December 2025 | Updated for V5_3_0 (Real Audio Reactivity, Mod Tuning, Tags, Sets, Quantize) |
 | 2.4.0 | December 2025 | Updated for V5_4_0 (Audio Card, MAIN Column, DSP, VFX, Scene Labels) |
 | 2.5.0 | January 2026 | Updated for V5_5_0 (Transform Animation, Per-Mod ADSR+T, PIP Camera) |
+| 2.6.0 | January 2026 | Updated for V5_6_0 (Unified Mic, Per-Track VFX, Effect Pool, RGB Control, Uniform Rename) |
 
 ---
 
@@ -3893,6 +4140,6 @@ length(fract(uv * 8.0) - 0.5)
 
 **END OF USER GUIDE**
 
-Version: Beta V5_5_0  
-Date: January 3, 2026  
-License: GPL-3.0
+**Version:** Beta V5_6_0  
+**Date:** January 11, 2026  
+**License:** GPL-3.0
