@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V4_4
+ONEMANSHYO Dojo App V4_5
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V4_4
+Version: V4_5
 -->
 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V4_4]</title>
+    <title>ONEMANSHYO App [V4_5]</title>
     <!-- V4_3_0_sub6: JSZip for container export (loaded from CDN when needed) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -162,18 +162,22 @@ Version: V4_4
             border-bottom-color: #00d4ff;
         }
 
-        /* V4_4_0: Color-coded tabs by function */
-        /* Cyan: Creation tabs (no folder needed) */
+        /* V4_5_0: Color-coded tabs by function */
+        /* Cyan: CREATE tab */
         .tab-cyan:hover { color: #00d4ff; }
         .tab-cyan.active { color: #00d4ff; border-bottom-color: #00d4ff; }
         
-        /* Magenta: Library/Performance tabs (folder needed) */
+        /* Yellow: ORGANIZE tab */
+        .tab-yellow:hover { color: #ffcc00; }
+        .tab-yellow.active { color: #ffcc00; border-bottom-color: #ffcc00; }
+        
+        /* Magenta: PERFORM tab */
         .tab-magenta:hover { color: #ff00ff; }
         .tab-magenta.active { color: #ff00ff; border-bottom-color: #ff00ff; }
         
-        /* Yellow: Utility tabs */
-        .tab-yellow:hover { color: #ffcc00; }
-        .tab-yellow.active { color: #ffcc00; border-bottom-color: #ffcc00; }
+        /* Grey: ADMIN tab (subdued) */
+        .tab-grey:hover { color: #888; }
+        .tab-grey.active { color: #888; border-bottom-color: #888; }
 
         .tab-content {
             display: none;
@@ -191,6 +195,27 @@ Version: V4_4
 
         .tab-content.active {
             display: flex;
+        }
+
+        /* V4_5_23: ADMIN nav item styling */
+        .admin-nav-item {
+            padding: 12px 16px;
+            margin: 4px 0;
+            color: #888;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .admin-nav-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .admin-nav-item.active {
+            color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
         }
 
         .controls-section {
@@ -509,6 +534,13 @@ Version: V4_4
             flex-direction: column;
         }
 
+        /* V4_5_21: Audio Controls section header - matches waveform background */
+        .audio-controls-section .shader-header {
+            background: linear-gradient(180deg, #1e1e1e, #252525);
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+        }
+
         .audio-waveform {
             height: 120px;
             background: linear-gradient(180deg, #1e1e1e, #252525);
@@ -594,8 +626,9 @@ Version: V4_4
         }
 
         /* Cell 1: Transport buttons horizontal */
+        /* V4_5_0: Transport cell - Play button only */
         .controls-cell.transport {
-            width: 250px;
+            width: 120px;
             flex-shrink: 0;
         }
 
@@ -610,16 +643,16 @@ Version: V4_4
             min-width: 140px;
         }
 
-        /* Cell 3: Audio Tempo/Pitch */
+        /* V4_5_0: Cell 3: Tempo/Pitch (fixed width) */
         .controls-cell.audio-props {
-            flex: 1;
-            min-width: 120px;
+            flex: 0 0 auto;
+            width: auto;
         }
 
-        /* Cell 4: Loop In/Out */
+        /* V4_5_0: Cell 4: Loop In/Out + Loop button (one cell) */
         .controls-cell.loop-timing {
-            flex: 1;
-            min-width: 100px;
+            flex: 0 0 auto;
+            width: auto;
         }
 
         /* Cell 5: Grid + Snap + Last Bar + Remove - V4.0.0_D_sub21: Expanded */
@@ -1155,6 +1188,296 @@ Version: V4_4
         }
         #libraryListRight::-webkit-scrollbar {
             display: none; /* Chrome/Safari/Opera */
+        }
+        
+        /* V4_5_19: Grid view mode */
+        #libraryListRight.grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            padding: 8px;
+        }
+        
+        #libraryListRight.grid-view .library-card {
+            aspect-ratio: 16/9;
+            padding: 0 !important;
+            margin-bottom: 0 !important;
+            overflow: hidden;
+        }
+        
+        #libraryListRight.grid-view .library-card .card-list-content {
+            display: none !important;
+        }
+        
+        #libraryListRight.grid-view .library-card .library-thumb {
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+            border: none !important;
+            display: block !important;
+        }
+        
+        /* V4_5_19: List view - default card layout */
+        #libraryListRight:not(.grid-view) .library-card {
+            display: flex;
+            align-items: center;
+        }
+        
+        #libraryListRight:not(.grid-view) .library-thumb {
+            flex-shrink: 0;
+        }
+
+        /* V4_5_19: Library toolbar styles */
+        .library-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            margin-bottom: 12px;
+        }
+        
+        .library-toolbar .search-input {
+            flex: 1;
+            min-width: 120px;
+            max-width: 200px;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 13px;
+        }
+        
+        .library-toolbar .search-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+        
+        .library-toolbar .search-input::placeholder {
+            color: #666;
+        }
+        
+        .library-toolbar .toolbar-btn {
+            padding: 6px 10px;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #ccc;
+            font-size: 13px;
+            cursor: pointer;
+            min-width: 32px;
+            text-align: center;
+        }
+        
+        .library-toolbar .toolbar-btn:hover {
+            background: #444;
+            border-color: #555;
+            color: #fff;
+        }
+        
+        .library-toolbar .toolbar-btn.active {
+            background: #00d4ff;
+            border-color: #00d4ff;
+            color: #000;
+        }
+        
+        .library-toolbar .toolbar-btn.danger {
+            color: #ff6b6b;
+        }
+        
+        .library-toolbar .toolbar-btn.danger:hover {
+            background: #ff6b6b;
+            border-color: #ff6b6b;
+            color: #fff;
+        }
+        
+        .library-toolbar .toolbar-spacer {
+            flex: 1;
+        }
+        
+        .library-toolbar .toolbar-group {
+            display: flex;
+            gap: 4px;
+        }
+        
+        /* V4_5_19: Info drawer slide-out */
+        .info-drawer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 280px;
+            height: 100%;
+            background: #1a1a1a;
+            border-left: 1px solid #333;
+            transform: translateX(100%);
+            transition: transform 0.2s ease-out;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .info-drawer.open {
+            transform: translateX(0);
+        }
+        
+        .info-drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #333;
+            background: #222;
+        }
+        
+        .info-drawer-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00d4ff;
+        }
+        
+        .info-drawer-close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .info-drawer-close:hover {
+            color: #fff;
+        }
+        
+        .info-drawer-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .info-drawer-field {
+            margin-bottom: 12px;
+        }
+        
+        .info-drawer-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .info-drawer-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .info-drawer-swap-btn {
+            font-size: 10px;
+            padding: 2px 8px;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 3px;
+            color: #aaa;
+            cursor: pointer;
+            text-transform: none;
+        }
+        
+        .info-drawer-swap-btn:hover {
+            background: #444;
+            color: #fff;
+        }
+        
+        .info-drawer-swap-btn.danger {
+            color: #f66;
+        }
+        
+        .info-drawer-swap-btn.danger:hover {
+            background: #633;
+            border-color: #844;
+        }
+        
+        .info-drawer-btn-group {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .info-drawer-shader-thumb {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+        
+        .info-drawer-audio-select {
+            width: 100%;
+            margin-top: 6px;
+            padding: 6px 8px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 12px;
+        }
+        
+        .info-drawer-value {
+            font-size: 14px;
+            color: #fff;
+            word-break: break-word;
+        }
+        
+        .info-drawer-value.muted {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .info-drawer-nav {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 12px 16px;
+            border-top: 1px solid #333;
+            background: #222;
+        }
+        
+        .info-drawer-nav-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .info-drawer-nav-actions button {
+            padding: 6px 16px;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #ccc;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .info-drawer-nav-actions button:hover {
+            background: #444;
+            color: #fff;
+        }
+        
+        .info-drawer-nav-actions button.primary {
+            background: #d63031;
+            border-color: #d63031;
+            color: #fff;
+        }
+        
+        .info-drawer-nav-actions button.primary:hover {
+            background: #e84142;
+            border-color: #e84142;
         }
 
         .scenes-grid {
@@ -1972,7 +2295,7 @@ Version: V4_4
     <div class="header">
         <div class="header-left">
             <div class="header-brand">ONEMANSHYO</div>
-            <div class="header-app">[Beta V4_4_0]</div>
+            <div class="header-app">[Beta V4_5_0]</div>
         </div>
         <div class="header-greeting" id="headerGreeting">Hi Friend, I'm Wes!</div>
     </div>
@@ -1983,16 +2306,14 @@ Version: V4_4
             <!-- V2.1.0-C: Tab Bar -->
             <!-- V3_4_0_C: Renamed tabs to single letters, added Settings tab -->
             <!-- V4_4_0: Removed P tab - System presets now in Library -->
-            <!-- Tabs: C W | L LIVE | S U A -->
-            <!-- Color coding: Cyan (creation) | Magenta (library/performance) | Yellow (utility) -->
+            <!-- Tabs: CREATE | ORGANIZE | PERFORM | ADMIN -->
+            <!-- V4_5_0: W tab removed - Code now accessed via toggle in C tab -->
+            <!-- V4_5_0: Removed W tab - Code now accessed via toggle in C tab -->
             <div class="tab-bar">
-                <button class="tab tab-cyan active" id="controlsTab" onclick="switchTab('controls')">C</button>
-                <button class="tab tab-cyan" id="codeTab" onclick="switchTab('code')">W</button>
-                <button class="tab tab-magenta" id="libraryTab" onclick="switchTab('library')">L</button>
-                <button class="tab tab-magenta" id="liveTab" onclick="switchTab('live')">LIVE</button>
-                <button class="tab tab-yellow" id="settingsTab" onclick="switchTab('settings')">S</button>
-                <button class="tab tab-yellow" id="utilitiesTab" onclick="switchTab('utilities')">U</button>
-                <button class="tab tab-yellow" id="aboutTab" onclick="switchTab('about')">A</button>
+                <button class="tab tab-cyan active" id="controlsTab" onclick="switchTab('controls')">CREATE</button>
+                <button class="tab tab-yellow" id="libraryTab" onclick="switchTab('library')">ORGANIZE</button>
+                <button class="tab tab-magenta" id="liveTab" onclick="switchTab('live')">PERFORM</button>
+                <button class="tab tab-grey" id="adminTab" onclick="switchTab('admin')">ADMIN</button>
             </div>
             
             <!-- V2.1.0-C: Controls Tab Content -->
@@ -2000,9 +2321,16 @@ Version: V4_4
             <div class="tab-content active" id="controlsTabContent">
             <div class="controls-section">
                 <div class="controls">
-                    <!-- V2.5.0-B: SHADER section header -->
-                    <!-- V2.7.0-H: Renamed to SHADER TIMING -->
-                    <div class="shader-header">Shader Timing</div>
+                    <!-- V4_5_0: SHADER CONTROLS header - matches content width, proper spacing -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 4px; margin-top: 5px; margin-bottom: 15px;">
+                        <div class="shader-header" style="margin: 0; padding: 0;">SHADER CONTROLS</div>
+                        <button class="info-drawer-swap-btn" onclick="toggleCodeView()">Code</button>
+                    </div>
+                    
+                    <!-- V4_5_0: Controls content wrapper -->
+                    <div id="shaderControlsContent">
+                    <!-- V4_5_0: Timing sub-section -->
+                    <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px;">Timing</label>
                     
                     <!-- V2.1.1-G: Orientation moved to Output section (Row 5) -->
                     
@@ -2040,8 +2368,8 @@ Version: V4_4
                         </div>
                     </div>
 
-                    <!-- V2.7.0-H: SHADER REACTIVITY section header -->
-                    <div class="shader-header">Shader Reactivity</div>
+                    <!-- V4_5_0: Reactivity sub-section -->
+                    <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px;">Reactivity</label>
 
                     <!-- Row 2: Mod A Controls -->
                     <div class="control-row mod-row">
@@ -2220,13 +2548,12 @@ Version: V4_4
 
                     <!-- V4_4_0: Control States removed - use .oms containers in Presets/ instead -->
 
+                    </div><!-- End shaderControlsContent -->
+
                 </div>
             </div>
-            </div><!-- End Controls Tab Content -->
-            
-            <!-- V2.1.0-C: Code Tab Content -->
-            <div class="tab-content" id="codeTabContent">
-            <div class="code-section">
+            <!-- V4_5_0: Code section as sibling to controls-section (flex layout works) -->
+            <div class="code-section" id="shaderCodeContent" style="display: none;">
                 <div class="code-header">
                     <button class="btn" onclick="compileShader(true)" title="Compile Shader">Compile</button>
                     <button class="btn" onclick="copyShaderCode()" title="Copy Shader to Clipboard">Copy</button>
@@ -2298,7 +2625,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 }
                 </textarea>
             </div>
-            </div><!-- End Code Tab Content -->
+            </div><!-- End Controls Tab Content -->
             
             <!-- V4_4_0: Presets Tab removed - System presets now in Library under "System" set -->
             
@@ -2307,8 +2634,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             <div class="tab-content" id="libraryTabContent">
                 <div class="controls-section" style="flex: 1; display: flex; flex-direction: column; border-bottom: none;">
                     <div class="controls" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
-                        <!-- V4_4_0: SET header and dropdown for LIVE tab -->
-                        <div class="shader-header">Set</div>
+                        <!-- V4_5_0: SET header with background bar -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 4px; margin-top: 5px; margin-bottom: 15px;">
+                            <div class="shader-header" style="margin: 0; padding: 0;">SET</div>
+                        </div>
                         <select id="liveSetSelector" onchange="onLiveSetChange()" style="background: rgba(255,255,255,0.1); border: 1px solid #555; color: #fff; padding: 8px 12px; font-size: 12px; margin-bottom: 12px;">
                             <option value="presets" selected>Presets</option>
                             <option value="all">All</option>
@@ -2337,13 +2666,15 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 </div>
             </div><!-- End Library Tab Content (used by LIVE tab) -->
             
-            <!-- V4_4_0: Library left panel - SETS section -->
+            <!-- V4_5_0: Library left panel - LIBRARY section -->
             <div class="tab-content" id="librarySetsTabContent">
                 <div class="controls-section" style="flex: 1; display: flex; flex-direction: column; border-bottom: none;">
                     <div class="controls" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
                         
-                        <!-- V4_4_0: SETS section -->
-                        <div class="shader-header" style="margin-bottom: 8px;">Sets</div>
+                        <!-- V4_5_0: LIBRARY header with background bar -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 4px; margin-top: 5px; margin-bottom: 15px;">
+                            <div class="shader-header" style="margin: 0; padding: 0;">LIBRARY</div>
+                        </div>
                         
                         <!-- Sets list - alphabetical order -->
                         <div id="librarySetsList" style="flex: 1; overflow-y: auto; min-height: 0;">
@@ -2370,7 +2701,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         </div>
                     </div>
                 </div>
-            </div><!-- End Library SETS Tab Content -->
+            </div><!-- End LIBRARY Left Panel -->
             
             <!-- V3_4_0_C: Settings Tab Content -->
             <!-- V3_4_0_D: Added Library Folder button (moved from Library tab) -->
@@ -2496,7 +2827,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     
                     <div style="margin-top: 20px;">
                         <div style="color: #00d4ff; font-size: 16px; font-weight: 600; margin-bottom: 5px;">
-                            Beta V4_4_0
+                            Beta V4_5_0
                         </div>
                         <div style="color: #aaa; font-size: 14px; margin-bottom: 15px;">
                             Audio-Reactive WebGPU Shader Tool + Live Performance Mixer
@@ -2670,6 +3001,20 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 </div>
             </div><!-- End Utilities Tab Content -->
             
+            <!-- V4_5_23: ADMIN Tab Content - Left panel nav only -->
+            <!-- V4_5_24: Content moved to adminContentRightPanel in right panel -->
+            <div class="tab-content" id="adminTabContent">
+                <div class="controls" style="padding: 8px 20px 20px 20px;">
+                    <!-- V4_5_0: ADMIN header with background bar -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 4px; margin-top: 5px; margin-bottom: 15px;">
+                        <div class="shader-header" style="margin: 0; padding: 0;">ADMIN</div>
+                    </div>
+                    <div class="admin-nav-item active" data-section="settings" onclick="switchAdminSection('settings')">Settings</div>
+                    <div class="admin-nav-item" data-section="utilities" onclick="switchAdminSection('utilities')">Utilities</div>
+                    <div class="admin-nav-item" data-section="about" onclick="switchAdminSection('about')">About</div>
+                </div>
+            </div><!-- End Admin Tab Content -->
+            
             <!-- V3.4.0_M: Only visible on LIVE tab -->
             <!-- V3.4.0_O: Removed label for more canvas space on MacBook Pro 14" -->
             <!-- V3.4.0_Q: Moved outside .controls to fix at bottom (no scrolling) -->
@@ -2705,29 +3050,31 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 </div>
             </div>
             
-            <!-- V4_4_0: LIBRARY CONTAINERS - In Right Panel (replaces canvas when Library tab active) -->
-            <div id="libraryContainersRightPanel" style="display: none; flex: 1; overflow: hidden; padding: 20px;">
+            <!-- V4_5_0: LIBRARY CONTAINERS - In Right Panel (replaces canvas when Library tab active) -->
+            <div id="libraryContainersRightPanel" style="display: none; flex: 1; overflow: hidden; padding: 20px; position: relative;">
                 <div style="display: flex; flex-direction: column; height: 100%;">
-                    <div class="shader-header" style="margin-bottom: 12px;">Containers</div>
                     
-                    <!-- Header bar with function buttons -->
-                    <div class="control-row" style="margin-bottom: 12px;">
-                        <div class="control-group">
-                            <button class="btn" id="libraryLoadBtn2" onclick="loadSelectedContainer()" title="Load selected container">Load</button>
+                    <!-- V4_5_19: Library toolbar with search, CRUD, organization buttons -->
+                    <div class="library-toolbar">
+                        <input type="text" class="search-input" id="librarySearchInput" placeholder="Search..." title="Search containers (name, BPM, tags)">
+                        
+                        <div class="toolbar-group">
+                            <button class="toolbar-btn" id="libraryLoadBtn2" onclick="loadSelectedContainer()" title="Load selected container [L]">L</button>
+                            <button class="toolbar-btn" id="libraryUpdateBtn2" onclick="updateSelectedContainer()" title="Update selected with current state [U]">U</button>
+                            <button class="toolbar-btn" id="libraryExportBtn2" onclick="exportSelectedContainer()" title="Export container + audio as .oms.zip [E]">E</button>
+                            <button class="toolbar-btn" id="libraryAddBtn2" onclick="addToLibrary()" title="Add current to library [+]">+</button>
                         </div>
-                        <div class="control-group">
-                            <button class="btn" id="libraryUpdateBtn2" onclick="updateSelectedContainer()" title="Update selected with current state">Update</button>
+                        
+                        <div class="toolbar-group">
+                            <button class="toolbar-btn" id="libraryMakeSetBtn" onclick="showStatus('Make Set: Coming soon', '')" title="Create set from selection [+Set]">+Set</button>
+                            <button class="toolbar-btn active" id="libraryListViewBtn" onclick="setLibraryView('list')" title="List view">≡</button>
+                            <button class="toolbar-btn" id="libraryGridViewBtn" onclick="setLibraryView('grid')" title="Grid view">▦</button>
+                            <button class="toolbar-btn" id="libraryInfoBtn" onclick="toggleInfoDrawer()" title="Info drawer [I]">ℹ</button>
                         </div>
-                        <div class="control-group">
-                            <button class="btn" id="libraryExportBtn2" onclick="exportSelectedContainer()" title="Export container + audio as .oms.zip">Export</button>
-                        </div>
-                        <div class="control-group">
-                            <button class="btn" id="libraryAddBtn2" onclick="addToLibrary()" title="Add current audio/shader to library">Add Current</button>
-                        </div>
-                        <div style="flex: 1;"></div>
-                        <div class="control-group">
-                            <button class="btn" id="libraryDeleteBtn2" onclick="removeSelectedContainer()" title="Delete selected container">X</button>
-                        </div>
+                        
+                        <div class="toolbar-spacer"></div>
+                        
+                        <button class="toolbar-btn danger" id="libraryDeleteBtn2" onclick="removeSelectedContainer()" title="Delete selected container [X]">X</button>
                     </div>
                     
                     <!-- V4_4_0: Inline input row for container name (hidden by default) -->
@@ -2764,10 +3111,74 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         </div>
                     </div>
                 </div>
+                
+                <!-- V4_5_19: Info drawer slide-out panel -->
+                <div class="info-drawer" id="infoDrawer">
+                    <div class="info-drawer-header">
+                        <span class="info-drawer-title">Container Info</span>
+                        <button class="info-drawer-close" onclick="toggleInfoDrawer()" title="Close">×</button>
+                    </div>
+                    <div class="info-drawer-content">
+                        <div class="info-drawer-field">
+                            <div class="info-drawer-label">Name</div>
+                            <div class="info-drawer-value" id="infoDrawerName">—</div>
+                        </div>
+                        
+                        <div class="info-drawer-field">
+                            <div class="info-drawer-label">BPM</div>
+                            <div class="info-drawer-value" id="infoDrawerBPM">—</div>
+                        </div>
+                        
+                        <div class="info-drawer-field">
+                            <div class="info-drawer-label-row">
+                                <span>Audio</span>
+                                <div class="info-drawer-btn-group">
+                                    <button class="info-drawer-swap-btn" onclick="showAudioSwapDropdown()" title="Swap audio file">Swap</button>
+                                    <button class="info-drawer-swap-btn danger" onclick="infoDrawerRemoveAudio()" title="Remove audio">Remove</button>
+                                </div>
+                            </div>
+                            <div class="info-drawer-value" id="infoDrawerAudio">—</div>
+                            <select class="info-drawer-audio-select" id="infoDrawerAudioSelect" style="display: none;" onchange="onAudioSwapSelect()">
+                            </select>
+                        </div>
+                        
+                        <div class="info-drawer-field">
+                            <div class="info-drawer-label">Duration</div>
+                            <div class="info-drawer-value" id="infoDrawerDuration">—</div>
+                        </div>
+                        
+                        <div class="info-drawer-field">
+                            <div class="info-drawer-label">Loop</div>
+                            <div class="info-drawer-value" id="infoDrawerLoop">—</div>
+                        </div>
+                        
+                        <div class="info-drawer-field">
+                            <div class="info-drawer-label">Created</div>
+                            <div class="info-drawer-value" id="infoDrawerCreated">—</div>
+                        </div>
+                    </div>
+                    <div class="info-drawer-nav">
+                        <div class="info-drawer-nav-actions">
+                            <button onclick="infoDrawerCancel()" id="infoDrawerCancelBtn" title="Cancel">Cancel</button>
+                            <button onclick="infoDrawerOK()" id="infoDrawerOKBtn" class="primary" title="OK">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- V4_5_24: ADMIN Content - In Right Panel (replaces canvas when ADMIN tab active) -->
+            <div id="adminContentRightPanel" style="display: none; flex: 1; overflow-y: auto; padding: 30px;">
+                <div class="admin-placeholder">
+                    <div style="color: #00d4ff; font-size: 16px; font-weight: 600; text-transform: uppercase;">SETTINGS</div>
+                    <div style="color: #666; font-size: 12px; margin-top: 8px;">Content coming in next iteration</div>
+                </div>
             </div>
             
             <!-- V4_4_0: Audio Controls Section - wraps audio waveform + controls strip -->
             <div class="audio-controls-section">
+            
+            <!-- V4_5_20: Audio Controls section header -->
+            <div class="shader-header" id="audioControlsHeader">Audio Controls</div>
             
             <!-- Audio Waveform (120px Fixed Height) -->
             <div class="audio-waveform">
@@ -2782,14 +3193,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             <!-- V3.0.0-K: Audio Controls Strip with 5 Bordered Cells (60px Fixed Height) -->
             <div class="audio-controls-strip">
                 
-                <!-- CELL 1: Transport Controls (250px fixed) -->
+                <!-- V4_5_0: CELL 1: Transport (Play only, with label for alignment) -->
                 <div class="controls-cell transport">
                     <div class="cell-label-row">
-                        <div class="label-item">Audio Transport</div>
+                        <div class="label-item">Transport</div>
                     </div>
                     <div class="cell-controls-row">
                         <button class="btn" id="audioPlayBtn" onclick="toggleAudioPlayback()" title="Play/Pause (Spacebar)" disabled>Play</button>
-                        <button class="btn" id="audioLoopBtn" onclick="toggleAudioLoop()" title="Loop: Audio repeats IN to OUT" disabled>Loop</button>
                     </div>
                 </div>
                 
@@ -2809,34 +3219,38 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     </div>
                 </div>
                 
-                <!-- CELL 3: Audio Tempo/Pitch (flex: 1, min 170px) -->
+                <!-- V4_5_0: CELL 3: Tempo/Pitch (smaller fields) -->
                 <div class="controls-cell audio-props">
                     <div class="cell-label-row">
-                        <div class="label-item">Audio Tempo</div>
+                        <div class="label-item">Tempo</div>
                         <div class="label-item">Pitch</div>
                     </div>
                     <div class="cell-controls-row">
                         <input type="text" id="audioTempoField" value="120.00" 
-                               placeholder="120.00" title="Manual audio tempo entry in decimal format (e.g., 127.53 from Ableton) | Arrow keys: Up/Down=±0.01, Left/Right=±1.0">
+                               placeholder="120.00" title="Manual audio tempo entry in decimal format (e.g., 127.53 from Ableton) | Arrow keys: Up/Down=±0.01, Left/Right=±1.0"
+                               style="width: 70px; flex: 0 0 70px;">
                         <input type="text" id="audioPitchField" value="0.00" 
                                placeholder="0.00" title="Pitch adjustment (±16%) | Arrow keys: Up/Down=±0.1%, Left/Right=±1.0% | Affects playback speed and BPM" 
-                               disabled>
+                               disabled
+                               style="width: 50px; flex: 0 0 50px;">
                     </div>
                 </div>
                 
-                <!-- CELL 4: Loop In/Out (flex: 1, min 140px) -->
+                <!-- V4_5_0: CELL 4: Loop In/Out + Loop button (one cell, related controls) -->
                 <div class="controls-cell loop-timing">
                     <div class="cell-label-row">
                         <div class="label-item clickable" onclick="setInToStart()" title="Click to set to start">Loop In</div>
                         <div class="label-item clickable" onclick="setOutToEnd()" title="Click to set to end">Loop Out</div>
+                        <div class="label-item"></div>
                     </div>
                     <div class="cell-controls-row">
-                        <input type="text" id="audioLoopInField" value="17.1" title="Loop In (Bar.Beat format: 1.1, 17.1, etc.)">
-                        <input type="text" id="audioLoopOutField" value="33.1" title="Loop Out (Bar.Beat format: 1.1, 33.1, etc.)">
+                        <input type="text" id="audioLoopInField" value="17.1" title="Loop In (Bar.Beat format: 1.1, 17.1, etc.)" style="width: 50px; flex: 0 0 50px;">
+                        <input type="text" id="audioLoopOutField" value="33.1" title="Loop Out (Bar.Beat format: 1.1, 33.1, etc.)" style="width: 50px; flex: 0 0 50px;">
+                        <button class="btn" id="audioLoopBtn" onclick="toggleAudioLoop()" title="Loop: Audio repeats IN to OUT" disabled style="width: 50px; flex: 0 0 50px;">Loop</button>
                     </div>
                 </div>
                 
-                <!-- CELL 5: Grid/Snap/Remove + Last Bar -->
+                <!-- V4_5_0: CELL 5: Grid/Snap/Remove + Last Bar (all buttons always visible) -->
                 <div class="controls-cell actions">
                     <div class="cell-label-row">
                         <div class="label-item" style="width: 64px;">Beat Grid</div>
@@ -2845,9 +3259,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     </div>
                     <div class="cell-controls-row">
                         <button class="btn btn-square inactive" id="audioGridBtn" onclick="toggleAudioGrid()" title="Grid: OFF (hidden) - Click to show">G</button>
-                        <button class="btn btn-square" onclick="snapAudioEndToBar()" id="audioSnapBtn" style="display: none;" title="Calculate last complete bar">S</button>
+                        <button class="btn btn-square inactive" onclick="snapAudioEndToBar()" id="audioSnapBtn" disabled title="Calculate last complete bar">S</button>
                         <input type="text" id="audioSnapLastBarField" value="" readonly style="flex: 1; text-align: center;" title="Last complete bar from Audio Start">
-                        <button class="btn btn-square" onclick="removeAudio()" id="audioRemoveBtn" style="display: none;" title="Remove loaded audio">X</button>
+                        <span style="border-left: 1px solid #444; height: 24px; margin: 0 4px;"></span>
+                        <button class="btn btn-square inactive" onclick="removeAudio()" id="audioRemoveBtn" disabled title="Remove loaded audio">X</button>
                     </div>
                 </div>
                 
@@ -3092,6 +3507,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         let analyser = null;
         let audioDataArray = null;
         let audioLoaded = false;
+        let audioExplicitlyRemoved = false;  // V4_5_19: Track explicit audio removal for update
         let currentAudioFile = null;  // V2.8.0-L: Store current audio File object for filename
         let bassLevel = 0, midLevel = 0, trebleLevel = 0;
         
@@ -3403,10 +3819,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const file = event.target.files[0];
             if (!file) return;
             
-            // V2.1.0-A: Update UI - show waveform and remove button
+            // V4_5_0: Update UI - show waveform, enable buttons (no hide/show shift)
             document.getElementById('waveformCanvas').style.display = 'block';
-            document.getElementById('audioSnapBtn').style.display = 'inline-block';  // V4_0_0_D_sub13
-            document.getElementById('audioRemoveBtn').style.display = 'inline-block';
+            document.getElementById('audioSnapBtn').disabled = false;
+            document.getElementById('audioSnapBtn').classList.remove('inactive');
+            document.getElementById('audioRemoveBtn').disabled = false;
+            document.getElementById('audioRemoveBtn').classList.remove('inactive');
             
             // Show loading state
             audioBufferData = null;
@@ -3456,6 +3874,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 document.getElementById('audioTempoField').value = detectedBPM.toFixed(2);
                 
                 audioLoaded = true;
+                audioExplicitlyRemoved = false;  // V4_5_19: Clear removal flag
                 currentAudioFile = file;  // V2.8.0-L: Store File object for filename
                 showStatus(`Audio loaded: ${file.name} (${detectedBPM.toFixed(2)} Tempo)`, 'success');
                 
@@ -3965,10 +4384,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             audioBufferData = null;
             staticWaveformCache = null;
             
-            // V2.1.0-A: Reset UI - hide waveform and remove button
+            // V4_5_0: Reset UI - hide waveform, disable buttons (no hide/show shift)
             document.getElementById('waveformCanvas').style.display = 'none';
-            document.getElementById('audioSnapBtn').style.display = 'none';  // V4_0_0_D_sub13
-            document.getElementById('audioRemoveBtn').style.display = 'none';
+            document.getElementById('audioSnapBtn').disabled = true;
+            document.getElementById('audioSnapBtn').classList.add('inactive');
+            document.getElementById('audioRemoveBtn').disabled = true;
+            document.getElementById('audioRemoveBtn').classList.add('inactive');
             document.getElementById('audioFile').value = '';
             
             // V4.0.0_D_sub21: Clear Last Bar field
@@ -3976,6 +4397,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             audioSnapLastBar = null;
             
             audioLoaded = false;
+            audioExplicitlyRemoved = true;  // V4_5_19: Mark audio as explicitly removed
+            currentAudioFile = null;  // V4_5_19: Clear file reference
             
             // V2.1.0-E: Disable transport controls
             // V2.2.0-F: Added Loop button
@@ -5373,33 +5796,48 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // No shader recompilation needed - canvas will render at new size automatically
         });
 
+        // V4_5_0: Toggle code view on/off
+        function toggleCodeView() {
+            const controls = document.getElementById('shaderControlsContent');
+            const code = document.getElementById('shaderCodeContent');
+            
+            if (code.style.display === 'none') {
+                // Show code
+                controls.style.display = 'none';
+                code.style.display = 'flex';
+            } else {
+                // Show controls
+                code.style.display = 'none';
+                controls.style.display = 'block';
+            }
+        }
+
         // V2.1.0-C: Tab switching function
         // V4_4_0: Removed presetsTab handling
         function switchTab(tabName) {
             // Hide all tab contents in left panel
             document.getElementById('controlsTabContent').classList.remove('active');
-            document.getElementById('codeTabContent').classList.remove('active');
             document.getElementById('libraryTabContent').classList.remove('active'); // V2.8.0-F
             document.getElementById('librarySetsTabContent').classList.remove('active'); // V4_4_0
             document.getElementById('settingsTabContent').classList.remove('active'); // V3_4_0_C
             document.getElementById('aboutTabContent').classList.remove('active'); // V3_8_0_X
             document.getElementById('utilitiesTabContent').classList.remove('active'); // V4_3_0
+            document.getElementById('adminTabContent').classList.remove('active'); // V4_5_23
             
             // Deactivate all tabs
             document.getElementById('controlsTab').classList.remove('active');
-            document.getElementById('codeTab').classList.remove('active');
             document.getElementById('libraryTab').classList.remove('active'); // V2.8.0-F
-            document.getElementById('settingsTab').classList.remove('active'); // V3_4_0_C
-            document.getElementById('aboutTab').classList.remove('active'); // V3_8_0_X
-            document.getElementById('utilitiesTab').classList.remove('active'); // V4_3_0
             document.getElementById('liveTab').classList.remove('active'); // V3.0.0-B
+            document.getElementById('adminTab').classList.remove('active'); // V4_5_23
             
             // V3.0.0-B: Hide/show right panel content based on tab
             const previewContainer = document.querySelector('.preview-container');
+            const audioControlsHeader = document.getElementById('audioControlsHeader'); // V4_5_22
             const audioWaveform = document.querySelector('.audio-waveform');
             const audioControlsStrip = document.querySelector('.audio-controls-strip');
             const liveMixerContainer = document.getElementById('liveMixerContainer');
             const libraryContainersRightPanel = document.getElementById('libraryContainersRightPanel'); // V4_4_0
+            const adminContentRightPanel = document.getElementById('adminContentRightPanel'); // V4_5_24
             
             // V3_4_0_M: Live shader output container (only show on LIVE tab)
             const liveShaderOutputContainer = document.getElementById('liveShaderOutputContainer');
@@ -5411,20 +5849,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // Show canvas, hide LIVE mixer and library containers
                 previewContainer.style.display = 'flex';
                 libraryContainersRightPanel.style.display = 'none';
-                audioWaveform.style.display = 'flex';
-                audioControlsStrip.style.display = 'flex';
-                liveMixerContainer.style.display = 'none';
-                liveShaderOutputContainer.style.display = 'none';
-                // V3_8_0_G: Hide overlay (no folder needed)
-                document.getElementById('appFolderOverlay').classList.remove('active');
-                // V4_4_0: Update canvas size now that container is visible
-                setTimeout(() => updateCanvasSize(), 10);
-            } else if (tabName === 'code') {
-                document.getElementById('codeTabContent').classList.add('active');
-                document.getElementById('codeTab').classList.add('active');
-                // Show canvas, hide LIVE mixer and library containers
-                previewContainer.style.display = 'flex';
-                libraryContainersRightPanel.style.display = 'none';
+                adminContentRightPanel.style.display = 'none'; // V4_5_24
+                audioControlsHeader.style.display = 'block'; // V4_5_22
                 audioWaveform.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
@@ -5434,7 +5860,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // V4_4_0: Update canvas size now that container is visible
                 setTimeout(() => updateCanvasSize(), 10);
             } else if (tabName === 'library') { // V2.8.0-F
-                // V4_4_0: Show SETS in left panel, CONTAINERS + Audio Controls in right panel
+                // V4_5_0: Show LIBRARY in left panel, containers + Audio Controls in right panel
                 document.getElementById('librarySetsTabContent').classList.add('active');
                 document.getElementById('libraryTab').classList.add('active');
                 
@@ -5455,6 +5881,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // V4_4_0: Hide canvas, show containers + audio controls
                 previewContainer.style.display = 'none';
                 libraryContainersRightPanel.style.display = 'block';
+                adminContentRightPanel.style.display = 'none'; // V4_5_24
+                audioControlsHeader.style.display = 'block'; // V4_5_22
                 audioWaveform.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
@@ -5467,63 +5895,6 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         if (firstCard) firstCard.focus();
                     }, 50);
                 }
-            } else if (tabName === 'settings') { // V3_4_0_C
-                document.getElementById('settingsTabContent').classList.add('active');
-                document.getElementById('settingsTab').classList.add('active');
-                
-                // V3_8_0_G: Show app-level overlay if no folder
-                const appOverlay = document.getElementById('appFolderOverlay');
-                if (!applicationFolderHandle) {
-                    appOverlay.classList.add('active');
-                } else {
-                    appOverlay.classList.remove('active');
-                }
-                
-                // Show canvas, hide LIVE mixer and library containers
-                previewContainer.style.display = 'flex';
-                libraryContainersRightPanel.style.display = 'none';
-                audioWaveform.style.display = 'flex';
-                audioControlsStrip.style.display = 'flex';
-                liveMixerContainer.style.display = 'none';
-                liveShaderOutputContainer.style.display = 'none';
-                // V4_4_0: Update canvas size now that container is visible
-                setTimeout(() => updateCanvasSize(), 10);
-            } else if (tabName === 'about') { // V3_8_0_X
-                document.getElementById('aboutTabContent').classList.add('active');
-                document.getElementById('aboutTab').classList.add('active');
-                
-                // Show canvas, hide LIVE mixer and library containers
-                previewContainer.style.display = 'flex';
-                libraryContainersRightPanel.style.display = 'none';
-                audioWaveform.style.display = 'flex';
-                audioControlsStrip.style.display = 'flex';
-                liveMixerContainer.style.display = 'none';
-                liveShaderOutputContainer.style.display = 'none';
-                // V3_8_0_X: Hide overlay (no folder needed)
-                document.getElementById('appFolderOverlay').classList.remove('active');
-                // V4_4_0: Update canvas size now that container is visible
-                setTimeout(() => updateCanvasSize(), 10);
-            } else if (tabName === 'utilities') { // V4_3_0
-                document.getElementById('utilitiesTabContent').classList.add('active');
-                document.getElementById('utilitiesTab').classList.add('active');
-                
-                // V4_3_0: Show overlay if no folder (utilities need library access)
-                const appOverlay = document.getElementById('appFolderOverlay');
-                if (!applicationFolderHandle) {
-                    appOverlay.classList.add('active');
-                } else {
-                    appOverlay.classList.remove('active');
-                }
-                
-                // Show canvas, hide LIVE mixer and library containers
-                previewContainer.style.display = 'flex';
-                libraryContainersRightPanel.style.display = 'none';
-                audioWaveform.style.display = 'flex';
-                audioControlsStrip.style.display = 'flex';
-                liveMixerContainer.style.display = 'none';
-                liveShaderOutputContainer.style.display = 'none';
-                // V4_4_0: Update canvas size now that container is visible
-                setTimeout(() => updateCanvasSize(), 10);
             } else if (tabName === 'live') { // V3.0.0-B
                 // V4_4_0: Show containers in left panel (from "All" set)
                 document.getElementById('libraryTabContent').classList.add('active');
@@ -5541,6 +5912,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // Hide canvas/audio controls, show LIVE mixer
                 previewContainer.style.display = 'none';
                 libraryContainersRightPanel.style.display = 'none';
+                adminContentRightPanel.style.display = 'none'; // V4_5_24
+                audioControlsHeader.style.display = 'none'; // V4_5_22
                 audioWaveform.style.display = 'none';
                 audioControlsStrip.style.display = 'none';
                 liveMixerContainer.style.display = 'block';
@@ -5558,6 +5931,352 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 // V3_6_0_U: Do NOT auto-focus library cards on LIVE tab
                 // (library selection highlighting interferes with scene/cell launcher navigation)
+            } else if (tabName === 'admin') { // V4_5_23
+                document.getElementById('adminTabContent').classList.add('active');
+                document.getElementById('adminTab').classList.add('active');
+                
+                // V4_5_23: Show app-level overlay if no folder (admin needs library access)
+                const appOverlay = document.getElementById('appFolderOverlay');
+                if (!applicationFolderHandle) {
+                    appOverlay.classList.add('active');
+                } else {
+                    appOverlay.classList.remove('active');
+                }
+                
+                // V4_5_24: Hide canvas and audio controls, show admin content in right panel
+                previewContainer.style.display = 'none';
+                libraryContainersRightPanel.style.display = 'none';
+                adminContentRightPanel.style.display = 'block';
+                audioControlsHeader.style.display = 'none';
+                audioWaveform.style.display = 'none';
+                audioControlsStrip.style.display = 'none';
+                liveMixerContainer.style.display = 'none';
+                liveShaderOutputContainer.style.display = 'none';
+                
+                // V4_5_25: Load Settings by default
+                switchAdminSection('settings');
+            }
+        }
+
+        // V4_5_23: Switch between admin sections (Settings, Utilities, About)
+        // V4_5_25: Added Settings content
+        function switchAdminSection(sectionName) {
+            // Update nav item active states
+            document.querySelectorAll('.admin-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`.admin-nav-item[data-section="${sectionName}"]`).classList.add('active');
+            
+            // V4_5_25: Load content based on section
+            const contentArea = document.getElementById('adminContentRightPanel');
+            
+            if (sectionName === 'settings') {
+                contentArea.innerHTML = `
+                    <div class="controls-section" style="padding: 0;">
+                        <div class="shader-header">APPLICATION</div>
+                        
+                        <!-- Application Folder Setup -->
+                        <div style="margin-top: 20px;">
+                            <div class="control-row">
+                                <div class="control-group">
+                                    <button class="btn" onclick="setupApplicationFolder()" id="adminSetupFolderBtn">Change Folder</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Library Info Box -->
+                            <div class="control-state-info" id="adminApplicationFolderInfo">
+                                <div class="control-state-info-title">Application Folder</div>
+                                <div class="control-state-info-content">
+                                    <div class="info-row">
+                                        <span style="color: #00d4ff;">✓</span>
+                                        <span id="adminApplicationFolderName">${applicationFolderHandle ? applicationFolderHandle.name : 'Not configured'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- PROJECT STATES -->
+                        <div style="margin-top: 30px;">
+                            <div class="shader-header" style="font-size: 14px; margin-bottom: 15px;">PROJECT STATES</div>
+                            
+                            <div class="control-row">
+                                <div class="control-group" style="flex: 3;">
+                                    <select id="adminProjectStateSelect" title="Load Project State" style="width: 100%; padding: 8px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; font-size: 13px;">
+                                        <option value="" selected>No Project Loaded</option>
+                                    </select>
+                                </div>
+                                <div class="control-group">
+                                    <button class="btn" onclick="saveProjectState()" title="Save Project State">Save</button>
+                                </div>
+                                <div class="control-group">
+                                    <button class="btn" onclick="loadProjectState()" title="Load Project State">Load</button>
+                                </div>
+                                <div class="control-group">
+                                    <button class="btn btn-danger" onclick="deleteProjectState()" title="Delete Project State">Delete</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Inline Save Input Row -->
+                            <div id="adminProjectSaveInputRow" class="control-row" style="display: none; margin-top: 10px;">
+                                <div class="control-group" style="flex: 3;">
+                                    <input type="text" id="adminProjectSaveName" placeholder="Enter project name..." 
+                                           style="width: 100%; padding: 8px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #00d4ff; border-radius: 4px; font-size: 13px;">
+                                </div>
+                                <div class="control-group">
+                                    <button class="btn" onclick="confirmSaveProjectState()" title="Confirm Save">✓</button>
+                                </div>
+                                <div class="control-group">
+                                    <button class="btn" onclick="cancelSaveProjectState()" title="Cancel Save">✗</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Project State Info Box -->
+                            <div id="adminProjectStateInfo" class="control-state-info" style="display: none; margin-top: 15px;">
+                                <div class="control-state-info-title">Project Information</div>
+                                <div class="control-state-info-content" id="adminProjectStateInfoContent"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- GREETING -->
+                        <div style="margin-top: 30px;">
+                            <div class="shader-header" style="font-size: 14px; margin-bottom: 15px;">GREETING</div>
+                            
+                            <div class="control-row">
+                                <div class="control-group">
+                                    <label style="display: block; margin-bottom: 5px; color: #aaa; font-size: 13px;">Header Text</label>
+                                    <input type="text" id="adminHeaderGreetingInput" maxlength="50" 
+                                           style="width: 100%; padding: 8px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; font-size: 13px;"
+                                           placeholder="Hi Friend, I'm Wes!"
+                                           value="${document.getElementById('headerGreetingInput')?.value || ''}"
+                                           oninput="document.getElementById('headerGreetingInput').value = this.value; document.getElementById('headerGreetingInput').dispatchEvent(new Event('input'));">
+                                    <div style="margin-top: 5px; color: #666; font-size: 11px;">
+                                        Custom text displayed in the header (max 50 characters)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- POP-OUT WINDOW -->
+                        <div style="margin-top: 30px;">
+                            <div class="shader-header" style="font-size: 14px; margin-bottom: 15px;">POP-OUT WINDOW</div>
+                            
+                            <div class="control-row" style="margin-bottom: 12px;">
+                                <div class="control-group">
+                                    <label style="display: block; margin-bottom: 5px; color: #aaa; font-size: 13px;">Window Size</label>
+                                    <select id="adminPopOutSizeSelect" style="width: 100%; padding: 8px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; font-size: 13px;"
+                                            onchange="document.getElementById('popOutSizeSelect').value = this.value;">
+                                        <option value="640x360" ${document.getElementById('popOutSizeSelect')?.value === '640x360' ? 'selected' : ''}>Small (640×360)</option>
+                                        <option value="1280x720" ${document.getElementById('popOutSizeSelect')?.value === '1280x720' ? 'selected' : ''}>Large (1280×720)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="control-row">
+                                <div class="control-group">
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                                        <input type="checkbox" id="adminPopOutAlwaysOnTopCheckbox" 
+                                               ${document.getElementById('popOutAlwaysOnTopCheckbox')?.checked ? 'checked' : ''} 
+                                               style="width: 18px; height: 18px; cursor: pointer;"
+                                               onchange="document.getElementById('popOutAlwaysOnTopCheckbox').checked = this.checked;">
+                                        <span style="color: #aaa; font-size: 13px;">Always On Top</span>
+                                    </label>
+                                    <div style="margin-top: 5px; color: #666; font-size: 11px; margin-left: 26px;">
+                                        Keep pop-out window visible over other apps (browser support varies)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // V4_5_0: Sync project states dropdown from original
+                const originalSelect = document.getElementById('projectStateSelect');
+                const adminSelect = document.getElementById('adminProjectStateSelect');
+                if (originalSelect && adminSelect) {
+                    adminSelect.innerHTML = originalSelect.innerHTML;
+                    adminSelect.value = originalSelect.value;
+                }
+            } else if (sectionName === 'utilities') {
+                // V4_5_26: Utilities content
+                contentArea.innerHTML = `
+                    <div class="controls-section" style="padding: 0;">
+                        <div class="shader-header" style="margin-bottom: 20px;">UTILITIES</div>
+                        
+                        <!-- Missing Files -->
+                        <div style="margin-bottom: 25px;">
+                            <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Missing Files Detection</div>
+                            <div style="color: #666; font-size: 11px;">Coming soon - Scan containers for missing audio references</div>
+                        </div>
+                        
+                        <!-- File Integrity -->
+                        <div style="margin-bottom: 25px;">
+                            <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">File Integrity Checks</div>
+                            <div style="color: #666; font-size: 11px;">Coming soon - Validate .oms and .omsp file structure</div>
+                        </div>
+                        
+                        <!-- Package/Export -->
+                        <div style="margin-bottom: 25px;">
+                            <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Package / Export</div>
+                            <div style="color: #666; font-size: 11px;">Coming soon - Bundle containers with audio for distribution</div>
+                        </div>
+                        
+                        <!-- Cleanup Tools -->
+                        <div style="margin-bottom: 25px;">
+                            <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Cleanup Tools</div>
+                            <div style="color: #666; font-size: 11px;">Coming soon - Remove orphaned files and optimize library</div>
+                        </div>
+                        
+                        <!-- Diagnostics -->
+                        <div style="margin-bottom: 25px;">
+                            <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Diagnostics</div>
+                            <div style="color: #666; font-size: 11px;">Coming soon - System info, WebGPU status, performance metrics</div>
+                        </div>
+                        
+                        <!-- Rescan FFT -->
+                        <div style="margin-bottom: 25px;">
+                            <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Rescan FFT</div>
+                            <div style="color: #666; font-size: 11px;">Coming soon - Re-analyze audio timeline data for containers</div>
+                        </div>
+                    </div>
+                `;
+            } else if (sectionName === 'about') {
+                // V4_5_27: About content
+                contentArea.innerHTML = `
+                    <div class="controls-section" style="padding: 0;">
+                        <!-- App Identity -->
+                        <div class="shader-header" style="padding-left: 0; padding-right: 0;">ONEMANSHYO</div>
+                        
+                        <div style="margin-top: 20px;">
+                            <div style="color: #00d4ff; font-size: 16px; font-weight: 600; margin-bottom: 5px;">
+                                Beta V4_5_0
+                            </div>
+                            <div style="color: #aaa; font-size: 14px; margin-bottom: 15px;">
+                                Audio-Reactive WebGPU Shader Tool + Live Performance Mixer
+                            </div>
+                            <div style="color: #888; font-size: 13px; line-height: 1.6;">
+                                Created by <span style="color: #fff;">Wes Smith / ONEMANSHYO</span><br>
+                                San Diego, California
+                            </div>
+                            <div style="margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.3);">
+                                <div style="color: #999; font-size: 12px;">
+                                    Copyright © 2024-2025 Wes Smith / ONEMANSHYO<br>
+                                    Licensed under GPL-3.0 (Free & Open Source)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- About ONEMANSHYO -->
+                        <div style="margin-top: 30px;">
+                            <div class="shader-header" style="font-size: 14px; margin-bottom: 15px; padding-left: 0; padding-right: 0;">ONEMANSHYO</div>
+                            
+                            <div style="color: #aaa; font-size: 13px; line-height: 1.7;">
+                                <div style="margin-bottom: 12px;">
+                                    Solo DJ + Live Visuals Performance Project
+                                </div>
+                                <div style="color: #888; font-size: 12px; line-height: 1.6;">
+                                    • Wes Smith<br>
+                                    • 35 years in electronic music production<br>
+                                    • 500+ releases | 7,000+ days in Beatport charts<br>
+                                    • Founder: Juice Recordings
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
+                                <div style="color: #999; font-size: 12px;">
+                                    <span style="color: #00d4ff;">Website:</span>
+                                    <a href="https://itswessmithyo.com" target="_blank" style="color: #fff; text-decoration: none; margin-left: 8px;">itswessmithyo.com</a>
+                                </div>
+                                <div style="color: #999; font-size: 12px;">
+                                    <span style="color: #00d4ff;">YouTube:</span>
+                                    <a href="https://youtube.com/@itswessmithyo" target="_blank" style="color: #fff; text-decoration: none; margin-left: 8px;">@itswessmithyo</a>
+                                    <span style="color: #666; margin-left: 8px;">(100k+ monthly views)</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Technical Info -->
+                        <div style="margin-top: 30px;">
+                            <div class="shader-header" style="font-size: 14px; margin-bottom: 15px; padding-left: 0; padding-right: 0;">TECHNICAL</div>
+                            
+                            <div style="color: #888; font-size: 12px; line-height: 1.8;">
+                                <div style="margin-bottom: 8px;">
+                                    <span style="color: #00d4ff;">Browser:</span>
+                                    <span style="color: #aaa; margin-left: 8px;">WebGPU-enabled (Chrome, Safari Technology Preview)</span>
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <span style="color: #00d4ff;">Shader Language:</span>
+                                    <span style="color: #aaa; margin-left: 8px;">WGSL (WebGPU Shading Language)</span>
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <span style="color: #00d4ff;">Audio Engine:</span>
+                                    <span style="color: #aaa; margin-left: 8px;">Web Audio API with FFT analysis</span>
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <span style="color: #00d4ff;">File Format:</span>
+                                    <span style="color: #aaa; margin-left: 8px;">.oms containers (shader + audio + state)</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px; color: #666; font-size: 11px; font-style: italic;">
+                                Repository: github.com/onemanshyo/shader-baker (planned)<br>
+                                Documentation: docs.onemanshyo.com (planned)
+                            </div>
+                        </div>
+                        
+                        <!-- Tools -->
+                        <div style="margin-top: 30px;">
+                            <div class="shader-header" style="font-size: 14px; margin-bottom: 15px; padding-left: 0; padding-right: 0;">TOOLS</div>
+                            
+                            <div style="color: #888; font-size: 12px; line-height: 1.8;">
+                                <div style="margin-bottom: 8px;">
+                                    <span style="color: #ff00ff;">Claude AI</span>
+                                    <span style="color: #666; margin-left: 8px;">(Anthropic) - Development Partner</span>
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <span style="color: #00d4ff;">WebGPU</span>
+                                    <span style="color: #666; margin-left: 8px;">- Real-time shader rendering</span>
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <span style="color: #00d4ff;">Web Audio API</span>
+                                    <span style="color: #666; margin-left: 8px;">- Audio analysis & playback</span>
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <span style="color: #00d4ff;">File System Access API</span>
+                                    <span style="color: #666; margin-left: 8px;">- Library management</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Inspired By -->
+                        <div style="margin-top: 30px; margin-bottom: 20px;">
+                            <div class="shader-header" style="font-size: 14px; margin-bottom: 15px; padding-left: 0; padding-right: 0;">INSPIRED BY</div>
+                            
+                            <!-- People -->
+                            <div style="margin-bottom: 20px;">
+                                <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">People:</div>
+                                <div style="color: #888; font-size: 11px; line-height: 1.8;">
+                                    Bileam Tschepe (elekktronaut), Bob Moog, Chris Wilson, Christoph Guttandin, Dave Smith, Deadmau5, Dennis "Thresh" Fong, Ducky 3D, ELPHNT, FOMO, Gerhard Behles, Ikutaro Kakehashi, Masato Tsutsui, Ned Rush, Robert Henke, Tadao Kikumoto, Tom Cosm, Xan3D
+                                </div>
+                            </div>
+                            
+                            <!-- Companies -->
+                            <div style="margin-bottom: 20px;">
+                                <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Companies:</div>
+                                <div style="color: #888; font-size: 11px; line-height: 1.8;">
+                                    Ableton, Cycling 76, DJ Tech Tools, DJ.Studio, EboSuite, Pioneer, Serato, Showsync, Yaeltex, ZwoBot
+                                </div>
+                            </div>
+                            
+                            <!-- Communities -->
+                            <div style="margin-bottom: 0;">
+                                <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Communities:</div>
+                                <div style="color: #888; font-size: 11px; line-height: 1.8;">
+                                    Kick & Bass Community, W3C's "GPU for the Web" Community Group
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
         }
 
@@ -5772,6 +6491,63 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // V3_8_0_H: ESC key handler for overlay
         document.addEventListener('keydown', (e) => {
+            // V4_5_19: Library tab keyboard shortcuts
+            const libraryTabActive = document.getElementById('libraryTab')?.classList.contains('active');
+            
+            if (libraryTabActive) {
+                // Cmd+I - toggle info drawer
+                if ((e.metaKey || e.ctrlKey) && e.key === 'i') {
+                    e.preventDefault();
+                    toggleInfoDrawer();
+                    return;
+                }
+                
+                // Cmd+L - Load full container (shader + audio)
+                if ((e.metaKey || e.ctrlKey) && e.key === 'l') {
+                    e.preventDefault();
+                    loadSelectedContainer();
+                    return;
+                }
+                
+                // Cmd+S - Swap shader from selected → loaded
+                // Cmd+Shift+S - Remove shader
+                if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        removeShader();
+                    } else {
+                        swapShaderFromSelected();
+                    }
+                    return;
+                }
+                
+                // Cmd+A - Swap audio from selected → loaded
+                // Cmd+Shift+A - Remove audio
+                if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        removeAudioFromLoaded();
+                    } else {
+                        swapAudioFromSelected();
+                    }
+                    return;
+                }
+                
+                // Cmd+U - Update loaded container with current state
+                if ((e.metaKey || e.ctrlKey) && e.key === 'u') {
+                    e.preventDefault();
+                    updateLoadedContainer();
+                    return;
+                }
+                
+                // Cmd+E - Export selected container
+                if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+                    e.preventDefault();
+                    exportSelectedContainer();
+                    return;
+                }
+            }
+            
             if (e.key === 'Escape') {
                 const overlay = document.getElementById('appFolderOverlay');
                 if (overlay && overlay.classList.contains('active')) {
@@ -5810,6 +6586,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 document.getElementById('applicationFolderInfo').style.display = 'block';
                 document.getElementById('applicationFolderName').textContent = applicationFolderHandle.name;
                 document.getElementById('setupApplicationFolderBtn').textContent = 'Change Folder';
+                
+                // V4_5_0: Also update ADMIN panel elements if they exist
+                const adminFolderName = document.getElementById('adminApplicationFolderName');
+                if (adminFolderName) adminFolderName.textContent = applicationFolderHandle.name;
                 
                 // V4_4_0: Control States and User Presets removed
                 
@@ -5930,6 +6710,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         document.getElementById('applicationFolderName').textContent = handle.name;
                         document.getElementById('setupApplicationFolderBtn').textContent = 'Change Folder';
                         
+                        // V4_5_0: Also update ADMIN panel elements if they exist
+                        const adminFolderName = document.getElementById('adminApplicationFolderName');
+                        if (adminFolderName) adminFolderName.textContent = handle.name;
+                        
                         // V4_4_0: Control States and User Presets removed
                         
                         // V3.1.0-A: Load Project States from LIBRARY
@@ -6015,7 +6799,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // V4_3_0: Library sort state
         let librarySortBy = 'name';  // 'name' or 'bpm'
+        let librarySearchTerm = '';  // V4_5_19: Search filter term
         let librarySortDir = 'asc';  // 'asc' or 'desc'
+        let libraryViewMode = 'list';  // V4_5_19: 'list' or 'grid'
         
         // V4_3_0: Toggle library sort
         async function toggleLibrarySort(column) {
@@ -6321,7 +7107,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 let html = '';
                 containers.forEach((container, index) => {
                     const isActive = currentLoadedContainerId === container.id;
-                    const activeDot = isActive ? '<span style="color: #0ff; font-size: 8px; margin-right: 6px;">●</span>' : '';
+                    const activeStyle = isActive ? 'border: 1px solid #ffff00 !important; background: rgba(255, 255, 0, 0.1) !important;' : '';
                     html += `
                         <div class="library-card" 
                              data-container-id="${container.id}" 
@@ -6330,10 +7116,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                              data-system="true"
                              draggable="true"
                              tabindex="0" 
-                             style="background: rgba(255, 255, 255, 0.03); padding: 8px 12px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #555; cursor: grab;">
+                             style="background: rgba(255, 255, 255, 0.03); padding: 8px 12px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #555; cursor: grab; ${activeStyle}">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
-                                    ${activeDot}<span class="container-name" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${container.name}">${container.name}</span>
+                                    <span class="container-name" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${container.name}">${container.name}</span>
                                 </div>
                                 <div style="color: #666; font-size: 11px; margin-left: 12px; flex-shrink: 0;">Preset</div>
                             </div>
@@ -6434,7 +7220,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 containers.forEach((container, index) => {
                     const bpmText = container.audioBPM ? `${parseFloat(container.audioBPM).toFixed(1)} BPM` : 'No audio';
                     const isActive = currentLoadedContainerId === container.id;
-                    const activeDot = isActive ? '<span style="color: #0ff; font-size: 8px; margin-right: 6px;">●</span>' : '';
+                    const activeStyle = isActive ? 'border: 1px solid #ffff00 !important; background: rgba(255, 255, 0, 0.1) !important;' : '';
                     
                     // V4_3_0_sub12: Single row card with editable name span
                     html += `
@@ -6444,10 +7230,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                              data-index="${index}" 
                              draggable="true"
                              tabindex="0" 
-                             style="background: rgba(255, 255, 255, 0.03); padding: 8px 12px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #333; cursor: grab;">
+                             style="background: rgba(255, 255, 255, 0.03); padding: 8px 12px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #333; cursor: grab; ${activeStyle}">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
-                                    ${activeDot}<span class="container-name" data-original-name="${container.name.replace(/"/g, '&quot;')}" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${container.name}">${container.name}</span>
+                                    <span class="container-name" data-original-name="${container.name.replace(/"/g, '&quot;')}" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${container.name}">${container.name}</span>
                                 </div>
                                 <div style="color: #666; font-size: 11px; margin-left: 12px; flex-shrink: 0;">${bpmText}</div>
                             </div>
@@ -6471,10 +7257,6 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             enterEditMode(card);
                         } else {
                             // Select this card
-                            document.querySelectorAll('.library-card').forEach(c => {
-                                c.style.borderColor = '#333';
-                            });
-                            card.style.borderColor = '#0ff';
                             window.selectedLibraryContainerId = containerId;
                             console.log('V4_3_0_sub12: Selected container:', card.dataset.containerName);
                         }
@@ -6521,17 +7303,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             cards[currentIndex - 1].click(); // V4_3_0_sub4: Select on arrow nav
                             cards[currentIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         }
-                    } else if (e.key === 'Enter' && e.target === card) {
-                        // V4_4_0: Shift+Enter = shader only, Enter = full load
-                        const containerId = card.dataset.containerId;
-                        if (containerId) {
-                            if (e.shiftKey) {
-                                loadShaderOnly(containerId);
-                            } else {
-                                loadContainer(containerId);
-                            }
-                        }
                     }
+                    // V4_5_19: Removed Enter key for loading - use double-click or Cmd+L instead
                 });
             });
             
@@ -6588,7 +7361,26 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // V4_4_0: Refresh cache based on selected set
             await refreshLibraryList();
             
-            const containers = libraryContainersCache;
+            let containers = libraryContainersCache;
+            
+            // V4_5_19: Apply search filter
+            if (librarySearchTerm) {
+                const searchLower = librarySearchTerm.toLowerCase();
+                containers = containers.filter(c => {
+                    // Search across all relevant fields
+                    const name = (c.name || '').toLowerCase();
+                    const id = (c.id || '').toLowerCase();
+                    const audioFilename = (c.audioFilename || '').toLowerCase();
+                    const bpm = c.audioBPM ? c.audioBPM.toString() : '';
+                    const shaderCode = (c.shaderCode || '').toLowerCase();
+                    
+                    return name.includes(searchLower) ||
+                           id.includes(searchLower) ||
+                           audioFilename.includes(searchLower) ||
+                           bpm.includes(searchLower) ||
+                           shaderCode.includes(searchLower);
+                });
+            }
             
             if (containers.length === 0) {
                 listDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px;">No containers in Library folder. Click [+] to save your first container.</div>';
@@ -6611,7 +7403,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const audioColor = hasAudio ? '#0f0' : '#666';
                 const bpmText = isPreset ? '—' : (container.audioBPM ? `${parseFloat(container.audioBPM).toFixed(0)}` : '—');
                 const isActive = currentLoadedContainerId === container.id;
-                const activeDot = isActive ? '<span style="color: #0ff; font-size: 8px; margin-right: 4px;">●</span>' : '';
+                const activeStyle = isActive ? 'border: 1px solid #ffff00 !important; background: rgba(255, 255, 0, 0.1) !important;' : '';
                 
                 html += `
                     <div class="library-card" 
@@ -6621,11 +7413,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                          draggable="true"
                          ${isPreset ? 'data-system="true"' : ''}
                          tabindex="0" 
-                         style="background: rgba(255, 255, 255, 0.03); padding: 6px 10px; margin-bottom: 4px; border-radius: 4px; border: 1px solid ${isPreset ? '#555' : '#333'}; cursor: ${isPreset ? 'pointer' : 'grab'};">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                         style="background: rgba(255, 255, 255, 0.03); padding: 6px 10px; margin-bottom: 4px; border-radius: 4px; border: 1px solid ${isPreset ? '#555' : '#333'}; cursor: ${isPreset ? 'pointer' : 'grab'}; ${activeStyle}">
+                        <canvas class="library-thumb" data-container-id="${container.id}" width="80" height="45" style="width: 32px; height: 18px; margin-right: 8px; border: 1px solid #333; flex-shrink: 0;"></canvas>
+                        <div class="card-list-content" style="display: flex; justify-content: space-between; align-items: center; flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
-                                <canvas class="library-thumb" data-container-id="${container.id}" width="32" height="18" style="width: 32px; height: 18px; margin-right: 8px; border: 1px solid #333; flex-shrink: 0;"></canvas>
-                                ${activeDot}<span class="container-name" data-original-name="${container.name.replace(/"/g, '&quot;')}" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${container.name}">${container.name}</span>
+                                <span class="container-name" data-original-name="${container.name.replace(/"/g, '&quot;')}" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${container.name}">${container.name}</span>
                             </div>
                             <div style="color: ${audioColor}; font-size: 11px; width: 55px; text-align: center; flex-shrink: 0;">${audioText}</div>
                             <div style="color: #666; font-size: 11px; width: 50px; text-align: right; flex-shrink: 0;">${bpmText}</div>
@@ -6644,13 +7436,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // Click handler - select card
                 card.addEventListener('click', (e) => {
                     // Remove selected from all cards in this panel
-                    document.querySelectorAll('#libraryListRight .library-card').forEach(c => {
-                        c.style.border = '1px solid #333';
-                    });
-                    
-                    // Select this card
-                    card.style.border = '1px solid #0ff';
+                    // Select this card (no border highlight - loaded indicator is left border)
                     window.selectedLibraryContainerId = card.dataset.containerId;
+                    
+                    // V4_5_19: Update info drawer if open
+                    if (infoDrawerOpen) {
+                        populateInfoDrawer(card.dataset.containerId);
+                        updateInfoDrawerNavButtons();
+                    }
                 });
                 
                 // Double-click to load
@@ -6675,17 +7468,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             cards[currentIndex - 1].click();
                             cards[currentIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         }
-                    } else if (e.key === 'Enter' && e.target === card) {
-                        // V4_4_0: Shift+Enter = shader only, Enter = full load
-                        const containerId = card.dataset.containerId;
-                        if (containerId) {
-                            if (e.shiftKey) {
-                                loadShaderOnly(containerId);
-                            } else {
-                                loadContainer(containerId);
-                            }
-                        }
                     }
+                    // V4_5_19: Removed Enter key for loading - use double-click or Cmd+L instead
                 });
                 
                 // Drag start for grid cells
@@ -6740,6 +7524,499 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             selectLibrarySet(selectedSet);
         }
         
+        // V4_5_19: Info drawer state
+        let infoDrawerOpen = false;
+        
+        // V4_5_19: Open info drawer (Cmd+I)
+        function openInfoDrawer() {
+            if (infoDrawerOpen) return;
+            
+            const drawer = document.getElementById('infoDrawer');
+            const btn = document.getElementById('libraryInfoBtn');
+            
+            drawer.classList.add('open');
+            btn.classList.add('active');
+            infoDrawerOpen = true;
+            
+            // Populate with selected container
+            if (window.selectedLibraryContainerId) {
+                populateInfoDrawer(window.selectedLibraryContainerId);
+            }
+            updateInfoDrawerNavButtons();
+        }
+        
+        // V4_5_19: Close info drawer
+        function closeInfoDrawer() {
+            if (!infoDrawerOpen) return;
+            
+            const drawer = document.getElementById('infoDrawer');
+            const btn = document.getElementById('libraryInfoBtn');
+            
+            drawer.classList.remove('open');
+            btn.classList.remove('active');
+            infoDrawerOpen = false;
+        }
+        
+        // V4_5_19: Toggle info drawer (for button click)
+        function toggleInfoDrawer() {
+            if (infoDrawerOpen) {
+                closeInfoDrawer();
+            } else {
+                openInfoDrawer();
+            }
+        }
+        
+        // V4_5_19: Set library view mode (list or grid)
+        function setLibraryView(mode) {
+            libraryViewMode = mode;
+            
+            const listDiv = document.getElementById('libraryListRight');
+            const listBtn = document.getElementById('libraryListViewBtn');
+            const gridBtn = document.getElementById('libraryGridViewBtn');
+            
+            if (mode === 'grid') {
+                listDiv.classList.add('grid-view');
+                listBtn.classList.remove('active');
+                gridBtn.classList.add('active');
+            } else {
+                listDiv.classList.remove('grid-view');
+                listBtn.classList.add('active');
+                gridBtn.classList.remove('active');
+            }
+            
+            // Re-render thumbnails at appropriate size for grid
+            renderLibraryThumbnails(libraryContainersCache);
+        }
+        
+        // V4_5_19: OK button - apply pending changes and close
+        async function infoDrawerOK() {
+            const containerId = window.infoDrawerViewingContainerId;
+            if (!containerId) {
+                closeInfoDrawer();
+                return;
+            }
+            
+            const container = libraryContainersCache.find(c => c.id === containerId);
+            if (!container) {
+                closeInfoDrawer();
+                return;
+            }
+            
+            let changed = false;
+            
+            // V4_5_19: Apply pending audio swap
+            if (window.infoDrawerPendingAudioSwap) {
+                container.audioFilename = window.infoDrawerPendingAudioSwap;
+                container.hasAudio = true;
+                changed = true;
+            }
+            
+            // V4_5_19: Apply pending audio remove
+            if (window.infoDrawerPendingAudioRemove) {
+                container.audioFilename = null;
+                container.hasAudio = false;
+                container.audioBPM = null;
+                container.audioStartTime = null;
+                container.audioEndTime = null;
+                container.audioLoopIn = null;
+                container.audioLoopOut = null;
+                changed = true;
+            }
+            
+            // V4_5_19: Apply pending shader swap
+            if (window.infoDrawerPendingShaderSwap) {
+                container.shaderCode = window.infoDrawerPendingShaderSwap.code;
+                changed = true;
+            }
+            
+            // V4_5_19: Apply pending shader remove
+            if (window.infoDrawerPendingShaderRemove) {
+                container.shaderCode = '';
+                changed = true;
+            }
+            
+            // Save changes to .oms file
+            if (changed) {
+                try {
+                    const omsFilename = containerId + '.oms';
+                    const fileHandle = await libraryFolderHandle.getFileHandle(omsFilename, { create: false });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(JSON.stringify(container, null, 2));
+                    await writable.close();
+                    
+                    showStatus(`Container updated: ${containerId}`, 'success');
+                    
+                    // Refresh library display
+                    await refreshLibraryListRight();
+                } catch (error) {
+                    console.error('V4_5_19: Failed to update container:', error);
+                    showStatus('Failed to update container', 'error');
+                }
+            }
+            
+            // Reset all pending flags
+            window.infoDrawerPendingAudioSwap = null;
+            window.infoDrawerPendingAudioRemove = false;
+            window.infoDrawerPendingShaderSwap = null;
+            window.infoDrawerPendingShaderRemove = false;
+            
+            closeInfoDrawer();
+        }
+        
+        // V4_5_19: Cancel button - discard changes and close
+        function infoDrawerCancel() {
+            // Reset all pending flags
+            window.infoDrawerPendingAudioSwap = null;
+            window.infoDrawerPendingAudioRemove = false;
+            window.infoDrawerPendingShaderSwap = null;
+            window.infoDrawerPendingShaderRemove = false;
+            
+            // Reset display to original
+            if (window.infoDrawerViewingContainerId) {
+                populateInfoDrawer(window.infoDrawerViewingContainerId);
+            }
+            
+            closeInfoDrawer();
+        }
+        
+        // V4_5_19: Populate info drawer with container data
+        function populateInfoDrawer(containerId) {
+            // V4_5_19: Track which container is being viewed
+            window.infoDrawerViewingContainerId = containerId;
+            
+            // Reset any pending changes
+            window.infoDrawerPendingAudioSwap = null;
+            window.infoDrawerPendingAudioRemove = false;
+            window.infoDrawerPendingShaderSwap = null;
+            window.infoDrawerPendingShaderRemove = false;
+            
+            const audioSelect = document.getElementById('infoDrawerAudioSelect');
+            if (audioSelect) audioSelect.style.display = 'none';
+            
+            const container = libraryContainersCache.find(c => c.id === containerId);
+            if (!container) {
+                // Clear fields
+                document.getElementById('infoDrawerName').textContent = '—';
+                document.getElementById('infoDrawerBPM').textContent = '—';
+                document.getElementById('infoDrawerAudio').textContent = '—';
+                document.getElementById('infoDrawerDuration').textContent = '—';
+                document.getElementById('infoDrawerLoop').textContent = '—';
+                document.getElementById('infoDrawerCreated').textContent = '—';
+                renderInfoDrawerShaderThumb(null);
+                return;
+            }
+            
+            // Name
+            document.getElementById('infoDrawerName').textContent = container.name || '—';
+            
+            // BPM
+            const bpm = container.audioBPM;
+            document.getElementById('infoDrawerBPM').textContent = bpm ? `${parseFloat(bpm).toFixed(1)} BPM` : '—';
+            document.getElementById('infoDrawerBPM').classList.toggle('muted', !bpm);
+            
+            // Audio
+            const hasAudio = container.hasAudio || container.audioFilename;
+            const audioField = document.getElementById('infoDrawerAudio');
+            if (hasAudio && container.audioFilename) {
+                audioField.textContent = container.audioFilename;
+                audioField.classList.remove('muted');
+            } else {
+                audioField.textContent = 'No audio';
+                audioField.classList.add('muted');
+            }
+            
+            // V4_5_19: Render shader thumbnail
+            renderInfoDrawerShaderThumb(container);
+            
+            // Duration (from audioStartTime and audioEndTime)
+            const durationField = document.getElementById('infoDrawerDuration');
+            if (container.audioStartTime !== undefined && container.audioEndTime !== undefined) {
+                const duration = container.audioEndTime - container.audioStartTime;
+                if (duration > 0) {
+                    const mins = Math.floor(duration / 60);
+                    const secs = Math.floor(duration % 60);
+                    durationField.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                    durationField.classList.remove('muted');
+                } else {
+                    durationField.textContent = '—';
+                    durationField.classList.add('muted');
+                }
+            } else {
+                durationField.textContent = '—';
+                durationField.classList.add('muted');
+            }
+            
+            // Loop points
+            const loopField = document.getElementById('infoDrawerLoop');
+            if (container.audioLoopIn !== undefined && container.audioLoopOut !== undefined) {
+                const inBar = Math.floor(container.audioLoopIn / 4) + 1;
+                const inBeat = (container.audioLoopIn % 4) + 1;
+                const outBar = Math.floor(container.audioLoopOut / 4) + 1;
+                const outBeat = (container.audioLoopOut % 4) + 1;
+                loopField.textContent = `${inBar}.${inBeat} → ${outBar}.${outBeat}`;
+                loopField.classList.remove('muted');
+            } else {
+                loopField.textContent = '—';
+                loopField.classList.add('muted');
+            }
+            
+            // Created date
+            const createdField = document.getElementById('infoDrawerCreated');
+            if (container.created) {
+                const date = new Date(container.created);
+                createdField.textContent = date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                createdField.classList.remove('muted');
+            } else {
+                createdField.textContent = '—';
+                createdField.classList.add('muted');
+            }
+            
+        }
+        
+        // V4_5_19: Show dropdown with orphan audio files
+        async function showAudioSwapDropdown() {
+            const select = document.getElementById('infoDrawerAudioSelect');
+            if (!select) return;
+            
+            // Toggle visibility
+            if (select.style.display !== 'none') {
+                select.style.display = 'none';
+                return;
+            }
+            
+            // Get all audio files in Library folder
+            const audioFiles = [];
+            const referencedAudio = new Set();
+            
+            // Collect all referenced audio filenames
+            for (const container of libraryContainersCache) {
+                if (container.audioFilename) {
+                    referencedAudio.add(container.audioFilename);
+                }
+            }
+            
+            // Scan Library folder for audio files
+            try {
+                for await (const entry of libraryFolderHandle.values()) {
+                    if (entry.kind === 'file') {
+                        const name = entry.name.toLowerCase();
+                        if (name.endsWith('.mp3') || name.endsWith('.wav') || name.endsWith('.aiff') || 
+                            name.endsWith('.flac') || name.endsWith('.ogg') || name.endsWith('.m4a')) {
+                            audioFiles.push({
+                                filename: entry.name,
+                                orphan: !referencedAudio.has(entry.name)
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('V4_5_19: Failed to scan audio files:', error);
+                showStatus('Failed to scan Library folder', 'error');
+                return;
+            }
+            
+            // Sort: orphans first, then alphabetically
+            audioFiles.sort((a, b) => {
+                if (a.orphan !== b.orphan) return a.orphan ? -1 : 1;
+                return a.filename.localeCompare(b.filename);
+            });
+            
+            // Populate dropdown
+            select.innerHTML = '<option value="">— Select audio file —</option>';
+            
+            if (audioFiles.filter(f => f.orphan).length > 0) {
+                const orphanGroup = document.createElement('optgroup');
+                orphanGroup.label = 'Orphan Files';
+                audioFiles.filter(f => f.orphan).forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f.filename;
+                    opt.textContent = f.filename;
+                    orphanGroup.appendChild(opt);
+                });
+                select.appendChild(orphanGroup);
+            }
+            
+            if (audioFiles.filter(f => !f.orphan).length > 0) {
+                const usedGroup = document.createElement('optgroup');
+                usedGroup.label = 'In Use';
+                audioFiles.filter(f => !f.orphan).forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f.filename;
+                    opt.textContent = f.filename;
+                    usedGroup.appendChild(opt);
+                });
+                select.appendChild(usedGroup);
+            }
+            
+            if (audioFiles.length === 0) {
+                select.innerHTML = '<option value="">— No audio files in Library —</option>';
+            }
+            
+            select.style.display = 'block';
+        }
+        
+        // V4_5_19: Handle audio swap selection
+        async function onAudioSwapSelect() {
+            const select = document.getElementById('infoDrawerAudioSelect');
+            const filename = select.value;
+            
+            if (!filename) {
+                select.style.display = 'none';
+                return;
+            }
+            
+            // Update the display
+            document.getElementById('infoDrawerAudio').textContent = filename;
+            
+            // Store the pending audio swap (will be applied on OK)
+            window.infoDrawerPendingAudioSwap = filename;
+            
+            select.style.display = 'none';
+            showStatus(`Audio will change to: ${filename}`, '');
+        }
+        
+        // V4_5_19: Remove audio from container
+        function infoDrawerRemoveAudio() {
+            document.getElementById('infoDrawerAudio').textContent = '—';
+            document.getElementById('infoDrawerAudio').classList.add('muted');
+            window.infoDrawerPendingAudioSwap = null;  // Clear any pending swap
+            window.infoDrawerPendingAudioRemove = true;
+            showStatus('Audio will be removed', '');
+        }
+        
+        // V4_5_19: Swap shader from selected container
+        function infoDrawerSwapShader() {
+            if (!window.selectedLibraryContainerId) {
+                showStatus('No container selected', 'error');
+                return;
+            }
+            
+            // Find currently viewed container (in drawer) vs selected container (in list)
+            const viewedId = window.infoDrawerViewingContainerId;
+            const selectedId = window.selectedLibraryContainerId;
+            
+            if (viewedId === selectedId) {
+                showStatus('Select a different container to swap shader from', 'error');
+                return;
+            }
+            
+            // Get shader from selected container
+            const sourceContainer = libraryContainersCache.find(c => c.id === selectedId);
+            if (!sourceContainer || !sourceContainer.shaderCode) {
+                showStatus('Selected container has no shader', 'error');
+                return;
+            }
+            
+            // Mark pending shader swap
+            window.infoDrawerPendingShaderSwap = {
+                code: sourceContainer.shaderCode,
+                fromId: selectedId
+            };
+            
+            // Update thumbnail preview
+            renderInfoDrawerShaderThumb(sourceContainer);
+            
+            showStatus(`Shader will swap from: ${selectedId}`, '');
+        }
+        
+        // V4_5_19: Remove shader from container
+        function infoDrawerRemoveShader() {
+            window.infoDrawerPendingShaderSwap = null;
+            window.infoDrawerPendingShaderRemove = true;
+            
+            // Clear thumbnail
+            const canvas = document.getElementById('infoDrawerShaderThumb');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#111';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#444';
+                ctx.font = '12px system-ui';
+                ctx.textAlign = 'center';
+                ctx.fillText('(Shader will be removed)', canvas.width / 2, canvas.height / 2 + 4);
+            }
+            
+            showStatus('Shader will be removed', '');
+        }
+        
+        // V4_5_19: Render shader thumbnail in info drawer
+        function renderInfoDrawerShaderThumb(container) {
+            const canvas = document.getElementById('infoDrawerShaderThumb');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (!container || !container.shaderCode) {
+                ctx.fillStyle = '#444';
+                ctx.font = '12px system-ui';
+                ctx.textAlign = 'center';
+                ctx.fillText('No shader', canvas.width / 2, canvas.height / 2 + 4);
+                return;
+            }
+            
+            // Simple gradient placeholder - could do actual shader render later
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(0.5, '#16213e');
+            gradient.addColorStop(1, '#0f3460');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Show container name
+            ctx.fillStyle = '#888';
+            ctx.font = '10px system-ui';
+            ctx.textAlign = 'center';
+            ctx.fillText(container.name || 'Shader', canvas.width / 2, canvas.height - 8);
+        }
+        
+        // V4_5_19: Navigate to previous container
+        function infoDrawerPrev() {
+            const cards = Array.from(document.querySelectorAll('#libraryListRight .library-card'));
+            const currentIndex = cards.findIndex(c => c.dataset.containerId === window.selectedLibraryContainerId);
+            
+            if (currentIndex > 0) {
+                const prevCard = cards[currentIndex - 1];
+                prevCard.click();
+                prevCard.focus();
+                prevCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                populateInfoDrawer(prevCard.dataset.containerId);
+            }
+            updateInfoDrawerNavButtons();
+        }
+        
+        // V4_5_19: Navigate to next container
+        function infoDrawerNext() {
+            const cards = Array.from(document.querySelectorAll('#libraryListRight .library-card'));
+            const currentIndex = cards.findIndex(c => c.dataset.containerId === window.selectedLibraryContainerId);
+            
+            if (currentIndex < cards.length - 1) {
+                const nextCard = cards[currentIndex + 1];
+                nextCard.click();
+                nextCard.focus();
+                nextCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                populateInfoDrawer(nextCard.dataset.containerId);
+            }
+            updateInfoDrawerNavButtons();
+        }
+        
+        // V4_5_19: Update prev/next button states
+        function updateInfoDrawerNavButtons() {
+            const cards = Array.from(document.querySelectorAll('#libraryListRight .library-card'));
+            const currentIndex = cards.findIndex(c => c.dataset.containerId === window.selectedLibraryContainerId);
+            
+            const prevBtn = document.getElementById('infoDrawerPrevBtn');
+            const nextBtn = document.getElementById('infoDrawerNextBtn');
+            
+            if (prevBtn) prevBtn.disabled = currentIndex <= 0;
+            if (nextBtn) nextBtn.disabled = currentIndex >= cards.length - 1;
+        }
+        
         // V4_3_0_sub4: Wrapper functions for header buttons (operate on selected card)
         function loadSelectedContainer() {
             if (!window.selectedLibraryContainerId) {
@@ -6747,8 +8024,116 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 return;
             }
             loadContainer(window.selectedLibraryContainerId);
+            // Note: loadContainer sets currentLoadedContainerId internally
         }
         
+        // V4_5_19: Swap shader from selected container → loaded container
+        function swapShaderFromSelected() {
+            if (!window.selectedLibraryContainerId) {
+                showStatus('No container selected', 'error');
+                return;
+            }
+            if (!currentLoadedContainerId) {
+                showStatus('No container loaded - use Cmd+L first', 'error');
+                return;
+            }
+            loadShaderOnly(window.selectedLibraryContainerId);
+            showStatus(`Shader swapped from "${window.selectedLibraryContainerId}"`, '');
+        }
+        
+        // V4_5_19: Remove shader from current state
+        function removeShader() {
+            if (!currentLoadedContainerId) {
+                showStatus('No container loaded', 'error');
+                return;
+            }
+            // Clear shader code
+            const codeArea = document.getElementById('shaderCode');
+            if (codeArea) {
+                codeArea.value = '';
+                compileShader(false);
+            }
+            showStatus('Shader removed', '');
+        }
+        
+        // V4_5_19: Swap audio from selected container → loaded container
+        async function swapAudioFromSelected() {
+            if (!window.selectedLibraryContainerId) {
+                showStatus('No container selected', 'error');
+                return;
+            }
+            if (!currentLoadedContainerId) {
+                showStatus('No container loaded - use Cmd+L first', 'error');
+                return;
+            }
+            
+            // Get selected container's audio info
+            const container = libraryContainersCache.find(c => c.id === window.selectedLibraryContainerId);
+            if (!container || !container.audioFilename) {
+                showStatus('Selected container has no audio', 'error');
+                return;
+            }
+            
+            try {
+                // Use same pattern as loadContainer
+                const file = await getAudioFromLibrary(container.audioFilename);
+                const fakeEvent = { target: { files: [file] } };
+                await loadAudioFile(fakeEvent);
+                
+                // Apply timing data from source container
+                if (container.audioBPM) {
+                    document.getElementById('audioTempoField').value = container.audioBPM;
+                }
+                if (container.audioStartTime !== undefined) {
+                    audioStartTime = container.audioStartTime;
+                    document.getElementById('audioStartField').value = secondsToTimeString(audioStartTime);
+                }
+                if (container.audioEndTime !== undefined) {
+                    audioEndTime = container.audioEndTime;
+                    document.getElementById('audioEndField').value = secondsToTimeString(audioEndTime);
+                }
+                if (container.audioLoopIn !== undefined) {
+                    document.getElementById('audioLoopInField').value = beatsToBarBeat(container.audioLoopIn);
+                }
+                if (container.audioLoopOut !== undefined) {
+                    document.getElementById('audioLoopOutField').value = beatsToBarBeat(container.audioLoopOut);
+                }
+                
+                // Regenerate waveform with new timing
+                generateStaticWaveform();
+                
+                showStatus(`Audio swapped from "${window.selectedLibraryContainerId}"`, '');
+            } catch (error) {
+                console.error('V4_5_19: Failed to swap audio:', error);
+                showStatus(`Failed to load audio: ${error.message}`, 'error');
+            }
+        }
+        
+        // V4_5_19: Remove audio from current state
+        function removeAudioFromLoaded() {
+            if (!currentLoadedContainerId) {
+                showStatus('No container loaded', 'error');
+                return;
+            }
+            removeAudio();
+            showStatus('Audio removed', '');
+        }
+        
+        // V4_5_19: Update loaded container with current state
+        function updateLoadedContainer() {
+            if (!currentLoadedContainerId) {
+                showStatus('No container loaded - use Cmd+L first', 'error');
+                return;
+            }
+            updateContainer(currentLoadedContainerId);
+        }
+        
+        // V4_5_19: Load shader only - DEPRECATED, use swapShaderFromSelected
+        function loadShaderOnlySelected() {
+            swapShaderFromSelected();
+        }
+        
+        // DEPRECATED - use updateLoadedContainer
         function updateSelectedContainer() {
             if (!window.selectedLibraryContainerId) {
                 showStatus('No container selected', 'error');
@@ -6869,7 +8254,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const input = document.createElement('input');
             input.type = 'text';
             input.value = originalName;
-            input.style.cssText = 'background: rgba(0,0,0,0.5); border: 1px solid #0ff; color: #fff; padding: 2px 6px; font-size: 12px; font-family: inherit; width: 100%; outline: none; border-radius: 2px;';
+            input.style.cssText = 'background: rgba(0,0,0,0.5); border: none; color: #fff; padding: 2px 6px; font-size: 12px; font-family: inherit; width: 100%; outline: none; border-radius: 2px;';
             
             // Hide span and insert input
             nameSpan.style.display = 'none';
@@ -7304,6 +8689,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             if (audioLoaded) {
                 console.log('V2.9.0-T: Container load complete with audio');
                 showStatus(`Loaded: ${containerData.name} with audio`, 'success');
+                
+                // V4_5_19: Auto-play audio on full load
+                toggleAudioPlayback();
             } else {
                 console.log('V2.9.0-T: Container load complete (no audio)');
             }
@@ -7325,8 +8713,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             let audioFilename = null;
             let audioBPM = null;
             
-            // V2_9_0_F: Preserve existing audio info if no audio currently loaded
-            if (audioLoaded && currentAudioFile) {
+            // V4_5_19: Handle audio state
+            if (audioExplicitlyRemoved) {
+                // User explicitly removed audio → save as null
+                audioFilename = null;
+                audioBPM = null;
+            } else if (audioLoaded && currentAudioFile) {
                 // Audio loaded in editor → save current audio
                 audioFilename = currentAudioFile.name;
                 audioBPM = audioTempo;
@@ -7345,13 +8737,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 controlStates: states,
                 audioFilename: audioFilename,
                 audioBPM: audioBPM,
-                audioPitch: audioLoaded ? audioPitch : (existingContainer.audioPitch || 0),  // V3.2.0-Y: Save pitch
-                audioStartTime: audioLoaded ? audioStartTime : (existingContainer.audioStartTime || 0),  // V3.2.0-Y: Save start time
-                audioEndTime: audioLoaded ? audioEndTime : (existingContainer.audioEndTime || 0),  // V3.2.0-Y: Save end time
-                audioSnapLastBar: audioLoaded ? audioSnapLastBar : (existingContainer.audioSnapLastBar || null),  // V4.0.0_D_sub18: Last snap bar
-                audioLoopIn: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopInField').value) : (existingContainer.audioLoopIn || null),  // V3.2.0-Y: Save loop in
-                audioLoopOut: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopOutField').value) : (existingContainer.audioLoopOut || null),  // V3.2.0-Y: Save loop out
-                audioLoopEnabled: audioLoopEnabled,  // V4_4_0: Save loop on/off state
+                audioPitch: audioExplicitlyRemoved ? null : (audioLoaded ? audioPitch : (existingContainer.audioPitch || 0)),  // V4_5_19
+                audioStartTime: audioExplicitlyRemoved ? null : (audioLoaded ? audioStartTime : (existingContainer.audioStartTime || 0)),
+                audioEndTime: audioExplicitlyRemoved ? null : (audioLoaded ? audioEndTime : (existingContainer.audioEndTime || 0)),
+                audioSnapLastBar: audioExplicitlyRemoved ? null : (audioLoaded ? audioSnapLastBar : (existingContainer.audioSnapLastBar || null)),
+                audioLoopIn: audioExplicitlyRemoved ? null : (audioLoaded ? barBeatToBeats(document.getElementById('audioLoopInField').value) : (existingContainer.audioLoopIn || null)),
+                audioLoopOut: audioExplicitlyRemoved ? null : (audioLoaded ? barBeatToBeats(document.getElementById('audioLoopOutField').value) : (existingContainer.audioLoopOut || null)),
+                audioLoopEnabled: audioExplicitlyRemoved ? false : audioLoopEnabled,  // V4_5_19
                 hasAudio: !!audioFilename,
                 // V4_0_0_D_sub137: ALWAYS preserve timeline arrays!
                 shaderModATimeline: existingContainer.shaderModATimeline || null,
@@ -7407,12 +8799,36 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 if (updatedCard) updatedCard.focus();
             }, 100);
             
+            // V4_5_19: Reset removal flag after successful update
+            audioExplicitlyRemoved = false;
+            
             // V3_9_0_L_sub14: Show status message after update completes
             showStatus(`Library container updated: ${updatedContainer.name}`, 'success');
         }
         
+        // V4_5_19: Track pending delete for status bar confirmation
+        let pendingDeleteContainerId = null;
+        let pendingDeleteTimeout = null;
+        
         async function removeContainer(containerId) {
-            if (!confirm('Delete this container? This will remove the .oms file and associated audio.')) return;
+            // V4_5_19: Two-stage delete with status bar warning
+            if (pendingDeleteContainerId !== containerId) {
+                // First press - show warning
+                pendingDeleteContainerId = containerId;
+                showStatus('Press Delete again to confirm removal', 'error');
+                
+                // Reset after 3 seconds
+                if (pendingDeleteTimeout) clearTimeout(pendingDeleteTimeout);
+                pendingDeleteTimeout = setTimeout(() => {
+                    pendingDeleteContainerId = null;
+                    showStatus('Delete cancelled', '');
+                }, 3000);
+                return;
+            }
+            
+            // Second press - actually delete
+            if (pendingDeleteTimeout) clearTimeout(pendingDeleteTimeout);
+            pendingDeleteContainerId = null;
             
             const containers = getLibraryContainers();
             const container = containers.find(c => c.id === containerId);
@@ -7426,20 +8842,20 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             if (libraryFolderHandle) {
                 // Delete .oms file
                 try {
-                    const omsFilename = container.name + '.oms';
+                    const omsFilename = containerId + '.oms';
                     await libraryFolderHandle.removeEntry(omsFilename);
-                    console.log('V4_4_0: Deleted .oms file:', omsFilename);
+                    console.log('V4_5_19: Deleted .oms file:', omsFilename);
                 } catch (error) {
-                    console.error('V4_4_0: Failed to delete .oms file:', error);
+                    console.error('V4_5_19: Failed to delete .oms file:', error);
                 }
                 
                 // Delete audio file if it exists
                 if (container.audioFilename) {
                     try {
                         await libraryFolderHandle.removeEntry(container.audioFilename);
-                        console.log('V4_4_0: Deleted audio file:', container.audioFilename);
+                        console.log('V4_5_19: Deleted audio file:', container.audioFilename);
                     } catch (error) {
-                        console.error('V4_4_0: Failed to delete audio file:', error);
+                        console.error('V4_5_19: Failed to delete audio file:', error);
                         // Audio may not exist or was never copied - that's OK
                     }
                 }
@@ -9542,7 +10958,7 @@ ${shaderCode}
         announcePresence(); // Announce on page load
         broadcastLibrary(); // V2.9.0-A: Broadcast library on page load
         startHeartbeat(); // Start 5-second heartbeat
-        console.log('ONEMANSHYO Beta V4_4_0 initialized');
+        console.log('ONEMANSHYO Beta V4_5_19 initialized');
         console.log(`Instance ID: ${instanceId}`);
         console.log('Broadcasting on oms-live-channel (announcements + library + canvas snapshots)');
         
@@ -12175,7 +13591,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V4_4]</title>
+    <title>ONEMANSHYO App [V4_5]</title>
     <style>
         body {
             margin: 0;
@@ -14902,6 +16318,12 @@ ${providedShaderCode}
                 const select = document.getElementById('projectStateSelect');
                 if (select) {
                     select.value = 'onemanshyo';
+                    
+                    // V4_5_0: Also sync admin dropdown if it exists
+                    const adminSelect = document.getElementById('adminProjectStateSelect');
+                    if (adminSelect) {
+                        adminSelect.value = 'onemanshyo';
+                    }
                 }
 
                 console.log('V4_3_0_sub13: Auto-loaded onemanshyo.omsp');
@@ -15135,6 +16557,18 @@ ${providedShaderCode}
                         select.value = currentSelection;
                     }
                 }
+                
+                // V4_5_0: Also update ADMIN panel dropdown if it exists
+                const adminSelect = document.getElementById('adminProjectStateSelect');
+                if (adminSelect) {
+                    adminSelect.innerHTML = select.innerHTML;
+                    if (currentSelection) {
+                        const optionExists = Array.from(adminSelect.options).some(opt => opt.value === currentSelection);
+                        if (optionExists) {
+                            adminSelect.value = currentSelection;
+                        }
+                    }
+                }
 
                 console.log('V4_3_0_sub13: Loaded projects:', projects.length);
 
@@ -15204,6 +16638,16 @@ ${providedShaderCode}
             
             // V3_6_0_N: Settings control event listeners
             const popOutSizeSelect = document.getElementById('popOutSizeSelect');
+            
+            // V4_5_19: Library search input listener
+            const librarySearchInput = document.getElementById('librarySearchInput');
+            if (librarySearchInput) {
+                librarySearchInput.addEventListener('input', (e) => {
+                    librarySearchTerm = e.target.value.trim();
+                    refreshLibraryListRight();
+                });
+            }
+            
             if (popOutSizeSelect) {
                 popOutSizeSelect.addEventListener('change', (e) => {
                     appSettings.popOutWindowSize = e.target.value;
