@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V4_2
+ONEMANSHYO Dojo App V4_3
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V4_2
+Version: V4_3
 -->
 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V4_2]</title>
+    <title>ONEMANSHYO App [V4_3]</title>
+    <!-- V4_3_0_sub6: JSZip for container export (loaded from CDN when needed) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -138,7 +140,7 @@ Version: V4_2
         }
 
         .tab {
-            padding: 8px 16px; /* V3.0.0-A: Reduced from 20px to 16px to fit 5 tabs */
+            padding: 8px 14px; /* V4_3_0_sub3: Reduced from 16px to 14px to fit U tab */
             font-size: 14px;
             font-weight: 500;
             color: #999;
@@ -1942,7 +1944,7 @@ Version: V4_2
     <div class="header">
         <div class="header-left">
             <div class="header-brand">ONEMANSHYO</div>
-            <div class="header-app">Shader Baker [V4_2]</div>
+            <div class="header-app">Shader Baker [v4.3.0]</div>
         </div>
         <div class="header-greeting" id="headerGreeting">Hi Friend, I'm Wes!</div>
     </div>
@@ -1959,6 +1961,7 @@ Version: V4_2
                 <button class="tab" id="codeTab" onclick="switchTab('code')">W</button>
                 <button class="tab" id="settingsTab" onclick="switchTab('settings')">S</button>
                 <button class="tab" id="aboutTab" onclick="switchTab('about')">A</button>
+                <button class="tab" id="utilitiesTab" onclick="switchTab('utilities')">U</button>
                 <button class="tab" id="liveTab" onclick="switchTab('live')">LIVE</button>
             </div>
             
@@ -2352,18 +2355,34 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             </div><!-- End Presets Tab Content -->
             
             <!-- V2.8.0-M: Library Tab Content (Reorganized) -->
+            <!-- V4_3_0_sub4: Reworked header with I L U X buttons -->
             <div class="tab-content" id="libraryTabContent">
                 <div class="controls-section" style="flex: 1; display: flex; flex-direction: column; border-bottom: none;">
                     <div class="controls" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
                         <div class="shader-header">Containers</div>
                         
-                        <!-- V2.8.0-M: Add Current / Import at top (daily use) -->
+                        <!-- V4_3_0_sub4: Header bar with function buttons -->
+                        <!-- V4_3_0_sub5: Rearranged - I L U + on left, X on right -->
+                        <!-- V4_3_0_sub6: Added E (Export) button -->
                         <div class="control-row" style="margin-bottom: 12px;">
                             <div class="control-group">
-                                <button class="btn" onclick="addToLibrary()">Add Current</button>
+                                <button class="btn" onclick="document.getElementById('omsFile').click()" title="Import .zip (containers, sets, projects)">I</button>
                             </div>
                             <div class="control-group">
-                                <button class="btn" onclick="document.getElementById('omsFile').click()">Import</button>
+                                <button class="btn" id="libraryLoadBtn" onclick="loadSelectedContainer()" title="Load selected container">L</button>
+                            </div>
+                            <div class="control-group">
+                                <button class="btn" id="libraryUpdateBtn" onclick="updateSelectedContainer()" title="Update selected with current state">U</button>
+                            </div>
+                            <div class="control-group">
+                                <button class="btn" onclick="addToLibrary()" title="Add current to library">+</button>
+                            </div>
+                            <div class="control-group">
+                                <button class="btn" id="libraryExportBtn" onclick="exportSelectedContainer()" title="Export container + audio as .oms.zip">E</button>
+                            </div>
+                            <div style="flex: 1;"></div>
+                            <div class="control-group">
+                                <button class="btn" id="libraryDeleteBtn" onclick="removeSelectedContainer()" title="Delete selected container">X</button>
                             </div>
                         </div>
                         
@@ -2381,10 +2400,20 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             </div>
                         </div>
                         
+                        <!-- V4_3_0: Sortable column headers -->
+                        <div id="librarySortHeaders" style="display: flex; justify-content: space-between; padding: 4px 12px; margin-bottom: 4px; border-bottom: 1px solid #333; font-size: 11px; color: #888;">
+                            <div id="sortByName" onclick="toggleLibrarySort('name')" style="cursor: pointer; user-select: none;">
+                                Name <span id="sortNameArrow">▼</span>
+                            </div>
+                            <div id="sortByBPM" onclick="toggleLibrarySort('bpm')" style="cursor: pointer; user-select: none;">
+                                BPM <span id="sortBPMArrow"></span>
+                            </div>
+                        </div>
+                        
                         <!-- V2.8.0-M: Container list grows to fill space -->
                         <div class="library-list" id="libraryList" style="flex: 1; overflow-y: auto; min-height: 0;">
                             <div style="color: #666; text-align: center; padding: 40px 20px;">
-                                No containers in library. Click "Add Current" to save your first container.
+                                No containers in library. Click "+" to save your first container.
                             </div>
                         </div>
                     </div>
@@ -2624,7 +2653,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         <div style="margin-bottom: 20px;">
                             <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">People:</div>
                             <div style="color: #888; font-size: 11px; line-height: 1.8;">
-                                Bileam Tschepe (elekktronaut), Bob Moog, Chris Wilson, Dave Smith, Deadmau5, Dennis "Thresh" Fong, Ducky 3D, ELPHNT, FOMO, Gerhard Behles, Ikutaro Kakehashi, Masato Tsutsui, Ned Rush, Robert Henke, Tadao Kikumoto, Tom Cosm, Xan3D
+                                Bileam Tschepe (elekktronaut), Bob Moog, Chris Wilson, Christoph Guttandin, Dave Smith, Deadmau5, Dennis "Thresh" Fong, Ducky 3D, ELPHNT, FOMO, Gerhard Behles, Ikutaro Kakehashi, Masato Tsutsui, Ned Rush, Robert Henke, Tadao Kikumoto, Tom Cosm, Xan3D
                             </div>
                         </div>
                         
@@ -2646,6 +2675,50 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     </div>
                 </div>
             </div><!-- End About Tab Content -->
+            
+            <!-- V4_3_0: Utilities Tab Content -->
+            <div class="tab-content" id="utilitiesTabContent">
+                <div class="controls" style="padding: 20px;">
+                    <div class="shader-header" style="margin-bottom: 20px;">UTILITIES</div>
+                    
+                    <!-- Missing Files -->
+                    <div style="margin-bottom: 25px;">
+                        <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Missing Files Detection</div>
+                        <div style="color: #666; font-size: 11px;">Coming soon - Scan containers for missing audio references</div>
+                    </div>
+                    
+                    <!-- File Integrity -->
+                    <div style="margin-bottom: 25px;">
+                        <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">File Integrity Checks</div>
+                        <div style="color: #666; font-size: 11px;">Coming soon - Validate .oms and .omsp file structure</div>
+                    </div>
+                    
+                    <!-- Package/Export -->
+                    <div style="margin-bottom: 25px;">
+                        <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Package / Export</div>
+                        <div style="color: #666; font-size: 11px;">Coming soon - Bundle containers with audio for distribution</div>
+                    </div>
+                    
+                    <!-- Cleanup Tools -->
+                    <div style="margin-bottom: 25px;">
+                        <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Cleanup Tools</div>
+                        <div style="color: #666; font-size: 11px;">Coming soon - Remove orphaned files and optimize library</div>
+                    </div>
+                    
+                    <!-- Diagnostics -->
+                    <div style="margin-bottom: 25px;">
+                        <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Diagnostics</div>
+                        <div style="color: #666; font-size: 11px;">Coming soon - System info, WebGPU status, performance metrics</div>
+                    </div>
+                    
+                    <!-- Rescan FFT -->
+                    <div style="margin-bottom: 25px;">
+                        <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Rescan FFT</div>
+                        <div style="color: #666; font-size: 11px;">Coming soon - Re-analyze audio timeline data for containers</div>
+                    </div>
+                    
+                </div>
+            </div><!-- End Utilities Tab Content -->
             
             <!-- V3.4.0_M: Only visible on LIVE tab -->
             <!-- V3.4.0_O: Removed label for more canvas space on MacBook Pro 14" -->
@@ -2696,7 +2769,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     <span id="audioFileName" style="display: none;">Upload Audio</span>
                 </button>
                 <input type="file" id="audioFile" accept="audio/*" style="display: none;" onchange="loadAudioFile(event)">
-                <input type="file" id="omsFile" accept=".oms" style="display: none;" onchange="handleOmsFileImport(event)">
+                <input type="file" id="omsFile" accept=".zip" style="display: none;" onchange="handleZipImport(event)">
             </div>
             
             <!-- V3.0.0-K: Audio Controls Strip with 5 Bordered Cells (60px Fixed Height) -->
@@ -5302,6 +5375,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('libraryTabContent').classList.remove('active'); // V2.8.0-F
             document.getElementById('settingsTabContent').classList.remove('active'); // V3_4_0_C
             document.getElementById('aboutTabContent').classList.remove('active'); // V3_8_0_X
+            document.getElementById('utilitiesTabContent').classList.remove('active'); // V4_3_0
             
             // Deactivate all tabs
             document.getElementById('controlsTab').classList.remove('active');
@@ -5310,6 +5384,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('libraryTab').classList.remove('active'); // V2.8.0-F
             document.getElementById('settingsTab').classList.remove('active'); // V3_4_0_C
             document.getElementById('aboutTab').classList.remove('active'); // V3_8_0_X
+            document.getElementById('utilitiesTab').classList.remove('active'); // V4_3_0
             document.getElementById('liveTab').classList.remove('active'); // V3.0.0-B
             
             // V3.0.0-B: Hide/show right panel content based on tab
@@ -5412,6 +5487,24 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 liveShaderOutputContainer.style.display = 'none'; // V3_8_0_X: Hide on non-LIVE tabs
                 // V3_8_0_X: Hide overlay (no folder needed)
                 document.getElementById('appFolderOverlay').classList.remove('active');
+            } else if (tabName === 'utilities') { // V4_3_0
+                document.getElementById('utilitiesTabContent').classList.add('active');
+                document.getElementById('utilitiesTab').classList.add('active');
+                
+                // V4_3_0: Show overlay if no folder (utilities need library access)
+                const appOverlay = document.getElementById('appFolderOverlay');
+                if (!applicationFolderHandle) {
+                    appOverlay.classList.add('active');
+                } else {
+                    appOverlay.classList.remove('active');
+                }
+                
+                // Show canvas, hide LIVE mixer
+                previewContainer.style.display = 'flex';
+                waveformSection.style.display = 'flex';
+                audioControlsStrip.style.display = 'flex';
+                liveMixerContainer.style.display = 'none';
+                liveShaderOutputContainer.style.display = 'none'; // V4_3_0: Hide on non-LIVE tabs
             } else if (tabName === 'live') { // V3.0.0-B
                 // Show Library in left panel
                 document.getElementById('libraryTabContent').classList.add('active');
@@ -5575,6 +5668,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         // V2.8.0-L: File System Access API for Audio Library
         
         let applicationFolderHandle = null;
+        let libraryFolderHandle = null;  // V4_3_0_sub8: Library subfolder handle
         
         // V3_8_0_E: Project management
         let activeProjectName = null;  // Current project subfolder name
@@ -5632,6 +5726,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     startIn: 'music'
                 });
                 
+                // V4_3_0_sub8: Create Library subfolder
+                libraryFolderHandle = await applicationFolderHandle.getDirectoryHandle('Library', { create: true });
+                console.log('V4_3_0_sub8: Library subfolder created/accessed');
+                
                 // Store handle in IndexedDB for persistence
                 await storeApplicationFolderHandle(applicationFolderHandle);
                 
@@ -5653,7 +5751,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // V3_8_0_G: Hide app-level overlay
                 document.getElementById('appFolderOverlay').classList.remove('active');
                 
-                showStatus(`Library set: ${applicationFolderHandle.name}`, 'success');
+                showStatus(`Library set: ${applicationFolderHandle.name}/Library`, 'success');
             } catch (error) {
                 if (error.name !== 'AbortError') {
                     console.error('Failed to setup application folder:', error);
@@ -5693,6 +5791,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         
                         // Handle works!
                         applicationFolderHandle = handle;
+                        
+                        // V4_3_0_sub8: Get or create Library subfolder
+                        libraryFolderHandle = await applicationFolderHandle.getDirectoryHandle('Library', { create: true });
+                        console.log('V4_3_0_sub8: Library subfolder accessed');
+                        
                         document.getElementById('applicationFolderInfo').style.display = 'block';
                         document.getElementById('applicationFolderName').textContent = handle.name;
                         document.getElementById('setupApplicationFolderBtn').textContent = 'Change Folder';
@@ -5743,17 +5846,18 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             });
         }
         
+        // V4_3_0_sub8: Get audio from Library subfolder
         async function getAudioFromLibrary(filename) {
-            if (!applicationFolderHandle) {
-                throw new Error('No application folder configured');
+            if (!libraryFolderHandle) {
+                throw new Error('No Library folder configured');
             }
             
             try {
-                const fileHandle = await applicationFolderHandle.getFileHandle(filename);
+                const fileHandle = await libraryFolderHandle.getFileHandle(filename);
                 const file = await fileHandle.getFile();
                 return file;
             } catch (error) {
-                throw new Error(`Audio file not found: ${filename}`);
+                throw new Error(`Audio file not found in Library/: ${filename}`);
             }
         }
         
@@ -5773,24 +5877,60 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             return true;
         }
         
-        function getLibraryContainers() {
-            try {
-                const stored = localStorage.getItem('omsLibrary');
-                return stored ? JSON.parse(stored) : [];
-            } catch (error) {
-                console.error('Failed to load library:', error);
-                return [];
+        // V4_3_0: Cache of containers from folder scan (populated by refreshLibraryList)
+        let libraryContainersCache = [];
+        
+        // V4_3_0: Library sort state
+        let librarySortBy = 'name';  // 'name' or 'bpm'
+        let librarySortDir = 'asc';  // 'asc' or 'desc'
+        
+        // V4_3_0: Toggle library sort
+        function toggleLibrarySort(column) {
+            if (librarySortBy === column) {
+                // Same column - toggle direction
+                librarySortDir = librarySortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                // Different column - set to asc
+                librarySortBy = column;
+                librarySortDir = 'asc';
+            }
+            
+            // Update arrow indicators
+            updateSortArrows();
+            
+            // Re-sort and refresh
+            refreshLibraryList();
+            
+            // Save to project
+            autoSaveProject();
+            
+            console.log(`V4_3_0: Sort changed to ${librarySortBy} ${librarySortDir}`);
+        }
+        
+        // V4_3_0: Update sort arrow indicators
+        function updateSortArrows() {
+            const nameArrow = document.getElementById('sortNameArrow');
+            const bpmArrow = document.getElementById('sortBPMArrow');
+            
+            if (nameArrow) {
+                nameArrow.textContent = librarySortBy === 'name' ? (librarySortDir === 'asc' ? '▼' : '▲') : '';
+            }
+            if (bpmArrow) {
+                bpmArrow.textContent = librarySortBy === 'bpm' ? (librarySortDir === 'asc' ? '▼' : '▲') : '';
             }
         }
         
+        function getLibraryContainers() {
+            // V4_3_0: Return cached containers from folder scan
+            // Cache is populated by refreshLibraryList()
+            return libraryContainersCache;
+        }
+        
         function saveLibraryContainers(containers) {
-            try {
-                localStorage.setItem('omsLibrary', JSON.stringify(containers));
-                broadcastLibrary();  // V2.9.0-A: Broadcast library after save
-            } catch (error) {
-                console.error('Failed to save library:', error);
-                showStatus('Error saving library (storage full?)', 'error');
-            }
+            // V4_3_0: Deprecated - folder is now source of truth
+            // This function kept for compatibility but does nothing
+            console.warn('V4_3_0: saveLibraryContainers() deprecated - use folder operations');
+            broadcastLibrary();
         }
         
         async function addToLibrary() {
@@ -5839,9 +5979,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         }
         
         // V2.9.0-T: Auto-save .oms file to LIBRARY folder (uses container.name)
+        // V4_3_0_sub8: Now saves to Library subfolder
         async function saveContainerToOMS(container) {
-            if (!applicationFolderHandle) {
-                console.log('V2.9.0-T: LIBRARY not set up - skipping .oms save');
+            if (!libraryFolderHandle) {
+                console.log('V4_3_0_sub8: Library subfolder not set up - skipping .oms save');
                 showStatus('Container saved to browser. Set Application folder to save .oms file.', 'info');
                 return;
             }
@@ -5850,19 +5991,19 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // V2.9.0-T: Use container name for .oms filename (like Ableton .asd files)
                 const omsFilename = container.name + '.oms';
                 
-                console.log('V2.9.0-T: Saving .oms file:', omsFilename);
+                console.log('V4_3_0_sub8: Saving .oms file to Library/:', omsFilename);
                 
                 // Create JSON content
                 const omsContent = JSON.stringify(container, null, 2);
                 
-                // Write to LIBRARY folder
-                const fileHandle = await applicationFolderHandle.getFileHandle(omsFilename, { create: true });
+                // Write to Library subfolder
+                const fileHandle = await libraryFolderHandle.getFileHandle(omsFilename, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(omsContent);
                 await writable.close();
                 
-                console.log('V2.9.0-T: Successfully saved .oms file:', omsFilename);
-                showStatus(`Saved: ${container.name} → ${omsFilename}`, 'success');
+                console.log('V4_3_0_sub8: Successfully saved .oms file:', omsFilename);
+                showStatus(`Saved: ${container.name} → Library/${omsFilename}`, 'success');
                 
             } catch (error) {
                 console.error('V2.9.0-T: Failed to save .oms file:', error);
@@ -6012,73 +6153,146 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             showStatus('Add cancelled', 'info');
         }
         
-        function refreshLibraryList() {
-            const containers = getLibraryContainers();
+        // V4_3_0_sub8: Scan Library subfolder for .oms files (folder = source of truth)
+        async function refreshLibraryList() {
             const listDiv = document.getElementById('libraryList');
             
-            if (containers.length === 0) {
-                listDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px;">No containers in library. Click "Add Current" to save your first container.</div>';
+            // If no library folder set, show message
+            if (!libraryFolderHandle) {
+                listDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px;">Set Application Folder to access your library.</div>';
                 return;
             }
             
-            let html = '';
-            containers.forEach((container, index) => {
-                const audioIcon = container.hasAudio ? '🎵' : '🎨';
-                const bpmText = container.audioBPM ? `${container.audioBPM.toFixed(1)} BPM` : 'No audio';
-                const isActive = currentLoadedContainerId === container.id;
-                const activeDot = isActive ? '<span style="color: #0ff; font-size: 10px; margin-right: 8px; line-height: 1;">●</span>' : '';
+            try {
+                const containers = [];
                 
-                html += `
-                    <div class="library-card" 
-                         data-container-id="${container.id}" 
-                         data-container-name="${container.name.replace(/"/g, '&quot;')}"
-                         data-index="${index}" 
-                         draggable="true"
-                         tabindex="0" 
-                         style="background: rgba(255, 255, 255, 0.03); padding: 12px 15px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #333; cursor: grab;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
-                            <div style="flex: 1; min-width: 0;">
-                                <div id="name-${container.id}" 
-                                     data-container-id="${container.id}"
-                                     data-original-name="${container.name.replace(/"/g, '&quot;')}"
-                                     style="color: #fff; font-size: 13px; margin-bottom: 5px; font-weight: 400; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
-                                     onclick="editContainerName('${container.id}')" 
-                                     title="${container.name}">${audioIcon} ${container.name}</div>
-                                <div style="color: #999; font-size: 12px;">${bpmText}</div>
-                            </div>
-                            <div style="display: flex; gap: 8px; flex-shrink: 0; align-items: center;">
-                                ${activeDot}
-                                <button class="btn" onclick="loadContainer('${container.id}')" title="Load container">L</button>
-                                <button class="btn" onclick="updateContainer('${container.id}')" title="Update container with current editor state">U</button>
-                                <button class="btn" onclick="removeContainer('${container.id}')" title="Delete container">X</button>
+                // Scan Library subfolder for .oms files (exclude *_ControlState.oms)
+                for await (const entry of libraryFolderHandle.values()) {
+                    if (entry.kind === 'file' && 
+                        entry.name.endsWith('.oms') && 
+                        !entry.name.endsWith('_ControlState.oms')) {
+                        try {
+                            const file = await entry.getFile();
+                            const text = await file.text();
+                            const data = JSON.parse(text);
+                            
+                            // Extract metadata for card display
+                            // V4_3_0_sub10: id MUST be filename (without .oms) so loadContainer can find the file
+                            // V4_3_0: Use fileBaseName if data.name is empty string
+                            const fileBaseName = entry.name.replace('.oms', '');
+                            const displayName = (data.name && data.name.trim()) ? data.name : fileBaseName;
+                            
+                            // V4_3_0: Store FULL container data for LIVE tab
+                            // Merge file-derived ID with full data
+                            const fullContainer = {
+                                ...data,
+                                id: fileBaseName,  // Use filename, NOT internal data.id
+                                name: displayName,
+                                audioBPM: data.controlStates?.audioTempo || data.audioBPM || null,
+                                audioFilename: data.audioFilename || null,
+                                hasAudio: !!(data.audioFilename || data.controlStates?.audioFilename),
+                                filename: entry.name
+                            };
+                            containers.push(fullContainer);
+                        } catch (parseError) {
+                            console.warn('V4_3_0_sub8: Failed to parse .oms file:', entry.name, parseError);
+                        }
+                    }
+                }
+                
+                // V4_3_0: Sort by current sort settings
+                containers.sort((a, b) => {
+                    let comparison = 0;
+                    if (librarySortBy === 'name') {
+                        comparison = a.name.localeCompare(b.name);
+                    } else if (librarySortBy === 'bpm') {
+                        const bpmA = a.audioBPM || 0;
+                        const bpmB = b.audioBPM || 0;
+                        comparison = bpmA - bpmB;
+                    }
+                    return librarySortDir === 'asc' ? comparison : -comparison;
+                });
+                
+                // V4_3_0: Update global cache for getLibraryContainers()
+                libraryContainersCache = containers;
+                console.log('V4_3_0: Updated libraryContainersCache with', containers.length, 'containers');
+                
+                if (containers.length === 0) {
+                    listDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px;">No containers in Library folder. Click [+] to save your first container.</div>';
+                    return;
+                }
+                
+                let html = '';
+                containers.forEach((container, index) => {
+                    const bpmText = container.audioBPM ? `${parseFloat(container.audioBPM).toFixed(1)} BPM` : 'No audio';
+                    const isActive = currentLoadedContainerId === container.id;
+                    const activeDot = isActive ? '<span style="color: #0ff; font-size: 8px; margin-right: 6px;">●</span>' : '';
+                    
+                    // V4_3_0_sub12: Single row card with editable name span
+                    html += `
+                        <div class="library-card" 
+                             data-container-id="${container.id}" 
+                             data-container-name="${container.name.replace(/"/g, '&quot;')}"
+                             data-index="${index}" 
+                             draggable="true"
+                             tabindex="0" 
+                             style="background: rgba(255, 255, 255, 0.03); padding: 8px 12px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #333; cursor: grab;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
+                                    ${activeDot}<span class="container-name" data-original-name="${container.name.replace(/"/g, '&quot;')}" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${container.name}">${container.name}</span>
+                                </div>
+                                <div style="color: #666; font-size: 11px; margin-left: 12px; flex-shrink: 0;">${bpmText}</div>
                             </div>
                         </div>
-                    </div>
-                `;
-            });
-            
-            listDiv.innerHTML = html;
-            
-            // V2.9.0-N: Add keyboard navigation to library cards
-            // V2.9.0-P: Smooth continuous scrolling when holding arrow keys
-            // V2.9.0-S: Simplified - card only handles arrow keys and Enter on card itself
-            // V3.1.0-D: Add drag/drop support for containers
-            document.querySelectorAll('.library-card').forEach(card => {
-                // V3.1.0-D: Drag handler
-                card.addEventListener('dragstart', (e) => {
-                    const containerId = card.dataset.containerId;
-                    const containerName = card.dataset.containerName;
-                    
-                    e.dataTransfer.setData('text/plain', JSON.stringify({
-                        id: containerId,
-                        name: containerName
-                    }));
-                    e.dataTransfer.effectAllowed = 'copy';
-                    
-                    // Visual feedback
-                    card.style.opacity = '0.5';
-                    console.log('V3.1.0-D: Dragging container:', containerName);
+                    `;
                 });
+                
+                listDiv.innerHTML = html;
+                
+                console.log('V4_3_0_sub8: Loaded', containers.length, 'containers from Library folder');
+                
+                // V4_3_0_sub12: Click to select, click again to edit name
+                document.querySelectorAll('.library-card').forEach(card => {
+                    // Click handler
+                    card.addEventListener('click', (e) => {
+                        const containerId = card.dataset.containerId;
+                        const isAlreadySelected = window.selectedLibraryContainerId === containerId;
+                        
+                        if (isAlreadySelected) {
+                            // V4_3_0_sub12: Click on already-selected card = enter edit mode
+                            enterEditMode(card);
+                        } else {
+                            // Select this card
+                            document.querySelectorAll('.library-card').forEach(c => {
+                                c.style.borderColor = '#333';
+                            });
+                            card.style.borderColor = '#0ff';
+                            window.selectedLibraryContainerId = containerId;
+                            console.log('V4_3_0_sub12: Selected container:', card.dataset.containerName);
+                        }
+                    });
+                    
+                    // V4_3_0_sub4: Double-click to load
+                    card.addEventListener('dblclick', (e) => {
+                        const containerId = card.dataset.containerId;
+                        if (containerId) loadContainer(containerId);
+                    });
+                    
+                    // V3.1.0-D: Drag handler
+                    card.addEventListener('dragstart', (e) => {
+                        const containerId = card.dataset.containerId;
+                        const containerName = card.dataset.containerName;
+                        
+                        e.dataTransfer.setData('text/plain', JSON.stringify({
+                            id: containerId,
+                            name: containerName
+                        }));
+                        e.dataTransfer.effectAllowed = 'copy';
+                    
+                        // Visual feedback
+                        card.style.opacity = '0.5';
+                        console.log('V4_3_0_sub9: Dragging container:', containerName);
+                    });
                 
                 card.addEventListener('dragend', (e) => {
                     card.style.opacity = '1';
@@ -6092,33 +6306,226 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         
                         if (e.key === 'ArrowDown' && currentIndex < cards.length - 1) {
                             cards[currentIndex + 1].focus();
+                            cards[currentIndex + 1].click(); // V4_3_0_sub4: Select on arrow nav
                             cards[currentIndex + 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         } else if (e.key === 'ArrowUp' && currentIndex > 0) {
                             cards[currentIndex - 1].focus();
+                            cards[currentIndex - 1].click(); // V4_3_0_sub4: Select on arrow nav
                             cards[currentIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         }
                     } else if (e.key === 'Enter' && e.target === card) {
-                        // Enter on card itself (not button) → Load container
+                        // Enter on card itself → Load container
                         const containerId = card.dataset.containerId;
                         if (containerId) loadContainer(containerId);
                     }
                 });
+            });
+            
+            } catch (error) {
+                console.error('V4_3_0_sub9: Failed to scan Library folder:', error);
+                listDiv.innerHTML = '<div style="color: #f66; text-align: center; padding: 40px 20px;">Error scanning Library folder.</div>';
+            }
+        }
+        
+        // V4_3_0_sub4: Wrapper functions for header buttons (operate on selected card)
+        function loadSelectedContainer() {
+            if (!window.selectedLibraryContainerId) {
+                showStatus('No container selected', 'error');
+                return;
+            }
+            loadContainer(window.selectedLibraryContainerId);
+        }
+        
+        function updateSelectedContainer() {
+            if (!window.selectedLibraryContainerId) {
+                showStatus('No container selected', 'error');
+                return;
+            }
+            updateContainer(window.selectedLibraryContainerId);
+        }
+        
+        // V4_3_0_sub6: Export selected container + audio as .oms.zip
+        async function exportSelectedContainer() {
+            if (!window.selectedLibraryContainerId) {
+                showStatus('No container selected', 'error');
+                return;
+            }
+            
+            if (!applicationFolderHandle) {
+                showStatus('No library folder set', 'error');
+                return;
+            }
+            
+            // Check if JSZip is loaded
+            if (typeof JSZip === 'undefined') {
+                showStatus('Export requires internet connection (JSZip not loaded)', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Preparing export...', '');
                 
-                // V2.9.0-S: Add Enter key handlers directly to buttons
-                const buttons = card.querySelectorAll('button.btn');
-                buttons.forEach(button => {
-                    button.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            button.click();
-                        }
-                    });
-                });
+                // Get container data from library
+                const containers = getLibraryContainers();
+                const container = containers.find(c => c.id === window.selectedLibraryContainerId);
+                if (!container) {
+                    showStatus('Container not found', 'error');
+                    return;
+                }
+                
+                // Create ZIP
+                const zip = new JSZip();
+                
+                // Add .oms file
+                const omsFilename = `${container.name}.oms`;
+                
+                // V4_3_0_sub8: Read .oms file from Library subfolder
+                const omsFileHandle = await libraryFolderHandle.getFileHandle(omsFilename);
+                const omsFile = await omsFileHandle.getFile();
+                const omsContent = await omsFile.text();
+                zip.file(omsFilename, omsContent);
+                
+                // V4_3_0_sub8: Add audio file if referenced (also in Library subfolder)
+                let audioIncluded = false;
+                if (container.audioFilename) {
+                    try {
+                        const audioFileHandle = await libraryFolderHandle.getFileHandle(container.audioFilename);
+                        const audioFile = await audioFileHandle.getFile();
+                        const audioData = await audioFile.arrayBuffer();
+                        zip.file(container.audioFilename, audioData);
+                        audioIncluded = true;
+                    } catch (audioErr) {
+                        console.warn('V4_3_0_sub8: Audio file not found in Library/:', container.audioFilename);
+                        // Continue without audio
+                    }
+                }
+                
+                // Create or get Exports subfolder (at app folder level, not inside Library)
+                let exportsFolder;
+                try {
+                    exportsFolder = await applicationFolderHandle.getDirectoryHandle('Exports', { create: true });
+                } catch (folderErr) {
+                    showStatus('Could not create exports folder', 'error');
+                    return;
+                }
+                
+                // Generate ZIP blob
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                
+                // Save to exports folder
+                const zipFilename = `${container.name}.oms.zip`;
+                const zipFileHandle = await exportsFolder.getFileHandle(zipFilename, { create: true });
+                const writable = await zipFileHandle.createWritable();
+                await writable.write(zipBlob);
+                await writable.close();
+                
+                const audioStatus = audioIncluded ? ' + audio' : ' (no audio)';
+                showStatus(`Exported: Exports/${zipFilename}${audioStatus}`, 'success');
+                console.log('V4_3_0_sub6: Exported to Exports/' + zipFilename);
+                
+            } catch (err) {
+                console.error('V4_3_0_sub6: Export failed:', err);
+                showStatus('Export failed: ' + err.message, 'error');
+            }
+        }
+        
+        function removeSelectedContainer() {
+            if (!window.selectedLibraryContainerId) {
+                showStatus('No container selected', 'error');
+                return;
+            }
+            removeContainer(window.selectedLibraryContainerId);
+            window.selectedLibraryContainerId = null; // Clear selection after delete
+        }
+        
+        // V4_3_0_sub12: Enter edit mode for card name
+        // V4_3_0: Added guard to prevent multiple inputs
+        function enterEditMode(card) {
+            // Guard: Don't enter edit mode if already editing
+            if (card.querySelector('input[type="text"]')) {
+                return;
+            }
+            
+            const containerId = card.dataset.containerId;
+            const nameSpan = card.querySelector('.container-name');
+            if (!nameSpan) return;
+            
+            const originalName = nameSpan.dataset.originalName;
+            
+            // Create input field
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = originalName;
+            input.style.cssText = 'background: rgba(0,0,0,0.5); border: 1px solid #0ff; color: #fff; padding: 2px 6px; font-size: 12px; font-family: inherit; width: 100%; outline: none; border-radius: 2px;';
+            
+            // Hide span and insert input
+            nameSpan.style.display = 'none';
+            nameSpan.parentNode.insertBefore(input, nameSpan.nextSibling);
+            input.focus();
+            input.select();
+            
+            // Save function
+            const saveEdit = async () => {
+                console.log('V4_3_0: saveEdit called');
+                // Guard: prevent double-save
+                if (input.dataset.saving) {
+                    console.log('V4_3_0: saveEdit skipped (already saving)');
+                    return;
+                }
+                input.dataset.saving = 'true';
+                
+                const newName = input.value.trim();
+                console.log('V4_3_0: newName:', newName, 'originalName:', originalName);
+                
+                // Clean up input first
+                input.remove();
+                
+                if (newName && newName !== originalName) {
+                    console.log('V4_3_0: Calling renameContainer');
+                    // Rename will refresh the list
+                    await renameContainer(containerId, newName);
+                } else {
+                    console.log('V4_3_0: No change, restoring span');
+                    // Cancel - just restore span
+                    nameSpan.style.display = '';
+                }
+            };
+            
+            // Cancel function
+            const cancelEdit = () => {
+                if (input.dataset.saving) return;
+                input.remove();
+                nameSpan.style.display = '';
+            };
+            
+            // Event handlers
+            input.addEventListener('keydown', (e) => {
+                console.log('V4_3_0: Input keydown:', e.key);
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('V4_3_0: Enter pressed, calling saveEdit');
+                    saveEdit();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('V4_3_0: Escape pressed, calling cancelEdit');
+                    cancelEdit();
+                }
+            });
+            
+            input.addEventListener('blur', () => {
+                // Small delay to allow click events to process first
+                setTimeout(() => saveEdit(), 100);
+            });
+            
+            // Prevent click from bubbling (would re-trigger edit)
+            input.addEventListener('click', (e) => {
+                e.stopPropagation();
             });
         }
         
-        // V2_9_0_E: Edit container name inline
-        // V2_9_0_G: Inline editing - click name to edit directly
+        // V2_9_0_E: Edit container name inline (legacy - kept for reference)
         function editContainerName(containerId) {
             const nameDiv = document.getElementById(`name-${containerId}`);
             if (!nameDiv) return;
@@ -6165,124 +6572,133 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         }
         
         // V2_9_0_E: Rename container in library
+        // V4_3_0_sub11: Rename container - works with folder-based system
         async function renameContainer(containerId, newName) {
-            const containers = getLibraryContainers();
-            const containerIndex = containers.findIndex(c => c.id === containerId);
-            if (containerIndex === -1) {
-                showStatus('Container not found', 'error');
+            if (!libraryFolderHandle) {
+                showStatus('Set Application folder first', 'error');
                 return;
             }
             
-            const oldName = containers[containerIndex].name;
-            containers[containerIndex].name = newName;
-            saveLibraryContainers(containers);
+            // containerId IS the old filename (without .oms)
+            const oldFilename = containerId + '.oms';
+            // V4_3_0_sub15: Sanitize new name for filesystem
+            const sanitizedNewName = sanitizeFilename(newName);
             
-            // V2.9.0-T: Rename .oms file in LIBRARY
-            if (applicationFolderHandle) {
-                try {
-                    const oldFilename = oldName + '.oms';
-                    const newFilename = newName + '.oms';
-                    
-                    console.log('V2.9.0-T: Renaming .oms file:', oldFilename, '→', newFilename);
-                    
-                    // Delete old .oms file
-                    try {
-                        await applicationFolderHandle.removeEntry(oldFilename);
-                        console.log('V2.9.0-T: Deleted old .oms file');
-                    } catch (error) {
-                        console.warn('V2.9.0-T: Could not delete old .oms file:', error);
-                    }
-                    
-                    // Save container with new name
-                    await saveContainerToOMS(containers[containerIndex]);
-                    
-                } catch (error) {
-                    console.error('V2.9.0-T: Failed to rename .oms file:', error);
-                }
+            // V4_3_0: Guard against empty names
+            if (!sanitizedNewName || sanitizedNewName.trim() === '') {
+                showStatus('Cannot rename to empty name', 'error');
+                return;
             }
             
-            showStatus(`Renamed to: ${newName}`, 'success');
-            refreshLibraryList();
+            const newFilename = sanitizedNewName + '.oms';
+            
+            try {
+                console.log('V4_3_0_sub15: Renaming container:', oldFilename, '→', newFilename);
+                
+                // 1. Read existing .oms file
+                const fileHandle = await libraryFolderHandle.getFileHandle(oldFilename);
+                const file = await fileHandle.getFile();
+                const text = await file.text();
+                const containerData = JSON.parse(text);
+                
+                // 2. Update the name field inside (use sanitized name)
+                containerData.name = sanitizedNewName;
+                
+                // 3. Save as new filename
+                const newFileHandle = await libraryFolderHandle.getFileHandle(newFilename, { create: true });
+                const writable = await newFileHandle.createWritable();
+                await writable.write(JSON.stringify(containerData, null, 2));
+                await writable.close();
+                console.log('V4_3_0_sub15: Saved new .oms file:', newFilename);
+                
+                // 4. Delete old file (only if different name)
+                if (oldFilename !== newFilename) {
+                    try {
+                        await libraryFolderHandle.removeEntry(oldFilename);
+                        console.log('V4_3_0_sub15: Deleted old .oms file:', oldFilename);
+                    } catch (delError) {
+                        console.warn('V4_3_0_sub15: Could not delete old file:', delError);
+                    }
+                }
+                
+                showStatus(`Renamed: ${sanitizedNewName}`, 'success');
+                await refreshLibraryList();
+                
+            } catch (error) {
+                console.error('V4_3_0_sub11: Rename failed:', error);
+                showStatus('Rename failed: ' + error.message, 'error');
+            }
         }
         
+        // V4_3_0_sub8: Load container directly from Library folder (folder = source of truth)
         async function loadContainer(containerId) {
-            const containers = getLibraryContainers();
-            const container = containers.find(c => c.id === containerId);
-            if (!container) {
-                showStatus('Container not found', 'error');
+            if (!libraryFolderHandle) {
+                showStatus('Set Application folder first', 'error');
                 return;
             }
             
             // V2.9.0-I: Warn if unsaved changes
             if (isDirty) {
                 showStatus('⚠ Unsaved changes - loading anyway', 'error');
-                console.log('V2.9.0-I: Loading container with unsaved changes');
+                console.log('V4_3_0_sub8: Loading container with unsaved changes');
             }
             
-            // V2.9.0-T: Read .oms file from LIBRARY if available
-            let containerData = container; // Default to localStorage data
+            // containerId is now the container name (from folder scan)
+            const omsFilename = containerId + '.oms';
+            let containerData;
             
-            if (applicationFolderHandle) {
-                try {
-                    console.log('V2.9.0-T: Reading .oms file from LIBRARY:', container.name + '.oms');
-                    const omsFilename = container.name + '.oms';
-                    const fileHandle = await applicationFolderHandle.getFileHandle(omsFilename);
-                    const file = await fileHandle.getFile();
-                    const text = await file.text();
-                    containerData = JSON.parse(text);
-                    console.log('V2.9.0-T: Successfully loaded from .oms file');
-                } catch (error) {
-                    console.warn('V2.9.0-T: Failed to read .oms file, using localStorage:', error);
-                    showStatus(`Loaded from browser (${container.name}.oms not found in LIBRARY)`, 'info');
-                }
-            } else {
-                console.log('V2.9.0-T: LIBRARY not set, using localStorage data');
+            try {
+                console.log('V4_3_0_sub8: Reading .oms file from Library/:', omsFilename);
+                const fileHandle = await libraryFolderHandle.getFileHandle(omsFilename);
+                const file = await fileHandle.getFile();
+                const text = await file.text();
+                containerData = JSON.parse(text);
+                console.log('V4_3_0_sub8: Successfully loaded from .oms file');
+            } catch (error) {
+                console.error('V4_3_0_sub8: Failed to read .oms file:', error);
+                showStatus(`Container not found: ${omsFilename}`, 'error');
+                return;
             }
             
-            console.log('V2.9.0-T: Loading container:', containerData.name);
-            console.log('V2.9.0-T: Audio filename:', containerData.audioFilename || 'none');
+            console.log('V4_3_0_sub8: Loading container:', containerData.name);
+            console.log('V4_3_0_sub8: Audio filename:', containerData.audioFilename || 'none');
             
             // V2_9_0_H: Clear existing audio first before loading new container
             removeAudio();
             currentAudioFile = null;
             
             // V2.9.0-T: Load shader code
-            console.log('V2.9.0-U: Setting shader code, length:', containerData.shaderCode?.length || 0);
+            console.log('V4_3_0_sub8: Setting shader code, length:', containerData.shaderCode?.length || 0);
             document.getElementById('shaderCode').value = containerData.shaderCode;
             
             // V2.9.0-U: Apply control states with error handling
             if (containerData.controlStates) {
                 try {
-                    console.log('V2.9.0-U: Applying control states...');
+                    console.log('V4_3_0_sub8: Applying control states...');
                     applyControlState(containerData.controlStates);
-                    console.log('V2.9.0-U: Control states applied successfully');
+                    console.log('V4_3_0_sub8: Control states applied successfully');
                 } catch (error) {
-                    console.error('V2.9.0-U: Error applying control states:', error);
+                    console.error('V4_3_0_sub8: Error applying control states:', error);
                     // Continue even if control state application fails
                 }
             }
             
-            // V2.9.0-T: Load audio from LIBRARY if filename exists
+            // V4_3_0_sub8: Load audio from Library subfolder if filename exists
             if (containerData.audioFilename) {
-                console.log('V2.9.0-T: Attempting to load audio from LIBRARY...');
+                console.log('V4_3_0_sub8: Attempting to load audio from Library/...');
                 try {
-                    if (!applicationFolderHandle) {
-                        console.log('V2.9.0-T: LIBRARY not set up');
-                        showStatus(`Container loaded. Set Application folder to load: ${containerData.audioFilename}`, 'info');
-                    } else {
-                        console.log('V2.9.0-T: Getting audio file from LIBRARY...');
-                        const file = await getAudioFromLibrary(containerData.audioFilename);
-                        console.log('V2.9.0-T: Audio file retrieved, loading...');
-                        const fakeEvent = { target: { files: [file] } };
-                        await loadAudioFile(fakeEvent);
-                        console.log('V2.9.0-T: Audio loaded successfully');
-                    }
+                    console.log('V4_3_0_sub8: Getting audio file from Library/...');
+                    const file = await getAudioFromLibrary(containerData.audioFilename);
+                    console.log('V4_3_0_sub8: Audio file retrieved, loading...');
+                    const fakeEvent = { target: { files: [file] } };
+                    await loadAudioFile(fakeEvent);
+                    console.log('V4_3_0_sub8: Audio loaded successfully');
                 } catch (error) {
-                    console.error('V2.9.0-T: Failed to load audio from LIBRARY:', error);
-                    showStatus(`Container loaded. Audio not found in LIBRARY: ${containerData.audioFilename}`, 'error');
+                    console.error('V4_3_0_sub8: Failed to load audio from Library/:', error);
+                    showStatus(`Container loaded. Audio not found in Library/: ${containerData.audioFilename}`, 'error');
                 }
             } else if (containerData.audioData) {
-                console.log('V2.9.0-T: Loading embedded audio data (legacy)...');
+                console.log('V4_3_0_sub8: Loading embedded audio data (legacy)...');
                 // V2.8.0-L: Backward compatibility for old containers with embedded audio
                 try {
                     const response = await fetch(containerData.audioData);
@@ -6290,13 +6706,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     const file = new File([blob], `${containerData.name}.mp3`, { type: 'audio/mpeg' });
                     const fakeEvent = { target: { files: [file] } };
                     await loadAudioFile(fakeEvent);
-                    console.log('V2.9.0-T: Embedded audio loaded successfully');
+                    console.log('V4_3_0_sub8: Embedded audio loaded successfully');
                 } catch (error) {
-                    console.error('V2.9.0-T: Failed to load embedded audio:', error);
+                    console.error('V4_3_0_sub8: Failed to load embedded audio:', error);
                     showStatus('Container loaded (embedded audio failed)', 'error');
                 }
             } else {
-                console.log('V2.9.0-T: No audio in container');
+                console.log('V4_3_0_sub8: No audio in container');
                 showStatus(`Loaded: ${containerData.name} (no audio)`, 'success');
             }
             
@@ -6482,14 +6898,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 return;
             }
             
-            // V2.9.0-T: Delete .oms file from LIBRARY (uses container.name)
-            if (applicationFolderHandle) {
+            // V4_3_0_sub8: Delete .oms file from Library subfolder
+            if (libraryFolderHandle) {
                 try {
                     const omsFilename = container.name + '.oms';
-                    await applicationFolderHandle.removeEntry(omsFilename);
-                    console.log('V2.9.0-T: Deleted .oms file:', omsFilename);
+                    await libraryFolderHandle.removeEntry(omsFilename);
+                    console.log('V4_3_0_sub8: Deleted .oms file from Library/:', omsFilename);
                 } catch (error) {
-                    console.error('V2.9.0-T: Failed to delete .oms file:', error);
+                    console.error('V4_3_0_sub8: Failed to delete .oms file:', error);
                     // Continue with removal from localStorage even if .oms deletion fails
                 }
             }
@@ -6539,43 +6955,174 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             showStatus(`Exported: ${container.name}`, 'success');
         }
         
-        function handleOmsFileImport(event) {
+        // V4_3_0_sub10: Smart ZIP import - detects content type and handles accordingly
+        async function handleZipImport(event) {
             const file = event.target.files[0];
             if (!file) return;
             
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                try {
-                    const omsData = JSON.parse(e.target.result);
-                    
-                    // Validate format
-                    if (omsData.format !== 'oms-container' || !omsData.container) {
-                        showStatus('Invalid .oms file format', 'error');
-                        return;
-                    }
-                    
-                    const container = omsData.container;
-                    
-                    // Generate new ID and timestamp
-                    container.id = Date.now().toString();
-                    container.created = new Date().toISOString();
-                    
-                    // Add to library
-                    const containers = getLibraryContainers();
-                    containers.push(container);
-                    saveLibraryContainers(containers);
-                    
-                    showStatus(`Imported: ${container.name}`, 'success');
-                    refreshLibraryList();
-                    
-                } catch (error) {
-                    console.error('Failed to import .oms file:', error);
-                    showStatus('Failed to import .oms file', 'error');
+            // Check if JSZip is loaded
+            if (typeof JSZip === 'undefined') {
+                showStatus('Import requires internet connection (JSZip not loaded)', 'error');
+                event.target.value = '';
+                return;
+            }
+            
+            // Check if library folder is set
+            if (!libraryFolderHandle) {
+                showStatus('Set Application folder first', 'error');
+                event.target.value = '';
+                return;
+            }
+            
+            try {
+                showStatus('Importing...', '');
+                
+                const zip = await JSZip.loadAsync(file);
+                
+                // Analyze ZIP contents
+                const files = Object.keys(zip.files);
+                const omsFiles = files.filter(f => f.endsWith('.oms') && !f.endsWith('_ControlState.oms'));
+                const omspFiles = files.filter(f => f.endsWith('.omsp'));
+                const audioFiles = files.filter(f => /\.(mp3|wav|ogg|m4a|aac|flac)$/i.test(f));
+                
+                console.log('V4_3_0_sub10: ZIP contents:', { omsFiles, omspFiles, audioFiles });
+                
+                // Determine import type
+                if (omspFiles.length > 0) {
+                    // Project import
+                    await importProjectFromZip(zip, omspFiles, omsFiles, audioFiles);
+                } else if (omsFiles.length > 1) {
+                    // Set import (multiple containers)
+                    await importSetFromZip(zip, omsFiles, audioFiles);
+                } else if (omsFiles.length === 1) {
+                    // Single container import
+                    await importContainerFromZip(zip, omsFiles[0], audioFiles);
+                } else {
+                    showStatus('No .oms or .omsp files found in ZIP', 'error');
                 }
-            };
-            reader.readAsText(file);
+                
+            } catch (error) {
+                console.error('V4_3_0_sub10: ZIP import failed:', error);
+                showStatus('Import failed: ' + error.message, 'error');
+            }
             
             // Reset file input
+            event.target.value = '';
+        }
+        
+        // Import single container from ZIP
+        async function importContainerFromZip(zip, omsFilename, audioFiles) {
+            try {
+                // Extract and parse .oms file
+                const omsContent = await zip.file(omsFilename).async('string');
+                const containerData = JSON.parse(omsContent);
+                
+                // Save .oms to Library folder
+                const omsFileHandle = await libraryFolderHandle.getFileHandle(omsFilename, { create: true });
+                const omsWritable = await omsFileHandle.createWritable();
+                await omsWritable.write(omsContent);
+                await omsWritable.close();
+                
+                // Extract audio files to Library folder
+                let audioImported = 0;
+                for (const audioFilename of audioFiles) {
+                    try {
+                        const audioData = await zip.file(audioFilename).async('arraybuffer');
+                        const audioFileHandle = await libraryFolderHandle.getFileHandle(audioFilename, { create: true });
+                        const audioWritable = await audioFileHandle.createWritable();
+                        await audioWritable.write(audioData);
+                        await audioWritable.close();
+                        audioImported++;
+                    } catch (audioErr) {
+                        console.warn('V4_3_0_sub10: Failed to extract audio:', audioFilename, audioErr);
+                    }
+                }
+                
+                const audioStatus = audioImported > 0 ? ` + ${audioImported} audio` : '';
+                showStatus(`Imported: ${containerData.name || omsFilename}${audioStatus}`, 'success');
+                await refreshLibraryList();
+                
+            } catch (error) {
+                throw new Error('Container import failed: ' + error.message);
+            }
+        }
+        
+        // Import set (multiple containers) from ZIP
+        async function importSetFromZip(zip, omsFiles, audioFiles) {
+            try {
+                let imported = 0;
+                
+                // Extract each .oms file
+                for (const omsFilename of omsFiles) {
+                    try {
+                        const omsContent = await zip.file(omsFilename).async('string');
+                        const omsFileHandle = await libraryFolderHandle.getFileHandle(omsFilename, { create: true });
+                        const omsWritable = await omsFileHandle.createWritable();
+                        await omsWritable.write(omsContent);
+                        await omsWritable.close();
+                        imported++;
+                    } catch (omsErr) {
+                        console.warn('V4_3_0_sub10: Failed to extract .oms:', omsFilename, omsErr);
+                    }
+                }
+                
+                // Extract audio files
+                let audioImported = 0;
+                for (const audioFilename of audioFiles) {
+                    try {
+                        const audioData = await zip.file(audioFilename).async('arraybuffer');
+                        const audioFileHandle = await libraryFolderHandle.getFileHandle(audioFilename, { create: true });
+                        const audioWritable = await audioFileHandle.createWritable();
+                        await audioWritable.write(audioData);
+                        await audioWritable.close();
+                        audioImported++;
+                    } catch (audioErr) {
+                        console.warn('V4_3_0_sub10: Failed to extract audio:', audioFilename, audioErr);
+                    }
+                }
+                
+                const audioStatus = audioImported > 0 ? ` + ${audioImported} audio` : '';
+                showStatus(`Imported set: ${imported} containers${audioStatus}`, 'success');
+                await refreshLibraryList();
+                
+            } catch (error) {
+                throw new Error('Set import failed: ' + error.message);
+            }
+        }
+        
+        // Import project from ZIP
+        async function importProjectFromZip(zip, omspFiles, omsFiles, audioFiles) {
+            try {
+                // Import any containers first
+                if (omsFiles.length > 0) {
+                    await importSetFromZip(zip, omsFiles, audioFiles);
+                }
+                
+                // Import project file(s)
+                for (const omspFilename of omspFiles) {
+                    try {
+                        const omspContent = await zip.file(omspFilename).async('string');
+                        const omspFileHandle = await libraryFolderHandle.getFileHandle(omspFilename, { create: true });
+                        const omspWritable = await omspFileHandle.createWritable();
+                        await omspWritable.write(omspContent);
+                        await omspWritable.close();
+                    } catch (omspErr) {
+                        console.warn('V4_3_0_sub10: Failed to extract .omsp:', omspFilename, omspErr);
+                    }
+                }
+                
+                showStatus(`Imported project: ${omspFiles[0]} + ${omsFiles.length} containers`, 'success');
+                await updateProjectStatesDropdown();
+                await refreshLibraryList();
+                
+            } catch (error) {
+                throw new Error('Project import failed: ' + error.message);
+            }
+        }
+        
+        // Legacy function kept for compatibility
+        function handleOmsFileImport(event) {
+            showStatus('Please use .zip files for import', 'error');
             event.target.value = '';
         }
         
@@ -7616,6 +8163,133 @@ ${shaderCode}
                     }
                 }
             }
+            
+            // V4_3_0_sub14: Audio drag & drop on Library panel - auto-create container
+            const libraryList = document.getElementById('libraryList');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                libraryList.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                libraryList.addEventListener(eventName, () => {
+                    libraryList.style.background = 'rgba(0, 255, 255, 0.1)';
+                    libraryList.style.border = '2px dashed #0ff';
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                libraryList.addEventListener(eventName, () => {
+                    libraryList.style.background = '';
+                    libraryList.style.border = '';
+                }, false);
+            });
+            
+            libraryList.addEventListener('drop', handleLibraryAudioDrop, false);
+            
+            async function handleLibraryAudioDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length === 0) return;
+                
+                const file = files[0];
+                
+                // Check if it's an audio file
+                if (!file.type.startsWith('audio/')) {
+                    showStatus('Drop audio files to create containers', 'error');
+                    return;
+                }
+                
+                // Check library folder is set
+                if (!libraryFolderHandle) {
+                    showStatus('Set Application folder first', 'error');
+                    return;
+                }
+                
+                try {
+                    showStatus('Creating container...', '');
+                    
+                    // 1. Parse BPM from filename, use full filename (minus ext) as container name
+                    const filename = file.name;
+                    const parsedBPM = parseBPMFromFilename(filename);
+                    // V4_3_0: Use full filename as container name (user named it how they want)
+                    const containerName = filename.replace(/\.(mp3|wav|ogg|m4a|aac|flac)$/i, '');
+                    // Sanitize for filesystem safety
+                    const safeContainerName = sanitizeFilename(containerName);
+                    
+                    // 2. Copy audio file to Library/
+                    const audioArrayBuffer = await file.arrayBuffer();
+                    const audioFileHandle = await libraryFolderHandle.getFileHandle(filename, { create: true });
+                    const audioWritable = await audioFileHandle.createWritable();
+                    await audioWritable.write(audioArrayBuffer);
+                    await audioWritable.close();
+                    console.log('V4_3_0: Copied audio to Library/:', filename);
+                    
+                    // 3. Create container with current shader and control states
+                    const containerData = {
+                        name: safeContainerName,
+                        id: Date.now().toString(),
+                        created: new Date().toISOString(),
+                        version: '4.3.0',
+                        shaderCode: document.getElementById('shaderCode').value,
+                        audioFilename: filename,
+                        controlStates: getCurrentControlState()
+                    };
+                    
+                    // Set audio BPM if parsed
+                    if (parsedBPM) {
+                        containerData.controlStates.audioTempo = parsedBPM;
+                    }
+                    
+                    // 4. Save .oms file
+                    const omsFilename = safeContainerName + '.oms';
+                    const omsFileHandle = await libraryFolderHandle.getFileHandle(omsFilename, { create: true });
+                    const omsWritable = await omsFileHandle.createWritable();
+                    await omsWritable.write(JSON.stringify(containerData, null, 2));
+                    await omsWritable.close();
+                    console.log('V4_3_0: Created container:', omsFilename);
+                    
+                    // 5. Refresh list
+                    await refreshLibraryList();
+                    
+                    showStatus(`Created: ${safeContainerName}` + (parsedBPM ? ` (${parsedBPM} BPM)` : ''), 'success');
+                    
+                } catch (error) {
+                    console.error('V4_3_0_sub14: Failed to create container:', error);
+                    showStatus('Failed to create container: ' + error.message, 'error');
+                }
+            }
+            
+            // V4_3_0_sub14: Parse container name from audio filename
+            // V4_3_0_sub15: Added sanitization for filesystem-safe names
+            function parseContainerNameFromFilename(filename) {
+                // Remove extension
+                let name = filename.replace(/\.(mp3|wav|ogg|m4a|aac|flac)$/i, '');
+                
+                // Remove common patterns: BPM, dates, version numbers
+                name = name
+                    .replace(/_?\d{2,3}BPM_?/gi, ' ')      // 124BPM, _128BPM_
+                    .replace(/_?\d{4}-\d{2}(-\d{2})?_?/g, ' ')  // 2024-08, 2024-08-15
+                    .replace(/_?P\d{2}_?/gi, ' ')          // P01, P02
+                    .replace(/_?V\d+_?/gi, ' ')            // V1, V2
+                    .replace(/_+/g, ' ')                   // underscores to spaces
+                    .replace(/\s+/g, ' ')                  // collapse spaces
+                    .trim();
+                
+                // Sanitize for filesystem - remove/replace problematic characters
+                name = sanitizeFilename(name);
+                
+                return name || filename.replace(/\.[^.]+$/, '');
+            }
+        }
+
+        // V4_3_0: Sanitize string for use as filename (global scope)
+        function sanitizeFilename(name) {
+            return name
+                .replace(/[<>:"/\\|?*]/g, '')         // Remove invalid filename chars only
+                .replace(/\s+/g, ' ')                  // Collapse spaces
+                .trim();
         }
 
         // Initialize
@@ -8390,28 +9064,28 @@ ${shaderCode}
                 created: new Date().toISOString()
             };
             
-            // V2.9.0-V: Save to LIBRARY as {Name}_ControlState.oms
+            // V4_3_0_sub8: Save to Library subfolder as {Name}_ControlState.oms
             try {
                 const filename = name + '_ControlState.oms';
                 
                 // Create JSON content
                 const jsonContent = JSON.stringify(controlStateOms, null, 2);
                 
-                // Write to LIBRARY folder
-                const fileHandle = await applicationFolderHandle.getFileHandle(filename, { create: true });
+                // Write to Library subfolder
+                const fileHandle = await libraryFolderHandle.getFileHandle(filename, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(jsonContent);
                 await writable.close();
                 
-                console.log('V2.9.0-V: Saved Control State to LIBRARY:', filename);
+                console.log('V4_3_0_sub8: Saved Control State to Library/:', filename);
                 
-                // Update dropdown (now loads from LIBRARY files)
+                // Update dropdown (now loads from Library files)
                 await updateControlStatesDropdown();
                 
                 // Hide save input row
                 document.getElementById('saveInputRow').style.display = 'none';
                 
-                showStatus(`Control State saved: ${name} → ${filename}`, 'success');
+                showStatus(`Control State saved: ${name} → Library/${filename}`, 'success');
                 
             } catch (error) {
                 console.error('V2.9.0-V: Failed to save Control State:', error);
@@ -8509,13 +9183,13 @@ ${shaderCode}
                 select.appendChild(option);
             }
             
-            // V2.9.0-V: Load user states from LIBRARY folder (*_ControlState.oms files)
-            if (applicationFolderHandle) {
+            // V4_3_0_sub8: Load user states from Library subfolder (*_ControlState.oms files)
+            if (libraryFolderHandle) {
                 try {
                     const userStates = {};
                     
-                    // Iterate through files in LIBRARY folder
-                    for await (const entry of applicationFolderHandle.values()) {
+                    // Iterate through files in Library subfolder
+                    for await (const entry of libraryFolderHandle.values()) {
                         if (entry.kind === 'file' && entry.name.endsWith('_ControlState.oms')) {
                             try {
                                 const file = await entry.getFile();
@@ -8582,12 +9256,12 @@ ${shaderCode}
                 return;
             }
             
-            // V2.9.0-V: Load user state from LIBRARY (*_ControlState.oms files)
-            if (applicationFolderHandle) {
+            // V4_3_0_sub8: Load user state from Library subfolder (*_ControlState.oms files)
+            if (libraryFolderHandle) {
                 try {
-                    // Scan LIBRARY for matching ID
+                    // Scan Library subfolder for matching ID
                     let foundState = null;
-                    for await (const entry of applicationFolderHandle.values()) {
+                    for await (const entry of libraryFolderHandle.values()) {
                         if (entry.kind === 'file' && entry.name.endsWith('_ControlState.oms')) {
                             const file = await entry.getFile();
                             const text = await file.text();
@@ -8612,7 +9286,7 @@ ${shaderCode}
                         showStatus('Control State not found', 'error');
                     }
                 } catch (error) {
-                    console.error('V2.9.0-V: Failed to load user Control State:', error);
+                    console.error('V4_3_0_sub8: Failed to load user Control State:', error);
                     showStatus('Failed to load Control State', 'error');
                 }
             }
@@ -11462,7 +12136,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V4_2]</title>
+    <title>ONEMANSHYO App [V4_3]</title>
     <style>
         body {
             margin: 0;
@@ -13913,6 +14587,11 @@ ${providedShaderCode}
                     popOutWindowSize: appSettings.popOutWindowSize,
                     popOutAlwaysOnTop: appSettings.popOutAlwaysOnTop,
                     headerGreeting: appSettings.headerGreeting
+                },
+                // V4_3_0: Library sort settings
+                librarySort: {
+                    sortBy: librarySortBy,
+                    sortDir: librarySortDir
                 }
             };
         }
@@ -14113,37 +14792,48 @@ ${providedShaderCode}
                     if (headerGreetingDisplay) headerGreetingDisplay.textContent = appSettings.headerGreeting;
                 }
             }
+            
+            // V4_3_0: Apply library sort settings
+            if (projectData.librarySort) {
+                if (projectData.librarySort.sortBy) {
+                    librarySortBy = projectData.librarySort.sortBy;
+                }
+                if (projectData.librarySort.sortDir) {
+                    librarySortDir = projectData.librarySort.sortDir;
+                }
+                updateSortArrows();
+            }
 
             showStatus('Project state applied', 'success');
         }
 
-        // Auto-save to default.omsp
+        // V4_3_0_sub13: Auto-save to onemanshyo.omsp at app folder root
         // V3.1.0-C: Auto-save immediately (no debounce)
         async function autoSaveProject() {
             if (!applicationFolderHandle) return;
 
             try {
                 const projectState = getCurrentProjectState();
-                const filename = 'default.omsp';
+                const filename = 'onemanshyo.omsp';
 
                 const fileHandle = await applicationFolderHandle.getFileHandle(filename, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(JSON.stringify(projectState, null, 2));
                 await writable.close();
 
-                console.log('V3.1.0-C: Auto-saved project to default.omsp (instant)');
+                console.log('V4_3_0_sub13: Auto-saved project to onemanshyo.omsp');
 
             } catch (error) {
-                console.error('V3.1.0-C: Auto-save failed:', error);
+                console.error('V4_3_0_sub13: Auto-save failed:', error);
             }
         }
 
-        // Auto-load default.omsp on startup
+        // V4_3_0_sub13: Auto-load onemanshyo.omsp on startup from app folder root
         async function autoLoadDefaultProject() {
             if (!applicationFolderHandle) return;
 
             try {
-                const fileHandle = await applicationFolderHandle.getFileHandle('default.omsp');
+                const fileHandle = await applicationFolderHandle.getFileHandle('onemanshyo.omsp');
                 const file = await fileHandle.getFile();
                 const text = await file.text();
                 const projectData = JSON.parse(text);
@@ -14153,14 +14843,14 @@ ${providedShaderCode}
                 // Update dropdown to show default loaded
                 const select = document.getElementById('projectStateSelect');
                 if (select) {
-                    select.value = 'default';
+                    select.value = 'onemanshyo';
                 }
 
-                console.log('V3.1.0-A: Auto-loaded default.omsp');
+                console.log('V4_3_0_sub13: Auto-loaded onemanshyo.omsp');
 
             } catch (error) {
                 // File doesn't exist yet - that's ok
-                console.log('V3.1.0-A: No default.omsp found (first run)');
+                console.log('V4_3_0_sub13: No onemanshyo.omsp found (first run)');
             }
         }
 
@@ -14210,7 +14900,7 @@ ${providedShaderCode}
                     filename = `${baseName}_${dateStr}_${counterStr}.omsp`;
 
                     try {
-                        await applicationFolderHandle.getFileHandle(filename);
+                        await libraryFolderHandle.getFileHandle(filename);
                         counter++;
                     } catch {
                         fileExists = false;
@@ -14221,12 +14911,12 @@ ${providedShaderCode}
                 const projectState = getCurrentProjectState();
                 projectState.name = baseName;
 
-                const fileHandle = await applicationFolderHandle.getFileHandle(filename, { create: true });
+                const fileHandle = await libraryFolderHandle.getFileHandle(filename, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(JSON.stringify(projectState, null, 2));
                 await writable.close();
 
-                console.log('V3.1.0-A: Saved project:', filename);
+                console.log('V4_3_0_sub8: Saved project to Library/:', filename);
 
                 // Update dropdown
                 await updateProjectStatesDropdown();
@@ -14249,6 +14939,7 @@ ${providedShaderCode}
         }
 
         // Load selected project
+        // V4_3_0_sub13: onemanshyo.omsp at app root, others in Library/
         async function loadProjectState() {
             const select = document.getElementById('projectStateSelect');
             const selectedValue = select.value;
@@ -14259,10 +14950,12 @@ ${providedShaderCode}
             }
 
             try {
-                // Special case: default.omsp
-                const filename = selectedValue === 'default' ? 'default.omsp' : selectedValue;
+                // Special case: onemanshyo.omsp is at app folder root
+                const isDefault = selectedValue === 'onemanshyo';
+                const filename = isDefault ? 'onemanshyo.omsp' : selectedValue;
+                const folderHandle = isDefault ? applicationFolderHandle : libraryFolderHandle;
 
-                const fileHandle = await applicationFolderHandle.getFileHandle(filename);
+                const fileHandle = await folderHandle.getFileHandle(filename);
                 const file = await fileHandle.getFile();
                 const text = await file.text();
                 const projectData = JSON.parse(text);
@@ -14275,17 +14968,18 @@ ${providedShaderCode}
                 showStatus(`Loaded project: ${filename}`, 'success');
 
             } catch (error) {
-                console.error('V3.1.0-A: Load failed:', error);
+                console.error('V4_3_0_sub13: Load failed:', error);
                 showStatus('Failed to load project: ' + error.message, 'error');
             }
         }
 
         // Delete selected project
+        // V4_3_0_sub13: Cannot delete onemanshyo.omsp, others in Library/
         async function deleteProjectState() {
             const select = document.getElementById('projectStateSelect');
             const selectedValue = select.value;
 
-            if (!selectedValue || selectedValue === '' || selectedValue === 'default') {
+            if (!selectedValue || selectedValue === '' || selectedValue === 'onemanshyo') {
                 showStatus('Cannot delete default project', 'error');
                 return;
             }
@@ -14294,7 +14988,7 @@ ${providedShaderCode}
             if (!confirm) return;
 
             try {
-                await applicationFolderHandle.removeEntry(selectedValue);
+                await libraryFolderHandle.removeEntry(selectedValue);
 
                 await updateProjectStatesDropdown();
                 select.value = '';
@@ -14308,6 +15002,7 @@ ${providedShaderCode}
         }
 
         // Update project states dropdown
+        // V4_3_0_sub13: onemanshyo.omsp at app root, other .omsp in Library/
         async function updateProjectStatesDropdown() {
             const select = document.getElementById('projectStateSelect');
             if (!select) return;
@@ -14321,22 +15016,41 @@ ${providedShaderCode}
             try {
                 const projects = [];
 
-                // Scan for .omsp files
-                for await (const entry of applicationFolderHandle.values()) {
-                    if (entry.kind === 'file' && entry.name.endsWith('.omsp')) {
-                        try {
-                            const file = await entry.getFile();
-                            const text = await file.text();
-                            const data = JSON.parse(text);
+                // V4_3_0_sub13: Check for onemanshyo.omsp at app folder root
+                try {
+                    const defaultHandle = await applicationFolderHandle.getFileHandle('onemanshyo.omsp');
+                    const file = await defaultHandle.getFile();
+                    const text = await file.text();
+                    const data = JSON.parse(text);
+                    
+                    projects.push({
+                        filename: 'onemanshyo.omsp',
+                        name: data.name || 'OneManShYo',
+                        created: data.created,
+                        isDefault: true
+                    });
+                } catch (e) {
+                    // onemanshyo.omsp doesn't exist yet - that's ok
+                }
 
-                            projects.push({
-                                filename: entry.name,
-                                name: data.name || entry.name.replace('.omsp', ''),
-                                created: data.created,
-                                isDefault: entry.name === 'default.omsp'
-                            });
-                        } catch (error) {
-                            console.error(`Failed to load project: ${entry.name}`, error);
+                // Scan for other .omsp files in Library subfolder
+                if (libraryFolderHandle) {
+                    for await (const entry of libraryFolderHandle.values()) {
+                        if (entry.kind === 'file' && entry.name.endsWith('.omsp')) {
+                            try {
+                                const file = await entry.getFile();
+                                const text = await file.text();
+                                const data = JSON.parse(text);
+
+                                projects.push({
+                                    filename: entry.name,
+                                    name: data.name || entry.name.replace('.omsp', ''),
+                                    created: data.created,
+                                    isDefault: false
+                                });
+                            } catch (error) {
+                                console.error(`Failed to load project: ${entry.name}`, error);
+                            }
                         }
                     }
                 }
@@ -14351,7 +15065,7 @@ ${providedShaderCode}
                 // Add projects to dropdown
                 projects.forEach(proj => {
                     const option = document.createElement('option');
-                    option.value = proj.isDefault ? 'default' : proj.filename;
+                    option.value = proj.isDefault ? 'onemanshyo' : proj.filename;
                     option.textContent = proj.isDefault ? `${proj.name} (auto-save)` : proj.name;
                     select.appendChild(option);
                 });
@@ -14364,10 +15078,10 @@ ${providedShaderCode}
                     }
                 }
 
-                console.log('V3.1.0-A: Loaded projects:', projects.length);
+                console.log('V4_3_0_sub13: Loaded projects:', projects.length);
 
             } catch (error) {
-                console.error('V3.1.0-A: Failed to load projects:', error);
+                console.error('V4_3_0_sub13: Failed to load projects:', error);
             }
         }
 
@@ -14410,10 +15124,14 @@ ${providedShaderCode}
 
                     // Load project info for display
                     try {
-                        if (!applicationFolderHandle) return;
+                        // V4_3_0_sub13: onemanshyo.omsp at app root, others in Library/
+                        const isDefault = selectedValue === 'onemanshyo';
+                        const filename = isDefault ? 'onemanshyo.omsp' : selectedValue;
+                        const folderHandle = isDefault ? applicationFolderHandle : libraryFolderHandle;
                         
-                        const filename = selectedValue === 'default' ? 'default.omsp' : selectedValue;
-                        const fileHandle = await applicationFolderHandle.getFileHandle(filename);
+                        if (!folderHandle) return;
+                        
+                        const fileHandle = await folderHandle.getFileHandle(filename);
                         const file = await fileHandle.getFile();
                         const text = await file.text();
                         const projectData = JSON.parse(text);
