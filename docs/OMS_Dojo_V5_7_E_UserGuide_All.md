@@ -1,9 +1,9 @@
-# ONEMANSHYO App [Beta V5_6_0] - USER GUIDE
+# ONEMANSHYO App [Beta V5_7_0] - USER GUIDE
 
-**Version:** Beta V5_6_0  
-**Date:** January 11, 2026  
+**Version:** Beta V5_7_0  
+**Date:** January 16, 2026  
 **License:** GPL-3.0  
-**Line Count:** 3,899 (V5_5_0) → 4,144 (V5_6_0)  
+**Line Count:** 4,144 (V5_6_0) → 4,411 (V5_7_0)  
 **Document Purpose:** Comprehensive user and reference guide for all application features
 
 ---
@@ -36,7 +36,7 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 **Browser:** Chrome (WebGPU support required)  
 **Screen:** 1352×761 effective viewport (14" MacBook Pro)
 
-**File:** `OMS_App_Beta_V5_6_0.html`
+**File:** `OMS_App_Beta_V5_7_0.html`
 
 ---
 
@@ -47,14 +47,14 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 If you want to create visuals based on music timing without setting up a library:
 
 **Audio-Reactive Visuals (reacts to your music):**
-1. Open `OMS_App_Beta_V5_6_0.html`
+1. Open `OMS_App_Beta_V5_7_0.html`
 2. Drag your audio file (.mp3, .wav) onto the waveform
 3. Visuals automatically react to bass, mids, treble
 4. Click [Render Video]
 5. Get SILENT video with pre-baked reactivity
 
 **Tempo-Synced Visuals (animated to BPM, no audio needed):**
-1. Open `OMS_App_Beta_V5_6_0.html`
+1. Open `OMS_App_Beta_V5_7_0.html`
 2. Set tempo (e.g., 128 BPM)
 3. Set duration (e.g., 03:30.000)
 4. Click [Render Video]
@@ -145,6 +145,9 @@ A **shader** is GPU code that renders visuals in real-time.
 - `uniforms.transformTranslateX`, `transformTranslateY` - position offset
 - `uniforms.transformPivotX`, `transformPivotY` - rotation center
 - `uniforms.transformTile` - tile repeat count
+
+**Timing uniforms (V5_7_0):**
+- `uniforms.loopLength` - loop length in beats (matches Loop Length dropdown)
 
 **What it does:**
 - Runs once per pixel
@@ -254,7 +257,7 @@ modulator = waveform × audioLevel × gain
 **From top to bottom:**
 
 1. **Preview Canvas** - Large shader display (1352×761 on MacBook Pro 14")
-2. **SHADER CONTROLS Header** - [Code] and [Save] buttons on right
+2. **SHADER CONTROLS Header** - [+] (new container), [Code], and [Save] buttons on right
 3. **Controls View** OR **Code View** (same space, toggled)
 4. **AUDIO CONTROLS Header** - [Swap] and [X] buttons on right
 5. **Audio Section** - Waveform, transport, timing controls
@@ -336,13 +339,13 @@ Each modulator (A, B, C) has:
 - 0.1 = default, 1.0 = maximum strength
 - With Static waveform: directly controls modulator value
 
-**Column 4: Freq1** (rotary knob: 20-24000 Hz) (V4_8_0)
+**Column 4: Freq1** (rotary knob: 1-20000 Hz) (V4_8_0, V5_7_0 range update)
 - Visual knob control (drag up/down)
 - Audio frequency range start (log scale)
 - **Disabled when no audio loaded** - FFT ranges meaningless without audio
 - Default: modA=30, modB=50, modC=100
 
-**Column 5: Freq2** (rotary knob: 20-24000 Hz) (V4_8_0)
+**Column 5: Freq2** (rotary knob: 1-20000 Hz) (V4_8_0, V5_7_0 range update)
 - Visual knob control (drag up/down)
 - Audio frequency range end (log scale)
 - **Disabled when no audio loaded**
@@ -419,7 +422,7 @@ No Loop → 1/64 → 1/32 → 1/16 → 1/8 → 1/4 → 1/2 → 1 Bar → 2 → 4
 
 ---
 
-##### 3.2.4.6 CONTAINER OUTPUT Section (V5_1_0)
+##### 3.2.4.6 CONTAINER OUTPUT Section (V5_1_0, V5_7_0)
 
 **Section renamed from "OUTPUT"** to clarify dual purpose: Container = Shader + Audio + Settings.
 
@@ -427,6 +430,7 @@ No Loop → 1/64 → 1/32 → 1/16 → 1/8 → 1/4 → 1/2 → 1 Bar → 2 → 4
 
 | Button | Action | Visibility |
 |--------|--------|------------|
+| [+] | Creates NEW empty container | Always visible (V5_7_0) |
 | [Save] | Creates NEW container in Library | Always visible |
 | [Update] | Updates currently loaded container | Only when container loaded |
 
@@ -442,12 +446,13 @@ No Loop → 1/64 → 1/32 → 1/16 → 1/8 → 1/4 → 1/2 → 1 Bar → 2 → 4
 - Update: "Update loaded container (keeps name)"
 - Resolution: "Video resolution for render"
 - FPS: "Frame rate for render"
+- Format: "Video format for render" (V5_7_0)
 - Filename: "Name for container and video file"
 - R button: "Render video file"
 
 **Filename** (text field)
 - Auto-populated with shader name + audio name (V4_7_0)
-- Result: `OMS_[filename]_[resolution]_[fps]fps.webm`
+- Result: `OMS_[filename]_[resolution]_[fps]fps.[format]`
 - Edit anytime, used for both render and save
 
 **Resolution** (dropdown)
@@ -458,21 +463,45 @@ No Loop → 1/64 → 1/32 → 1/16 → 1/8 → 1/4 → 1/2 → 1 Bar → 2 → 4
 - Options: 24, 30, 60
 - 60 = smooth, 30 = smaller files
 
+**Format** (dropdown) (V5_7_0)
+- Options: WebM, MP4
+- WebM = VP8 codec, smaller files, alpha support
+- MP4 = H.264 codec, wider compatibility
+
 **[Render Video] Button**
 - Start recording
 - Progress bar shows status
-- Output: Downloads folder, WebM format
+- **Cancel button (X):** Appears during render, click to abort (V5_7_0)
+- Output: Downloads folder
 - **Note:** Video is SILENT (reactivity pre-baked)
+
+**Loop-Based Render Duration (V5_7_0):**
+
+| Loop State | Render Range |
+|------------|--------------|
+| Loop ON | Renders In → Out points |
+| Loop OFF | Renders Audio Start → Audio End |
+
+**BumpR Stickers in Render (V5_7_0):**
+- BumpR stickers triggered during render appear in output
+- Captured at full quality with alpha
+- Same timing as preview
 
 ---
 
-##### 3.2.4.7 Mod Tuning Panel (V5_3_0, V5_5_0)
+##### 3.2.4.7 Mod Tuning Panel (V5_3_0, V5_5_0, V5_7_0)
 
 Professional envelope shaping for audio reactivity.
 
-**Access:** Press `N` while in Reactivity Focus (Shift+R)
+**Access:** Press `N` while in Reactivity Focus (R key)
 
 Blender-style slide-out panel for fine-tuning how modulators respond to audio.
+
+**Panel Behavior (V5_7_0 - Blender-style):**
+- N key toggles panel open/closed
+- Panel stays open when exiting Reactivity Focus (click elsewhere, Escape, etc.)
+- Panel closes only via N key toggle or when switching tabs
+- This allows tweaking envelope while testing other controls
 
 **Per-Modulator Controls (V5_5_0):**
 
@@ -507,15 +536,15 @@ Higher Q = narrower frequency band, more isolated response.
 
 | Key | Action |
 |-----|--------|
-| Shift+R | Enter Reactivity Focus |
+| R | Enter Reactivity Focus (V5_7_0: bare key) |
 | ↑/↓ | Navigate rows (syncs N-panel) |
 | N | Toggle Mod Tuning panel |
 | Drag knobs | Adjust values |
-| Escape | Close panel |
+| Escape | Exit Reactivity Focus (N-panel stays open) |
 
 **Workflow:**
 1. Load audio with clear transients
-2. Enter Reactivity Focus: `Shift+R`
+2. Enter Reactivity Focus: `R`
 3. Select modulator row: `↑/↓`
 4. Open Mod Tuning: `N` (shows that mod's settings)
 5. Play audio, watch shader response
@@ -668,18 +697,19 @@ CDJ-style hot cues for instant navigation. 5 cue points per container, displayed
 
 ---
 
-##### 3.2.5.5 Audio Focus Mode (V5_2_0)
+##### 3.2.5.5 Audio Focus Mode (V5_2_0, V5_7_0)
 
 Complete keyboard navigation for all audio controls in CREATE tab.
 
 **Entering Audio Focus:**
-- Press `Shift+A` to enter Audio Focus mode
-- Message bar shows: "Audio Focus | V=Vol, C=Cue, E=EQ, F=FX, Esc=exit"
+- Press `A` to enter Audio Focus mode (V5_7_0: bare key, was Shift+A)
+- Click on waveform also enters Audio Focus (V5_7_0)
+- Message bar shows: "Audio Focus | V=Vol, M=Mic, C=Cue, E=EQ, F=FX, Esc=exit"
 
 **Gate + Panel Pattern:**
 Audio Focus uses a two-step pattern:
-1. **Gate:** Enter Audio Focus (Shift+A)
-2. **Panel:** Open a sub-panel (V, C, E, or F)
+1. **Gate:** Enter Audio Focus (A key)
+2. **Panel:** Open a sub-panel (V, M, C, E, or F)
 3. **Navigate:** Use arrow keys within panel
 4. **Exit:** Escape backs out one level at a time
 
@@ -687,24 +717,42 @@ Audio Focus uses a two-step pattern:
 
 | Key | Panel | Controls |
 |-----|-------|----------|
-| V | Volume | Volume knob with kill |
+| V | Volume | Audio volume knob with kill |
+| M | Mic | Mic input knob with mute (V5_7_0) |
 | C | Cue | 5 cue points |
 | E | EQ | 3-band EQ (H/M/L) |
 | F | FX | 3 DJ FX (Washout/Dubby/Break) |
+
+**JKL Transport (V5_7_0):**
+Video editor-style transport controls, active in Audio Focus:
+
+| Key | Action |
+|-----|--------|
+| J | Jump back 1 beat (double-tap JJ = 1 bar) |
+| K | Play/Pause |
+| L | Jump forward 1 beat (double-tap LL = 1 bar) |
+| Cmd+L | Toggle loop on/off |
+| Spacebar | Play/Pause (also works) |
 
 **Escape Nesting:**
 - In a panel → Escape → back to Audio Focus
 - In Audio Focus → Escape → exit completely
 
+**Message Bar Two-Phase Pattern (V5_7_0):**
+- **Panel entry:** Shows shortcuts (cyan) - "Volume (←→ adjust, Enter=kill, V/M switch, Esc exit)"
+- **Value change:** Shows only the value (orange) - "Audio: +1.5 dB"
+
 **Keyboard Shortcuts:**
 
 | Key | Action |
 |-----|--------|
-| Shift+A | Enter/exit Audio Focus |
+| A | Enter/exit Audio Focus (V5_7_0: bare key) |
 | V | Open Volume panel |
+| M | Open Mic panel (V5_7_0) |
 | C | Open Cue panel |
 | E | Open EQ panel |
 | F | Open FX panel |
+| J/K/L | Transport (see above) |
 | ↑/↓ | Navigate rows in panel |
 | ←/→ | Adjust values |
 | Enter | Activate (jump/kill) |
@@ -754,7 +802,7 @@ Professional DJ-style 3-band EQ with kill switches.
 | Escape | Exit panel |
 
 **Workflow:**
-1. Enter Audio Focus: `Shift+A`
+1. Enter Audio Focus: `A`
 2. Open EQ panel: `E`
 3. Navigate to band: `↑` or `↓`
 4. Cut bass for transition: `←` (on Low)
@@ -951,41 +999,46 @@ AUDIO | [Mic 18×18] | [Vol 18×18] | [Container Name] | [Time] | [SWAP] [X]
 | R | Start render (V5_6_0) |
 | T | Quick timeline test (V5_6_0) |
 
-**Audio Focus Mode (V5_2_0):**
+**Audio Focus Mode (V5_2_0, V5_7_0):**
 
 | Shortcut | Action |
 |----------|--------|
-| Shift+A | Enter/exit Audio Focus mode |
+| A | Enter/exit Audio Focus mode (V5_7_0: bare key) |
 | V | Volume panel (in Audio Focus) |
+| M | Mic panel (in Audio Focus) (V5_7_0) |
 | C | Cue panel (in Audio Focus) |
 | E | EQ panel (in Audio Focus) |
 | F | FX panel (in Audio Focus) |
+| J | Jump back 1 beat (JJ = 1 bar) (V5_7_0) |
+| K | Play/Pause (V5_7_0) |
+| L | Jump forward 1 beat (LL = 1 bar) (V5_7_0) |
+| Cmd+L | Toggle loop on/off (V5_7_0) |
 | ↑ ↓ | Navigate rows in panel |
 | ← → | Adjust values |
 | Enter | Activate (jump/kill) |
 | Escape | Exit panel or mode |
 
-**Reactivity Mode (V4_8_0, V5_6_0):**
+**Reactivity Mode (V4_8_0, V5_7_0):**
 
 | Shortcut | Action |
 |----------|--------|
-| Shift+R | Enter/exit reactivity mode |
+| R | Enter/exit reactivity mode (V5_7_0: bare key) |
 | ← → | Navigate columns (Subdiv/Waveform/Gain/Freq1/Freq2) |
 | ↑ ↓ | Navigate rows (A/B/C) |
 | Shift+← | Decrease value |
 | Shift+→ | Increase value |
-| N | Toggle Mod Tuning panel (V5_3_0) |
+| N | Toggle Mod Tuning panel (stays open - Blender-style) |
 | , (comma) | Mute selected mod (V5_6_0) |
 | . (period) | Solo selected mod (V5_6_0) |
-| Escape | Exit reactivity mode |
+| Escape | Exit reactivity mode (N-panel stays open) |
 
 **Note:** Hold Shift+Arrow for progressive acceleration (faster changes).
 
-**Transform Mode (V5_0_0, V5_6_0):**
+**Transform Mode (V5_0_0, V5_7_0):**
 
 | Shortcut | Action |
 |----------|--------|
-| Shift+T | Enter/exit transform mode |
+| T | Enter/exit transform mode (V5_7_0: bare key) |
 | ← → | Navigate controls (Rotation/Scale/Tile/XY/Pivot) |
 | 1-5 | Select transform control directly (V5_6_0) |
 | Shift+← → | Adjust encoder values |
@@ -2404,7 +2457,7 @@ When BumpR mode is active:
 
 ---
 
-### 3.6 PIP Camera System (V5_5_0)
+### 3.6 PIP Camera System (V5_5_0, V5_7_0)
 
 Picture-in-Picture camera overlays for streaming and recording.
 
@@ -2412,14 +2465,29 @@ Picture-in-Picture camera overlays for streaming and recording.
 
 Add your webcam to your visuals with 3 PIP types plus a full-screen overlay.
 
-| PIP | Key | Location | Available Tabs |
-|-----|-----|----------|----------------|
-| Overlay | O | Full screen | ALL tabs |
-| PIP 1 | P | Slideout above shader | PERFORM only |
-| PIP 2 | P | Top-right corner | CREATE/ORGANIZE/ADMIN |
-| PIP 3 | Shift+P | Canvas center | CREATE/ORGANIZE/ADMIN |
+| PIP | Chord | Location | Available Tabs |
+|-----|-------|----------|----------------|
+| Overlay | P+4 | Full screen | ALL tabs |
+| PIP 1 | P+1 | Slideout above shader | PERFORM only |
+| PIP 2 | P+2 | Top-right corner | ALL tabs |
+| PIP 3 | P+3 | Canvas center | CREATE (captured in render) |
 
-#### 3.6.2 Shape Options
+**V5_7_0 Changes:**
+- Chord hotkeys: Hold P, tap 1/2/3/4 (replaces O/P/Shift+P)
+- Mutual exclusivity: Only ONE PIP visible at a time
+- PIP 2 persists across tab switches
+- PIP 3 has settings panel (Orientation/Size/Shape)
+
+#### 3.6.2 Mutual Exclusivity (V5_7_0)
+
+Only one PIP can be visible at a time:
+- Opening P+1 closes any open PIP
+- Opening P+2 closes any open PIP
+- etc.
+
+This ensures clean visual output and predictable behavior.
+
+#### 3.6.3 Shape Options
 
 | Shape | Aspect Ratio | Border |
 |-------|--------------|--------|
@@ -2428,30 +2496,46 @@ Add your webcam to your visuals with 3 PIP types plus a full-screen overlay.
 | Square | 1:1 | Square corners |
 | Circle | 1:1 | Fully rounded |
 
-#### 3.6.3 Color Options (9)
+**Note:** Circle shape forces Square orientation (1:1 aspect required).
+
+#### 3.6.4 PIP 3 Settings Panel (V5_7_0)
+
+PIP 3 has a dropdown-based settings panel with:
+
+| Setting | Options |
+|---------|---------|
+| Orientation | Landscape, Portrait, Square |
+| Size | 10% - 100% of canvas |
+| Shape | Landscape, Portrait, Square, Circle |
+
+- Shape dropdown disabled when Orientation ≠ Square
+- Selecting Circle auto-snaps Orientation to Square
+- Size is percentage relative to canvas dimensions
+
+#### 3.6.5 Color Options (9)
 
 None (transparent), Cyan, Magenta, Orange, Yellow, Green, Purple, Pink, White
 
-#### 3.6.4 Border-Click Color Picker
+#### 3.6.6 Border-Click Color Picker
 
 - Click anywhere on the PIP border
 - 9 color swatches appear
 - Click swatch to select
 - Click outside to dismiss
 
-#### 3.6.5 Genie Zoom Animation
+#### 3.6.7 Genie Zoom Animation
 
 - PIPs scale in/out smoothly when toggled
 - Each has appropriate transform-origin for natural animation
 
-#### 3.6.6 Smart Stream Management
+#### 3.6.8 Smart Stream Management
 
 Camera stream management is intelligent:
 - Camera only STOPS when ALL outputs are closed
 - Toggling one PIP doesn't stop camera if another PIP is using it
 - Reduces camera start/stop latency
 
-#### 3.6.7 Configuration
+#### 3.6.9 Configuration
 
 Go to ADMIN → Video Sources to configure:
 - Camera device selection
@@ -2459,14 +2543,16 @@ Go to ADMIN → Video Sources to configure:
 - Shape/color for each PIP
 - Test camera output
 
-#### 3.6.8 PIP Keyboard Shortcuts
+#### 3.6.10 PIP Keyboard Shortcuts (V5_7_0)
 
-| Key | Action | Tabs |
-|-----|--------|------|
-| O | Toggle camera overlay | ALL |
-| P | Toggle PIP 1 (slideout) | PERFORM |
-| P | Toggle PIP 2 (corner) | CREATE/ORG/ADMIN |
-| Shift+P | Toggle PIP 3 (center) | CREATE/ORG/ADMIN |
+**Chord Pattern:** Hold P, tap number key
+
+| Chord | Action | Tabs |
+|-------|--------|------|
+| P+1 | Toggle PIP 1 (slideout) | PERFORM only |
+| P+2 | Toggle PIP 2 (corner) | ALL tabs |
+| P+3 | Toggle PIP 3 (center) | CREATE |
+| P+4 | Toggle camera overlay | ALL tabs |
 
 ---
 
@@ -2482,8 +2568,8 @@ Social / YouTube
 ## 5. Credits
 
 **Created by:** Wes Smith / ONEMANSHYO  
-**Version:** Beta V5_5_0  
-**Date:** January 3, 2026
+**Version:** Beta V5_7_0  
+**Date:** January 16, 2026
 
 **Technology:**
 - WebGPU / WGSL (shaders)
@@ -2915,6 +3001,7 @@ The app auto-injects these. Just use them directly:
 | `uniforms.time` | f32 | 0.0+ | Elapsed seconds |
 | `uniforms.tempo` | f32 | 60-200 | BPM for timing |
 | `uniforms.beat` | f32 | 0.0+ | Tempo-synced beat position (V4_8_0) |
+| `uniforms.loopLength` | f32 | beats | Loop length from dropdown (V5_7_0) |
 | `uniforms.modA` | f32 | 0.0-1.0 | Bass reactive (combined) |
 | `uniforms.modB` | f32 | 0.0-1.0 | Mids reactive (combined) |
 | `uniforms.modC` | f32 | 0.0-1.0 | Treble reactive (combined) |
@@ -3075,6 +3162,9 @@ let treble = uniforms.modC;
 let pulse = fract(uniforms.beat);        // 0→1 each beat
 let barPulse = fract(uniforms.beat / 4.0); // 0→1 each bar
 
+// Loop-synced animation (V5_7_0) - matches Loop Length dropdown
+let loopCycle = fract(uniforms.beat / uniforms.loopLength);  // 0→1 over entire loop
+
 // Transform values (V5_0_0) - read from UI controls
 let rotation = uniforms.transformRotation;  // radians
 let scale = vec2<f32>(uniforms.transformScaleX, uniforms.transformScaleY);
@@ -3132,6 +3222,55 @@ uv = fract(uv * tile * 0.5 + 0.5) * 2.0 - 1.0;
 ### C.2 Development Workflow
 
 *For Claude: iterative shader building patterns and mappings*
+
+---
+
+#### C.2.0 The 5-Step Shader Workflow (V5_7_0)
+
+The authoritative framework for shader development, proven across multiple production shaders.
+
+**The 5 Steps:**
+
+1. **Scene Design** - Objects, positions, sizes, static layout
+2. **Mod → Object Assignment** - Which Reactivity row (ModA, ModB, ModC) controls which object(s)
+3. **Object Specific Activity** - WHAT the mod makes the object DO
+4. **Mod Waveform × Gain** - Subdivision, Waveform, Gain controls HOW MUCH and HOW of step 3 behaviors
+5. **Object Audio Reactivity** - Freq1, Freq2 define range; Mod Tuning (Q, ADSR, Threshold) shapes response
+
+**Critical Insights:**
+
+| Step | Key Insight |
+|------|-------------|
+| Step 4 | Doesn't add new behaviors - it MODULATES behaviors defined in step 3 |
+| Step 5 | Adds DIFFERENT behaviors, not more of step 3 |
+| Step 4 | Works WITHOUT audio (Waveform × Gain is deterministic) |
+| Step 5 | Requires audio (or mic) to function |
+
+**Geometry vs Color Reactivity:**
+
+| Type | Controlled By | Example |
+|------|---------------|---------|
+| Color intensity | Wave × Gain (steps 3-4) | How bright/saturated something is |
+| Geometry changes | Audio (step 5) | Segments, splits, shakes, hollows |
+
+**Don't use audio for what Gain already does.** If you want something brighter on bass hits, that's Gain. Audio should change SHAPE, not brightness.
+
+**Practical Example:**
+
+```
+Step 1: Scene has chevrons, triangles, rings
+Step 2: ModA → rings, ModB → triangles, ModC → chevrons
+Step 3: ModA makes rings glow, ModB makes triangles pulse, ModC makes chevrons redder
+Step 4: Gain controls HOW MUCH glow/pulse/red (works without audio)
+Step 5: Audio makes rings segment, triangles split, chevrons shake (DIFFERENT behaviors)
+```
+
+**Testing Workflow:**
+
+1. Set Waveform: Static, Gain: 0.5
+2. Verify step 3 behaviors respond to Gain changes
+3. THEN add waveform motion
+4. THEN add audio for step 5 behaviors
 
 ---
 
@@ -3329,87 +3468,217 @@ Mod C: Freq 8k-16kHz (hats), Q 0.5, Attack 2ms, Decay 15ms
 
 ---
 
-#### C.3.2 Recipe #2: "Diwali Rangoli"
+#### C.3.2 Recipe #2: "Diwali Rangoli" (V18)
 
-*A four-fold pinwheel pattern showing a different development approach*
+*Four-fold pinwheel pattern demonstrating the 5-Step Workflow*
 
-**Overview:**
-Traditional Indian rangoli art - geometric patterns created during festivals. Four-fold symmetry with rotating pinwheel design.
+**Inspiration:** Prem Nath Shukla Drawing (https://youtu.be/DWGhEx3iXmo)
 
-**Design Goals:**
-1. Static first (get geometry right before adding motion)
-2. Flat colors (no gradients - authentic to traditional rangoli)
-3. Wave × Gain testing (prove reactivity works without audio)
-4. Geometry changes (audio affects SHAPES not brightness)
-5. Subtle amounts (0.015 beats 0.15)
+---
 
-**Development Phases:**
+**Step 1: Scene Design**
 
-*Phase 1 - Reference Study:*
-- Watched YouTube videos of rangoli creation
-- Noted 4-fold symmetry is most common
-- Key insight: patterns ROTATE around center, not pulse
+| Element | Position | Size |
+|---------|----------|------|
+| Chevron arms | r = 0.25 to 0.75 | Tapered width |
+| Notch cutouts | In chevrons | Black gaps |
+| Triangle accents | Sector edges, r = 0.55 to 0.85 | Small |
+| Outer ring | r = 0.88 | Width 0.025 |
+| Inner ring | r = 0.82 | Width 0.015 |
+| Center dot | r = 0.08 | Solid |
 
-*Phase 2 - Static Geometry (V1-V4):*
-- Built basic 4-fold pinwheel
-- Problem V2: baked rotation into shader
-- V3: removed baked rotation, used transforms
-- V4: correct geometry, no animation
+4-fold pinwheel symmetry using polar coordinates with sector folding.
 
-*Phase 3 - Color Mapping (V5-V8):*
-- Added flat color fills (no gradients)
-- Wave × Gain works with NO audio loaded
-- Tested with cycler waveform, gain 0.5
-- Proves reactivity before committing to audio
+---
 
-*Phase 4 - Geometry Reactivity (V9-V14):*
-- Audio changes SEGMENT COUNT not brightness
-- modA controls petal count (4 to 8)
-- modB controls inner ring segments
-- modC controls outer fringe density
-- Problem V11: too much change = jarring
-- V12-14: reduced multipliers dramatically
+**Step 2: Mod → Object Assignment**
 
-*Phase 5 - Amount Tuning (V15-V18):*
-- Started with 0.15 multiplier - way too much
-- Reduced to 0.05 - still jumpy
-- Final: 0.015 - subtle but visible
-- Learning: SUBTLE BEATS DRAMATIC for geometry changes
+| Reactivity Row | Object(s) |
+|----------------|-----------|
+| ModA | Background (grey), outer ring, center dot |
+| ModB | White elements (triangles, inner ring, center dot color) |
+| ModC | Red elements (chevron arms) |
+
+---
+
+**Step 3: Object Specific Activity**
+
+| Mod | Object | Activity |
+|-----|--------|----------|
+| ModA | Background | Grey level intensity (black → grey) |
+| ModB | White elements | Brightness (dim → bright) |
+| ModC | Chevrons | Red intensity (dim → saturated) |
+
+---
+
+**Step 4: Mod Waveform × Gain**
+
+| Mod | Property | Range | Implementation |
+|-----|----------|-------|----------------|
+| ModA | Grey level | 0 → 0.5 | `effectA * 0.5` |
+| ModB | White brightness | 0.3 → 1.0 | `0.3 + effectB * 0.7` |
+| ModC | Red intensity | 0.3 → 1.0 | `0.3 + effectC * 0.7` |
+
+**Testing:** Set Waveform: Static, Gain: 0.5. Verify colors respond BEFORE adding audio.
+
+---
+
+**Step 5: Object Audio Reactivity**
+
+| Mod | Object | Audio Behavior | Implementation |
+|-----|--------|----------------|----------------|
+| ModA | Outer ring | Segments (solid → 64 dashed gaps) | `gapSize = audioA * 0.4` |
+| ModA | Center dot | Hollow (solid → ring) | `hollowSize = audioA * 0.06` |
+| ModB | Chevrons | Shake/jitter (stable → vibrate) | `shake = sin(a*17+r*23) * audioB * 0.03` |
+| ModC | Triangles | Split (single → two separated) | `splitOffset = audioC * 0.015` |
+
+These are DIFFERENT from step 3 behaviors. Chevrons get redder (step 3) AND shake (step 5).
+
+---
+
+**Color Palette (Flat Only)**
+
+| Element | Color | Note |
+|---------|-------|------|
+| Background | Black | Base |
+| Gaps/shadows | Grey | ModA controlled |
+| Accents | White | ModB controlled |
+| Chevrons | Coral red | ModC controlled |
+
+---
+
+**Anti-Patterns (What NOT to Do)**
+
+| Mistake | Fix |
+|---------|-----|
+| Baked breathing animation | Remove - use app Scale transform |
+| Complex gradient patterns | Flat colors only |
+| `shaderModAFFT` (old name) | Use `shaderModAAudio` (V5_5_0+) |
+| Audio effects on color intensity | Geometry effects instead (Gain handles intensity) |
+| 0.15 movement amount | 0.015 (10× reduction) |
+
+---
 
 **Key Learnings:**
-- Separation of concerns: geometry vs color vs motion
+- Geometry vs color: audio changes SHAPE, Gain changes BRIGHTNESS
 - Don't bake transforms - let app control rotation
 - Geometry changes need tiny amounts (0.01-0.03)
 - Wave × Gain proves reactivity without audio
 - Flat colors = flat colors (resist gradient temptation)
 - Study reference material before coding
 
-**Tuning Tips:**
+---
 
-*Modulator Mapping:*
-```
-Mod A → Segment count (geometry change)
-Mod B → Pattern shake (small XY offset)  
-Mod C → Detail split (line thickness)
-```
+#### C.3.3 Recipe #3: "Imperial March" (V15g)
 
-*Color Cycling Formula:*
+*Space scene demonstrating orientation handling and Gain-as-intensity-dial pattern*
+
+---
+
+**Step 1: Scene Design**
+
+| Element | Position | Size |
+|---------|----------|------|
+| Planet 1 | (-0.25, -0.55) | 0.08 |
+| Planet 2 | (0.30, -0.45) | 0.06 |
+| Saturn | (0.0, 0.6) | 0.09 + ring |
+| UFO | (0.2, 0.75) | Small disc + dome |
+| Stars | Polar distribution | 80 count |
+
+**Y-Axis Gotcha:** In shader UV coordinates, Y is INVERTED:
+- Negative Y (-) = TOP of screen
+- Positive Y (+) = BOTTOM of screen
+
+UFO at Y = 0.75 appears at BOTTOM, not top. The dome "on top" uses `uy + 0.012` (more negative = higher).
+
+---
+
+**Step 2: Mod → Object Assignment**
+
+| Reactivity Row | Object(s) |
+|----------------|-----------|
+| ModA | Stars |
+| ModB | Planets (all 3) |
+| ModC | UFO |
+
+---
+
+**Step 3: Object Specific Activity**
+
+| Mod | Object | Activity |
+|-----|--------|----------|
+| ModA | Stars | Brightness boost, size expansion |
+| ModB | Planets | Gentle wobble/drift movement |
+| ModC | UFO | Engine glow intensity |
+
+---
+
+**Step 4: Mod Waveform × Gain**
+
+| Waveform | Character | Good For |
+|----------|-----------|----------|
+| Sine | Smooth, organic | Gentle drift, breathing |
+| Triangle | Linear, even | Steady pulse |
+| Sawtooth | Ramp, builds | Rising tension |
+| Square | On/off, punchy | Strobe, hard cuts |
+| Noise | Random, chaotic | Jitter, glitch |
+
+---
+
+**Step 5: Object Audio Reactivity**
+
+| Mod | Object | Audio Behavior |
+|-----|--------|----------------|
+| ModA | Stars | Radial streaking (hyperspace) |
+| ModB | Planets | Particle spew (debris emission) |
+| ModC | UFO | Chaotic roaming flight |
+
+---
+
+**Gain as Audio Intensity Control**
+
+V15g pattern - Gain scales audio behaviors:
 ```wgsl
-// 4-color cycle based on segment index
-let colors = array<vec3<f32>, 4>(
-    vec3(1.0, 0.2, 0.1),   // Orange-red
-    vec3(0.9, 0.8, 0.1),   // Gold
-    vec3(0.2, 0.6, 0.9),   // Sky blue
-    vec3(0.8, 0.2, 0.6)    // Magenta
-);
-let colorIndex = u32(segment) % 4u;
+roamScale = audioC * Gain
 ```
 
-*Geometry Reactivity:*
-```wgsl
-// TINY amount - 0.015 not 0.15
-let petalCount = 4.0 + uniforms.shaderModAAudio * 0.015 * 4.0;
-```
+| Gain Setting | Result |
+|--------------|--------|
+| 0 | No movement (regardless of audio) |
+| 0.5 | Half intensity |
+| 1.0 | Full crazy mode |
+
+This gives the user an "intensity dial" for reactive effects.
+
+---
+
+**Orientation Considerations**
+
+UV normalization changes coordinate range per aspect ratio:
+
+| Orientation | Y Range |
+|-------------|---------|
+| Portrait | ±0.89 |
+| Square | ±0.5 |
+| Landscape | ±0.5 |
+
+**Solution:** Purpose-built shaders per orientation, not one-size-fits-none.
+
+---
+
+**Debugging Approach:**
+- Isolate variables - remove components one at a time
+- Test hypotheses systematically
+- Accept unknowns - ship what works
+- Version naming: letters for attempts (V15a, b, c), numbers for features (V16)
+
+---
+
+**Key Learnings:**
+- Y-axis is inverted (negative = top)
+- Gain can be an "intensity dial" for audio effects
+- Purpose-built shaders per orientation work better than universal
+- Don't bake what the app controls (Transforms, Freq1/Freq2, ADSR)
 
 ---
 
@@ -4131,6 +4400,7 @@ length(fract(uv * 8.0) - 0.5)
 | 2.4.0 | December 2025 | Updated for V5_4_0 (Audio Card, MAIN Column, DSP, VFX, Scene Labels) |
 | 2.5.0 | January 2026 | Updated for V5_5_0 (Transform Animation, Per-Mod ADSR+T, PIP Camera) |
 | 2.6.0 | January 2026 | Updated for V5_6_0 (Unified Mic, Per-Track VFX, Effect Pool, RGB Control, Uniform Rename) |
+| 2.7.0 | January 2026 | Updated for V5_7_0 (loopLength uniform, JKL transport, PIP chord hotkeys, MP4 render, BumpR in render, bare focus keys) |
 
 ---
 
@@ -4139,7 +4409,3 @@ length(fract(uv * 8.0) - 0.5)
 ---
 
 **END OF USER GUIDE**
-
-**Version:** Beta V5_6_0  
-**Date:** January 11, 2026  
-**License:** GPL-3.0

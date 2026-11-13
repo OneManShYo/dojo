@@ -1,9 +1,9 @@
-# ONEMANSHYO App [Beta V5_6_0] - CLAUDE PROJECT INSTRUCTIONS
+# ONEMANSHYO App [Beta V5_7_0] - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** Beta V5_6_0  
-**Date:** January 11, 2026  
+**Version:** Beta V5_7_0  
+**Date:** January 16, 2026  
 **License:** GPL-3.0  
-**Line Count:** 739 (V5_5_0) → 778 (V5_6_0)  
+**Line Count:** 797 → 840 (added iteration vs deliverables section)  
 **Document Purpose:** Working protocols and project context for Claude AI development
 
 ---
@@ -297,23 +297,38 @@ CREATE, ORGANIZE, and PERFORM are tabs in a single unified workflow:
 
 ### 1. Version Numbering
 
-**Format:** `V5_5_0` (underscores everywhere)
-- Major_Minor_Patch
-- **No alphabetical suffixes**
+**Format:** `V5_7_0` (underscores everywhere)
+- Major_Minor_Patch (e.g., V5_7_0)
+- **Production releases:** Clean two-digit patch (V5_7_02, V5_7_03)
+- **Development iterations:** Sub-iterations with letter suffix (V5_7_01a, V5_7_01b...)
 
-**Build Process (V5+):**
-1. Copy deliverables HTML to build folder (e.g., V5_5_0.html → V5_5_0 folder)
-2. Build iterations: V5_5_01, V5_5_02, V5_5_03...
-3. Create deliverables: V5_5_0 (bumps minor, resets patch)
-4. Copy V5_5_0.html → V5_5_0 folder
-5. Build iterations: V5_5_01, V5_5_02...
-6. Create deliverables: V5_6_0
-7. Repeat
+**Iteration Flow (V5_7_0+):**
+
+```
+V5_7_0           ← Base (starting point)
+  ↓
+V5_7_01a         ← First sub-iteration
+V5_7_01b         ← Second sub-iteration  
+V5_7_01c, 01d...
+  ↓
+V5_7_02          ← WRAP: 01 series rolls up into 02 (production)
+  ↓
+V5_7_02a         ← First sub-iteration of next feature
+V5_7_02b, 02c... 02h
+  ↓
+V5_7_03          ← WRAP: 02 series rolls up into 03 (production)
+```
+
+**Key Rules:**
+- Sub-iterations (NNa, NNb, NNc...) are development builds
+- When sub-iterations complete, wrap into NEXT number (01→02, 02→03)
+- Production releases have NO letter suffix
+- Each production release gets consolidated notes file
 
 **Display Format:**
-- Filename: `OMS_App_Beta_V5_5_0.html`
-- Title tag: `Beta V5_5_0` (uppercase V)
-- Header: `[Beta V5_5_0]` (brackets, uppercase V)
+- Filename: `OMS_App_Beta_V5_7_02.html`
+- Title tag: `Beta V5_7_02` (uppercase V)
+- Header: `[Beta V5_7_02]` (brackets, uppercase V)
 
 ### 2. Build Protocol
 
@@ -331,9 +346,11 @@ CREATE, ORGANIZE, and PERFORM are tabs in a single unified workflow:
 6. THEN Claude builds
 
 **Iteration Management:**
-- Bug fixes: Stay on same iteration number
-- New features: Bump to new iteration number
-- Difficult features: Use sub-iterations (_01a, _01b, _01c...) instead of overwriting
+- **Sub-iterations:** Use letter suffix (01a, 01b, 01c) for development work
+- **Bug fixes within sub-iteration:** Stay on same letter, update in place
+- **New sub-feature:** Bump to next letter (01a → 01b)
+- **Feature complete:** Wrap sub-iterations into next number (01 series → 02)
+- **Production release:** Clean number + consolidated notes (V5_7_02.html + V5_7_02_Notes.md)
 
 ### 3. HTML File Hygiene
 
@@ -358,18 +375,60 @@ Chats titled "OMS Road Map Planning" (or similar) are for **brainstorming and ba
 
 ### 5. File Naming Conventions
 
-**Development Builds:**
-- HTML: `OMS_App_Beta_V5_5_01.html`
-- MD Notes: `OMS_App_Beta_V5_5_01_DescriptionOfWork.md`
+**Development Sub-Iterations:**
+- HTML: `OMS_App_Beta_V5_7_01a.html`
+- MD Notes: `OMS_App_Beta_V5_7_01a_DescriptiveSummary.md`
 
-**Production Release:**
-- Filename: `OMS_App_Beta_V5_5_0.html`
-- Title: `Beta V5_5_0` (uppercase V)
-- Header: `[Beta V5_5_0]` (brackets, uppercase V)
+**Production Release (wrapped from sub-iterations):**
+- HTML: `OMS_App_Beta_V5_7_02.html`
+- MD Notes: `OMS_App_Beta_V5_7_02_DescriptiveSummary.md` (consolidated from 01 series)
 
-**Format:** Use underscores everywhere: `V5_5_0` (Major_Minor_Patch)
+**CRITICAL: Notes files MUST have descriptive summary in filename.**
+- ✅ `OMS_App_Beta_V5_7_02_BumpR_N_Panel_System.md`
+- ✅ `OMS_App_Beta_V5_7_03_BumpR_Video_Enhancements.md`
+- ❌ `OMS_App_Beta_V5_7_02_Notes.md` (too generic - WRONG)
 
-### 6. Deliverables Protocol
+**Format:** Use underscores everywhere: `V5_7_02` (Major_Minor_Patch)
+
+### 6. Iterations vs Project Deliverables (CRITICAL DISTINCTION)
+
+**Two separate processes - don't conflate them:**
+
+**ITERATIONS (simple, ongoing):**
+- Just HTML + MD file per wrap
+- Stay at CURRENT minor version (V5_7_XX)
+- No deliverables folder, no A-Z docs
+- Example: V5_7_02.html + V5_7_02_BumpR_N_Panel.md
+
+**PROJECT DELIVERABLES (version bump):**
+- Full A-Z package (A_Deliverables, B_Changelog, C_Dev, D_Release, E_UserGuide, Y_SysRef, Z_Instructions)
+- Built from ALL iterations of prior version
+- Named with NEXT version number
+- Example: V5_7_XX iterations → V5_8_0_Deliverables/
+
+**The Flow:**
+```
+V5_7_0_Deliverables/     ← EXISTS (created previously)
+  └── V5_7_0.html        ← Base for iterations
+
+V5_7_0.html              ← Copy to working folder, start iterating
+V5_7_01a, 01b... → V5_7_02.html + MD
+V5_7_02a, 02b... → V5_7_03.html + MD
+V5_7_03a... → V5_7_04.html + MD
+...continues...
+
+  ↓ (when ready for version bump)
+
+V5_8_0_Deliverables/     ← BUILD from V5_7_XX iterations
+  ├── V5_8_0.html
+  ├── V5_8_0_A_Deliverables.txt
+  ├── V5_8_0_B_Complete_Changelog.md
+  └── ... full A-Z package
+```
+
+**KEY:** Iterations = current version. Deliverables = next version.
+
+### 7. Deliverables Protocol
 
 **Deliverables Folder Structure:**
 ```
@@ -396,6 +455,13 @@ OMS_App_Beta_V5_5_0_Deliverables/
 3. **System Reference** - Update Y_ClaudeProject_SystemReference with architectural changes, new functions, data structures
 4. **Claude Instructions** - Update Z_ClaudeProject_Instructions (version refs, terminology, protocols)
 5. **Package** - ZIP all deliverables files
+
+**Large Document Processing (V5_7_0):**
+- For docs over ~3,000 lines, output token limits may truncate responses mid-generation
+- **Solution:** Use file tools (create_file, str_replace, bash) to build documents incrementally
+- Copy source doc to working directory → apply changes via str_replace → copy to outputs
+- This bypasses response length limits by writing directly to filesystem
+- **Critical:** Always review proposed changes with Wes BEFORE applying to docs - describe what will change, show prior vs. new content for significant sections, get confirmation
 
 **ALWAYS ISSUE BOTH the HTML and deliverables files.**
 
@@ -772,7 +838,3 @@ When Claude needs information:
 ---
 
 **END OF CLAUDE PROJECT INSTRUCTIONS**
-
-**Version:** Beta V5_6_0  
-**Date:** January 11, 2026  
-**License:** GPL-3.0

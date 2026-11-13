@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V5_6
+ONEMANSHYO Dojo App V5_7
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V5_6
+Version: V5_7
 -->
 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V5_6]</title>
+    <title>ONEMANSHYO App [V5_7]</title>
     <!-- V4_3_0_sub6: JSZip for container export (loaded from CDN when needed) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -3819,100 +3819,68 @@ Version: V5_6
         }
         
         /* V5_5_12: PIP3 Settings Panel */
+        /* V5_6_16h: PIP3 settings panel - orientation + percentage sizing */
         .pip3-settings-panel {
             position: fixed;
             display: none;
-            background: #1a1a1a;
-            border: 1px solid #444;
-            padding: 10px;
-            border-radius: 6px;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid #333;
+            padding: 8px;
             z-index: 1001;
-            width: 160px;
+            width: 170px; /* V5_6_16h: Wider for "Landscape (16:9)" labels */
             box-shadow: 0 4px 16px rgba(0,0,0,0.6);
-            font-size: 11px;
         }
         .pip3-settings-panel.visible {
             display: block;
         }
-        .pip3-settings-label {
-            color: #00d4ff;
+        .pip3-settings-header {
+            color: #666;
+            font-size: 9px;
             font-weight: 600;
-            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
             margin-bottom: 8px;
-            text-align: center;
-            border-bottom: 1px solid #333;
             padding-bottom: 6px;
+            border-bottom: 1px solid #333;
         }
         .pip3-settings-row {
             display: flex;
             align-items: center;
             margin-bottom: 6px;
-            gap: 6px;
+            gap: 8px;
         }
         .pip3-settings-row-label {
             color: #888;
-            width: 40px;
+            font-size: 9px;
+            width: 36px;
             flex-shrink: 0;
         }
-        .pip3-settings-buttons {
-            display: flex;
-            gap: 3px;
+        .pip3-settings-select {
             flex: 1;
-        }
-        .pip3-settings-btn {
-            flex: 1;
-            padding: 3px 4px;
-            background: #333;
-            border: 1px solid #444;
-            color: #aaa;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 10px;
-            text-align: center;
-        }
-        .pip3-settings-btn:hover {
-            background: #444;
+            background: #1a1a1a;
+            border: 1px solid #333;
             color: #fff;
+            font-size: 11px;
+            padding: 4px 6px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='%23888' d='M0 2l4 4 4-4z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+            padding-right: 20px;
         }
-        .pip3-settings-btn.active {
-            background: #00d4ff;
-            color: #000;
+        .pip3-settings-select:hover {
+            border-color: #444;
+            background-color: #222;
+        }
+        .pip3-settings-select:focus {
+            outline: 1px solid #00d4ff;
             border-color: #00d4ff;
         }
-        .pip3-settings-colors {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 3px;
-            margin-top: 4px;
-        }
-        .pip3-color-swatch {
-            width: 16px;
-            height: 16px;
-            border: 1px solid #444;
-            border-radius: 2px;
-            cursor: pointer;
-        }
-        .pip3-color-swatch:hover {
-            border-color: #fff;
-            transform: scale(1.1);
-        }
-        .pip3-color-swatch.active {
-            border-color: #fff;
-            box-shadow: 0 0 4px rgba(255,255,255,0.5);
-        }
-        .pip3-color-none {
-            background: #333;
-            position: relative;
-        }
-        .pip3-color-none::after {
-            content: '';
-            position: absolute;
-            top: 1px;
-            left: 7px;
-            width: 2px;
-            height: 14px;
-            background: #666;
-            transform: rotate(45deg);
+        .pip3-settings-select option {
+            background: #1a1a1a;
+            color: #fff;
         }
         /* V5_4_29: Make video non-interactive so border clicks work */
         .pip1-video, .pip2-video, .pip3-video {
@@ -5504,7 +5472,7 @@ Version: V5_6
     <div class="header">
         <div class="header-left">
             <div class="header-brand">ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">app</span></div>
-            <div class="header-app">[V5_6]</div>
+            <div class="header-app">[V5_7]</div>
         </div>
         <!-- V5_4_24a: PERFORM area counter (right of divider) -->
         <div class="header-perform">
@@ -5555,6 +5523,7 @@ Version: V5_6
                     <div class="oms-header-bar">
                         <div class="shader-header" style="margin: 0; padding: 0;">SHADER CONTROLS</div>
                         <div style="display: flex; gap: 8px;">
+                            <button class="info-drawer-swap-btn" onclick="newContainer()" onmouseenter="showMessage('New empty container (reset all)', 'info')">+</button>
                             <button class="info-drawer-swap-btn" onclick="toggleCodeView()" onmouseenter="showMessage('Toggle code editor', 'info')">Code</button>
                         </div>
                     </div>
@@ -5564,7 +5533,7 @@ Version: V5_6
                     
                     <!-- V4_6_19: Name as single select (click to swap from presets) -->
                     <!-- V4_8_31: Now uses OmsDropdown component with thumbnails -->
-                    <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px; cursor: pointer;" onmouseenter="showMessage('Shader name (Shift+N)', 'info')">Name</label>
+                    <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px; cursor: pointer;" onmouseenter="showMessage('Shader name', 'info')">Name</label>
                     <div class="control-row">
                         <div class="control-group" style="flex: 1;">
                             <div id="shaderNameDropdown"></div>
@@ -5573,7 +5542,7 @@ Version: V5_6
                     
                     <!-- V4_6_0: Orientation moved up - fundamental shader setting -->
                     <!-- V4_9_35: Converted to OmsDropdown -->
-                    <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px;">Orientation</label>
+                    <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px; cursor: pointer;" onmouseenter="showMessage('Canvas aspect ratio', 'info')">Orientation</label>
                     <div class="control-row">
                         <div class="control-group" style="flex: 1;">
                             <div id="orientationDropdown"></div>
@@ -5582,7 +5551,7 @@ Version: V5_6
                     </div>
                     
                     <!-- V4_5_0: Timing sub-section -->
-                    <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px; cursor: pointer;" onmouseenter="showMessage('Tempo and loop length (Shift+M)', 'info')">Music Timing</label>
+                    <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px; cursor: pointer;" onmouseenter="showMessage('Tempo and loop length (M)', 'info')">Music Timing</label>
                     
                     <!-- V4_6_0: Orientation moved above Timing -->
                     
@@ -5745,6 +5714,7 @@ Version: V5_6
 
                     <!-- V4_6_0: Resolution, FPS only (Orientation moved above Timing) -->
                     <!-- V4_9_35: Converted to OmsDropdown -->
+                    <!-- V5_6_13: Added Format dropdown (WebM/MP4/Both) -->
                     <div class="control-row">
                         <div class="control-group" style="flex: 1;" onmouseenter="showMessage('Video resolution for render', 'info')">
                             <div id="resolutionDropdown"></div>
@@ -5754,6 +5724,10 @@ Version: V5_6
                             <div id="fpsDropdown"></div>
                             <input type="hidden" id="fps" value="30">
                         </div>
+                        <div class="control-group" style="flex: 1;" onmouseenter="showMessage('Output format: WebM, MP4, or Both', 'info')">
+                            <div id="renderFormatDropdown"></div>
+                            <input type="hidden" id="renderFormat" value="webm">
+                        </div>
                     </div>
 
                     <!-- Row 6: Filename, Render -->
@@ -5761,7 +5735,7 @@ Version: V5_6
                         <div class="control-group" style="flex: 1;" onmouseenter="showMessage('Name for container and video file', 'info')">
                             <input type="text" id="filename" value="" placeholder="Container Name">
                         </div>
-                        <button class="btn btn-compact" id="renderBtn" onclick="startRender()" onmouseenter="showMessage('Render video file (Shift+R)', 'info')">R</button>
+                        <button class="btn btn-compact" id="renderBtn" onclick="handleRenderClick()" onmouseenter="showMessage(isRendering ? 'Cancel render (X)' : 'Render video file (R)', 'info')">R</button>
                     </div>
 
                     <!-- V4_4_0: Control States removed - use .oms containers in Presets/ instead -->
@@ -6600,14 +6574,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             <!-- V5_1_51: Layout: AUDIO | Vol | Title | Time | SWAP X -->
             <div id="audioControlsHeaderBar" class="oms-header-bar no-margin-bottom" style="position: relative;">
                 <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
-                    <div class="shader-header" style="margin: 0; padding: 0; white-space: nowrap;" id="audioControlsHeader" onmouseenter="showMessage('Audio controls for beatgrid and playback', 'info')">AUDIO</div>
+                    <div class="shader-header" style="margin: 0; padding: 0; white-space: nowrap;" id="audioControlsHeader" onmouseenter="showMessage('A = Audio Focus (JKL transport, V/M/C/F/E panels)', 'info')">AUDIO</div>
                     <!-- V5_5_12L: Audio knob + meter (tap to mute) -->
                     <span style="color: #555;">|</span>
-                    <canvas id="createAudioVolumeKnob" class="rotary-knob" data-domain="audio" width="24" height="24" style="cursor: pointer;" onmouseenter="showMessage('Audio Volume - drag 1dB, Shift+drag fine, tap mute', 'info')"></canvas>
+                    <canvas id="createAudioVolumeKnob" class="rotary-knob" data-domain="audio" width="24" height="24" style="cursor: pointer;" onmouseenter="showMessage('Audio Volume (A, V) - drag, tap mute', 'info')"></canvas>
                     <canvas id="createAudioLevelMeter" width="4" height="24" style="background: #000; border-radius: 1px;" title="Audio output level"></canvas>
                     <!-- V5_5_12L: Mic knob + meter (tap to mute) -->
                     <span style="color: #555;">|</span>
-                    <canvas id="createMicVolumeKnob" class="rotary-knob" data-domain="cue" width="24" height="24" style="cursor: pointer;" onmouseenter="showMessage('Mic Volume - drag 1dB, Shift+drag fine, tap mute', 'info')"></canvas>
+                    <canvas id="createMicVolumeKnob" class="rotary-knob" data-domain="cue" width="24" height="24" style="cursor: pointer;" onmouseenter="showMessage('Mic (A, M) - drag, tap mute', 'info')"></canvas>
                     <canvas id="createMicLevelMeter" width="4" height="24" style="background: #000; border-radius: 1px;" title="Mic input level"></canvas>
                     <span id="audioHeaderSeparator" style="color: #555; display: none;">|</span>
                     <div id="audioHeaderNameWrapper" style="flex: 1; min-width: 0; overflow: hidden; display: none;">
@@ -6618,7 +6592,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     <span id="audioHeaderTimeSeparator" style="color: #555; display: none;">|</span>
                 </div>
                 <!-- V4_6_0: Audio swap dropdown (absolute positioned, hidden until Swap clicked) -->
-                <select id="createAudioSwapSelect" class="oms-field" style="display: none; position: absolute; right: 100px; top: 50%; transform: translateY(-50%); max-width: 250px; z-index: 10;" onchange="onCreateAudioSwapSelect()">
+                <!-- V5_6_05a: Solid background, higher z-index to overlay cleanly -->
+                <select id="createAudioSwapSelect" class="oms-field" style="display: none; position: absolute; right: 100px; top: 50%; transform: translateY(-50%); max-width: 250px; z-index: 100; background: #1a1a1a;" onchange="onCreateAudioSwapSelect()">
                 </select>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <button class="info-drawer-swap-btn" id="waveformSwapBtn" onclick="showCreateAudioSwapDropdown()" onmouseenter="showMessage('Pick audio from Library', 'info')">Swap</button>
@@ -6645,23 +6620,23 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     <!-- V5_1_35: Cue points panel - 5 cue point rows -->
                     <!-- V5_5_12: Start disabled, enabled when audio loads -->
                     <div class="cue-overlay-panel" id="cueOverlayPanel">
-                        <div class="cue-row disabled" id="cueRow1" data-cue="0" onclick="jumpToCueFromPanel(0)" onmouseenter="showMessage(audioLoaded ? 'Cue 1 (Shift+A, C, 1)' : 'Load audio to use cue points', 'info')">
+                        <div class="cue-row disabled" id="cueRow1" data-cue="0" onclick="jumpToCueFromPanel(0)" onmouseenter="showMessage(audioLoaded ? 'Cue 1 (A, C, 1)' : 'Load audio to use cue points', 'info')">
                             <span class="cue-flag">▶1</span>
                             <span class="cue-bar-beat" id="cueBarBeat1">1.1</span>
                         </div>
-                        <div class="cue-row disabled" id="cueRow2" data-cue="1" onclick="jumpToCueFromPanel(1)" onmouseenter="showMessage(audioLoaded ? 'Cue 2 (Shift+A, C, 2)' : 'Load audio to use cue points', 'info')">
+                        <div class="cue-row disabled" id="cueRow2" data-cue="1" onclick="jumpToCueFromPanel(1)" onmouseenter="showMessage(audioLoaded ? 'Cue 2 (A, C, 2)' : 'Load audio to use cue points', 'info')">
                             <span class="cue-flag">▶2</span>
                             <span class="cue-bar-beat" id="cueBarBeat2">17.1</span>
                         </div>
-                        <div class="cue-row disabled" id="cueRow3" data-cue="2" onclick="jumpToCueFromPanel(2)" onmouseenter="showMessage(audioLoaded ? 'Cue 3 (Shift+A, C, 3)' : 'Load audio to use cue points', 'info')">
+                        <div class="cue-row disabled" id="cueRow3" data-cue="2" onclick="jumpToCueFromPanel(2)" onmouseenter="showMessage(audioLoaded ? 'Cue 3 (A, C, 3)' : 'Load audio to use cue points', 'info')">
                             <span class="cue-flag">▶3</span>
                             <span class="cue-bar-beat" id="cueBarBeat3">33.1</span>
                         </div>
-                        <div class="cue-row disabled" id="cueRow4" data-cue="3" onclick="jumpToCueFromPanel(3)" onmouseenter="showMessage(audioLoaded ? 'Cue 4 (Shift+A, C, 4)' : 'Load audio to use cue points', 'info')">
+                        <div class="cue-row disabled" id="cueRow4" data-cue="3" onclick="jumpToCueFromPanel(3)" onmouseenter="showMessage(audioLoaded ? 'Cue 4 (A, C, 4)' : 'Load audio to use cue points', 'info')">
                             <span class="cue-flag">▶4</span>
                             <span class="cue-bar-beat" id="cueBarBeat4">49.1</span>
                         </div>
-                        <div class="cue-row disabled" id="cueRow5" data-cue="4" onclick="jumpToCueFromPanel(4)" onmouseenter="showMessage(audioLoaded ? 'Cue 5 (Shift+A, C, 5)' : 'Load audio to use cue points', 'info')">
+                        <div class="cue-row disabled" id="cueRow5" data-cue="4" onclick="jumpToCueFromPanel(4)" onmouseenter="showMessage(audioLoaded ? 'Cue 5 (A, C, 5)' : 'Load audio to use cue points', 'info')">
                             <span class="cue-flag">▶5</span>
                             <span class="cue-bar-beat" id="cueBarBeat5">65.1</span>
                         </div>
@@ -6671,26 +6646,26 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     <!-- V5_1_49: DJ FX panel - Washout, Dubby, Break -->
                     <div class="fx-overlay-panel" id="fxOverlayPanel">
                         <div class="fx-knob-row">
-                            <canvas class="fx-knob-canvas" id="fxKnobWashout" width="24" height="24" onmouseenter="showMessage('Washout (Shift+A, F, ←/→, Enter=kill)', 'info')"></canvas>
+                            <canvas class="fx-knob-canvas" id="fxKnobWashout" width="24" height="24" onmouseenter="showMessage('Washout (A, F, ←/→, Enter=kill)', 'info')"></canvas>
                         </div>
                         <div class="fx-knob-row">
-                            <canvas class="fx-knob-canvas" id="fxKnobDubby" width="24" height="24" onmouseenter="showMessage('Dubby (Shift+A, F, ←/→, Enter=kill)', 'info')"></canvas>
+                            <canvas class="fx-knob-canvas" id="fxKnobDubby" width="24" height="24" onmouseenter="showMessage('Dubby (A, F, ←/→, Enter=kill)', 'info')"></canvas>
                         </div>
                         <div class="fx-knob-row">
-                            <canvas class="fx-knob-canvas" id="fxKnobBreak" width="24" height="24" onmouseenter="showMessage('Break (Shift+A, F, ←/→, Enter=kill)', 'info')"></canvas>
+                            <canvas class="fx-knob-canvas" id="fxKnobBreak" width="24" height="24" onmouseenter="showMessage('Break (A, F, ←/→, Enter=kill)', 'info')"></canvas>
                         </div>
                     </div>
                     
                     <!-- V5_1_35: EQ3 overlay panel - H/M/L top to bottom -->
                     <div class="eq-overlay-panel" id="eqOverlayPanel">
                         <div class="eq-knob-row">
-                            <canvas class="eq-knob-canvas" id="eqKnobHigh" width="24" height="24" onmouseenter="showMessage('EQ High (Shift+A, E, ←/→, Enter=kill)', 'info')"></canvas>
+                            <canvas class="eq-knob-canvas" id="eqKnobHigh" width="24" height="24" onmouseenter="showMessage('EQ High (A, E, ←/→, Enter=kill)', 'info')"></canvas>
                         </div>
                         <div class="eq-knob-row">
-                            <canvas class="eq-knob-canvas" id="eqKnobMid" width="24" height="24" onmouseenter="showMessage('EQ Mid (Shift+A, E, ←/→, Enter=kill)', 'info')"></canvas>
+                            <canvas class="eq-knob-canvas" id="eqKnobMid" width="24" height="24" onmouseenter="showMessage('EQ Mid (A, E, ←/→, Enter=kill)', 'info')"></canvas>
                         </div>
                         <div class="eq-knob-row">
-                            <canvas class="eq-knob-canvas" id="eqKnobLow" width="24" height="24" onmouseenter="showMessage('EQ Low (Shift+A, E, ←/→, Enter=kill)', 'info')"></canvas>
+                            <canvas class="eq-knob-canvas" id="eqKnobLow" width="24" height="24" onmouseenter="showMessage('EQ Low (A, E, ←/→, Enter=kill)', 'info')"></canvas>
                         </div>
                     </div>
                 </div>
@@ -7374,7 +7349,7 @@ struct Uniforms {
     transformPivotX: f32,
     transformPivotY: f32,
     transformTile: f32,
-    padding1: f32,
+    loopLength: f32,
     padding2: f32,
     padding3: f32,
 }
@@ -7386,6 +7361,7 @@ struct Uniforms {
         const UNIFORM_BUFFER_SIZE = 112;
         
         // 3. Create uniform data array (order MUST match struct)
+        // V5_6_09a: Added loopLength (was padding1)
         function createUniformData(p) {
             return new Float32Array([
                 p.time ?? 0.0,
@@ -7413,7 +7389,7 @@ struct Uniforms {
                 p.transformPivotX ?? 0.0,
                 p.transformPivotY ?? 0.0,
                 p.transformTile ?? 1.0,
-                0.0,  // padding1
+                p.loopLength ?? 16.0,  // V5_6_09a: loopLength in beats (default 4 bars)
                 0.0,  // padding2
                 0.0   // padding3
             ]);
@@ -7427,6 +7403,8 @@ struct Uniforms {
         let uniformBuffer, uniformBindGroup;
         let startTime = Date.now();
         let isRendering = false;
+        let renderCancelled = false;  // V5_6_10: Track if render was cancelled
+        let activeMediaRecorder = null;  // V5_6_10: Module-scoped for cancel access
         let renderStartTime = 0;
         let renderDuration = 0;
         let totalFrames = 0;
@@ -7459,6 +7437,7 @@ struct Uniforms {
         let createAudioGainNode = null;  // V5_1_49: Volume control for CREATE tab
         let audioDataArray = null;
         let audioLoaded = false;
+        let createAudioSwapDropdownOpen = false;  // V5_6_05a: Track swap dropdown state to prevent render loop override
         let audioExplicitlyRemoved = false;  // V4_5_19: Track explicit audio removal for update
         let currentAudioFile = null;  // V2.8.0-L: Store current audio File object for filename
         let bassLevel = 0, midLevel = 0, trebleLevel = 0;
@@ -8397,6 +8376,7 @@ BROWSER SUPPORT:
             document.getElementById('waveformRemoveBtn').classList.remove('inactive');
             // V4_6_0: Hide swap dropdown if open
             document.getElementById('createAudioSwapSelect').style.display = 'none';
+            createAudioSwapDropdownOpen = false;  // V5_6_05a
             
             // Show loading state
             audioBufferData = null;
@@ -8495,11 +8475,11 @@ BROWSER SUPPORT:
             if (!modAHighpass) {
                 modAHighpass = audioContext.createBiquadFilter();
                 modAHighpass.type = 'highpass';
-                modAHighpass.Q.value = 0.7;
+                modAHighpass.Q.value = modAQ;  // V5_6_05a: Use global Q value
                 
                 modALowpass = audioContext.createBiquadFilter();
                 modALowpass.type = 'lowpass';
-                modALowpass.Q.value = 0.7;
+                modALowpass.Q.value = modAQ;  // V5_6_05a: Use global Q value
                 
                 modAAnalyser = audioContext.createAnalyser();
                 modAAnalyser.fftSize = 2048;  // Smaller than waveform FFT, faster response
@@ -8514,11 +8494,11 @@ BROWSER SUPPORT:
             if (!modBHighpass) {
                 modBHighpass = audioContext.createBiquadFilter();
                 modBHighpass.type = 'highpass';
-                modBHighpass.Q.value = 0.7;
+                modBHighpass.Q.value = modBQ;  // V5_6_05a: Use global Q value
                 
                 modBLowpass = audioContext.createBiquadFilter();
                 modBLowpass.type = 'lowpass';
-                modBLowpass.Q.value = 0.7;
+                modBLowpass.Q.value = modBQ;  // V5_6_05a: Use global Q value
                 
                 modBAnalyser = audioContext.createAnalyser();
                 modBAnalyser.fftSize = 2048;
@@ -8532,11 +8512,11 @@ BROWSER SUPPORT:
             if (!modCHighpass) {
                 modCHighpass = audioContext.createBiquadFilter();
                 modCHighpass.type = 'highpass';
-                modCHighpass.Q.value = 0.7;
+                modCHighpass.Q.value = modCQ;  // V5_6_05a: Use global Q value
                 
                 modCLowpass = audioContext.createBiquadFilter();
                 modCLowpass.type = 'lowpass';
-                modCLowpass.Q.value = 0.7;
+                modCLowpass.Q.value = modCQ;  // V5_6_05a: Use global Q value
                 
                 modCAnalyser = audioContext.createAnalyser();
                 modCAnalyser.fftSize = 2048;
@@ -9077,6 +9057,28 @@ BROWSER SUPPORT:
                 canvas.style.cursor = 'default';
             });
             
+            // V5_6_15a: Click on waveform enters Audio Focus mode
+            canvas.addEventListener('click', () => {
+                if (!audioLoaded || !audioElement) return;
+                if (!isCreateTabActive()) return;
+                
+                // Enter Audio Focus mode if not already active
+                if (!createAudioFocus) {
+                    // Exit other focus modes first
+                    if (shaderTransformFocus) exitTransformMode();
+                    if (shaderReactivityFocus) exitReactivityMode();
+                    if (shaderMusicTimingFocus) exitMusicTimingMode();
+                    if (shaderNameFocus) exitNameMode();
+                    if (shaderOrientationFocus) exitOrientationMode();
+                    if (bumprModeActive) exitBumprMode();
+                    
+                    createAudioFocus = true;
+                    volumePanelTarget = 'audio';
+                    setShaderPanel('volume');
+                    showMessage('Audio Focus | J◀ K⏯ L▶ | V/M/C/F/E, Esc=exit', 'info');
+                }
+            });
+            
             // Update progress bar continuously
             function updateProgress() {
                 if (audioLoaded && audioElement) {
@@ -9357,11 +9359,14 @@ BROWSER SUPPORT:
             // Format: B.B / B.B | M:SS.s / M:SS.s
             timeEl.textContent = `${currentBarBeat} / ${totalBarBeat} | ${formatTimeShort(elapsedTime)} / ${formatTimeShort(totalTime)}`;
             
-            // Show all elements
+            // Show all elements (unless swap dropdown is open)
             sep1.style.display = 'inline';
             nameWrapper.style.display = 'block';
-            timeEl.style.display = 'inline';
-            if (timeSep) timeSep.style.display = 'inline';
+            // V5_6_05a: Don't show timeEl if swap dropdown is open (prevents render loop override)
+            if (!createAudioSwapDropdownOpen) {
+                timeEl.style.display = 'inline';
+            }
+            // V5_6_05a: Removed timeSep display - not needed, Swap button already visually separate
         }
         
         // V5_1_49: Hide CREATE audio header info
@@ -10262,9 +10267,9 @@ BROWSER SUPPORT:
             
             // Calculate dimensions based on orientation
             if (orientation === 'portrait') {
-                // Portrait: 9:16 (e.g., 1080x1920)
-                height = resolution;
-                width = Math.round(height * (9 / 16));
+                // V5_6_12: Portrait: 9:16 - width is the "p" value (e.g., 1080x1920 for 1080p)
+                width = resolution;
+                height = Math.round(width * (16 / 9));
             } else if (orientation === 'square') {
                 // Square: 1:1 (e.g., 1080x1080)
                 width = resolution;
@@ -10802,7 +10807,8 @@ BROWSER SUPPORT:
                 transformTranslateY: transformTranslateY,
                 transformPivotX: transformPivotX,
                 transformPivotY: transformPivotY,
-                transformTile: transformTile
+                transformTile: transformTile,
+                loopLength: parseFloat(document.getElementById('shaderLoopLength').value) || 16  // V5_6_09a
             });
             
             device.queue.writeBuffer(uniformBuffer, 0, uniformData);
@@ -10825,9 +10831,11 @@ BROWSER SUPPORT:
 
             device.queue.submit([commandEncoder.finish()]);
             
-            // V5_5_12: Composite PIP onto render output when rendering and pip3Visible
-            if (isRendering && pip3Visible) {
-                compositePipToCanvas();
+            // V5_6_14b: ALWAYS composite during render
+            // This ensures overlays (BumpR/PIP) are captured, and handles overlays starting/stopping mid-render
+            // compositeOverlaysToCanvas() draws shader first, then conditionally adds overlays
+            if (isRendering) {
+                compositeOverlaysToCanvas();
             }
             
             // V4_4_0: Copy main canvas to library shader preview when on Library tab
@@ -10864,31 +10872,104 @@ BROWSER SUPPORT:
             animationId = requestAnimationFrame(render);
         }
 
+        // V5_6_10: Handle render button click - start or cancel
+        function handleRenderClick() {
+            if (isRendering) {
+                cancelRender();
+            } else {
+                startRender();
+            }
+        }
+        
+        // V5_6_10: Cancel active render
+        function cancelRender() {
+            if (!isRendering || !activeMediaRecorder) return;
+            
+            renderCancelled = true;
+            
+            // Stop the MediaRecorder (will trigger onstop but we'll check renderCancelled)
+            try {
+                activeMediaRecorder.stop();
+            } catch (e) {
+                console.log('V5_6_10: MediaRecorder already stopped');
+            }
+            
+            // Stop audio if playing
+            if (audioLoaded && audioElement) {
+                audioElement.pause();
+                audioElement.currentTime = 0;
+            }
+            
+            // V5_6_10: Disconnect audio capture (same cleanup as finishRender)
+            if (renderAudioDest && micGainNode) {
+                try {
+                    micGainNode.disconnect(renderAudioDest);
+                } catch (e) { /* May already be disconnected */ }
+            }
+            if (renderAudioDest && createAudioGainNode) {
+                try {
+                    createAudioGainNode.disconnect(renderAudioDest);
+                } catch (e) { /* May already be disconnected */ }
+                renderAudioDest = null;
+            }
+            
+            // Reset render state
+            isRendering = false;
+            activeMediaRecorder = null;
+            renderStartTime = 0;
+            renderDuration = 0;
+            totalFrames = 0;
+            renderFPS = 0;
+            
+            // Reset button
+            const renderBtn = document.getElementById('renderBtn');
+            renderBtn.textContent = 'R';
+            renderBtn.classList.remove('rendering');
+            renderBtn.disabled = false;
+            
+            showMessage('Render cancelled', 'state');
+        }
+
         // Start video rendering
         async function startRender() {
             if (isRendering) return;
             
             isRendering = true;
+            renderCancelled = false;  // V5_6_10: Reset cancel flag
             const renderBtn = document.getElementById('renderBtn');
             renderBtn.classList.add('rendering');
-            renderBtn.disabled = true;
+            renderBtn.textContent = 'X';  // V5_6_10: Show X to indicate cancel option
+            // V5_6_10: Don't disable - user needs to click to cancel
             
             // Show render progress in status bar (keep canvas visible)
-            showMessage('Setting up render...', 'info');
+            showMessage('Setting up render... (X to cancel)', 'info');
             
             try {
                 // V2.5.0-D: Calculate duration based on audio loaded state
+                // V5_6_10: Respect Loop ON/OFF - if off, render full audio length
                 let duration;
                 let beatCount;
+                let renderStartBeat = 0;  // V5_6_10: Track where to start rendering
                 const shaderTempo = parseInt(document.getElementById('shaderTempo').value);
                 
                 if (audioLoaded && audioElement) {
-                    // AUDIO MODE: Use Loop In/Out brackets and Audio Tempo
-                    const inBeat = barBeatToBeats(document.getElementById('audioLoopInField').value);
-                    const outBeat = barBeatToBeats(document.getElementById('audioLoopOutField').value);
                     const audioBPM = audioTempo; // Audio Tempo field (not Shader Tempo!)
+                    const beatsPerSecond = audioBPM / 60;
                     
-                    beatCount = outBeat - inBeat;
+                    if (audioLoopEnabled) {
+                        // AUDIO MODE + LOOP ON: Use Loop In/Out brackets
+                        const inBeat = barBeatToBeats(document.getElementById('audioLoopInField').value);
+                        const outBeat = barBeatToBeats(document.getElementById('audioLoopOutField').value);
+                        beatCount = outBeat - inBeat;
+                        renderStartBeat = inBeat;
+                    } else {
+                        // V5_6_10: AUDIO MODE + LOOP OFF: Use full audio (Audio Start to Audio End)
+                        const startBeat = audioStartTime * beatsPerSecond;
+                        const endBeat = audioEndTime * beatsPerSecond;
+                        beatCount = endBeat - startBeat;
+                        renderStartBeat = startBeat;
+                    }
+                    
                     duration = (beatCount * 60) / audioBPM;
                 } else {
                     // V5_5_12: NO AUDIO MODE: Use Shader Render Duration field (bar.beat format)
@@ -10902,6 +10983,9 @@ BROWSER SUPPORT:
                 const resolution = document.getElementById('resolution').value;
                 const orientation = document.getElementById('orientation').value;
                 
+                // V5_6_13: Get render format (webm, mp4, or both)
+                const renderFormat = document.getElementById('renderFormat').value || 'webm';
+                
                 // V2.6.0-R: Parse shader name from code if filename field empty
                 let filename = document.getElementById('filename').value.trim();
                 if (!filename) {
@@ -10914,15 +10998,14 @@ BROWSER SUPPORT:
                 // FIX V2.0.1G: Use captureStream() without FPS parameter to capture every rendered frame
                 // This prevents video freezing when browser throttles requestAnimationFrame
                 // MediaRecorder will handle framerate encoding based on actual captured frames
-                // V5_5_12: Use compositing canvas when PIP3 is visible for render output
+                // V5_6_14b: ALWAYS use compositing canvas during render
+                // This ensures overlays (BumpR/PIP) that start or stop mid-render are captured correctly
                 let captureCanvas = canvas;
-                if (pip3Visible) {
-                    const compCanvas = document.getElementById('pipCompositingCanvas');
-                    if (compCanvas) {
-                        compCanvas.width = canvas.width;
-                        compCanvas.height = canvas.height;
-                        captureCanvas = compCanvas;
-                    }
+                const compCanvas = document.getElementById('pipCompositingCanvas');
+                if (compCanvas) {
+                    compCanvas.width = canvas.width;
+                    compCanvas.height = canvas.height;
+                    captureCanvas = compCanvas;
                 }
                 const canvasStream = captureCanvas.captureStream();
                 
@@ -10935,16 +11018,15 @@ BROWSER SUPPORT:
                         console.log('V5_5_12: AudioContext resumed from suspended state');
                     }
                     
-                    // AUDIO MODE: Calculate Loop In offset and sync audio
-                    const inBeat = barBeatToBeats(document.getElementById('audioLoopInField').value);
-                    const audioBPM = audioTempo; // Audio Tempo field (not Shader Tempo!)
-                    const inBeatTime = inBeat / (audioBPM / 60.0);
+                    // V5_6_10: Calculate render start position (uses renderStartBeat from above)
+                    const audioBPM = audioTempo;
+                    const renderStartTime = renderStartBeat / (audioBPM / 60.0);
                     
-                    // Reset audio to In beat
-                    audioElement.currentTime = inBeatTime;
+                    // Reset audio to render start position
+                    audioElement.currentTime = renderStartTime;
                     
-                    // V2.5.0-C: Offset startTime so visual rendering starts at Loop In position
-                    startTime = Date.now() - (inBeatTime * 1000);
+                    // V2.5.0-C: Offset startTime so visual rendering starts at correct position
+                    startTime = Date.now() - (renderStartTime * 1000);
                     
                     // V5_5_12: Create destination for capturing audio (module-scoped for cleanup)
                     renderAudioDest = audioContext.createMediaStreamDestination();
@@ -11008,28 +11090,62 @@ BROWSER SUPPORT:
                 console.log('V5_5_12: Combined stream tracks:', 
                     combinedStream.getTracks().map(t => `${t.kind}: ${t.label}`));
                 
-                // V5_5_12: Use vp8,opus for video+audio, fallback to vp8 if needed
-                let mimeType = 'video/webm;codecs=vp8,opus';
-                if (!MediaRecorder.isTypeSupported(mimeType)) {
-                    console.warn('V5_5_12: vp8,opus not supported, falling back to vp8');
-                    mimeType = 'video/webm;codecs=vp8';
+                // V5_6_14: Select mimeType based on render format (WebM or MP4)
+                let mimeType, blobType, fileExtension;
+                
+                if (renderFormat === 'mp4') {
+                    // V5_6_13: MP4 with H.264 + AAC (iOS compatible)
+                    mimeType = 'video/mp4;codecs=avc1.42E01E,mp4a.40.2';
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        console.warn('V5_6_13: H.264+AAC not supported, trying H.264 only');
+                        mimeType = 'video/mp4;codecs=avc1.42E01E';
+                    }
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        console.warn('V5_6_13: MP4 not supported, falling back to WebM');
+                        mimeType = 'video/webm;codecs=vp8,opus';
+                        blobType = 'video/webm';
+                        fileExtension = 'webm';
+                        showMessage('MP4 not supported by browser, using WebM', 'error');
+                    } else {
+                        blobType = 'video/mp4';
+                        fileExtension = 'mp4';
+                    }
+                } else {
+                    // V5_5_12: WebM with vp8,opus for video+audio, fallback to vp8 if needed
+                    mimeType = 'video/webm;codecs=vp8,opus';
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        console.warn('V5_5_12: vp8,opus not supported, falling back to vp8');
+                        mimeType = 'video/webm;codecs=vp8';
+                    }
+                    blobType = 'video/webm';
+                    fileExtension = 'webm';
                 }
                 
-                const mediaRecorder = new MediaRecorder(combinedStream, {
+                console.log(`V5_6_14: Using format=${renderFormat}, mimeType=${mimeType}`);
+                
+                // V5_6_10: Use module-scoped variable for cancel access
+                activeMediaRecorder = new MediaRecorder(combinedStream, {
                     mimeType: mimeType,
                     videoBitsPerSecond: 8000000 // High quality
                 });
                 
                 const chunks = [];
                 
-                mediaRecorder.ondataavailable = (event) => {
+                activeMediaRecorder.ondataavailable = (event) => {
                     if (event.data.size > 0) {
                         chunks.push(event.data);
                     }
                 };
                 
-                mediaRecorder.onstop = () => {
-                    const blob = new Blob(chunks, { type: 'video/webm' });
+                activeMediaRecorder.onstop = () => {
+                    // V5_6_10: Don't save if render was cancelled
+                    if (renderCancelled) {
+                        console.log('V5_6_10: Render cancelled, not saving file');
+                        return;
+                    }
+                    
+                    // V5_6_13: Use dynamic blob type and file extension
+                    const blob = new Blob(chunks, { type: blobType });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     let orientationSuffix = '_L';
@@ -11039,14 +11155,22 @@ BROWSER SUPPORT:
                         orientationSuffix = '_S';
                     }
                     a.href = url;
-                    a.download = `OMS_${filename}_${resolution}p_${fps}fps${orientationSuffix}.webm`;
+                    a.download = `OMS_${filename}_${resolution}p_${fps}fps${orientationSuffix}.${fileExtension}`;
                     a.click();
                     URL.revokeObjectURL(url);
                     
                     finishRender('Video rendered successfully!');
                 };
                 
-                mediaRecorder.start();
+                // V5_6_16a: Render initial frame before starting MediaRecorder
+                // MP4/H.264 needs a keyframe on canvas before capture starts
+                // WebM handles this gracefully, but MP4 shows black frames without this
+                render();
+                
+                // V5_6_16a: Small delay to ensure frame is captured before recording starts
+                await new Promise(resolve => setTimeout(resolve, 50));
+                
+                activeMediaRecorder.start();
                 
                 // Initialize render tracking
                 renderStartTime = Date.now();
@@ -11060,10 +11184,13 @@ BROWSER SUPPORT:
                 const totalBeats = (duration * renderTempo) / 60;
                 const totalBarBeat = beatsToBarBeat(totalBeats);
                 const totalText = secondsToTimeString(duration);
-                showMessage(`Rendering 1.1/${totalBarBeat} | 00:00.000/${totalText} | Frame 0/${totalFrames}`, 'info');
+                showMessage(`Rendering 1.1/${totalBarBeat} | 00:00.000/${totalText} | Frame 0/${totalFrames} (X to cancel)`, 'info');
                 
                 setTimeout(() => {
-                    mediaRecorder.stop();
+                    // V5_6_10: Only stop if not already cancelled
+                    if (!renderCancelled && activeMediaRecorder && activeMediaRecorder.state === 'recording') {
+                        activeMediaRecorder.stop();
+                    }
                 }, duration * 1000);
                 
             } catch (error) {
@@ -11073,6 +11200,7 @@ BROWSER SUPPORT:
 
         function finishRender(message, isError = false) {
             isRendering = false;
+            activeMediaRecorder = null;  // V5_6_10: Clear reference
             
             // Reset render tracking
             renderStartTime = 0;
@@ -11082,6 +11210,7 @@ BROWSER SUPPORT:
             
             const renderBtn = document.getElementById('renderBtn');
             renderBtn.classList.remove('rendering');
+            renderBtn.textContent = 'R';  // V5_6_10: Reset to R
             renderBtn.disabled = false;
             
             // Stop audio if playing
@@ -11289,6 +11418,7 @@ BROWSER SUPPORT:
         }
 
         // V2.1.1-I: Arrow key navigation for IN/OUT with range maintenance
+        // V5_6_15b: Loop In moves both (maintain length), Loop Out moves only Out (change length)
         function setupInOutArrowKeys() {
             const inBeatInput = document.getElementById('audioLoopInField');
             const outBeatInput = document.getElementById('audioLoopOutField');
@@ -11302,32 +11432,34 @@ BROWSER SUPPORT:
                     const outBeat = barBeatToBeats(outBeatInput.value);
                     const range = outBeat - inBeat;
                     
+                    // V5_6_15b: Same delta for both fields - ±1 beat (up/down), ±4 beats/1 bar (left/right)
                     let delta = 0;
-                    // V2.4.0-K: Bar.beat format arrow key increments
-                    if (isInBeat) {
-                        // Loop In: 1 beat for up/down, 1 bar (4 beats) for left/right
-                        if (e.key === 'ArrowUp') delta = 1;          // 1 beat
-                        else if (e.key === 'ArrowDown') delta = -1;  // 1 beat
-                        else if (e.key === 'ArrowRight') delta = 4;  // 1 bar (4 beats)
-                        else if (e.key === 'ArrowLeft') delta = -4;  // 1 bar (4 beats)
-                    } else {
-                        // Loop Out: 4 bars (16 beats) for up/down, 16 bars (64 beats) for left/right
-                        if (e.key === 'ArrowUp') delta = 16;        // 4 bars (16 beats)
-                        else if (e.key === 'ArrowDown') delta = -16;  // 4 bars (16 beats)
-                        else if (e.key === 'ArrowRight') delta = 64;  // 16 bars (64 beats)
-                        else if (e.key === 'ArrowLeft') delta = -64;  // 16 bars (64 beats)
-                    }
+                    if (e.key === 'ArrowUp') delta = 1;          // +1 beat
+                    else if (e.key === 'ArrowDown') delta = -1;  // -1 beat
+                    else if (e.key === 'ArrowRight') delta = 4;  // +1 bar (4 beats)
+                    else if (e.key === 'ArrowLeft') delta = -4;  // -1 bar (4 beats)
                     
                     let newIn, newOut;
                     
-                    // V2.2.0-H: Arrow keys always move both brackets together (maintain loop length)
-                    newIn = inBeat + delta;
-                    newOut = outBeat + delta;
-                    
-                    // Clamp to valid ranges
-                    if (newIn < 0) {
-                        newIn = 0;
-                        newOut = range;
+                    if (isInBeat) {
+                        // V5_6_15b: Loop In - move both brackets together (maintain loop length)
+                        newIn = inBeat + delta;
+                        newOut = outBeat + delta;
+                        
+                        // Clamp to valid ranges
+                        if (newIn < 0) {
+                            newIn = 0;
+                            newOut = range;
+                        }
+                    } else {
+                        // V5_6_15b: Loop Out - move ONLY Out (change loop length)
+                        newIn = inBeat;  // Keep In unchanged
+                        newOut = outBeat + delta;
+                        
+                        // V5_6_15b: Don't go below In (zero-length loop is fine, keeps grid alignment)
+                        if (newOut < newIn) {
+                            newOut = newIn;
+                        }
                     }
                     
                     // V2.4.0-K: Format to bar.beat for display
@@ -11387,6 +11519,11 @@ BROWSER SUPPORT:
             // V5_1_51: Exit any focus mode on tab switch
             exitAllFocusModes();
             
+            // V5_6_05a: Close N-panel when leaving CREATE tab
+            if (tabName !== 'controls' && typeof closeModTuningPanel === 'function') {
+                closeModTuningPanel();
+            }
+            
             // V5_5_12k: Audio meter for CREATE tab only
             // V5_5_12L: Audio meter for CREATE tab
             if (tabName === 'controls') {
@@ -11412,15 +11549,9 @@ BROWSER SUPPORT:
                 pip3Visible = false;
                 stopCamStream(); // Only stops if no other outputs active
             }
-            // PIP 2 (corner) - non-PERFORM tabs, hide when going to PERFORM
-            if (tabName === 'live' && pip2Visible) {
-                const pip2Corner = document.getElementById('pip2Corner');
-                if (pip2Corner) pip2Corner.classList.remove('visible');
-                const pip2Video = document.getElementById('pip2Video');
-                if (pip2Video) pip2Video.srcObject = null;
-                pip2Visible = false;
-                stopCamStream();
-            }
+            // V5_6_16h: P2 now persists across ALL tabs (removed hide on PERFORM)
+            // P2 only hides via P+2 toggle or P+1 mutual exclusivity
+            
             // PIP 1 (PERFORM slideout) - hide when leaving PERFORM
             if (tabName !== 'live' && pip1Visible) {
                 const pip1Slideout = document.getElementById('pip1Slideout');
@@ -12499,43 +12630,35 @@ BROWSER SUPPORT:
                                 </div>
                             </div>
                             
-                            <!-- V5_5_12: Separated Aspect Ratio, Size, Shape -->
+                            <!-- V5_6_16h: Renamed Orientation (matches shader), Size as percentage -->
                             <div style="display: flex; gap: 8px; margin-bottom: 15px;">
                                 <div style="flex: 1;">
-                                    <label style="display: block; color: #aaa; font-size: 11px; margin-bottom: 5px;">Aspect Ratio</label>
-                                    <select id="pip3AspectSelect" onchange="pip3Aspect = this.value; applyPipStyle(3); showMessage('PIP 3: ' + this.value, 'state'); autoSaveProject();"
+                                    <label style="display: block; color: #aaa; font-size: 11px; margin-bottom: 5px;">Orientation</label>
+                                    <select id="pip3OrientationSelect" onchange="setPip3Orientation(this.value)"
                                             style="width: 100%; padding: 6px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; font-size: 11px;">
-                                        <option value="16:9" ${pip3Aspect === '16:9' ? 'selected' : ''}>16:9</option>
-                                        <option value="9:16" ${pip3Aspect === '9:16' ? 'selected' : ''}>9:16</option>
-                                        <option value="1:1" ${pip3Aspect === '1:1' ? 'selected' : ''}>1:1</option>
+                                        <option value="landscape" ${pip3Orientation === 'landscape' ? 'selected' : ''}>Landscape (16:9)</option>
+                                        <option value="portrait" ${pip3Orientation === 'portrait' ? 'selected' : ''}>Portrait (9:16)</option>
+                                        <option value="square" ${pip3Orientation === 'square' ? 'selected' : ''}>Square (1:1)</option>
                                     </select>
                                 </div>
                                 <div style="flex: 1;">
                                     <label style="display: block; color: #aaa; font-size: 11px; margin-bottom: 5px;">Size</label>
-                                    <select id="pip3SizeSelect" onchange="pip3Size = this.value; applyPipStyle(3); showMessage('PIP 3: ' + this.options[this.selectedIndex].text, 'state'); autoSaveProject();"
+                                    <select id="pip3SizeSelect" onchange="setPip3Size(this.value)"
                                             style="width: 100%; padding: 6px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; font-size: 11px;">
-                                        <option value="small" ${pip3Size === 'small' ? 'selected' : ''}>Small (120px)</option>
-                                        <option value="medium" ${pip3Size === 'medium' ? 'selected' : ''}>Medium (200px)</option>
-                                        <option value="large" ${pip3Size === 'large' ? 'selected' : ''}>Large (320px)</option>
+                                        <option value="25" ${pip3SizePercent === '25' ? 'selected' : ''}>25%</option>
+                                        <option value="50" ${pip3SizePercent === '50' ? 'selected' : ''}>50%</option>
+                                        <option value="75" ${pip3SizePercent === '75' ? 'selected' : ''}>75%</option>
+                                        <option value="100" ${pip3SizePercent === '100' ? 'selected' : ''}>100%</option>
                                     </select>
                                 </div>
                                 <div style="flex: 1;">
                                     <label style="display: block; color: #aaa; font-size: 11px; margin-bottom: 5px;">Shape</label>
-                                    <select id="pip3ShapeSelect" onchange="pip3Shape = this.value; applyPipStyle(3); showMessage('PIP 3: ' + this.value, 'state'); autoSaveProject();"
+                                    <select id="pip3ShapeSelect" onchange="setPip3Shape(this.value)"
                                             style="width: 100%; padding: 6px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; font-size: 11px;">
                                         <option value="rectangle" ${pip3Shape === 'rectangle' ? 'selected' : ''}>Rectangle</option>
                                         <option value="circle" ${pip3Shape === 'circle' ? 'selected' : ''}>Circle</option>
                                     </select>
                                 </div>
-                            </div>
-                            
-                            <div>
-                                <label style="display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 11px; cursor: pointer;">
-                                    <input type="checkbox" id="pip3IncludeInRender" ${pip3Visible ? 'checked' : ''} 
-                                           onchange="togglePip3FromAdmin(this.checked)"
-                                           style="cursor: pointer;">
-                                    Include in render (Shift+P)
-                                </label>
                             </div>
                         </div>
                         
@@ -12556,7 +12679,7 @@ BROWSER SUPPORT:
                         <!-- BROWSER SUPPORT NOTE -->
                         <div style="padding: 12px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff33;">
                             <div style="color: #00d4ff; font-size: 11px;">
-                                <strong>Tip:</strong> Press <strong>O</strong> anywhere for full-screen camera. <strong>P</strong> for corner PIP. <strong>Shift+P</strong> for center PIP (Create tab only).
+                                <strong>Tip:</strong> Press <strong>O</strong> anywhere for full-screen camera. <strong>P+1</strong> for slideout (PERFORM). <strong>P+2</strong> for corner. <strong>P+3</strong> for center (Create).
                             </div>
                         </div>
                     </div>
@@ -13699,6 +13822,10 @@ BROWSER SUPPORT:
                         setsFolderHandle = await applicationFolderHandle.getDirectoryHandle('Sets', { create: true });
                         console.log('V5_3_0: Sets subfolder accessed');
                         
+                        // V5_6_11: Get or create BumpRStickRs subfolder (CORTEX - was missing from restore!)
+                        bumprStickrsFolderHandle = await applicationFolderHandle.getDirectoryHandle('BumpRStickRs', { create: true });
+                        console.log('V5_6_11: BumpRStickRs subfolder accessed');
+                        
                         // V4_4_0: Presets folder removed - using Library for all containers
                         
                         document.getElementById('applicationFolderInfo').style.display = 'block';
@@ -13939,8 +14066,105 @@ BROWSER SUPPORT:
                     modCAttack: modCAttack, modCDecay: modCDecay, modCSustain: modCSustain, modCRelease: modCRelease, modCThreshold: modCThreshold
                 },
                 tags: [],  // V5_2_51: Container tags
+                bumprSlotIndex: containerBumprSlotIndex,  // V5_6_11e: Associated BumpR slot (0-9 or null)
                 created: new Date().toISOString()
             };
+            
+            // V5_6_11e: Debug - log BumpR slot being saved
+            console.log('V5_6_11e: buildContainerObject - bumprSlotIndex:', containerBumprSlotIndex);
+        }
+        
+        // V5_6_05a: Create new empty container - reset all controls to defaults
+        function newContainer() {
+            // Remove any loaded audio
+            removeAudio();
+            
+            // Clear loaded container reference
+            currentLoadedContainerId = null;
+            
+            // V5_6_11e: Reset BumpR slot association
+            containerBumprSlotIndex = null;
+            
+            // Hide Update button (only shown when editing existing container)
+            const updateBtn = document.getElementById('createUpdateBtn');
+            if (updateBtn) updateBtn.style.display = 'none';
+            
+            // Clear filename
+            document.getElementById('filename').value = '';
+            
+            // Reset shader name dropdown - update _current item to show "New"
+            if (window.shaderNameDropdown) {
+                const items = window.shaderNameDropdown.items;
+                if (items.length > 0 && items[0].value === '_current') {
+                    items[0].label = 'New';
+                    items[0].shaderCode = null;  // Clear shader code for thumbnail
+                }
+                window.shaderNameDropdown.setValue('_current', false);
+            }
+            
+            // Define default control state
+            const defaultState = {
+                shaderTempo: 120,
+                shaderTempoLinked: true,
+                shaderLoopLength: '16',
+                shaderRenderDuration: '17.1',
+                shaderModASubdiv: '4',
+                shaderModAWaveform: 'none',
+                shaderModAGain: '0.1',
+                shaderModAFreq1: '30',
+                shaderModAFreq2: '50',
+                shaderModBSubdiv: '4',
+                shaderModBWaveform: 'none',
+                shaderModBGain: '0.1',
+                shaderModBFreq1: '50',
+                shaderModBFreq2: '75',
+                shaderModCSubdiv: '4',
+                shaderModCWaveform: 'none',
+                shaderModCGain: '0.1',
+                shaderModCFreq1: '100',
+                shaderModCFreq2: '500',
+                orientation: 'landscape',
+                resolution: '1080',
+                fps: '30',
+                transformRotation: 0,
+                transformScaleX: 1,
+                transformScaleY: 1,
+                transformTranslateX: 0,
+                transformTranslateY: 0,
+                transformPivotX: 0,
+                transformPivotY: 0,
+                transformTile: 1
+            };
+            
+            // Apply default state to all controls
+            applyControlState(defaultState);
+            
+            // Reset shader code to empty (user will drag in shader)
+            document.getElementById('shaderCode').value = '';
+            
+            // Clear the render pipeline so render() stops drawing
+            pipeline = null;
+            
+            // Update canvas size FIRST (this clears the canvas buffer)
+            updateCanvasSize();
+            
+            // THEN clear the WebGPU canvas to black (after resize)
+            if (device && context) {
+                const commandEncoder = device.createCommandEncoder();
+                const textureView = context.getCurrentTexture().createView();
+                const renderPass = commandEncoder.beginRenderPass({
+                    colorAttachments: [{
+                        view: textureView,
+                        clearValue: { r: 0, g: 0, b: 0, a: 1 },
+                        loadOp: 'clear',
+                        storeOp: 'store'
+                    }]
+                });
+                renderPass.end();
+                device.queue.submit([commandEncoder.finish()]);
+            }
+            
+            showMessage('New container - drag shader or audio to begin', 'state');
         }
         
         // V4_6_06: Save current CREATE state to library, switch to ORGANIZE, open drawer
@@ -16752,12 +16976,12 @@ BROWSER SUPPORT:
             // Toggle visibility
             if (select.style.display !== 'none') {
                 select.style.display = 'none';
+                createAudioSwapDropdownOpen = false;  // V5_6_05a
                 // V5_1_51: Restore time field when dropdown closes
+                // V5_6_05a: Removed timeSep - not needed
                 if (audioLoaded) {
                     const timeEl = document.getElementById('audioHeaderTime');
-                    const timeSep = document.getElementById('audioHeaderTimeSeparator');
                     if (timeEl) timeEl.style.display = 'inline';
-                    if (timeSep) timeSep.style.display = 'inline';
                 }
                 return;
             }
@@ -16830,11 +17054,12 @@ BROWSER SUPPORT:
                 select.innerHTML = '<option value="">— No audio files in Library —</option>';
             }
             
-            // V5_1_51: Hide time field when dropdown is open
+            // V5_6_05a: Hide time field when dropdown is open (flag prevents render loop override)
             const timeEl = document.getElementById('audioHeaderTime');
             const timeSep = document.getElementById('audioHeaderTimeSeparator');
             if (timeEl) timeEl.style.display = 'none';
             if (timeSep) timeSep.style.display = 'none';
+            createAudioSwapDropdownOpen = true;
             
             select.style.display = 'block';
         }
@@ -16846,17 +17071,18 @@ BROWSER SUPPORT:
             
             if (!filename) {
                 select.style.display = 'none';
+                createAudioSwapDropdownOpen = false;  // V5_6_05a
                 // V5_1_51: Restore time field when dropdown closes
+                // V5_6_05a: Removed timeSep - not needed
                 if (audioLoaded) {
                     const timeEl = document.getElementById('audioHeaderTime');
-                    const timeSep = document.getElementById('audioHeaderTimeSeparator');
                     if (timeEl) timeEl.style.display = 'inline';
-                    if (timeSep) timeSep.style.display = 'inline';
                 }
                 return;
             }
             
             select.style.display = 'none';
+            createAudioSwapDropdownOpen = false;  // V5_6_05a
             
             try {
                 // Get file from Library folder
@@ -17133,12 +17359,18 @@ BROWSER SUPPORT:
             
             try {
                 // V5_0_17: Orientation dropdown with state messaging
+                // V5_6_09a: Added aspect ratios to labels for clarity
+                // V5_6_16h: Auto-sync pip3Orientation when shader orientation changes
                 window.orientationDropdown = createSyncedDropdown('orientationDropdown', 'orientation', [
-                    { value: 'landscape', label: 'Landscape' },
-                    { value: 'portrait', label: 'Portrait' },
-                    { value: 'square', label: 'Square' }
+                    { value: 'landscape', label: 'Landscape (16:9)' },
+                    { value: 'portrait', label: 'Portrait (9:16)' },
+                    { value: 'square', label: 'Square (1:1)' }
                 ], (value, item) => { 
                     updateCanvasSize(); 
+                    // V5_6_16h: Auto-sync PIP3 orientation to match shader
+                    pip3Orientation = value;
+                    if (pip3Visible) applyPipStyle(3);
+                    updatePip3SettingsUI();
                     autoSaveProject();
                     if (item) showMessage(`Orientation: ${item.label}`, 'state');
                 });
@@ -17261,10 +17493,16 @@ BROWSER SUPPORT:
                     { value: '60', label: '60 FPS' }
                 ]);
                 
+                // V5_6_14: Render Format dropdown (WebM or MP4)
+                window.renderFormatDropdown = createSyncedDropdown('renderFormatDropdown', 'renderFormat', [
+                    { value: 'webm', label: 'WebM' },
+                    { value: 'mp4', label: 'MP4' }
+                ]);
+                
                 // V5_3_0: PERFORM tab set dropdown
                 initLiveSetDropdown();
                 
-                console.log('V4_9_35: CREATE tab dropdowns initialized (10 total)');
+                console.log('V5_6_13: CREATE tab dropdowns initialized (11 total, including renderFormat)');
                 console.log('V5_3_0: PERFORM tab set dropdown initialized');
             } catch (err) {
                 console.error('V4_9_35: Error in initCreateTabDropdowns:', err);
@@ -18112,6 +18350,19 @@ BROWSER SUPPORT:
                 console.log('V5_4_24a: No mod tuning in container, using defaults');
             }
             
+            // V5_6_11e: Restore BumpR slot association
+            console.log('V5_6_11e: containerData.bumprSlotIndex =', containerData.bumprSlotIndex);
+            if (containerData.bumprSlotIndex !== undefined && containerData.bumprSlotIndex !== null) {
+                containerBumprSlotIndex = containerData.bumprSlotIndex;
+                bumprSelectedSlot = containerData.bumprSlotIndex;
+                const slotLabel = containerData.bumprSlotIndex === 9 ? '0' : (containerData.bumprSlotIndex + 1).toString();
+                console.log('V5_6_11e: Restored BumpR slot:', slotLabel);
+                showMessage(`Loaded with BumpR slot ${slotLabel}`, 'state');
+            } else {
+                containerBumprSlotIndex = null;
+                console.log('V5_6_11e: No BumpR slot in container');
+            }
+            
             await compileShader();
             currentLoadedContainerId = containerId;
             isDirty = false;
@@ -18234,11 +18485,13 @@ BROWSER SUPPORT:
                     modBAttack: modBAttack, modBDecay: modBDecay, modBSustain: modBSustain, modBRelease: modBRelease, modBThreshold: modBThreshold,
                     modCAttack: modCAttack, modCDecay: modCDecay, modCSustain: modCSustain, modCRelease: modCRelease, modCThreshold: modCThreshold
                 },
-                tags: existingContainer.tags || []  // V5_5_12: Preserve tags
+                tags: existingContainer.tags || [],  // V5_5_12: Preserve tags
+                bumprSlotIndex: containerBumprSlotIndex  // V5_6_11e: Associated BumpR slot (0-9 or null)
             };
             
             console.log('V4.0.0_D_sub20: updatedContainer.audioSnapLastBar =', updatedContainer.audioSnapLastBar);
             console.log('V4.0.0_D_sub20: audioLoaded =', audioLoaded);
+            console.log('V5_6_11e: updateContainer - bumprSlotIndex:', containerBumprSlotIndex);
             
             containers[containerIndex] = updatedContainer;
             saveLibraryContainers(containers);
@@ -19851,7 +20104,8 @@ ${shaderCode}
                     transformTranslateY: 0.0,
                     transformPivotX: 0.0,
                     transformPivotY: 0.0,
-                    transformTile: 1.0
+                    transformTile: 1.0,
+                    loopLength: 16.0  // V5_6_09a: default 4 bars
                 });
                 
                 device.queue.writeBuffer(uniformBuffer, 0, uniformData);
@@ -20332,8 +20586,8 @@ ${shaderCode}
             }
             
             if (shouldUpdate) {
-                // Clamp to valid range (20-24000 Hz)
-                newValue = Math.max(0, Math.min(24000, newValue));
+                // Clamp to valid range (0-20000 Hz)
+                newValue = Math.max(1, Math.min(20000, newValue));
                 field.value = Math.round(newValue);
             }
         });
@@ -20369,8 +20623,8 @@ ${shaderCode}
             }
             
             if (shouldUpdate) {
-                // Clamp to valid range (20-24000 Hz)
-                newValue = Math.max(0, Math.min(24000, newValue));
+                // Clamp to valid range (0-20000 Hz)
+                newValue = Math.max(1, Math.min(20000, newValue));
                 field.value = Math.round(newValue);
             }
         });
@@ -20406,8 +20660,8 @@ ${shaderCode}
             }
             
             if (shouldUpdate) {
-                // Clamp to valid range (20-24000 Hz)
-                newValue = Math.max(0, Math.min(24000, newValue));
+                // Clamp to valid range (0-20000 Hz)
+                newValue = Math.max(1, Math.min(20000, newValue));
                 field.value = Math.round(newValue);
             }
         });
@@ -20443,8 +20697,8 @@ ${shaderCode}
             }
             
             if (shouldUpdate) {
-                // Clamp to valid range (20-24000 Hz)
-                newValue = Math.max(0, Math.min(24000, newValue));
+                // Clamp to valid range (0-20000 Hz)
+                newValue = Math.max(1, Math.min(20000, newValue));
                 field.value = Math.round(newValue);
             }
         });
@@ -20480,8 +20734,8 @@ ${shaderCode}
             }
             
             if (shouldUpdate) {
-                // Clamp to valid range (20-24000 Hz)
-                newValue = Math.max(0, Math.min(24000, newValue));
+                // Clamp to valid range (0-20000 Hz)
+                newValue = Math.max(1, Math.min(20000, newValue));
                 field.value = Math.round(newValue);
             }
         });
@@ -20517,8 +20771,8 @@ ${shaderCode}
             }
             
             if (shouldUpdate) {
-                // Clamp to valid range (20-24000 Hz)
-                newValue = Math.max(0, Math.min(24000, newValue));
+                // Clamp to valid range (0-20000 Hz)
+                newValue = Math.max(1, Math.min(20000, newValue));
                 field.value = Math.round(newValue);
             }
         });
@@ -20529,12 +20783,12 @@ ${shaderCode}
         });
 
         // V2.7.0-I: Frequency validation - ensure Freq2 >= Freq1
-        // V2.7.0-J: Added bounds validation (0-24000 Hz)
+        // V2.7.0-J: Added bounds validation (0-20000 Hz)
         // Mod A validation
         document.getElementById('modAFreq1').addEventListener('input', (e) => {
             let freq1 = parseFloat(e.target.value) || 0;
-            // V2.7.0-J: Clamp to 0-24000 Hz
-            freq1 = Math.max(0, Math.min(24000, freq1));
+            // V2.7.0-J: Clamp to 0-20000 Hz
+            freq1 = Math.max(1, Math.min(20000, freq1));
             e.target.value = Math.round(freq1);
             
             const freq2Field = document.getElementById('modAFreq2');
@@ -20549,8 +20803,8 @@ ${shaderCode}
         
         document.getElementById('modAFreq2').addEventListener('input', (e) => {
             let freq2 = parseFloat(e.target.value) || 0;
-            // V2.7.0-J: Clamp to 0-24000 Hz
-            freq2 = Math.max(0, Math.min(24000, freq2));
+            // V2.7.0-J: Clamp to 0-20000 Hz
+            freq2 = Math.max(1, Math.min(20000, freq2));
             
             const freq1Field = document.getElementById('modAFreq1');
             const freq1 = parseFloat(freq1Field.value) || 0;
@@ -20569,8 +20823,8 @@ ${shaderCode}
         // Mod B validation
         document.getElementById('modBFreq1').addEventListener('input', (e) => {
             let freq1 = parseFloat(e.target.value) || 0;
-            // V2.7.0-J: Clamp to 0-24000 Hz
-            freq1 = Math.max(0, Math.min(24000, freq1));
+            // V2.7.0-J: Clamp to 0-20000 Hz
+            freq1 = Math.max(1, Math.min(20000, freq1));
             e.target.value = Math.round(freq1);
             
             const freq2Field = document.getElementById('modBFreq2');
@@ -20585,8 +20839,8 @@ ${shaderCode}
         
         document.getElementById('modBFreq2').addEventListener('input', (e) => {
             let freq2 = parseFloat(e.target.value) || 0;
-            // V2.7.0-J: Clamp to 0-24000 Hz
-            freq2 = Math.max(0, Math.min(24000, freq2));
+            // V2.7.0-J: Clamp to 0-20000 Hz
+            freq2 = Math.max(1, Math.min(20000, freq2));
             
             const freq1Field = document.getElementById('modBFreq1');
             const freq1 = parseFloat(freq1Field.value) || 0;
@@ -20605,8 +20859,8 @@ ${shaderCode}
         // Mod C validation
         document.getElementById('modCFreq1').addEventListener('input', (e) => {
             let freq1 = parseFloat(e.target.value) || 0;
-            // V2.7.0-J: Clamp to 0-24000 Hz
-            freq1 = Math.max(0, Math.min(24000, freq1));
+            // V2.7.0-J: Clamp to 0-20000 Hz
+            freq1 = Math.max(1, Math.min(20000, freq1));
             e.target.value = Math.round(freq1);
             
             const freq2Field = document.getElementById('modCFreq2');
@@ -20621,8 +20875,8 @@ ${shaderCode}
         
         document.getElementById('modCFreq2').addEventListener('input', (e) => {
             let freq2 = parseFloat(e.target.value) || 0;
-            // V2.7.0-J: Clamp to 0-24000 Hz
-            freq2 = Math.max(0, Math.min(24000, freq2));
+            // V2.7.0-J: Clamp to 0-20000 Hz
+            freq2 = Math.max(1, Math.min(20000, freq2));
             
             const freq1Field = document.getElementById('modCFreq1');
             const freq1 = parseFloat(freq1Field.value) || 0;
@@ -20862,9 +21116,9 @@ ${shaderCode}
                 camSourceId: camSettings.sourceId,
                 camMirror: camSettings.mirror,
                 micSourceId: micSettings.sourceId,
-                // V5_5_12: PIP3 settings for render
-                pip3Aspect: pip3Aspect,
-                pip3Size: pip3Size,
+                // V5_6_16h: PIP3 settings - renamed variables
+                pip3Orientation: pip3Orientation,
+                pip3SizePercent: pip3SizePercent,
                 pip3Shape: pip3Shape,
                 pip3Color: pip3Color
             };
@@ -21050,9 +21304,9 @@ ${shaderCode}
             if (state.micSourceId !== undefined) {
                 micSettings.sourceId = state.micSourceId;
             }
-            // V5_5_12: Restore PIP3 settings
-            if (state.pip3Aspect !== undefined) pip3Aspect = state.pip3Aspect;
-            if (state.pip3Size !== undefined) pip3Size = state.pip3Size;
+            // V5_6_16h: Restore PIP3 settings - new variable names
+            if (state.pip3Orientation !== undefined) pip3Orientation = state.pip3Orientation;
+            if (state.pip3SizePercent !== undefined) pip3SizePercent = state.pip3SizePercent;
             if (state.pip3Shape !== undefined) pip3Shape = state.pip3Shape;
             if (state.pip3Color !== undefined) pip3Color = state.pip3Color;
             // Apply PIP3 style if visible
@@ -21060,6 +21314,9 @@ ${shaderCode}
             
             // Update currentTempo global
             currentTempo = state.shaderTempo;
+            
+            // V5_6_05a: Sync freq values to actual BiquadFilter nodes
+            updateBandpassFilters();
         }
 
         // V4_4_0: Control States UI and functions removed - use .oms containers instead
@@ -21575,10 +21832,13 @@ ${shaderCode}
         // V5_4_28: PIP3 (centered square PIP for CREATE/ORG/ADMIN)
         let pip3Visible = false;        // PIP3 center visibility
         let pip3Color = '#00d4ff';      // V5_4_29: PIP3 frame color (default: cyan)
-        // V5_5_12: Separated aspect, size, shape
-        let pip3Aspect = '1:1';         // Default square for center
-        let pip3Size = 'large';         // Default large for center
+        // V5_6_16h: Renamed variables - orientation matches shader, size is percentage of canvas
+        let pip3Orientation = 'square'; // V5_6_16h: 'landscape'/'portrait'/'square' (matches shader orientation)
+        let pip3SizePercent = '50';     // V5_6_16h: '25'/'50'/'75'/'100' of canvas
         let pip3Shape = 'rectangle';    // Default rectangle for center
+        
+        // V5_6_06: PIP chord key state (P + 2/3/4 system)
+        let pipPKeyHeld = false;        // P key held for chord input
         
         // V5_5_12: Mic settings for CREATE render
         let micMuted = false;           // V5_5_12L: Mic mute state (matches audio pattern)
@@ -21629,29 +21889,7 @@ ${shaderCode}
                 });
             }
             
-            // V4_0_0_C_sub132: RMS calibration field - redraw waveforms on change
-            // V5_5_12: Quantize OmsDropdown - replaces native select
-            const quantizeContainer = document.getElementById('quantizeDropdown');
-            if (quantizeContainer) {
-                window.quantizeDropdown = new OmsDropdown('quantizeDropdown', {
-                    showThumbnails: false,
-                    onChange: (value, item) => {
-                        const newQuantize = parseInt(value);
-                        document.getElementById('quantizeValue').value = value;
-                        gridState.quantizeValue = newQuantize;
-                        const label = newQuantize === 0 ? 'Off' : newQuantize === 1 ? 'Beat' : 'Bar';
-                        console.log(`V5_5_12: Quantize changed to ${label} (${newQuantize} beats)`);
-                        showMessage(`Quantize: ${label}`, 'state');
-                        autoSaveProject();
-                    }
-                });
-                window.quantizeDropdown.setItems([
-                    { value: '0', label: 'Off' },
-                    { value: '1', label: 'Beat' },
-                    { value: '4', label: 'Bar' }
-                ]);
-                window.quantizeDropdown.setValue('4');
-            }
+            // V5_6_11f: quantizeDropdown init MOVED to DOMContentLoaded (global header control)
             
             // V4.0.0_C_sub131: Waveform zoom control - redraw waveforms on change
             // V4.0.0_C_sub133: GLOBAL control - use unified updateTrackWaveform()
@@ -25468,7 +25706,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V5_6]</title>
+    <title>ONEMANSHYO App [V5_7]</title>
     <style>
         body {
             margin: 0;
@@ -26249,7 +26487,8 @@ ${providedShaderCode}
                     transformTranslateY: transformTranslateY,
                     transformPivotX: transformPivotX,
                     transformPivotY: transformPivotY,
-                    transformTile: transformTile
+                    transformTile: transformTile,
+                    loopLength: loopBeats  // V5_6_09a: already parsed from containerCS.shaderLoopLength
                 });
                 
                 device.queue.writeBuffer(uniformBuffer, 0, uniformData);
@@ -26454,7 +26693,8 @@ ${providedShaderCode}
                         transformTranslateY: transformTranslateY,
                         transformPivotX: transformPivotX,
                         transformPivotY: transformPivotY,
-                        transformTile: transformTile
+                        transformTile: transformTile,
+                        loopLength: loopBeats  // V5_6_09a: already parsed from containerCS.shaderLoopLength
                     });
                     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
                     
@@ -27519,11 +27759,11 @@ ${providedShaderCode}
             if (!modAHighpass) {
                 modAHighpass = audioContext.createBiquadFilter();
                 modAHighpass.type = 'highpass';
-                modAHighpass.Q.value = 0.7;
+                modAHighpass.Q.value = modAQ;  // V5_6_05a: Use global Q value
                 
                 modALowpass = audioContext.createBiquadFilter();
                 modALowpass.type = 'lowpass';
-                modALowpass.Q.value = 0.7;
+                modALowpass.Q.value = modAQ;  // V5_6_05a: Use global Q value
                 
                 modAAnalyser = audioContext.createAnalyser();
                 modAAnalyser.fftSize = 2048;
@@ -27537,11 +27777,11 @@ ${providedShaderCode}
             if (!modBHighpass) {
                 modBHighpass = audioContext.createBiquadFilter();
                 modBHighpass.type = 'highpass';
-                modBHighpass.Q.value = 0.7;
+                modBHighpass.Q.value = modBQ;  // V5_6_05a: Use global Q value
                 
                 modBLowpass = audioContext.createBiquadFilter();
                 modBLowpass.type = 'lowpass';
-                modBLowpass.Q.value = 0.7;
+                modBLowpass.Q.value = modBQ;  // V5_6_05a: Use global Q value
                 
                 modBAnalyser = audioContext.createAnalyser();
                 modBAnalyser.fftSize = 2048;
@@ -27555,11 +27795,11 @@ ${providedShaderCode}
             if (!modCHighpass) {
                 modCHighpass = audioContext.createBiquadFilter();
                 modCHighpass.type = 'highpass';
-                modCHighpass.Q.value = 0.7;
+                modCHighpass.Q.value = modCQ;  // V5_6_05a: Use global Q value
                 
                 modCLowpass = audioContext.createBiquadFilter();
                 modCLowpass.type = 'lowpass';
-                modCLowpass.Q.value = 0.7;
+                modCLowpass.Q.value = modCQ;  // V5_6_05a: Use global Q value
                 
                 modCAnalyser = audioContext.createAnalyser();
                 modCAnalyser.fftSize = 2048;
@@ -27698,7 +27938,7 @@ ${providedShaderCode}
                 logEl.value += `Stream active: ${camStream ? 'Yes' : 'No'}\n`;
                 logEl.value += `Camera Overlay (O): ${camOverlayVisible ? 'ON' : 'OFF'}\n`;
                 logEl.value += `PIP Corner (P): ${pip2Visible ? 'ON' : 'OFF'}\n`;
-                logEl.value += `PIP Center (Shift+P): ${pip3Visible ? 'ON' : 'OFF'}\n`;
+                logEl.value += `PIP Center (P+3): ${pip3Visible ? 'ON' : 'OFF'}\n`;
                 logEl.value += `PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}\n`;
                 if (camStream) {
                     const tracks = camStream.getVideoTracks();
@@ -27726,7 +27966,7 @@ ${camDevices.map(d => `  - ${d.label} (${d.deviceId.substring(0,8)}...)`).join('
 Stream Status: ${camStream ? 'Active' : 'Inactive'}
 Camera Overlay (O): ${camOverlayVisible ? 'ON' : 'OFF'}
 PIP Corner (P): ${pip2Visible ? 'ON' : 'OFF'}
-PIP Center (Shift+P): ${pip3Visible ? 'ON' : 'OFF'}
+PIP Center (P+3): ${pip3Visible ? 'ON' : 'OFF'}
 PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             `.trim();
             
@@ -27785,7 +28025,36 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
         // ========================================
         
         // V5_5_12: Calculate PIP dimensions from aspect ratio and size
-        function getPipDimensions(aspect, size) {
+        // V5_6_16h: Updated for PIP3 to use orientation + percentage of canvas
+        function getPipDimensions(aspect, size, forPip3 = false) {
+            if (forPip3) {
+                // V5_6_16h: PIP3 uses percentage of canvas dimensions
+                const shaderCanvas = document.getElementById('canvas');
+                if (!shaderCanvas) return { width: 200, height: 200 };
+                
+                // Get current canvas display dimensions
+                const canvasRect = shaderCanvas.getBoundingClientRect();
+                const percent = parseInt(size) / 100; // '25'/'50'/'75'/'100' → 0.25/0.5/0.75/1.0
+                
+                // Calculate dimensions based on orientation (aspect is actually orientation here)
+                let width, height;
+                if (aspect === 'landscape') {
+                    // 16:9 - use canvas width as base
+                    width = Math.round(canvasRect.width * percent);
+                    height = Math.round(width * 9 / 16);
+                } else if (aspect === 'portrait') {
+                    // 9:16 - use canvas height as base
+                    height = Math.round(canvasRect.height * percent);
+                    width = Math.round(height * 9 / 16);
+                } else {
+                    // square 1:1 - use smaller dimension as base
+                    const smaller = Math.min(canvasRect.width, canvasRect.height);
+                    width = height = Math.round(smaller * percent);
+                }
+                return { width, height };
+            }
+            
+            // Original logic for PIP1/PIP2
             const baseWidth = {small: 120, medium: 200, large: 320}[size] || 200;
             const ratios = {'16:9': 16/9, '9:16': 9/16, '1:1': 1}[aspect] || 1;
             return {
@@ -27795,6 +28064,7 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
         }
         
         // V5_5_12: Apply PIP style (dimensions + border radius) to container
+        // V5_6_16h: Updated for PIP3 orientation + percentage sizing
         function applyPipStyle(pipId) {
             let aspect, size, shape, color;
             
@@ -27804,7 +28074,8 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             } else if (pipId === 2) {
                 aspect = pip2Aspect; size = pip2Size; shape = pip2Shape; color = pip2Color;
             } else if (pipId === 3) {
-                aspect = pip3Aspect; size = pip3Size; shape = pip3Shape; color = pip3Color;
+                // V5_6_16h: PIP3 uses new variable names
+                aspect = pip3Orientation; size = pip3SizePercent; shape = pip3Shape; color = pip3Color;
             }
             
             const container = document.getElementById(`pip${pipId}VideoContainer`);
@@ -27816,6 +28087,12 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 container.style.width = '';  // Clear any inline width, let CSS handle
                 container.style.height = ''; // Clear any inline height
                 container.style.aspectRatio = ratioValue;
+            } else if (pipId === 3) {
+                // V5_6_16h: PIP3 uses percentage of canvas
+                const dims = getPipDimensions(aspect, size, true);
+                container.style.width = dims.width + 'px';
+                container.style.height = dims.height + 'px';
+                container.style.aspectRatio = ''; // Clear aspect-ratio for fixed size
             } else {
                 const dims = getPipDimensions(aspect, size);
                 container.style.width = dims.width + 'px';
@@ -27850,6 +28127,10 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             if (!slideout) return;
             
             if (pip1Visible) {
+                // V5_6_16h: Mutual exclusivity - hide other PIPs
+                if (pip2Visible) await hidePip2();
+                if (pip3Visible) await hidePip3();
+                
                 // V5_5_12: Apply aspect/size/shape dimensions
                 applyPipStyle(1);
                 
@@ -27884,6 +28165,37 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             }
             console.log(`V5_4_25b: PIP1 ${pip1Visible ? 'ON' : 'OFF'}`);
             autoSaveProject(); // V5_4_25f
+        }
+        
+        // V5_6_16h: Hide helpers for mutual exclusivity (no toggle, just hide)
+        async function hidePip1() {
+            if (!pip1Visible) return;
+            pip1Visible = false;
+            const slideout = document.getElementById('pip1Slideout');
+            const video = document.getElementById('pip1Video');
+            if (slideout) slideout.classList.remove('visible');
+            if (video) { video.srcObject = null; video.style.display = 'none'; }
+            stopCamStream();
+        }
+        
+        async function hidePip2() {
+            if (!pip2Visible) return;
+            pip2Visible = false;
+            const corner = document.getElementById('pip2Corner');
+            const video = document.getElementById('pip2Video');
+            if (corner) corner.classList.remove('visible');
+            if (video) { video.srcObject = null; video.style.display = 'none'; }
+            stopCamStream();
+        }
+        
+        async function hidePip3() {
+            if (!pip3Visible) return;
+            pip3Visible = false;
+            const center = document.getElementById('pip3Center');
+            const video = document.getElementById('pip3Video');
+            if (center) center.classList.remove('visible');
+            if (video) { video.srcObject = null; video.style.display = 'none'; }
+            stopCamStream();
         }
         
         function togglePip1ColorPicker() {
@@ -28058,49 +28370,68 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             if (panel) panel.classList.remove('visible');
         }
         
+        // V5_6_16h: Update PIP3 settings panel dropdowns (renamed variables)
         function updatePip3SettingsUI() {
-            const panel = document.getElementById('pip3SettingsPanel');
-            if (!panel) return;
+            const orientationDropdown = document.getElementById('pip3OrientationDropdown');
+            const sizeDropdown = document.getElementById('pip3SizeDropdown');
+            const shapeDropdown = document.getElementById('pip3ShapeDropdown');
+            const colorDropdown = document.getElementById('pip3ColorDropdown');
             
-            // Update aspect buttons
-            panel.querySelectorAll('[data-aspect]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.aspect === pip3Aspect);
-            });
+            if (orientationDropdown) orientationDropdown.value = pip3Orientation;
+            if (sizeDropdown) sizeDropdown.value = pip3SizePercent;
+            if (shapeDropdown) {
+                shapeDropdown.value = pip3Shape;
+                // V5_6_16h: Circle requires square - disable shape dropdown when not square
+                const isSquare = pip3Orientation === 'square';
+                shapeDropdown.disabled = !isSquare;
+                shapeDropdown.style.opacity = isSquare ? '1' : '0.5';
+                shapeDropdown.title = isSquare ? '' : 'Circle requires Square orientation';
+            }
+            if (colorDropdown) colorDropdown.value = pip3Color;
             
-            // Update size buttons
-            panel.querySelectorAll('[data-size]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.size === pip3Size);
-            });
-            
-            // Update shape buttons
-            panel.querySelectorAll('[data-shape]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.shape === pip3Shape);
-            });
-            
-            // Update color swatches
-            panel.querySelectorAll('.pip3-color-swatch').forEach(swatch => {
-                swatch.classList.toggle('active', swatch.dataset.color === pip3Color);
-            });
+            // V5_6_16h: Also update ADMIN panel dropdowns if they exist
+            const adminOrientationSelect = document.getElementById('pip3OrientationSelect');
+            const adminShapeSelect = document.getElementById('pip3ShapeSelect');
+            if (adminOrientationSelect) adminOrientationSelect.value = pip3Orientation;
+            if (adminShapeSelect) {
+                adminShapeSelect.value = pip3Shape;
+                const isSquare = pip3Orientation === 'square';
+                adminShapeSelect.disabled = !isSquare;
+                adminShapeSelect.style.opacity = isSquare ? '1' : '0.5';
+                adminShapeSelect.title = isSquare ? '' : 'Circle requires Square orientation';
+            }
         }
         
-        function setPip3Aspect(aspect) {
-            pip3Aspect = aspect;
+        // V5_6_16h: Renamed from setPip3Aspect - uses orientation terminology
+        // V5_6_16h: Reset shape to rectangle when not square (circle requires square)
+        function setPip3Orientation(orientation) {
+            pip3Orientation = orientation;
+            // Circle requires square - reset to rectangle if changing away from square
+            if (orientation !== 'square' && pip3Shape === 'circle') {
+                pip3Shape = 'rectangle';
+            }
             applyPipStyle(3);
             updatePip3SettingsUI();
-            showMessage(`PIP 3: ${aspect}`, 'state');
+            const labels = {landscape: 'Landscape (16:9)', portrait: 'Portrait (9:16)', square: 'Square (1:1)'};
+            showMessage(`PIP 3: ${labels[orientation] || orientation}`, 'state');
             autoSaveProject();
         }
         
+        // V5_6_16h: Updated for percentage values
         function setPip3Size(size) {
-            pip3Size = size;
+            pip3SizePercent = size;
             applyPipStyle(3);
             updatePip3SettingsUI();
-            const sizeLabels = {small: 'Small', medium: 'Medium', large: 'Large'};
-            showMessage(`PIP 3: ${sizeLabels[size] || size}`, 'state');
+            showMessage(`PIP 3: ${size}%`, 'state');
             autoSaveProject();
         }
         
+        // V5_6_16h: Snap to square orientation when circle selected
         function setPip3Shape(shape) {
+            // Circle requires square orientation - auto-snap
+            if (shape === 'circle' && pip3Orientation !== 'square') {
+                pip3Orientation = 'square';
+            }
             pip3Shape = shape;
             applyPipStyle(3);
             updatePip3SettingsUI();
@@ -28189,6 +28520,10 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             if (!corner) return;
             
             if (pip2Visible) {
+                // V5_6_16h: Mutual exclusivity - hide other PIPs
+                if (pip1Visible) await hidePip1();
+                if (pip3Visible) await hidePip3();
+                
                 // V5_5_12: Apply aspect/size/shape dimensions
                 applyPipStyle(2);
                 // Update corner wrapper width
@@ -28242,6 +28577,10 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             if (!center) return;
             
             if (pip3Visible) {
+                // V5_6_16h: Mutual exclusivity - hide other PIPs
+                if (pip1Visible) await hidePip1();
+                if (pip2Visible) await hidePip2();
+                
                 // V5_4_29: Calculate canvas center position
                 const canvas = document.getElementById('canvas');
                 let centerX, centerY;
@@ -28271,7 +28610,7 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                     if (camStream) {
                         applyCamToVideo('pip3Video');
                         if (noFeed) noFeed.style.display = 'none';
-                        showMessage('PIP Center: ON (Shift+P to hide)', 'state');
+                        showMessage('PIP Center: ON (P+3 to hide)', 'state');
                     } else {
                         if (video) video.style.display = 'none';
                         if (noFeed) noFeed.style.display = 'flex';
@@ -28295,25 +28634,13 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             console.log(`V5_4_28: PIP3 ${pip3Visible ? 'ON' : 'OFF'}`);
         }
         
-        // V5_5_12: Toggle PIP3 from ADMIN checkbox (two-way sync)
-        async function togglePip3FromAdmin(checked) {
-            if (checked !== pip3Visible) {
-                await togglePip3();
-            }
-            autoSaveProject();
-        }
-        
-        // V5_5_12: Composite PIP onto shader canvas for render output
-        // V5_5_12: Composite PIP3 onto shader canvas for render output
-        // WYSIWYG: Calculate ratio from displayed canvas, apply to render canvas
-        function compositePipToCanvas() {
-            if (!pip3Visible) return null;
-            
+        // V5_6_14a: Unified compositing for render output (BumpR + PIP)
+        // Draws: Shader → BumpR (if playing) → PIP (if visible)
+        function compositeOverlaysToCanvas() {
             const shaderCanvas = document.getElementById('canvas');
             const compCanvas = document.getElementById('pipCompositingCanvas');
-            const video = document.getElementById('pip3Video');
             
-            if (!shaderCanvas || !compCanvas || !video || !video.srcObject) return null;
+            if (!shaderCanvas || !compCanvas) return null;
             
             // Match compositing canvas to shader canvas size
             compCanvas.width = shaderCanvas.width;
@@ -28322,68 +28649,118 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             const ctx = compCanvas.getContext('2d');
             if (!ctx) return null;
             
-            // Draw shader canvas first
+            // 1. Draw shader canvas first (base layer)
             ctx.drawImage(shaderCanvas, 0, 0);
             
-            // V5_5_12: WYSIWYG calculation
-            // Get the DISPLAYED size of the canvas (CSS-scaled)
-            const displayRect = shaderCanvas.getBoundingClientRect();
-            const displayWidth = displayRect.width;
-            const displayHeight = displayRect.height;
-            
-            // Get PIP dimensions (what user sees on screen)
-            const previewDims = getPipDimensions(pip3Aspect, pip3Size);
-            
-            // Calculate ratio: what percentage of displayed canvas does PIP cover?
-            const widthRatio = previewDims.width / displayWidth;
-            const heightRatio = previewDims.height / displayHeight;
-            
-            // Apply same ratio to render canvas
-            const pipWidth = Math.floor(shaderCanvas.width * widthRatio);
-            const pipHeight = Math.floor(shaderCanvas.height * heightRatio);
-            
-            // Center in render canvas
-            const pipX = (shaderCanvas.width - pipWidth) / 2;
-            const pipY = (shaderCanvas.height - pipHeight) / 2;
-            
-            // Border width scaled from 4px preview to render
-            const borderScaleFactor = shaderCanvas.width / displayWidth;
-            const borderWidth = Math.max(3, Math.floor(4 * borderScaleFactor));
-            const borderRadius = Math.floor(4 * borderScaleFactor);
-            
-            // Apply clipping mask for shape
-            ctx.save();
-            ctx.beginPath();
-            if (pip3Shape === 'circle') {
-                const radius = Math.min(pipWidth, pipHeight) / 2;
-                ctx.arc(pipX + pipWidth/2, pipY + pipHeight/2, radius, 0, Math.PI * 2);
-            } else {
-                ctx.roundRect(pipX, pipY, pipWidth, pipHeight, borderRadius);
-            }
-            ctx.clip();
-            
-            // Draw video with mirror support
-            if (camSettings.mirror) {
-                ctx.translate(pipX + pipWidth, pipY);
-                ctx.scale(-1, 1);
-                ctx.drawImage(video, 0, 0, pipWidth, pipHeight);
-            } else {
-                ctx.drawImage(video, pipX, pipY, pipWidth, pipHeight);
-            }
-            ctx.restore();
-            
-            // Draw border if color set
-            if (pip3Color && pip3Color !== 'transparent') {
-                ctx.strokeStyle = pip3Color;
-                ctx.lineWidth = borderWidth;
-                ctx.beginPath();
-                if (pip3Shape === 'circle') {
-                    const radius = Math.min(pipWidth, pipHeight) / 2;
-                    ctx.arc(pipX + pipWidth/2, pipY + pipHeight/2, radius, 0, Math.PI * 2);
-                } else {
-                    ctx.roundRect(pipX, pipY, pipWidth, pipHeight, borderRadius);
+            // 2. Draw BumpR if playing
+            if (bumprPlaying && bumprActiveVideoEl && bumprPlayingSlot !== null) {
+                const video = bumprActiveVideoEl;
+                
+                // Only draw if video has valid dimensions
+                if (video.videoWidth > 0 && video.videoHeight > 0) {
+                    // V5_6_14g: BumpR video fills preview-container with object-fit: contain
+                    // Use same ratio approach as PIP3 (which works correctly)
+                    
+                    const canvasRect = shaderCanvas.getBoundingClientRect();
+                    const displayWidth = canvasRect.width;
+                    const displayHeight = canvasRect.height;
+                    
+                    // BumpR video uses object-fit: contain within preview-container
+                    // Calculate what size BumpR appears at in the display
+                    const previewContainer = document.querySelector('.preview-container');
+                    if (!previewContainer) return;
+                    
+                    const containerRect = previewContainer.getBoundingClientRect();
+                    const videoAspect = video.videoWidth / video.videoHeight;
+                    const containerAspect = containerRect.width / containerRect.height;
+                    
+                    // Calculate BumpR's rendered size within container (object-fit: contain)
+                    let bumprDisplayWidth, bumprDisplayHeight;
+                    if (videoAspect > containerAspect) {
+                        bumprDisplayWidth = containerRect.width;
+                        bumprDisplayHeight = containerRect.width / videoAspect;
+                    } else {
+                        bumprDisplayHeight = containerRect.height;
+                        bumprDisplayWidth = containerRect.height * videoAspect;
+                    }
+                    
+                    // Apply scale setting from admin
+                    const scale = (bumprScaleModes[bumprPlayingSlot] || 100) / 100;
+                    bumprDisplayWidth *= scale;
+                    bumprDisplayHeight *= scale;
+                    
+                    // V5_6_14g: Use separate width/height ratios (like PIP3)
+                    // This correctly handles different aspect ratios between BumpR and canvas
+                    const widthRatio = bumprDisplayWidth / displayWidth;
+                    const heightRatio = bumprDisplayHeight / displayHeight;
+                    
+                    const drawWidth = Math.floor(shaderCanvas.width * widthRatio);
+                    const drawHeight = Math.floor(shaderCanvas.height * heightRatio);
+                    const drawX = (shaderCanvas.width - drawWidth) / 2;
+                    const drawY = (shaderCanvas.height - drawHeight) / 2;
+                    
+                    // Draw the video frame
+                    ctx.drawImage(video, drawX, drawY, drawWidth, drawHeight);
                 }
-                ctx.stroke();
+            }
+            
+            // 3. Draw PIP3 if visible (on top of BumpR)
+            if (pip3Visible) {
+                const video = document.getElementById('pip3Video');
+                if (video && video.srcObject) {
+                    const displayRect = shaderCanvas.getBoundingClientRect();
+                    const displayWidth = displayRect.width;
+                    const displayHeight = displayRect.height;
+                    
+                    // V5_6_16h: Use new orientation + percentage system
+                    const previewDims = getPipDimensions(pip3Orientation, pip3SizePercent, true);
+                    const widthRatio = previewDims.width / displayWidth;
+                    const heightRatio = previewDims.height / displayHeight;
+                    
+                    const pipWidth = Math.floor(shaderCanvas.width * widthRatio);
+                    const pipHeight = Math.floor(shaderCanvas.height * heightRatio);
+                    const pipX = (shaderCanvas.width - pipWidth) / 2;
+                    const pipY = (shaderCanvas.height - pipHeight) / 2;
+                    
+                    const borderScaleFactor = shaderCanvas.width / displayWidth;
+                    const borderWidth = Math.max(3, Math.floor(4 * borderScaleFactor));
+                    const borderRadius = Math.floor(4 * borderScaleFactor);
+                    
+                    // Apply clipping mask for shape
+                    ctx.save();
+                    ctx.beginPath();
+                    if (pip3Shape === 'circle') {
+                        const radius = Math.min(pipWidth, pipHeight) / 2;
+                        ctx.arc(pipX + pipWidth/2, pipY + pipHeight/2, radius, 0, Math.PI * 2);
+                    } else {
+                        ctx.roundRect(pipX, pipY, pipWidth, pipHeight, borderRadius);
+                    }
+                    ctx.clip();
+                    
+                    // Draw video with mirror support
+                    if (camSettings.mirror) {
+                        ctx.translate(pipX + pipWidth, pipY);
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(video, 0, 0, pipWidth, pipHeight);
+                    } else {
+                        ctx.drawImage(video, pipX, pipY, pipWidth, pipHeight);
+                    }
+                    ctx.restore();
+                    
+                    // Draw border if color set
+                    if (pip3Color && pip3Color !== 'transparent') {
+                        ctx.strokeStyle = pip3Color;
+                        ctx.lineWidth = borderWidth;
+                        ctx.beginPath();
+                        if (pip3Shape === 'circle') {
+                            const radius = Math.min(pipWidth, pipHeight) / 2;
+                            ctx.arc(pipX + pipWidth/2, pipY + pipHeight/2, radius, 0, Math.PI * 2);
+                        } else {
+                            ctx.roundRect(pipX, pipY, pipWidth, pipHeight, borderRadius);
+                        }
+                        ctx.stroke();
+                    }
+                }
             }
             
             return compCanvas;
@@ -30646,13 +31023,6 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 return;
             }
             
-            // V5_4_25b: P key - toggle PIP1 slideout
-            if (e.key === 'p' || e.key === 'P') {
-                e.preventDefault();
-                togglePip1();
-                return;
-            }
-            
             // V5_3_38d: Esc key - double-tap to trigger Stop All (safety for live)
             if (e.key === 'Escape') {
                 e.preventDefault();
@@ -31044,6 +31414,8 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 selectedSetId: window.selectedLiveSetId || 'presets',
                 // V4_6_0: Orientation setting
                 orientation: document.getElementById('orientation')?.value || 'portrait',
+                // V5_6_13: Render format (last used)
+                renderFormat: document.getElementById('renderFormat')?.value || 'webm',
                 // V4_6_0: Default loop points for fresh audio
                 defaultLoopIn: document.getElementById('audioLoopInField')?.value || '1.1',
                 defaultLoopOut: document.getElementById('audioLoopOutField')?.value || '17.1',
@@ -31104,11 +31476,11 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                     shape: pip2Shape
                 },
                 // V5_4_29: PIP 3 settings
-                // V5_5_12: Added aspect, size; shape now rectangle/circle only
+                // V5_6_16h: Renamed to orientation/sizePercent
                 pip3Settings: {
                     color: pip3Color,
-                    aspect: pip3Aspect,
-                    size: pip3Size,
+                    orientation: pip3Orientation,
+                    sizePercent: pip3SizePercent,
                     shape: pip3Shape
                 },
                 // V5_5_12: FX Module slot assignments
@@ -31260,10 +31632,13 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 currentTempo = state.masterTempo;
             }
 
-            // V5_5_12: Apply quantize setting via OmsDropdown
+            // V5_5_12: Apply quantize setting
             if (state.quantizeValue !== undefined) {
                 gridState.quantizeValue = state.quantizeValue;
-                if (window.quantizeDropdown) window.quantizeDropdown.setValue(String(state.quantizeValue));
+                // V5_6_11f: Use proper OmsDropdown API (dropdown now initialized in DOMContentLoaded)
+                if (window.quantizeDropdown) {
+                    window.quantizeDropdown.setValue(String(state.quantizeValue));
+                }
             }
 
             // Apply last scene launched
@@ -31321,6 +31696,17 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 }
             }
             
+            // V5_6_13: Apply render format (last used)
+            if (projectData.renderFormat) {
+                const renderFormatInput = document.getElementById('renderFormat');
+                if (renderFormatInput) {
+                    renderFormatInput.value = projectData.renderFormat;
+                }
+                if (window.renderFormatDropdown) {
+                    window.renderFormatDropdown.setValue(projectData.renderFormat);
+                }
+            }
+            
             // V4_6_0: Store loop defaults (don't apply to UI - only used for fresh audio)
             if (projectData.defaultLoopIn) {
                 projectLoopDefaults.loopIn = projectData.defaultLoopIn;
@@ -31334,7 +31720,16 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 // V5_0_51: Pad to 10 slots if saved with fewer
                 bumprStickrsSlots = projectData.bumprStickrsSlots.slice();
                 while (bumprStickrsSlots.length < 10) bumprStickrsSlots.push(null);
-                console.log('V5_0_51: BumpR StickRs slots restored:', bumprStickrsSlots.filter(s => s).length, 'assigned');
+                // V5_6_11: Enhanced debug logging
+                const assignedCount = bumprStickrsSlots.filter(s => s).length;
+                console.log('V5_6_11: RESTORE - BumpR slots assigned:', assignedCount);
+                if (assignedCount > 0) {
+                    bumprStickrsSlots.forEach((slot, i) => {
+                        if (slot) console.log(`  Slot ${i+1}: ${slot.filename}, thumbnail: ${slot.thumbnail ? 'YES' : 'NO'}`);
+                    });
+                }
+            } else {
+                console.log('V5_6_11: RESTORE - No bumprStickrsSlots in projectData');
             }
             
             // V5_0_51: Restore per-slot timing modes
@@ -31557,20 +31952,30 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             if (projectData.pip3Settings) {
                 pip3Color = projectData.pip3Settings.color || '#00d4ff';
                 
-                // V5_5_12: Load new aspect/size/shape or migrate from old combined shape
-                if (projectData.pip3Settings.aspect) {
-                    pip3Aspect = projectData.pip3Settings.aspect;
-                    pip3Size = projectData.pip3Settings.size || 'large';
+                // V5_6_16h: Load new orientation/sizePercent or migrate from old format
+                if (projectData.pip3Settings.orientation !== undefined) {
+                    // V5_6_16h format
+                    pip3Orientation = projectData.pip3Settings.orientation;
+                    pip3SizePercent = projectData.pip3Settings.sizePercent || '50';
+                    pip3Shape = projectData.pip3Settings.shape || 'rectangle';
+                } else if (projectData.pip3Settings.aspect) {
+                    // V5_5_12 format - migrate aspect ratio to orientation
+                    const aspectMap = {'16:9': 'landscape', '9:16': 'portrait', '1:1': 'square'};
+                    pip3Orientation = aspectMap[projectData.pip3Settings.aspect] || 'square';
+                    // Migrate old size names to percentages
+                    const sizeMap = {'small': '25', 'medium': '50', 'large': '75'};
+                    pip3SizePercent = sizeMap[projectData.pip3Settings.size] || '50';
                     pip3Shape = projectData.pip3Settings.shape || 'rectangle';
                 } else {
+                    // Pre-V5_5_12 format - migrate from combined shape
                     const oldShape = projectData.pip3Settings.shape || 'square';
-                    if (oldShape === 'landscape') { pip3Aspect = '16:9'; pip3Shape = 'rectangle'; }
-                    else if (oldShape === 'portrait') { pip3Aspect = '9:16'; pip3Shape = 'rectangle'; }
-                    else if (oldShape === 'square') { pip3Aspect = '1:1'; pip3Shape = 'rectangle'; }
-                    else if (oldShape === 'circle') { pip3Aspect = '1:1'; pip3Shape = 'circle'; }
-                    pip3Size = 'large';
+                    if (oldShape === 'landscape') { pip3Orientation = 'landscape'; pip3Shape = 'rectangle'; }
+                    else if (oldShape === 'portrait') { pip3Orientation = 'portrait'; pip3Shape = 'rectangle'; }
+                    else if (oldShape === 'square') { pip3Orientation = 'square'; pip3Shape = 'rectangle'; }
+                    else if (oldShape === 'circle') { pip3Orientation = 'square'; pip3Shape = 'circle'; }
+                    pip3SizePercent = '50';
                 }
-                console.log('V5_5_12: PIP 3 settings restored:', projectData.pip3Settings);
+                console.log('V5_6_16h: PIP 3 settings restored:', pip3Orientation, pip3SizePercent, pip3Shape, pip3Color);
             }
             
             // V5_5_12: Apply PIP dimensions after loading settings
@@ -31599,6 +32004,15 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             try {
                 const projectState = getCurrentProjectState();
                 const filename = 'onemanshyo.omsp';
+                
+                // V5_6_11: Debug - log BumpR slots being saved
+                const bumprCount = projectState.bumprStickrsSlots?.filter(s => s).length || 0;
+                console.log('V5_6_11: SAVE - BumpR slots with data:', bumprCount);
+                if (bumprCount > 0) {
+                    projectState.bumprStickrsSlots.forEach((slot, i) => {
+                        if (slot) console.log(`  Slot ${i+1}: ${slot.filename}, thumbnail: ${slot.thumbnail ? slot.thumbnail.substring(0,50) + '...' : 'NO'}`);
+                    });
+                }
 
                 const fileHandle = await applicationFolderHandle.getFileHandle(filename, { create: true });
                 const writable = await fileHandle.createWritable();
@@ -31621,8 +32035,23 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 const file = await fileHandle.getFile();
                 const text = await file.text();
                 const projectData = JSON.parse(text);
+                
+                // V5_6_11: Debug - log BumpR slots being loaded
+                const bumprCount = projectData.bumprStickrsSlots?.filter(s => s).length || 0;
+                console.log('V5_6_11: LOAD - BumpR slots in file:', bumprCount);
+                if (bumprCount > 0) {
+                    projectData.bumprStickrsSlots.forEach((slot, i) => {
+                        if (slot) console.log(`  Slot ${i+1}: ${slot.filename}, thumbnail: ${slot.thumbnail ? 'YES' : 'NO'}`);
+                    });
+                }
 
-                await applyProjectState(projectData);
+                // V5_6_11b: Wrap applyProjectState to catch its errors separately
+                try {
+                    await applyProjectState(projectData);
+                } catch (applyError) {
+                    console.error('V5_6_11e: applyProjectState FAILED:', applyError?.message || applyError);
+                    // Don't return - file was loaded, just apply failed
+                }
                 
                 // Update dropdown to show default loaded
                 const select = document.getElementById('projectStateSelect');
@@ -31640,7 +32069,7 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
 
             } catch (error) {
                 // File doesn't exist yet - that's ok
-                console.log('V4_3_0_sub13: No onemanshyo.omsp found (first run)');
+                console.log('V4_3_0_sub13: No onemanshyo.omsp found (first run)', error.message);
             }
         }
 
@@ -31918,19 +32347,19 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
         let freqKnobRedrawFunctions = [];  // Store redraw functions for setFreqKnobsDisabled
         
         function initFreqKnobs() {
-            const MIN_FREQ = 20;
-            const MAX_FREQ = 24000;
+            const MIN_FREQ = 1;
+            const MAX_FREQ = 20000;
             
             // Log scale conversion functions
             function freqToKnob(freq) {
-                // Convert frequency (20-24000) to knob position (0-1) using log scale
+                // Convert frequency (0-20000) to knob position (0-1) using log scale
                 const minLog = Math.log(MIN_FREQ);
                 const maxLog = Math.log(MAX_FREQ);
                 return (Math.log(freq) - minLog) / (maxLog - minLog);
             }
             
             function knobToFreq(knob) {
-                // Convert knob position (0-1) to frequency (20-24000) using log scale
+                // Convert knob position (0-1) to frequency (0-20000) using log scale
                 const minLog = Math.log(MIN_FREQ);
                 const maxLog = Math.log(MAX_FREQ);
                 return Math.round(Math.exp(minLog + knob * (maxLog - minLog)));
@@ -31984,11 +32413,19 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                     const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
                     const currentAngle = startAngle + (endAngle - startAngle) * value;
                     
+                    // V5_6_05a: Always draw arc (even if tiny) to prevent blank knob
                     ctx.strokeStyle = effectiveColor;
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.arc(15, 15, 11, startAngle, currentAngle);
-                    ctx.stroke();
+                    if (value < 0.01) {
+                        // Draw a dot at start position when at minimum
+                        ctx.fillStyle = effectiveColor;
+                        ctx.arc(15 + Math.cos(startAngle) * 11, 15 + Math.sin(startAngle) * 11, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        ctx.arc(15, 15, 11, startAngle, currentAngle);
+                        ctx.stroke();
+                    }
                     
                     // Center indicator line
                     ctx.strokeStyle = indicatorColor;
@@ -32013,6 +32450,9 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                     }
                     
                     drawFreqKnob(ctx1, knob1Value, pair.color);
+                    
+                    // V5_6_05a: Sync UI to actual BiquadFilter nodes
+                    updateBandpassFilters();
                 }
                 
                 function updateKnob2(newValue) {
@@ -32029,6 +32469,9 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                     }
                     
                     drawFreqKnob(ctx2, knob2Value, pair.color);
+                    
+                    // V5_6_05a: Sync UI to actual BiquadFilter nodes
+                    updateBandpassFilters();
                 }
                 
                 // Knob 1 events
@@ -32246,7 +32689,7 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
         let eqHighKilled = false;
 
         // V5_1_49: Unified panel focus for CREATE tab Audio section
-        // Shift+A = gate (must be set first), then C/E/F activates panel
+        // A = gate (must be set first), then C/E/F activates panel
         let createAudioPanel = 'none';  // 'none', 'volume', 'cue', 'eq', 'fx'
         let volumePanelTarget = 'audio';  // V5_5_14: 'audio' or 'mic' - which knob was clicked
         let createEQSelectedBand = 0;  // 0=High, 1=Mid, 2=Low
@@ -33042,10 +33485,11 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             
             redrawAllEQKnobs();
             
+            // V5_6_09a: Value display = orange 'state' with just the value (no shortcuts)
             if (dbStr === 'KILLED') {
-                showMessage(`EQ: ${bandName} KILLED (↑↓ select, Enter=restore, Esc exit)`, 'info');
+                showMessage(`EQ: ${bandName} KILLED`, 'state');
             } else {
-                showMessage(`EQ: ${bandName} ${dbStr} (↑↓ select, ←→ adjust, Enter=kill, Esc exit)`, 'info');
+                showMessage(`EQ: ${bandName} ${dbStr}`, 'state');
             }
         }
 
@@ -33075,19 +33519,24 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 return;
             }
             
-            // Always reset to first item when activating panel
+            // V5_6_09a: Show cyan entry message with shortcuts, then draw selection
             if (panel === 'volume') {
-                updateVolumeSelection();
+                showMessage('Volume (←→ adjust, Enter=kill, V/M switch, Esc exit)', 'info');
+                if (volumePanelTarget === 'mic') drawCreateMicKnob();
+                else drawCreateAudioVolumeKnob();
             } else if (panel === 'eq') {
                 createEQSelectedBand = 0;  // High
-                updateEQSelection();
+                showMessage('EQ (↑↓ select, ←→ adjust, Enter=kill, Esc exit)', 'info');
+                redrawAllEQKnobs();
             } else if (panel === 'fx') {
                 createFXSelectedSlot = 0;  // Washout
-                updateFXSelection();
+                showMessage('FX (↑↓ nav, ←→ adjust, Enter=kill, Esc exit)', 'info');
+                redrawAllFXKnobs();
             } else if (panel === 'cue') {
                 createCueSelectedRow = 0;  // Cue 1
+                showMessage('Cue (↑↓ nav, Enter=jump, Esc exit)', 'info');
                 updateCuePanelDisplay();
-                updateCueSelection();
+                highlightSelectedCue();
             }
         }
         
@@ -33111,20 +33560,21 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
         
         // V5_1_49: Update volume selection display
         // V5_5_14: Handle both audio and mic based on volumePanelTarget
+        // V5_6_09a: Value display = orange 'state' with just the value (no shortcuts)
         function updateVolumeSelection() {
             if (volumePanelTarget === 'mic') {
                 drawCreateMicKnob();
                 if (micMuted) {
-                    showMessage(`Mic: MUTED (←→ adjust, Enter=restore, Esc exit)`, 'info');
+                    showMessage(`Mic: MUTED`, 'state');
                 } else {
-                    showMessage(`Mic: ${volumePositionToDbString(micVolume)} (←→ adjust, Enter=mute, Esc exit)`, 'info');
+                    showMessage(`Mic: ${volumePositionToDbString(micVolume)}`, 'state');
                 }
             } else {
                 drawCreateAudioVolumeKnob();
                 if (createAudioVolumeKilled) {
-                    showMessage(`Audio: KILLED (←→ adjust, Enter=restore, Esc exit)`, 'info');
+                    showMessage(`Audio: KILLED`, 'state');
                 } else {
-                    showMessage(`Audio: ${volumePositionToDbString(createAudioVolume)} (←→ adjust, Enter=kill, Esc exit)`, 'info');
+                    showMessage(`Audio: ${volumePositionToDbString(createAudioVolume)}`, 'state');
                 }
             }
         }
@@ -33645,12 +34095,12 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             
             redrawAllFXKnobs();
             
-            // V5_2_25: Show killed or value state
+            // V5_6_09a: Value display = orange 'state' with just the value (no shortcuts)
             if (isKilled) {
-                showMessage(`FX: ${slotName} KILLED (↑↓ nav, Enter=restore, Esc exit)`, 'info');
+                showMessage(`FX: ${slotName} KILLED`, 'state');
             } else {
                 const pct = Math.round(value * 100);
-                showMessage(`FX: ${slotName} ${pct}% (↑↓ nav, ←→ adjust, Enter=kill, Esc exit)`, 'info');
+                showMessage(`FX: ${slotName} ${pct}%`, 'state');
             }
         }
 
@@ -33710,19 +34160,25 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             }
         }
 
-        // V5_1_35: Update cue selection visual
-        function updateCueSelection() {
+        // V5_6_09a: Separate visual highlight from message
+        function highlightSelectedCue() {
             for (let i = 0; i < 5; i++) {
                 const row = document.getElementById(`cueRow${i + 1}`);
                 if (row) {
                     row.classList.toggle('selected', createAudioPanel === 'cue' && createCueSelectedRow === i);
                 }
             }
+        }
+
+        // V5_1_35: Update cue selection visual
+        // V5_6_09a: Value display = orange 'state' with just the value (no shortcuts)
+        function updateCueSelection() {
+            highlightSelectedCue();
             if (createAudioPanel === 'cue') {
                 const beat = audioCuePoints[createCueSelectedRow] !== undefined ? 
                              audioCuePoints[createCueSelectedRow] : createCueSelectedRow * 64;
                 const barBeat = beatsToBarBeat(beat);
-                showMessage(`Cue ${createCueSelectedRow + 1}: ${barBeat} | Arrows nav, Enter jump, Esc exit`, 'info');
+                showMessage(`Cue ${createCueSelectedRow + 1}: ${barBeat}`, 'state');
             }
         }
 
@@ -34793,7 +35249,7 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             }
         }
 
-        // V5_1_35: Audio Focus mode - Shift+A
+        // V5_1_35: Audio Focus mode - A (V5_6_07a: was Shift+A)
         // V5_1_51: Now uses activeFocusMode === 'audio' instead of createAudioFocus
         let shaderAudioSelectedCol = 0;  // 0-11 columns
         
@@ -34850,6 +35306,32 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
         
         let audioKeyRepeatCount = 0;
         let audioLastKeyTime = 0;
+        
+        // V5_6_15a: JKL transport state for double-tap detection
+        let lastJTapTime = 0;
+        let lastLTapTime = 0;
+        const JKL_DOUBLE_TAP_MS = 300;
+        
+        // V5_6_15a: Jump audio by beats (negative = backward, positive = forward)
+        function jumpAudioByBeats(beats) {
+            if (!audioLoaded || !audioElement) {
+                showMessage('No audio loaded', 'error');
+                return;
+            }
+            
+            const beatsPerSecond = audioTempo / 60;
+            const jumpSeconds = beats / beatsPerSecond;
+            const newTime = Math.max(0, Math.min(audioElement.duration, audioElement.currentTime + jumpSeconds));
+            audioElement.currentTime = newTime;
+            
+            // Calculate current position as bar.beat relative to audioStartTime
+            const currentBeat = (newTime - audioStartTime) * beatsPerSecond;
+            const barBeat = beatsToBarBeat(Math.max(0, currentBeat));
+            
+            const direction = beats < 0 ? '◀' : '▶';
+            const amount = Math.abs(beats) >= 4 ? '1 bar' : '1 beat';
+            showMessage(`${direction} ${amount} → ${barBeat}`, 'state');
+        }
         
         function jumpToCue(cueIndex) {
             if (!audioLoaded || !audioElement) {
@@ -36150,8 +36632,7 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 modKeyRepeatCount = 0;
                 document.querySelectorAll('.mod-selected').forEach(el => el.classList.remove('mod-selected'));
                 activeFocusMode = 'none';
-                // V5_2_38: Close N-panel when exiting reactivity mode
-                closeModTuningPanel();
+                // V5_6_05a: N-panel no longer auto-closes - Blender-style (N opens, N closes only)
                 showMessage('', 'info');
             }
         }
@@ -36675,7 +37156,8 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             // Freq knobs (col 3-4) - V5_5_14: stepped presets instead of log scale
             else {
                 // V5_5_14: Frequency presets (musical increments from sub-bass to highs)
-                const FREQ_PRESETS = [0, 5, 10, 20, 30, 50, 75, 100, 150, 200, 300, 500, 1000, 2000, 5000, 10000, 20000];
+                // V5_6_05a: Minimum is 1Hz (not 0)
+                const FREQ_PRESETS = [1, 5, 10, 20, 30, 50, 75, 100, 150, 200, 300, 500, 1000, 2000, 5000, 10000, 20000];
                 
                 let val = parseInt(el.value) || 30;
                 
@@ -36727,68 +37209,30 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             // Don't handle if typing in input/textarea
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
             
-            // V5_0_17: Shift+N: Toggle name mode
-            if (e.shiftKey && (e.key === 'n' || e.key === 'N')) {
-                // Only handle in CREATE tab
-                const createTab = document.getElementById('controlsTabContent');
-                if (!createTab || createTab.style.display === 'none') return;
-                
-                e.preventDefault();
-                // Exit other focus modes
-                if (shaderTransformFocus) exitTransformMode();
-                if (shaderReactivityFocus) exitReactivityMode();
-                if (shaderMusicTimingFocus) exitMusicTimingMode();
-                if (shaderOrientationFocus) exitOrientationMode();
-                if (createAudioFocus) exitAudioMode();  // V5_1_35
-                if (createAudioPanel !== 'none') exitShaderPanel();  // V5_1_35
-                
-                if (shaderNameFocus) {
-                    exitNameMode();
-                } else {
-                    shaderNameFocus = true;
-                    updateNameSelection();
+            // V5_6_08: Removed Shift+N (name) and Shift+O (orientation) hotkeys - click dropdowns only
+            
+            // V5_6_09a: M key - switch to Mic in Volume panel (CREATE tab with Audio Focus)
+            // Pattern: V=audio volume, M=mic volume, Enter=toggle mute
+            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'm' || e.key === 'M')) {
+                if (isCreateTabActive() && createAudioFocus) {
+                    e.preventDefault();
+                    volumePanelTarget = 'mic';
+                    setShaderPanel('volume');
+                    return;
                 }
-                return;
             }
             
-            // V5_0_17: Shift+O: Toggle orientation mode
-            if (e.shiftKey && (e.key === 'o' || e.key === 'O')) {
-                // Only handle in CREATE tab
-                const createTab = document.getElementById('controlsTabContent');
-                if (!createTab || createTab.style.display === 'none') return;
+            // V5_6_08: Bare M: Toggle music timing mode (was Shift+M, matches R/T/A pattern)
+            // V5_6_09a: Mic handler above catches M in Audio Focus first (switches to mic in volume panel)
+            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'm' || e.key === 'M')) {
+                if (!isCreateTabActive()) return;
                 
                 e.preventDefault();
                 // Exit other focus modes
                 if (shaderTransformFocus) exitTransformMode();
                 if (shaderReactivityFocus) exitReactivityMode();
-                if (shaderMusicTimingFocus) exitMusicTimingMode();
-                if (shaderNameFocus) exitNameMode();
-                if (createAudioFocus) exitAudioMode();  // V5_1_35
-                if (createAudioPanel !== 'none') exitShaderPanel();  // V5_1_35
-                
-                if (shaderOrientationFocus) {
-                    exitOrientationMode();
-                } else {
-                    shaderOrientationFocus = true;
-                    updateOrientationSelection();
-                }
-                return;
-            }
-            
-            // V5_0_17: Shift+M: Toggle music timing mode
-            if (e.shiftKey && (e.key === 'm' || e.key === 'M')) {
-                // Only handle in CREATE tab
-                const createTab = document.getElementById('controlsTabContent');
-                if (!createTab || createTab.style.display === 'none') return;
-                
-                e.preventDefault();
-                // Exit other focus modes
-                if (shaderTransformFocus) exitTransformMode();
-                if (shaderReactivityFocus) exitReactivityMode();
-                if (shaderNameFocus) exitNameMode();
-                if (shaderOrientationFocus) exitOrientationMode();
-                if (createAudioFocus) exitAudioMode();
-                if (createAudioPanel !== 'none') exitShaderPanel();  // V5_1_35
+                if (createAudioPanel !== 'none') exitShaderPanel();
+                if (bumprModeActive) exitBumprMode();
                 
                 if (shaderMusicTimingFocus) {
                     exitMusicTimingMode();
@@ -36799,8 +37243,8 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 return;
             }
             
-            // V5_1_49: Shift+A: Toggle audio focus mode (gate for V/C/E/F panels)
-            if (e.shiftKey && (e.key === 'a' || e.key === 'A')) {
+            // V5_6_07a: Bare A: Toggle audio focus mode (was Shift+A, matches R/T pattern)
+            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'a' || e.key === 'A')) {
                 if (!isCreateTabActive()) return;
                 
                 e.preventDefault();
@@ -36818,16 +37262,21 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                     exitAudioMode();
                 } else {
                     createAudioFocus = true;
-                    createAudioPanel = 'none';
-                    showMessage('Audio Focus | V=Vol, C=Cue, E=EQ, F=FX, Esc=exit', 'info');
+                    // V5_6_08a: Highlight V (volume) by default and reorder message to match UI
+                    // V5_6_09a: Explicitly set target to audio
+                    volumePanelTarget = 'audio';
+                    setShaderPanel('volume');
+                    showMessage('Audio Focus | J◀ K⏯ L▶ | V/M/C/F/E, Esc=exit', 'info');
                 }
                 return;
             }
             
             // V5_1_49: V key - Volume control when Audio focused (CREATE tab)
+            // V5_6_09a: Explicitly set target to audio (M key sets to mic)
             if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'v' || e.key === 'V')) {
                 if (isCreateTabActive() && createAudioFocus) {
                     e.preventDefault();
+                    volumePanelTarget = 'audio';
                     setShaderPanel('volume');
                     return;
                 }
@@ -36869,8 +37318,15 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 }
             }
             
-            // V5_5_12: F key for FX slideout (PERFORM tab only)
+            // V5_6_07a: F key for FX panel (CREATE Audio Focus) or FX slideout (PERFORM)
             if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'f' || e.key === 'F')) {
+                // CREATE tab - requires Audio focus
+                if (isCreateTabActive() && createAudioFocus) {
+                    e.preventDefault();
+                    setShaderPanel('fx');
+                    return;
+                }
+                // PERFORM tab - toggle FX slideout
                 if (isPerformTabActive()) {
                     e.preventDefault();
                     toggleFX();
@@ -36878,9 +37334,9 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 }
             }
             
-            // V5_5_12: A key for AFX panel (Audio FX) - toggle
+            // V5_6_07a: A key for AFX panel (PERFORM tab only - CREATE uses A for Audio Focus entry)
             if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'a' || e.key === 'A')) {
-                // PERFORM tab first - requires track selection
+                // PERFORM tab - requires track selection
                 if (isPerformTabActive() && selectedKnobIndex >= 0 && selectedKnobIndex <= 3) {
                     e.preventDefault();
                     if (liveActivePanel === 'fx') {
@@ -36888,12 +37344,6 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                     } else {
                         setPerformPanel('fx');
                     }
-                    return;
-                }
-                // CREATE tab - requires Audio focus
-                if (isCreateTabActive() && createAudioFocus) {
-                    e.preventDefault();
-                    setShaderPanel('fx');
                     return;
                 }
             }
@@ -36911,13 +37361,58 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                 }
             }
             
-            // V5_5_15i: Shift+R = Render (CREATE tab only, no focus modes active)
-            if (e.shiftKey && (e.key === 'r' || e.key === 'R')) {
-                if (isCreateTabActive() && !shaderReactivityFocus && !shaderTransformFocus && 
-                    !shaderMusicTimingFocus && !createAudioFocus && createAudioPanel === 'none' &&
-                    !shaderNameFocus && !shaderOrientationFocus && !bumprModeActive) {
+            // V5_6_15a: JKL transport in Audio Focus mode (CREATE tab)
+            // J = back 1 beat (JJ = back 1 bar), K = play/pause, L = forward 1 beat (LL = forward 1 bar)
+            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'j' || e.key === 'J')) {
+                if (isCreateTabActive() && createAudioFocus) {
                     e.preventDefault();
-                    startRender();
+                    const now = Date.now();
+                    if (now - lastJTapTime < JKL_DOUBLE_TAP_MS) {
+                        // Double-tap: jump back 1 bar (4 beats)
+                        jumpAudioByBeats(-4);
+                        lastJTapTime = 0;  // Reset to prevent triple-tap
+                    } else {
+                        // Single tap: jump back 1 beat
+                        jumpAudioByBeats(-1);
+                        lastJTapTime = now;
+                    }
+                    return;
+                }
+            }
+            
+            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'k' || e.key === 'K')) {
+                if (isCreateTabActive() && createAudioFocus) {
+                    e.preventDefault();
+                    toggleAudioPlayback();
+                    return;
+                }
+            }
+            
+            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'l' || e.key === 'L')) {
+                if (isCreateTabActive() && createAudioFocus) {
+                    e.preventDefault();
+                    const now = Date.now();
+                    if (now - lastLTapTime < JKL_DOUBLE_TAP_MS) {
+                        // Double-tap: jump forward 1 bar (4 beats)
+                        jumpAudioByBeats(4);
+                        lastLTapTime = 0;  // Reset to prevent triple-tap
+                    } else {
+                        // Single tap: jump forward 1 beat
+                        jumpAudioByBeats(1);
+                        lastLTapTime = now;
+                    }
+                    return;
+                }
+            }
+            
+            // V5_6_08: Removed Shift+R render hotkey (click button only)
+            
+            // V5_6_15d: Cmd+L = Toggle loop (CREATE tab only)
+            if ((e.metaKey || e.ctrlKey) && (e.key === 'l' || e.key === 'L')) {
+                if (isCreateTabActive() && audioLoaded) {
+                    e.preventDefault();
+                    toggleAudioLoop();
+                    showMessage(`Loop: ${audioLoopEnabled ? 'ON' : 'OFF'}`, 'state');
                     return;
                 }
             }
@@ -37803,20 +38298,23 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             }
             
             try {
+                // V5_6_11: Generate thumbnail FIRST, before file write invalidates blob URL
+                const thumbnail = await generateBumprThumbnail(file);
+                
                 // Copy file to BumpRStickRs folder
                 const fileHandle = await bumprStickrsFolderHandle.getFileHandle(file.name, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(file);
                 await writable.close();
                 
-                // Generate thumbnail from video
-                const thumbnail = await generateBumprThumbnail(file);
-                
                 // Update state
                 bumprStickrsSlots[slotIndex] = {
                     filename: file.name,
                     thumbnail: thumbnail
                 };
+                
+                // V5_6_11: Debug - confirm slot assignment
+                console.log(`V5_6_11: SET - Slot ${slotIndex + 1} = ${file.name}, thumbnail: ${thumbnail ? 'YES (' + thumbnail.length + ' chars)' : 'NO'}`);
                 
                 // Update UI
                 updateBumprSlotUI(slotIndex);
@@ -37930,6 +38428,7 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
         let bumprPlayingSlot = null;  // V5_0_51: Track which slot is playing for visual feedback
         let bumprSelectedSlot = 0;    // V5_0_51: Currently selected slot for keyboard navigation
         // V5_1_51: bumprModeActive replaced by activeFocusMode === 'bumpr'
+        let containerBumprSlotIndex = null;  // V5_6_11e: BumpR slot associated with current container (0-9 or null)
         
         // V5_0_51: Toggle BumpR timing dropdown
         // V5_0_51: Unified BumpR dropdown toggle (uses CSS classes)
@@ -38077,6 +38576,13 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             if (!slot) {
                 showMessage(`BumpR Slot ${slotIndex + 1}: Empty`, 'info');
                 return;
+            }
+            
+            // V5_6_11e: Track slot for container association when on CREATE tab
+            const controlsContent = document.getElementById('controlsTabContent');
+            if (controlsContent && controlsContent.style.display !== 'none') {
+                containerBumprSlotIndex = slotIndex;
+                console.log('V5_6_11e: BumpR slot', slotIndex + 1, 'associated with container');
             }
             
             // V5_0_51: Stop any current playback first (no toggle - always play)
@@ -38538,48 +39044,67 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
         
         console.log('V5_0_51: BumpR Mode keyboard handlers initialized (Shift+B)');
         
-        // V5_4_26: Universal O key handler for Camera Overlay (works on all tabs)
-        document.addEventListener('keydown', (e) => {
-            // Skip if typing in input field
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            
-            // O key - toggle camera overlay (universal)
-            if (e.key === 'o' || e.key === 'O') {
-                e.preventDefault();
-                toggleCamOverlay();
-                return;
-            }
-        });
-        console.log('V5_4_26: Camera Overlay keyboard handler initialized (O)');
-        
-        // V5_4_27: P key handler for PIP2 (CREATE/ORG/ADMIN tabs only)
-        // V5_4_28: Shift+P for PIP3 center
+        // V5_6_06: P + 2/3/4 chord system for PIP control (CREATE tab)
+        // Pattern: Hold P, press 2/3/4 to toggle PIP 2/3/4
         // PERFORM tab has its own P key handler for pip1
+        
+        // P key down - activate chord mode, show hint
         document.addEventListener('keydown', (e) => {
             // Skip if typing in input field
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
             
-            // Only handle on non-PERFORM tabs
-            const liveTabActive = document.getElementById('liveTab')?.classList.contains('active');
-            if (liveTabActive) return; // PERFORM tab has its own handler
+            // Only on CREATE tab
+            // V5_6_16h: P chord handler works on ALL tabs
+            // Individual PIPs handle their own tab restrictions via DOM availability
             
-            // V5_5_12: Shift+P - toggle pip3 center (CREATE tab ONLY)
-            if (e.shiftKey && (e.key === 'p' || e.key === 'P')) {
-                const controlsTabActive = document.getElementById('controlsTab')?.classList.contains('active');
-                if (!controlsTabActive) return; // Only on CREATE tab
+            // P key - enter chord mode
+            if ((e.key === 'p' || e.key === 'P') && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                if (!pipPKeyHeld) {
+                    pipPKeyHeld = true;
+                    showMessage('P + 1/2/3/4 for PIP', 'info');
+                }
                 e.preventDefault();
-                togglePip3();
                 return;
             }
             
-            // P key - toggle pip2 corner
-            if (e.key === 'p' || e.key === 'P') {
-                e.preventDefault();
-                togglePip2();
-                return;
+            // 1/2/3/4 while P held - toggle PIPs
+            if (pipPKeyHeld) {
+                if (e.key === '1') {
+                    e.preventDefault();
+                    togglePip1();
+                    return;
+                }
+                if (e.key === '2') {
+                    e.preventDefault();
+                    togglePip2();
+                    return;
+                }
+                if (e.key === '3') {
+                    e.preventDefault();
+                    togglePip3();
+                    return;
+                }
+                if (e.key === '4') {
+                    e.preventDefault();
+                    toggleCamOverlay();
+                    return;
+                }
             }
         });
-        console.log('V5_5_12: PIP keyboard handlers initialized (P=corner on non-PERFORM, Shift+P=center on CREATE only)');
+        
+        // P key up - exit chord mode
+        document.addEventListener('keyup', (e) => {
+            if ((e.key === 'p' || e.key === 'P') && pipPKeyHeld) {
+                pipPKeyHeld = false;
+            }
+        });
+        
+        // Clear chord state if window loses focus
+        window.addEventListener('blur', () => {
+            pipPKeyHeld = false;
+        });
+        
+        console.log('V5_6_16h: PIP chord keyboard handler initialized (P + 1/2/3/4)');
         
         // V4_8_14: Trackpad scroll on waveform = audio scrub (smooth only)
         document.addEventListener('DOMContentLoaded', () => {
@@ -38679,7 +39204,7 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                     const rowName = prefix.replace('mod', '');  // A, B, C
                     showMessage(`Mod ${rowName} Gain: ${val.toFixed(2)}`, 'state');
                 }
-                // V4_9_35: REACTIVITY KNOBS - Freq1/Freq2 (log scale 20-24000)
+                // V4_9_35: REACTIVITY KNOBS - Freq1/Freq2 (log scale 0-20000)
                 else if (activeControlId.includes('Freq')) {
                     const match = activeControlId.match(/(mod[ABC])(Freq[12])Knob/);
                     if (!match) return;
@@ -38692,9 +39217,9 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
                     const ratio = Math.abs(e.deltaY) > 50 ? 1.2 : 1.05;  // Faster for big scrolls
                     let val = parseInt(input.value) || 100;
                     if (e.deltaY < 0) {
-                        val = Math.min(24000, Math.round(val * ratio));
+                        val = Math.min(20000, Math.round(val * ratio));
                     } else {
-                        val = Math.max(20, Math.round(val / ratio));
+                        val = Math.max(1, Math.round(val / ratio));  // V5_6_05a: min 1Hz (not 20)
                     }
                     input.value = val;
                     
@@ -38905,6 +39430,31 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
             // V4_9_35: Initialize all CREATE tab dropdowns
             initCreateTabDropdowns();
             
+            // V5_6_11f: Initialize header quantize dropdown (moved from initLiveTab)
+            // This is a global header control, must init before applyProjectState runs
+            const quantizeContainer = document.getElementById('quantizeDropdown');
+            if (quantizeContainer) {
+                window.quantizeDropdown = new OmsDropdown('quantizeDropdown', {
+                    showThumbnails: false,
+                    onChange: (value, item) => {
+                        const newQuantize = parseInt(value);
+                        document.getElementById('quantizeValue').value = value;
+                        gridState.quantizeValue = newQuantize;
+                        const label = newQuantize === 0 ? 'Off' : newQuantize === 1 ? 'Beat' : 'Bar';
+                        console.log(`V5_6_11f: Quantize changed to ${label} (${newQuantize} beats)`);
+                        showMessage(`Quantize: ${label}`, 'state');
+                        autoSaveProject();
+                    }
+                });
+                window.quantizeDropdown.setItems([
+                    { value: '0', label: 'Off' },
+                    { value: '1', label: 'Beat' },
+                    { value: '4', label: 'Bar' }
+                ]);
+                // V5_6_11f: Read from gridState (may have been set by applyProjectState)
+                window.quantizeDropdown.setValue(String(gridState.quantizeValue || 4));
+            }
+            
             // V5_4_29: Initialize mini color picker
             initPipColorPickerMini();
             initPipBorderClicks();
@@ -39038,48 +39588,50 @@ PIP PERFORM (P): ${pip1Visible ? 'ON' : 'OFF'}
     
     <!-- V5_4_29: Shared mini color picker (positioned by JS on border click) -->
     <!-- V5_5_12: PIP3 Settings Panel -->
+    <!-- V5_6_16h: PIP3 settings panel - orientation + percentage sizing -->
     <div id="pip3SettingsPanel" class="pip3-settings-panel">
-        <div class="pip3-settings-label">PIP 3</div>
+        <div class="pip3-settings-header">PIP 3</div>
         
         <div class="pip3-settings-row">
-            <span class="pip3-settings-row-label">Aspect</span>
-            <div class="pip3-settings-buttons">
-                <div class="pip3-settings-btn" data-aspect="16:9" onclick="setPip3Aspect('16:9')">16:9</div>
-                <div class="pip3-settings-btn" data-aspect="9:16" onclick="setPip3Aspect('9:16')">9:16</div>
-                <div class="pip3-settings-btn active" data-aspect="1:1" onclick="setPip3Aspect('1:1')">1:1</div>
-            </div>
+            <span class="pip3-settings-row-label">Orient</span>
+            <select id="pip3OrientationDropdown" class="pip3-settings-select" onchange="setPip3Orientation(this.value)">
+                <option value="landscape">Landscape (16:9)</option>
+                <option value="portrait">Portrait (9:16)</option>
+                <option value="square" selected>Square (1:1)</option>
+            </select>
         </div>
         
         <div class="pip3-settings-row">
             <span class="pip3-settings-row-label">Size</span>
-            <div class="pip3-settings-buttons">
-                <div class="pip3-settings-btn" data-size="small" onclick="setPip3Size('small')">S</div>
-                <div class="pip3-settings-btn" data-size="medium" onclick="setPip3Size('medium')">M</div>
-                <div class="pip3-settings-btn active" data-size="large" onclick="setPip3Size('large')">L</div>
-            </div>
+            <select id="pip3SizeDropdown" class="pip3-settings-select" onchange="setPip3Size(this.value)">
+                <option value="25">25%</option>
+                <option value="50" selected>50%</option>
+                <option value="75">75%</option>
+                <option value="100">100%</option>
+            </select>
         </div>
         
         <div class="pip3-settings-row">
             <span class="pip3-settings-row-label">Shape</span>
-            <div class="pip3-settings-buttons">
-                <div class="pip3-settings-btn active" data-shape="rectangle" onclick="setPip3Shape('rectangle')">Rect</div>
-                <div class="pip3-settings-btn" data-shape="circle" onclick="setPip3Shape('circle')">Circle</div>
-            </div>
+            <select id="pip3ShapeDropdown" class="pip3-settings-select" onchange="setPip3Shape(this.value)">
+                <option value="rectangle" selected>Rectangle</option>
+                <option value="circle">Circle</option>
+            </select>
         </div>
         
         <div class="pip3-settings-row">
             <span class="pip3-settings-row-label">Color</span>
-            <div class="pip3-settings-colors">
-                <div class="pip3-color-swatch pip3-color-none" data-color="transparent" onclick="setPip3Color('transparent')" title="None"></div>
-                <div class="pip3-color-swatch active" style="background: #00d4ff;" data-color="#00d4ff" onclick="setPip3Color('#00d4ff')" title="Cyan"></div>
-                <div class="pip3-color-swatch" style="background: #ff00ff;" data-color="#ff00ff" onclick="setPip3Color('#ff00ff')" title="Magenta"></div>
-                <div class="pip3-color-swatch" style="background: #ffa500;" data-color="#ffa500" onclick="setPip3Color('#ffa500')" title="Orange"></div>
-                <div class="pip3-color-swatch" style="background: #ffff00;" data-color="#ffff00" onclick="setPip3Color('#ffff00')" title="Yellow"></div>
-                <div class="pip3-color-swatch" style="background: #00ff00;" data-color="#00ff00" onclick="setPip3Color('#00ff00')" title="Green"></div>
-                <div class="pip3-color-swatch" style="background: #aa00ff;" data-color="#aa00ff" onclick="setPip3Color('#aa00ff')" title="Purple"></div>
-                <div class="pip3-color-swatch" style="background: #ff0066;" data-color="#ff0066" onclick="setPip3Color('#ff0066')" title="Pink"></div>
-                <div class="pip3-color-swatch" style="background: #ffffff;" data-color="#ffffff" onclick="setPip3Color('#ffffff')" title="White"></div>
-            </div>
+            <select id="pip3ColorDropdown" class="pip3-settings-select" onchange="setPip3Color(this.value)">
+                <option value="transparent">None</option>
+                <option value="#00d4ff" selected>Cyan</option>
+                <option value="#ff00ff">Magenta</option>
+                <option value="#ffa500">Orange</option>
+                <option value="#ffff00">Yellow</option>
+                <option value="#00ff00">Green</option>
+                <option value="#aa00ff">Purple</option>
+                <option value="#ff0066">Pink</option>
+                <option value="#ffffff">White</option>
+            </select>
         </div>
     </div>
 

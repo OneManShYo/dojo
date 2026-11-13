@@ -1,9 +1,9 @@
-# ONEMANSHYO App [Beta V5_6_0] - SYSTEM REFERENCE
+# ONEMANSHYO App [Beta V5_7_0] - SYSTEM REFERENCE
 
-**Version:** Beta V5_6_0  
-**Date:** January 11, 2026  
+**Version:** Beta V5_7_0  
+**Date:** January 16, 2026  
 **License:** GPL-3.0  
-**Line Count:** 5,290 (V5_5_0) → 5,542 (V5_6_0)  
+**Line Count:** 5,542 (V5_6_0) → 5,594 (V5_7_0)  
 **Document Purpose:** Complete technical implementation reference for Claude AI development
 
 ---
@@ -106,6 +106,7 @@ V4_9_15 consolidated the shader contract into 3 constants. Before this, the unif
 ```javascript
 // CORTEX CONSTANT 1: WGSL struct definition (injected into every shader)
 // V5_6_0: shaderModAFFT renamed to shaderModAAudio (and B/C) - reflects actual pipeline
+// V5_7_0: Added loopLength uniform
 const SHADER_UNIFORM_STRUCT = `
 struct Uniforms {
     time: f32,
@@ -133,9 +134,9 @@ struct Uniforms {
     transformPivotX: f32,
     transformPivotY: f32,
     transformTile: f32,
+    loopLength: f32,
     padding1: f32,
     padding2: f32,
-    padding3: f32,
 }
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 `;
@@ -156,10 +157,16 @@ function createUniformData(p) {
         p.transformTranslateX, p.transformTranslateY,
         p.transformPivotX, p.transformPivotY,
         p.transformTile,
-        0, 0, 0  // padding
+        p.loopLength,
+        0, 0  // padding
     ]);
 }
 ```
+
+**V5_7_0 New Uniform:** `loopLength`
+- Matches the Loop Length dropdown value (in beats)
+- Enables beat-synced animations that respect loop boundaries
+- Use: `uniforms.loopLength` in shader code
 
 **V5_6_0 CORTEX Rename:** `shaderModAFFT` → `shaderModAAudio`
 - The "FFT" name was misleading - actual pipeline uses bandpass → peak detection → ADSR
@@ -207,7 +214,8 @@ function createUniformData(p) {
 | 22 | transformPivotX | f32 | -1 to 1 | Pivot X (V5_0_0) |
 | 23 | transformPivotY | f32 | -1 to 1 | Pivot Y (V5_0_0) |
 | 24 | transformTile | f32 | 1-8 | Tile count (V5_0_0) |
-| 25-27 | padding | f32 | - | GPU alignment |
+| 25 | loopLength | f32 | beats | Loop length from dropdown (V5_7_0) |
+| 26-27 | padding | f32 | - | GPU alignment |
 
 
 **Modulator Architecture (V4_8_0):**
@@ -410,21 +418,30 @@ MAIN Bus → DSP Compressor → MAIN Gain → Master Output (Speakers)
 - `vfxFrameBuffer` - Frame buffer for VFX processing
 - `vfxUniformBuffer` - VFX-specific uniforms
 
-**Video Sources & PIP Camera System (V5_5_0):**
+**Video Sources & PIP Camera System (V5_5_0, V5_7_0 Updates):**
 - `videoSourcesSettings` - Camera device ID, mirror mode
 - `cameraStream` - MediaStream instance (shared across all PIPs)
-- `cameraOverlayVisible` - Full-screen overlay state (O key)
-- `pip1Visible` - PIP 1 slideout state (PERFORM tab, P key)
-- `pip2Visible` - PIP 2 corner state (CREATE/ORG/ADMIN, P key)
-- `pip3Visible` - PIP 3 center state (CREATE/ORG/ADMIN, Shift+P)
+- `cameraOverlayVisible` - Full-screen overlay state (P+4 chord)
+- `pip1Visible` - PIP 1 slideout state (PERFORM tab, P+1 chord)
+- `pip2Visible` - PIP 2 corner state (all tabs, P+2 chord)
+- `pip3Visible` - PIP 3 center state (CREATE tab, P+3 chord, captured in render)
 - `pip1Settings` - {visible, shape, color, label}
 - `pip2Settings` - {shape, color}
-- `pip3Settings` - {shape, color}
+- `pip3Settings` - {orientation, size, shape, color} (V5_7_0: added orientation, size)
 - `pipColorPickerOpen` - Color picker popup state
 - `activePIPForColorPicker` - Which PIP is being configured
 
 **PIP Shapes:** 'landscape' (16:9), 'portrait' (9:16), 'square' (1:1), 'circle' (1:1 rounded)
 **PIP Colors:** 'none', 'cyan', 'magenta', 'orange', 'yellow', 'green', 'purple', 'pink', 'white'
+**PIP3 Orientations (V5_7_0):** 'landscape', 'portrait', 'square'
+**PIP3 Sizes (V5_7_0):** 10-100% (percentage of canvas dimension)
+
+**V5_7_0 PIP Behavior:**
+- **Mutual Exclusivity:** Only one PIP visible at a time - opening one closes others
+- **PIP2 Persistence:** PIP2 persists across tab switches
+- **PIP3 Settings Panel:** Orientation/Size/Shape dropdowns in ADMIN tab
+- **Circle Auto-Snap:** Selecting circle shape auto-snaps orientation to square
+- **Chord Hotkeys:** P+1, P+2, P+3, P+4 (hold P, press number)
 
 **Smart Stream Management:**
 - Camera starts when first PIP opens
@@ -658,25 +675,48 @@ V5_2_0 introduced a centralized focus mode system using Object.defineProperty fo
 - `createMusicTimingFocus` - Music Timing mode
 - `createAudioFocus` - Audio Focus mode (NEW V5_2_0)
 
-**Audio Focus Sub-Panels (V5_2_0):**
+**Audio Focus Sub-Panels (V5_2_0, V5_7_0 Updates):**
 - V panel: Volume control
 - C panel: Cue points (1-5)
 - E panel: EQ3 (H/M/L)
 - F panel: FX (Washout/Dubby/Break)
+- M panel: Mic control (V5_7_0)
 
-**Gate + Panel Pattern (V5_2_0):**
+**Gate + Panel Pattern (V5_7_0 - Bare Keys):**
 ```javascript
 // Enter Audio Focus (gate)
-Shift+A → activeFocusMode = 'audio'
+A → activeFocusMode = 'audio'  // V5_7_0: bare key, was Shift+A
 
 // Open sub-panel
-V/C/E/F → activeAudioPanel = 'volume'/'cue'/'eq'/'fx'
+V/C/E/F/M → activeAudioPanel = 'volume'/'cue'/'eq'/'fx'/'mic'
+
+// JKL Transport (in Audio Focus)
+J/K/L → jump back / play-pause / jump forward
 
 // Navigate within panel
 ↑/↓ → row selection, ←/→ → value adjustment
 
 // Exit (nested)
 Escape → if activeAudioPanel, close panel; else exit Audio Focus
+```
+
+**Reactivity Focus (V5_7_0 - Bare Key + N-Panel Behavior):**
+```javascript
+// Enter Reactivity Focus
+R → activeFocusMode = 'reactivity'  // V5_7_0: bare key, was Shift+R
+
+// N-Panel (Blender-style toggle)
+N → toggle Mod Tuning panel (stays open when exiting mode)
+// Panel closes only via N toggle or tab switch
+
+// Row navigation syncs N-panel mod selection
+↑/↓ → row A/B/C (also updates modTuningSelectedMod)
+```
+
+**Transform Focus (V5_7_0 - Bare Key):**
+```javascript
+// Enter Transform Focus
+T → activeFocusMode = 'transform'  // V5_7_0: bare key, was Shift+T
 ```
 
 **Tab Isolation (V5_2_0):**
@@ -2341,29 +2381,30 @@ inLabel               // Clickable label - jump to In point
 outLabel              // Clickable label - jump to Out point
 ```
 
-**Audio Reactivity (V4_8_0 Knob Controls):**
+**Audio Reactivity (V4_8_0 Knob Controls, V5_7_0 Frequency Range Update):**
 ```javascript
 // 9 rotary knobs (30×30 canvas each) - Gain/Freq1/Freq2 per modulator
 
 // Modulator A (Bass)
 modAGainKnob          // 0.0-1.0, default 0.1, linear
-modAFreq1Knob         // 20-24000 Hz, log scale, disabled when no audio
-modAFreq2Knob         // 20-24000 Hz, log scale, disabled when no audio
+modAFreq1Knob         // 1-20000 Hz, log scale, disabled when no audio (V5_7_0: was 20-24000)
+modAFreq2Knob         // 1-20000 Hz, log scale, disabled when no audio
 
 // Modulator B (Mids)
 modBGainKnob          // 0.0-1.0
-modBFreq1Knob         // 20-24000 Hz
-modBFreq2Knob         // 20-24000 Hz
+modBFreq1Knob         // 1-20000 Hz
+modBFreq2Knob         // 1-20000 Hz
 
 // Modulator C (Treble)
 modCGainKnob          // 0.0-1.0
-modCFreq1Knob         // 20-24000 Hz
-modCFreq2Knob         // 20-24000 Hz
+modCFreq1Knob         // 1-20000 Hz
+modCFreq2Knob         // 1-20000 Hz
 
 // Freq knob behavior:
 // - Disabled (dimmed) when no audio loaded
 // - Push behavior: Freq1 can't exceed Freq2
 // - Log scale for natural frequency perception
+// - V5_7_0: Range changed from 20Hz-24kHz to 1Hz-20kHz (Nyquist limit)
 ```
 
 **Focus Mode State (V5_1_0 Renames):**
@@ -2411,7 +2452,7 @@ removeBtn             // Remove loaded audio
 stopBtn               // (Deprecated - may be hidden)
 ```
 
-**Container Output (V5_1_0 Rename from "OUTPUT"):**
+**Container Output (V5_1_0 Rename from "OUTPUT", V5_7_0 Updates):**
 ```javascript
 // Section header: "CONTAINER OUTPUT"
 // Hover message: "Container = Shader + Audio + Settings"
@@ -2422,6 +2463,7 @@ filename              // Output filename (no extension)
                       
 resolution            // Select: 720p, 1080p, 1440p, 2160p
 fps                   // Select: 24, 30, 60
+format                // V5_7_0: Select: WebM, MP4
 // orientation moved to SHADER CONTROLS (V4_6_0)
 
 // V5_1_0: Separate Save/Update buttons
@@ -2429,7 +2471,14 @@ saveBtn               // Save as NEW container to Library
 updateBtn             // Update currently loaded container (hidden until load)
 
 renderBtn             // [R] Start render button
+cancelRenderBtn       // V5_7_0: [X] Cancel render (visible during render only)
 ```
+
+**V5_7_0 Render Behavior:**
+- **Loop-based duration:** Loop ON = In→Out, Loop OFF = Start→End
+- **BumpR in render:** Active BumpR stickers captured in render output
+- **PIP3 in render:** PIP3 center overlay captured in render output
+- **Cancel button:** X button appears during render, stops and discards
 
 **Display Elements:**
 ```javascript
@@ -2740,53 +2789,55 @@ micLevelMeterCanvas             // Real-time mic level display
 
 ---
 
-### Keyboard Shortcuts (CREATE Tab) (V5_2_0, V5_6_0 Updates)
+### Keyboard Shortcuts (CREATE Tab) (V5_7_0 Updates)
 
-**Global (V5_6_0):**
+**Global (V5_7_0):**
 | Shortcut | Action |
 |----------|--------|
-| R | Start render (V5_6_0: bare key) |
-| T | Quick timeline test (V5_6_0: bare key) |
+| R | Start render (bare key, V5_6_0+) |
+| X | Cancel render (during render only, V5_7_0) |
 
-**Audio Navigation:**
+**Audio Focus Mode (V5_7_0 - Bare Key Entry):**
 | Shortcut | Action |
 |----------|--------|
-| Spacebar | Play/pause audio |
-| Trackpad L/R | Smooth scrub |
-| Shift+< | Jump to previous grid line (4 bars) |
-| Shift+> | Jump to next grid line (4 bars) |
-| G | Toggle beatgrid |
-
-**Audio Focus Mode (V5_2_0):**
-| Shortcut | Action |
-|----------|--------|
-| Shift+A | Enter/exit Audio Focus mode |
+| A | Enter/exit Audio Focus mode (V5_7_0: bare key, was Shift+A) |
 | V | Open Volume panel |
 | C | Open Cue panel (5 cues) |
 | E | Open EQ panel (H/M/L) |
 | F | Open FX panel (W/D/B) |
+| M | Open Mic panel (V5_7_0) |
 | ↑/↓ | Navigate rows in panel |
 | ←/→ | Adjust values |
 | Enter | Activate (jump/kill) |
 | Escape | Exit panel or mode |
 
-**Reactivity Focus Mode:**
+**JKL Transport (V5_7_0 - In Audio Focus):**
 | Shortcut | Action |
 |----------|--------|
-| Shift+R | Enter/exit reactivity focus mode |
+| J | Jump back 1 beat |
+| JJ | Jump back 1 bar (double-tap) |
+| K | Play/pause toggle |
+| L | Jump forward 1 beat |
+| LL | Jump forward 1 bar (double-tap) |
+| Cmd+L | Toggle loop on/off |
+
+**Reactivity Focus Mode (V5_7_0 - Bare Key Entry):**
+| Shortcut | Action |
+|----------|--------|
+| R | Enter/exit reactivity focus mode (V5_7_0: bare key, was Shift+R) |
 | ←/→ | Navigate columns (Subdiv/Waveform/Gain/Freq1/Freq2) |
-| ↑/↓ | Navigate rows (A/B/C) |
+| ↑/↓ | Navigate rows (A/B/C) - also syncs N-panel mod selection |
 | Shift+← | Decrease value |
 | Shift+→ | Increase value |
-| , (comma) | Mute selected mod (V5_6_0) |
-| . (period) | Solo selected mod (V5_6_0) |
-| N | Toggle Mod Tuning panel (V5_3_0) |
+| , (comma) | Mute selected mod |
+| . (period) | Solo selected mod |
+| N | Toggle Mod Tuning panel (Blender-style: stays open when exiting mode) |
 | Escape | Exit mode |
 
-**Transform Focus Mode (V5_6_0 Redesign):**
+**Transform Focus Mode (V5_7_0 - Bare Key Entry):**
 | Shortcut | Action |
 |----------|--------|
-| Shift+T | Enter/exit transform focus mode |
+| T | Enter/exit transform focus mode (V5_7_0: bare key, was Shift+T) |
 | 1-5 | Select control (1=Rotation, 2=Scale, 3=Tile, 4=XY, 5=Pivot) |
 | 0 | Stop animation mode |
 | 1 | CW/Grow/Increase mode (when control selected) |
@@ -2797,7 +2848,7 @@ micLevelMeterCanvas             // Real-time mic level display
 | Trackpad scroll | Adjust animation speed (0.03×-256×) |
 | Escape | Exit mode |
 
-**Music Timing Focus Mode (V5_1_0):**
+**Music Timing Focus Mode:**
 | Shortcut | Action |
 |----------|--------|
 | Shift+M | Enter/exit music timing focus mode |
@@ -2806,7 +2857,7 @@ micLevelMeterCanvas             // Real-time mic level display
 | Shift+→ | Increase value |
 | Escape | Exit mode |
 
-**BumpR StickRs Mode (V5_1_0):**
+**BumpR StickRs Mode:**
 | Shortcut | Action |
 |----------|--------|
 | Shift+B | Enter/exit BumpR mode |
@@ -2815,12 +2866,15 @@ micLevelMeterCanvas             // Real-time mic level display
 | Enter | Trigger selected slot |
 | Escape | Exit mode |
 
-**PIP Camera (V5_5_0):**
+**PIP Camera (V5_7_0 - Chord Hotkeys):**
 | Shortcut | Action |
 |----------|--------|
-| O | Toggle camera overlay |
-| P | Toggle PIP 2 (corner) |
-| Shift+P | Toggle PIP 3 (center) |
+| P+1 | Toggle PIP1 slideout (PERFORM tab only) |
+| P+2 | Toggle PIP2 corner (all tabs) |
+| P+3 | Toggle PIP3 center (CREATE - captured in render) |
+| P+4 | Toggle camera overlay (all tabs) |
+
+**Note:** PIPs are mutually exclusive - opening one closes others. PIP2 persists across tab switches.
 
 **Note:** Hold Shift+Arrow for progressive acceleration (faster value changes).
 
@@ -2871,11 +2925,13 @@ micLevelMeterCanvas             // Real-time mic level display
 |-----|--------|
 | C | Open Cue panel for selected track |
 
-**PIP Camera (V5_5_0):**
+**PIP Camera (V5_7_0 - Chord Hotkeys):**
 | Key | Action |
 |-----|--------|
-| O | Toggle camera overlay (all tabs) |
-| P | Toggle PIP 1 slideout |
+| P+1 | Toggle PIP1 slideout |
+| P+2 | Toggle PIP2 corner |
+| P+3 | Toggle PIP3 center |
+| P+4 | Toggle camera overlay |
 
 **Categories:**
 - Safety: `Esc` (double-tap) (V5_4_0)
@@ -2883,7 +2939,7 @@ micLevelMeterCanvas             // Real-time mic level display
 - Quick-Load: `SHIFT+Right/Left` (V5_5_0)
 - Overlay Toggles: `E/F/V/A` (V5_6_0)
 - Panel Access: `C` (V5_2_0)
-- PIP: `O`, `P` (V5_5_0)
+- PIP: `P+1/2/3/4` chord hotkeys (V5_7_0)
 - Grid Navigation: `W/A/S/D`
 - Playback: `Enter`, `Space`, `Delete`
 - Mixer: Arrow keys, `,` `.` `<` `>`
@@ -2917,12 +2973,12 @@ Changes save automatically when navigating away - no OK/Cancel buttons.
 | Delete | Delete (with confirmation) |
 | Escape | Save and close drawer (V5_5_0) |
 
-**PIP Camera (V5_5_0):**
+**PIP Camera (V5_7_0 - Chord Hotkeys):**
 | Key | Action |
 |-----|--------|
-| O | Toggle camera overlay |
-| P | Toggle PIP 2 (corner) |
-| Shift+P | Toggle PIP 3 (center) |
+| P+2 | Toggle PIP2 corner |
+| P+3 | Toggle PIP3 center |
+| P+4 | Toggle camera overlay |
 
 ---
 
@@ -2943,12 +2999,12 @@ Changes save automatically when navigating away - no OK/Cancel buttons.
 | Enter | Trigger selected slot |
 | Escape | Exit BumpR mode |
 
-**PIP Camera (V5_5_0):**
+**PIP Camera (V5_7_0 - Chord Hotkeys):**
 | Key | Action |
 |-----|--------|
-| O | Toggle camera overlay |
-| P | Toggle PIP 2 (corner) |
-| Shift+P | Toggle PIP 3 (center) |
+| P+2 | Toggle PIP2 corner |
+| P+3 | Toggle PIP3 center |
+| P+4 | Toggle camera overlay |
 
 ---
 
@@ -5535,8 +5591,4 @@ function migrateContainer(containerData) {
 
 ---
 
-## END OF SYSTEM REFERENCE
-
-**Version:** Beta V5_6_0  
-**Date:** January 11, 2026  
-**License:** GPL-3.0
+**END OF SYSTEM REFERENCE**
