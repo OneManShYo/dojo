@@ -1,7 +1,7 @@
-# OMS SHADER BAKER V3.8.0 - CLAUDE PROJECT INSTRUCTIONS
+# OMS SHADER BAKER V3.9.0 - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** V3.8.0  
-**Date:** November 17, 2025  
+**Version:** V3.9.0  
+**Date:** November 21, 2025  
 **Purpose:** Complete project context for Claude AI development in this Project
 
 ---
@@ -14,7 +14,7 @@
 1. [About Wes Smith - Creator Context](#about-wes-smith---creator-context)
 2. [ONEMANSHYO - The Origin Story](#onemanshyo---the-origin-story)
 3. [Current Production Workflow](#current-production-workflow)
-4. [OMS Shader Baker V3.8.0 - Current State](#oms-shader-baker-v370---current-state)
+4. [OMS Shader Baker V3.9.0 - Current State](#oms-shader-baker-v390---current-state)
 5. [Development Protocols - CRITICAL](#development-protocols---critical)
 6. [Communication Guidelines](#communication-guidelines)
 7. [Key Architectural Principles](#key-architectural-principles)
@@ -658,17 +658,31 @@ Shader Baker (Controls/Library/Code tabs) + LIVE tab → Performance
 ####################################################
 
 
-## OMS SHADER BAKER V3.8.0 - CURRENT STATE
+## OMS SHADER BAKER V3.9.0 - CURRENT STATE
 
 ### Project Identity
 
 **Name:** OMS Shader Baker  
-**Current Version:** V3.8.0  
-**Type:** Single-file HTML application (~550KB)  
+**Current Version:** V3.9.0_L_sub20 (Development Build)  
+**Type:** Single-file HTML application (~560KB)  
 **License:** GPL-3.0 (free and open source)  
 **Purpose:** Audio-reactive WebGPU shader tool + live performance mixing
 
 ### Production Status
+
+**V3.9.0 In Development (November 21, 2025):**
+✅ **Master Clock Architecture + Beat-Based Scrolling** (12 iterations A-L, 20+ sub-iterations)
+- Master clock as single source of truth
+- Beat-based scrolling (musical coordinates)
+- Launch beat tracking per track
+- Tempo history walker
+- audioStartTime visual compensation removed
+- Pop-out window shader code persistence
+- Multiple AI-suggested approaches tested
+- Extensive timing architecture research
+
+**Status:** Development build testing timing improvements  
+**Next:** Finalize Master Grid alignment, validate tempo changes
 
 **V3.8.0 Complete (November 17, 2025):**
 ✅ **Ergonomics + Polish + About Tab** (26 iterations A-Z)
@@ -957,6 +971,40 @@ Shader Baker (Controls/Library/Code tabs) + LIVE tab → Performance
 - , / .: Audio M/S
 - `[` `]`: Zoom (10px steps) ← NEW
 - Trackpad pinch/spread: Zoom ← NEW
+
+### V3.9.0 - November 21, 2025 (12 iterations A-L, 20+ sub-iterations)
+
+**Achievement:** Master Clock Architecture + Beat-Based Scrolling
+
+**What Changed:**
+- Master clock object as single timing authority
+- Beat-based scrolling (musical coordinates not time coordinates)
+- Launch beat tracking per track
+- Tempo history walker
+- audioStartTime visual compensation removed
+- Pop-out window shader code persistence fix
+- Extensive timing architecture research
+- Multiple AI approaches tested (Grok, Gemini, beat-based)
+
+**Key Innovation:** Musical time coordinates for waveform scrolling - matches Master Grid coordinate system
+
+**Key Learnings:**
+- Coordinate system mismatch causes alignment issues
+- Time-based scrolling incompatible with tempo changes
+- Beat-based scrolling handles tempo changes correctly
+- audioStartTime belongs in audio domain, not visual domain
+- Sub-iterations essential for complex architectural changes
+- Multiple approaches reveal best solution
+
+**Sub-Iteration Details:**
+- I: 30+ sub-iterations diagnosing Master Grid alignment
+- J: 3 sub-iterations testing three different solutions
+- K: Multiple sub-iterations implementing beat-based system
+- L: 20 sub-iterations fixing pop-out shader compilation
+
+**File:** OMS_ShaderBaker_V3_9_0_L_sub20.html (13,737 lines, ~560KB)
+
+**Status:** Development build - timing architecture improvements under testing
 
 ---
 

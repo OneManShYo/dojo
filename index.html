@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V3_8
+ONEMANSHYO Dojo App V3_9
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V3_8
+Version: V3_9
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V3_8]</title>
+    <title>ONEMANSHYO App [V3_9]</title>
     <style>
         * {
             margin: 0;
@@ -1556,7 +1556,7 @@ Version: V3_8
 
         /* Waveform Section (Bottom) */
         .waveforms-section {
-            height: 240px; /* V3.1.0-Q: Increased from 220px - Track 4 was cut off */
+            height: 248px; /* V3_9_0_F_sub19c: 240px + 8px clock dot lane */
             background: #0c0c0c;
             border: 2px solid #444; /* V3_7_0_C: Complete border for modular look */
             border-radius: 3px; /* V3_7_0_I: Rounded corners to match other modules */
@@ -1716,6 +1716,33 @@ Version: V3_8
             background: #000;
         }
 
+        /* V3_9_0_G_sub5: Right-side DAW clock panel */
+        .daw-clock-panel {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 8px; /* Leave room for clock-dot-lane at bottom */
+            width: 60px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 2px;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 4px;
+        }
+
+        .daw-clock-readout {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            white-space: nowrap;
+        }
+
         .waveform-canvas {
             flex: 1;
             height: 100%;
@@ -1736,6 +1763,45 @@ Version: V3_8
             background: #ff00ff; /* Magenta */
             z-index: 10;
             pointer-events: none;
+        }
+
+        /* V3_9_0_F_sub19c: Clock dot lane - shows master clock position */
+        .clock-dot-lane {
+            position: absolute;
+            bottom: 0;
+            left: 70px;
+            right: 0;
+            height: 8px;
+            background: #0c0c0c;
+            border-top: 1px solid #444;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .clock-dot {
+            position: absolute;
+            top: 2px;
+            left: calc(50% - 36px); /* V3_9_0_F_sub19: Micro-adjusted right for perfect alignment */
+            width: 4px;
+            height: 4px;
+            background: #00ff00;
+            border-radius: 50%;
+            box-shadow: 0 0 4px #00ff00;
+            will-change: transform;
+            z-index: 15; /* V3_9_0_F_sub19: Above playhead (z-index: 10) */
+        }
+
+        /* V3_9_0_G_sub2: Master Grid overlay canvas */
+        .master-grid-canvas {
+            position: absolute;
+            top: 0;
+            left: 0; /* V3_9_0_H_sub3: Start at left edge (canvas is full width including clock lane) */
+            right: 0;
+            height: 240px; /* All 4 tracks (not including clock-dot-lane) */
+            pointer-events: none; /* Don't block waveform interactions */
+            z-index: 5; /* Above waveforms (z-index 1), below playhead (z-index 10) */
+            display: none; /* Hidden by default, toggle with G button */
         }
 
         /* V3_8_0_G: App-Level Folder Required Overlay */
@@ -1843,7 +1909,7 @@ Version: V3_8
     <div class="header">
         <div class="header-left">
             <div class="header-brand">ONEMANSHYO</div>
-            <div class="header-app">Shader Baker [V3_8]</div>
+            <div class="header-app">Shader Baker [V3_9]</div>
         </div>
         <div class="header-greeting" id="headerGreeting">Hi Friend, I'm Wes!</div>
     </div>
@@ -2610,7 +2676,6 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     </div>
                     <div class="cell-controls-row">
                         <button class="btn" id="audioPlayBtn" onclick="toggleAudioPlayback()" title="Play/Pause (Spacebar)" disabled>Play</button>
-                        <button class="btn" id="audioStopBtn" onclick="stopAudio()" title="Stop Audio" disabled>Stop</button>
                         <button class="btn" id="audioLoopBtn" onclick="toggleAudioLoop()" title="Loop: Audio repeats IN to OUT" disabled>Loop</button>
                     </div>
                 </div>
@@ -2811,6 +2876,16 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                     </div>
                                 </div>
                             </div>
+                            <!-- V3_9_0_F_sub19c: Clock dot lane -->
+                            <div class="clock-dot-lane">
+                                <div class="clock-dot" id="clockDot"></div>
+                            </div>
+                            <!-- V3_9_0_G_sub5: Right-side DAW clock panel -->
+                            <div class="daw-clock-panel">
+                                <div class="daw-clock-readout" id="dawClockReadout">1.1.1</div>
+                            </div>
+                            <!-- V3_9_0_G_sub2: Master Grid overlay -->
+                            <canvas id="masterGrid" class="master-grid-canvas"></canvas>
                         </div>
                     </div>
                 </div>
@@ -2837,8 +2912,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         let audioTempo = 120;     // Audio reference tempo (for IN/OUT beat positioning)
         let audioPitch = 0;       // V2.8.0-D: Audio pitch adjustment (-16 to +16 percent)
         
-        // Audio analysis variables
-        let audioContext = null;
+        // V3_9_0_D: Separate audio contexts for main system vs LIVE tab
+        // Audio analysis variables (Main system - all tabs except LIVE)
+        let audioContext = null;  // Main system audio context (Controls/Presets/Library/Code/Settings/About)
         let audioElement = null;
         let audioSource = null;
         let analyser = null;
@@ -2846,6 +2922,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         let audioLoaded = false;
         let currentAudioFile = null;  // V2.8.0-L: Store current audio File object for filename
         let bassLevel = 0, midLevel = 0, trebleLevel = 0;
+        
+        // LIVE tab audio context (declared here, initialized in LIVE tab section)
+        let trackAudioContext = null;  // LIVE tab audio context for multi-track DJ mixer
         
         // V2.8.0-A: BroadcastChannel for ShaderBakerLive communication
         const instanceId = 'sb-' + Math.random().toString(36).substr(2, 9);
@@ -3171,7 +3250,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             audioElement.src = URL.createObjectURL(file);
             audioElement.loop = false;
             
-            // Initialize Web Audio API
+            // V3_9_0_D_sub2: Initialize main system Web Audio API (separate from LIVE tab)
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
@@ -3293,7 +3372,6 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 // V2.4.0-C: Enable transport controls (was missing in V2.4.0-B)
                 document.getElementById('audioPlayBtn').disabled = false;
-                document.getElementById('audioStopBtn').disabled = false;
                 document.getElementById('audioLoopBtn').disabled = false;
                 
                 // V2.5.0-X: Set loop button to active state (audioLoopEnabled defaults to true)
@@ -3684,7 +3762,6 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             audioPlayBtn.disabled = true;
             audioPlayBtn.textContent = 'Play';
             audioPlayBtn.classList.remove('playing');
-            document.getElementById('audioStopBtn').disabled = true;
             
             // V2.5.0-X: Reset loop button to inactive state when audio removed
             const audioLoopBtn = document.getElementById('audioLoopBtn');
@@ -3731,6 +3808,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // Audio playback controls
         function toggleAudioPlayback() {
+            // V3_9_0_D: Don't work if LIVE tab is active (LIVE has its own audio system)
+            const liveTabActive = document.getElementById('liveTab')?.classList.contains('active');
+            if (liveTabActive) {
+                showStatus('Use LIVE tab controls for playback', 'info');
+                return;
+            }
+            
             if (!audioLoaded || !audioElement) return;
             
             const audioPlayBtn = document.getElementById('audioPlayBtn');
@@ -3901,6 +3985,98 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             trebleLevel = trebleLevel * (1 - smoothing) + trebleLevel * smoothing;
             
             return { bass: bassLevel, mid: midLevel, treble: trebleLevel };
+        }
+
+        // V3_9_0_L_sub14: Offline audio analysis using audioBufferData (no playback required)
+        async function analyzeAudioBufferAtTime(timeSeconds, container) {
+            if (!audioBufferData) {
+                return { bass: 0, mid: 0, treble: 0 };
+            }
+            
+            const sampleRate = audioBufferData.sampleRate;
+            const fftSize = 32768; // Match live analyser
+            const halfFFT = fftSize / 2;
+            
+            // Get frequency ranges from container or defaults
+            const modAFreq1 = container.controlStates.modAFreq1 || 30;
+            const modAFreq2 = container.controlStates.modAFreq2 || 50;
+            const modBFreq1 = container.controlStates.modBFreq1 || 50;
+            const modBFreq2 = container.controlStates.modBFreq2 || 75;
+            const modCFreq1 = container.controlStates.modCFreq1 || 100;
+            const modCFreq2 = container.controlStates.modCFreq2 || 500;
+            
+            // Calculate bin indices
+            const nyquist = sampleRate / 2;
+            const binWidth = nyquist / halfFFT;
+            
+            const modAStartBin = Math.floor(modAFreq1 / binWidth);
+            const modAEndBin = Math.floor(modAFreq2 / binWidth);
+            const modBStartBin = Math.floor(modBFreq1 / binWidth);
+            const modBEndBin = Math.floor(modBFreq2 / binWidth);
+            const modCStartBin = Math.floor(modCFreq1 / binWidth);
+            const modCEndBin = Math.floor(modCFreq2 / binWidth);
+            
+            // Create offline context for this analysis
+            const offlineCtx = new OfflineAudioContext(1, fftSize, sampleRate);
+            const analyserNode = offlineCtx.createAnalyser();
+            analyserNode.fftSize = fftSize;
+            
+            // Extract audio chunk at timeSeconds
+            const startSample = Math.floor(timeSeconds * sampleRate);
+            const endSample = Math.min(startSample + fftSize, audioBufferData.length);
+            const chunkLength = endSample - startSample;
+            
+            if (chunkLength < fftSize / 2) {
+                // Not enough samples
+                return { bass: 0, mid: 0, treble: 0 };
+            }
+            
+            // Create buffer for this chunk
+            const chunkBuffer = offlineCtx.createBuffer(1, chunkLength, sampleRate);
+            const sourceChannel = audioBufferData.getChannelData(0); // Use first channel
+            const chunkChannel = chunkBuffer.getChannelData(0);
+            
+            // Copy samples
+            for (let i = 0; i < chunkLength; i++) {
+                chunkChannel[i] = sourceChannel[startSample + i];
+            }
+            
+            // Create source and connect
+            const source = offlineCtx.createBufferSource();
+            source.buffer = chunkBuffer;
+            source.connect(analyserNode);
+            analyserNode.connect(offlineCtx.destination);
+            source.start(0);
+            
+            // Render and get FFT data
+            await offlineCtx.startRendering();
+            
+            // Now read frequency data
+            const frequencyData = new Uint8Array(analyserNode.frequencyBinCount);
+            analyserNode.getByteFrequencyData(frequencyData);
+            
+            // Calculate averages for each range
+            let modASum = 0, modBSum = 0, modCSum = 0;
+            
+            for (let i = modAStartBin; i < modAEndBin && i < frequencyData.length; i++) {
+                modASum += frequencyData[i];
+            }
+            const modABinCount = modAEndBin - modAStartBin;
+            const bass = modABinCount > 0 ? (modASum / modABinCount / 255.0) : 0;
+            
+            for (let i = modBStartBin; i < modBEndBin && i < frequencyData.length; i++) {
+                modBSum += frequencyData[i];
+            }
+            const modBBinCount = modBEndBin - modBStartBin;
+            const mid = modBBinCount > 0 ? (modBSum / modBBinCount / 255.0) : 0;
+            
+            for (let i = modCStartBin; i < modCEndBin && i < frequencyData.length; i++) {
+                modCSum += frequencyData[i];
+            }
+            const modCBinCount = modCEndBin - modCStartBin;
+            const treble = modCBinCount > 0 ? (modCSum / modCBinCount / 255.0) : 0;
+            
+            return { bass, mid, treble };
         }
 
         // Update Tempo input
@@ -4129,6 +4305,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 if (!audioLoaded || !audioElement) return;
                 
+                const audioPlayBtn = document.getElementById('audioPlayBtn');
+                
                 if (audioElement.paused) {
                     // V2.4.0-B: Starting playback - check if we're in the In/Out range
                     // V2.4.0-J: Parse bar.beat format
@@ -4146,8 +4324,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     }
                     
                     audioElement.play();
+                    // V3_9_0_D_sub3: Update button text/class like mouse click
+                    audioPlayBtn.textContent = 'Pause';
+                    audioPlayBtn.classList.add('playing');
                 } else {
                     audioElement.pause();
+                    // V3_9_0_D_sub3: Update button text/class like mouse click
+                    audioPlayBtn.textContent = 'Play';
+                    audioPlayBtn.classList.remove('playing');
                 }
             }
             
@@ -5532,6 +5716,63 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             }
         }
         
+        // V3_9_0_L_sub1: Generic audio timeline analysis
+        // Captures FFT analysis data for entire audio track
+        // Results stored in shader-specific timeline fields for use by LIVE tab
+        async function analyzeAudioTimeline(container) {
+            if (!audioBufferData) {
+                console.log('V3_9_0_L_sub14: No decoded audio buffer to analyze');
+                return;
+            }
+            
+            const fps = container.controlStates.fps || 30;
+            const startTime = container.audioStartTime || 0;
+            const endTime = container.audioEndTime || audioBufferData.duration;
+            const duration = endTime - startTime;
+            const sampleCount = Math.ceil(duration * fps);
+            const timeStep = 1.0 / fps;
+            
+            console.log(`V3_9_0_L_sub14: Starting offline analysis - ${duration.toFixed(2)}s at ${fps}fps = ${sampleCount} samples`);
+            console.log(`V3_9_0_L_sub14: Gains - modA=${container.controlStates.shaderModAGain}, modB=${container.controlStates.shaderModBGain}, modC=${container.controlStates.shaderModCGain}`);
+            
+            const modATimeline = [];
+            const modBTimeline = [];
+            const modCTimeline = [];
+            
+            // V3_9_0_L_sub14: Use offline analysis - NO playback required!
+            for (let i = 0; i < sampleCount; i++) {
+                const sampleTime = startTime + (i * timeStep);
+                
+                // Analyze audio buffer at this time point
+                const audioLevels = await analyzeAudioBufferAtTime(sampleTime, container);
+                
+                // Apply gains (same as before)
+                const modAGain = container.controlStates.shaderModAGain || 0.1;
+                const modBGain = container.controlStates.shaderModBGain || 0.1;
+                const modCGain = container.controlStates.shaderModCGain || 0.1;
+                
+                modATimeline.push(audioLevels.bass * modAGain);
+                modBTimeline.push(audioLevels.mid * modBGain);
+                modCTimeline.push(audioLevels.treble * modCGain);
+                
+                // Log progress every 10%
+                if (i % Math.floor(sampleCount / 10) === 0) {
+                    const progress = ((i / sampleCount) * 100).toFixed(0);
+                    console.log(`V3_9_0_L_sub14: Analysis ${progress}% | sample=${i}/${sampleCount} | bass=${audioLevels.bass.toFixed(3)} mid=${audioLevels.mid.toFixed(3)} treble=${audioLevels.treble.toFixed(3)}`);
+                }
+            }
+            
+            // Store timelines in shader-specific fields
+            container.shaderModATimeline = modATimeline;
+            container.shaderModBTimeline = modBTimeline;
+            container.shaderModCTimeline = modCTimeline;
+            
+            console.log(`V3_9_0_L_sub14: Analysis complete!`);
+            console.log(`V3_9_0_L_sub14: Timeline lengths - modA=${modATimeline.length}, modB=${modBTimeline.length}, modC=${modCTimeline.length}`);
+            console.log(`V3_9_0_L_sub14: First values - modA[0]=${modATimeline[0].toFixed(3)}, modB[0]=${modBTimeline[0].toFixed(3)}, modC[0]=${modCTimeline[0].toFixed(3)}`);
+            console.log(`V3_9_0_L_sub14: Last values - modA[last]=${modATimeline[modATimeline.length-1].toFixed(3)}, modB[last]=${modBTimeline[modBTimeline.length-1].toFixed(3)}, modC[last]=${modCTimeline[modCTimeline.length-1].toFixed(3)}`);
+        }
+
         async function confirmAddToLibrary() {
             const nameInput = document.getElementById('containerNameInput');
             const containerName = nameInput.value.trim();
@@ -5565,12 +5806,39 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 audioLoopIn: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopInField').value) : null,   // V3.2.0-P: Save loop in (beats)
                 audioLoopOut: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopOutField').value) : null, // V3.2.0-P: Save loop out (beats)
                 hasAudio: !!audioFilename,
+                shaderModATimeline: null,  // V3_9_0_L_sub1: Audio analysis timeline for shader mod A
+                shaderModBTimeline: null,  // V3_9_0_L_sub1: Audio analysis timeline for shader mod B
+                shaderModCTimeline: null,  // V3_9_0_L_sub1: Audio analysis timeline for shader mod C
                 created: new Date().toISOString()
             };
             
             const containers = getLibraryContainers();
             containers.push(container);
             saveLibraryContainers(containers);
+            
+            // V3.9.0_L_sub5: Debug logging to diagnose analysis check
+            console.log('V3.9.0_L_sub5: Add to Library clicked');
+            console.log('V3.9.0_L_sub5: audioLoaded =', audioLoaded);
+            console.log('V3.9.0_L_sub5: audioElement =', audioElement);
+            console.log('V3.9.0_L_sub5: container.hasAudio =', container.hasAudio);
+            console.log('V3.9.0_L_sub5: container.audioFilename =', container.audioFilename);
+            
+            // V3_9_0_L_sub1: Analyze audio timeline if loaded (populate shader mod timelines)
+            if (audioLoaded && audioElement) {
+                console.log('V3.9.0_L_sub5: Starting audio timeline analysis (Add to Library)...');
+                await analyzeAudioTimeline(container);
+                
+                // Re-save with timeline data included
+                const updatedContainers = getLibraryContainers();
+                const containerIndex = updatedContainers.findIndex(c => c.id === container.id);
+                if (containerIndex >= 0) {
+                    updatedContainers[containerIndex] = container;
+                    saveLibraryContainers(updatedContainers);
+                    console.log('V3.9.0_L_sub5: Timeline data saved to container (Add to Library)');
+                }
+            } else {
+                console.warn('V3.9.0_L_sub5: Skipping analysis - audioLoaded:', audioLoaded, 'audioElement:', audioElement);
+            }
             
             // V2.9.0-K: Auto-save .oms file to Audio Library folder
             await saveContainerToOMS(container);
@@ -5989,6 +6257,30 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             containers[containerIndex] = updatedContainer;
             saveLibraryContainers(containers);
             
+            // V3.9.0_L_sub5: Debug logging to diagnose analysis check
+            console.log('V3.9.0_L_sub5: UPDATE button clicked');
+            console.log('V3.9.0_L_sub5: audioLoaded =', audioLoaded);
+            console.log('V3.9.0_L_sub5: audioElement =', audioElement);
+            console.log('V3.9.0_L_sub5: updatedContainer.hasAudio =', updatedContainer.hasAudio);
+            console.log('V3.9.0_L_sub5: updatedContainer.audioFilename =', updatedContainer.audioFilename);
+            
+            // V3.9.0_L_sub5: Analyze audio timeline if loaded
+            if (audioLoaded && audioElement) {
+                console.log('V3.9.0_L_sub5: Starting audio timeline analysis (UPDATE)...');
+                await analyzeAudioTimeline(updatedContainer);
+                
+                // Re-save with timeline data included
+                const updatedContainers = getLibraryContainers();
+                const containerIndex2 = updatedContainers.findIndex(c => c.id === updatedContainer.id);
+                if (containerIndex2 >= 0) {
+                    updatedContainers[containerIndex2] = updatedContainer;
+                    saveLibraryContainers(updatedContainers);
+                    console.log('V3.9.0_L_sub5: Timeline data saved (UPDATE)');
+                }
+            } else {
+                console.warn('V3.9.0_L_sub5: Skipping analysis - audioLoaded:', audioLoaded, 'audioElement:', audioElement);
+            }
+            
             // V2.9.0-K: Auto-save .oms file to Audio Library folder
             await saveContainerToOMS(updatedContainer);
             
@@ -6001,6 +6293,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const updatedCard = document.querySelector(`.library-card[data-container-id="${containerId}"]`);
                 if (updatedCard) updatedCard.focus();
             }, 100);
+            
+            // V3_9_0_L_sub14: Show status message after update completes
+            showStatus(`Updated: ${updatedContainer.name}`, 'success');
         }
         
         async function removeContainer(containerId) {
@@ -8402,6 +8697,9 @@ ${shaderCode}
         let masterGainNode = null;
         let trackAudioSources = [null, null, null, null]; // Active audio sources per track
         let trackAudioBuffers = [null, null, null, null]; // Loaded audio buffers per track
+        let trackAudioStartContextTime = [null, null, null, null]; // V3_9_0_L_sub6: audioContext.currentTime when each track's audio started
+        let trackLaunchBeats = [null, null, null, null];  // V3_9_0_F_sub2: Beat position when each track launched
+        let trackBar1Positions = [null, null, null, null]; // V3_9_0_F_sub14: Bar 1 pixel position on canvas (fixed, never changes)
         // V3.1.0-K: Analyser nodes for LED meters
         let trackAnalysers = [];
         let masterAnalyser = null;
@@ -8420,7 +8718,7 @@ ${shaderCode}
         const shaderKnobDrawFunctions = [];
 
         // V3_5_0_L: Master clock for quantized launching
-        let sessionStartTime = null; // When first track launched (audioContext.currentTime)
+        let trackMasterClockStart = null; // When first track launched (trackAudioContext.currentTime)
 
         function initLiveTab() {
             initAudioRouting();
@@ -8430,6 +8728,7 @@ ${shaderCode}
             initLiveWaveforms();
             initLiveTempo(); // V3.2.0-S: Initialize master tempo control
             initLiveShader(); // V3.4.0_BETA_A: Initialize shader preview
+            initMasterGrid(); // V3_9_0_G_sub2: Initialize Master Grid
             
             // V3_6_0_F: Pop-out button handler
             const popOutButton = document.getElementById('popOutShaderButton');
@@ -8456,28 +8755,38 @@ ${shaderCode}
         
         // Start master clock on first launch (sets timing reference)
         function startMasterClock(actualStartTime) {
-            if (!sessionStartTime) {
+            if (!trackMasterClockStart) {
                 // V3_5_0_M: Use ACTUAL start time (not current time)
                 // This accounts for the 200ms buffer
-                sessionStartTime = actualStartTime;
-                console.log(`V3_5_0_M: Master clock started at ${sessionStartTime.toFixed(3)}`);
+                trackMasterClockStart = actualStartTime;
+                
+                // V3_9_0_F_sub8: Initialize tempo history
+                trackAudioMasterClock.initializeTempoHistory(actualStartTime, gridState.masterTempo);
+                
+                console.log(`V3_5_0_M: Master clock started at ${trackMasterClockStart.toFixed(3)}`);
+                
+                // V3_9_0_F_sub19c: Start clock dot animation
+                startClockDotAnimation();
+                
+                // V3_9_0_G_sub5: Start DAW clock readout animation
+                startDAWClockAnimation();
             }
         }
         
         // Calculate when the next bar boundary will occur
         function getNextBarBoundary() {
-            if (!sessionStartTime) {
+            if (!trackMasterClockStart) {
                 console.error('V3_5_0_L: Cannot calculate bar boundary - no session start time');
                 return null;
             }
             
-            const elapsed = audioContext.currentTime - sessionStartTime;
+            const elapsed = trackAudioContext.currentTime - trackMasterClockStart;
             const masterTempo = gridState.masterTempo;
             const secondsPerBar = (4 / masterTempo) * 60; // 4 beats per bar
             
             const currentBar = elapsed / secondsPerBar;
             const nextBar = Math.ceil(currentBar);
-            const nextBarTime = sessionStartTime + (nextBar * secondsPerBar);
+            const nextBarTime = trackMasterClockStart + (nextBar * secondsPerBar);
             
             console.log(`V3_5_0_L: Current bar ${currentBar.toFixed(3)}, next bar ${nextBar} at ${nextBarTime.toFixed(3)}`);
             
@@ -8486,21 +8795,24 @@ ${shaderCode}
 
         // V3.1.0-H: Initialize Web Audio routing
         function initAudioRouting() {
-            // Create or reuse audio context
-            if (!audioContext) {
-                audioContext = new AudioContext();
+            // V3_9_0_D_sub1: Create or reuse trackAudioContext (LIVE tab audio context)
+            if (!trackAudioContext) {
+                trackAudioContext = new AudioContext();
+                // V3_9_0_D_sub1: Connect track audio master clock to track audio context
+                trackAudioMasterClock.trackAudioContext = trackAudioContext;
+                console.log('[TrackAudioMasterClock] V3_9_0_D_sub1: trackAudioContext connected to trackAudioMasterClock');
             }
             
             // V3.1.0-K: Create 4 track gain nodes + analysers
             trackGainNodes = [];
             trackAnalysers = [];
             for (let i = 0; i < NUM_TRACKS; i++) {
-                const gainNode = audioContext.createGain();
+                const gainNode = trackAudioContext.createGain();
                 gainNode.gain.value = 0.5; // V3.1.0-M: Default 50% volume (12 o'clock)
                 trackGainNodes.push(gainNode);
                 
                 // Create analyser for this track
-                const analyser = audioContext.createAnalyser();
+                const analyser = trackAudioContext.createAnalyser();
                 analyser.fftSize = 256; // Small FFT for meter responsiveness
                 analyser.smoothingTimeConstant = 0.8; // Smooth meter movement
                 trackAnalysers.push(analyser);
@@ -8510,10 +8822,10 @@ ${shaderCode}
             }
             
             // Create master gain node + analyser
-            masterGainNode = audioContext.createGain();
+            masterGainNode = trackAudioContext.createGain();
             masterGainNode.gain.value = 0.5; // V3.1.0-M: Default 50% volume (12 o'clock)
             
-            masterAnalyser = audioContext.createAnalyser();
+            masterAnalyser = trackAudioContext.createAnalyser();
             masterAnalyser.fftSize = 256;
             masterAnalyser.smoothingTimeConstant = 0.8;
             
@@ -8523,7 +8835,7 @@ ${shaderCode}
                 analyser.connect(masterGainNode);
             });
             masterGainNode.connect(masterAnalyser);
-            masterAnalyser.connect(audioContext.destination);
+            masterAnalyser.connect(trackAudioContext.destination);
             
             console.log('V3.1.0-K: Web Audio routing initialized with analysers for meters');
             
@@ -8533,6 +8845,334 @@ ${shaderCode}
                 animateMeters();
             }
         }
+
+        // ========================================
+        // V3_9_0_A: TRACK AUDIO MASTER CLOCK ARCHITECTURE
+        // V3_9_0_D_sub1: Renamed from masterClock to trackAudioMasterClock for clarity (LIVE tab only)
+        // ========================================
+        // Single source of truth for all timing calculations
+        // Based on Web Audio API's AudioContext.currentTime
+        // Reference: Christoph Guttandin - "Synchronizing Audio on the Web" (ADC22)
+        
+        const trackAudioMasterClock = {
+            // V3_9_0_F_sub8: BAR/BEAT MASTER CLOCK with TEMPO HISTORY
+            // Tracks tempo changes to maintain consistent bar positions
+            
+            // AudioContext reference (set during initialization)
+            trackAudioContext: null,
+            
+            // V3_9_0_F_sub8: Tempo history - track all tempo changes
+            // Each entry: { time: audioContext.currentTime, tempo: BPM }
+            tempoHistory: [],
+            
+            // ALWAYS pull fresh from audioContext - never cache
+            get currentTime() {
+                if (!this.trackAudioContext) return 0;
+                return this.trackAudioContext.currentTime;
+            },
+            
+            // Current tempo from gridState
+            get currentTempo() {
+                return gridState.masterTempo;
+            },
+            
+            // Time calculations for CURRENT tempo (used by visual elements)
+            get secondsPerBeat() {
+                return 60.0 / this.currentTempo;
+            },
+            
+            get secondsPerBar() {
+                return this.secondsPerBeat * 4.0; // Assuming 4/4 time signature
+            },
+            
+            // V3_9_0_F_sub8: Initialize tempo history (called when first track launches)
+            initializeTempoHistory: function(startTime, tempo) {
+                this.tempoHistory = [{ time: startTime, tempo: tempo }];
+                console.log(`V3_9_0_F_sub8: Tempo history initialized at ${startTime.toFixed(3)}s, ${tempo} BPM`);
+            },
+            
+            // V3_9_0_F_sub8: Record tempo change
+            recordTempoChange: function(tempo) {
+                if (this.tempoHistory.length === 0) {
+                    console.error('V3_9_0_F_sub8: Cannot record tempo change - history not initialized!');
+                    return;
+                }
+                
+                this.tempoHistory.push({
+                    time: this.currentTime,
+                    tempo: tempo
+                });
+                
+                console.log(`V3_9_0_F_sub8: Tempo change recorded - ${this.tempoHistory.length} entries, now ${tempo} BPM at ${this.currentTime.toFixed(3)}s`);
+            },
+            
+            // V3_9_0_F_sub8: Calculate current bar by walking tempo history
+            getCurrentBar: function() {
+                if (!trackMasterClockStart || this.tempoHistory.length === 0) return 0;
+                
+                let totalBars = 0;
+                let lastTime = trackMasterClockStart;
+                
+                // Walk through each tempo period
+                for (let i = 0; i < this.tempoHistory.length; i++) {
+                    const period = this.tempoHistory[i];
+                    
+                    // End of this period is either next tempo change or current time
+                    const nextTime = (i < this.tempoHistory.length - 1) 
+                        ? this.tempoHistory[i + 1].time 
+                        : this.currentTime;
+                    
+                    // Calculate bars in this tempo period
+                    const elapsed = nextTime - lastTime;
+                    const secondsPerBar = (60.0 / period.tempo) * 4.0;
+                    const barsInPeriod = elapsed / secondsPerBar;
+                    
+                    totalBars += barsInPeriod;
+                    lastTime = nextTime;
+                }
+                
+                return totalBars;
+            },
+            
+            // Beat position calculations
+            getCurrentBeat: function() {
+                const bar = this.getCurrentBar();
+                const beatInBar = (bar % 1) * 4.0;  // Fractional part × 4 beats per bar
+                return Math.floor(bar) * 4 + beatInBar;  // Absolute beat position
+            },
+            
+            // V3_9_0_F_sub8: Get time at specific bar (walks tempo history forward)
+            getTimeAtBar: function(targetBar) {
+                if (!trackMasterClockStart || this.tempoHistory.length === 0) return 0;
+                
+                let accumulatedBars = 0;
+                let currentTime = trackMasterClockStart;
+                
+                // Walk tempo history until we reach target bar
+                for (let i = 0; i < this.tempoHistory.length; i++) {
+                    const period = this.tempoHistory[i];
+                    const secondsPerBar = (60.0 / period.tempo) * 4.0;
+                    
+                    // How many bars until next tempo change (or infinity if last period)?
+                    const nextTime = (i < this.tempoHistory.length - 1) 
+                        ? this.tempoHistory[i + 1].time 
+                        : Infinity;
+                    
+                    const timeAvailable = nextTime - currentTime;
+                    const barsAvailable = timeAvailable / secondsPerBar;
+                    
+                    // Does target bar fall in this period?
+                    if (accumulatedBars + barsAvailable >= targetBar) {
+                        // Target is in this period
+                        const barsNeeded = targetBar - accumulatedBars;
+                        const timeNeeded = barsNeeded * secondsPerBar;
+                        return currentTime + timeNeeded;
+                    }
+                    
+                    // Target is beyond this period, keep going
+                    accumulatedBars += barsAvailable;
+                    currentTime = nextTime;
+                }
+                
+                // Shouldn't reach here, but return current time as fallback
+                return currentTime;
+            },
+            
+            // Time at specific beat
+            getTimeAtBeat: function(beat) {
+                const bar = beat / 4.0;
+                return this.getTimeAtBar(bar);
+            },
+            
+            // Quantization helpers
+            getNextBeatTime: function() {
+                const currentBeat = this.getCurrentBeat();
+                const nextBeat = Math.ceil(currentBeat);
+                return this.getTimeAtBeat(nextBeat);
+            },
+            
+            getNextBarTime: function() {
+                const currentBar = this.getCurrentBar();
+                const nextBar = Math.ceil(currentBar);
+                return this.getTimeAtBar(nextBar);
+            },
+            
+            // V3_9_0_F_sub15: Get ACTUAL elapsed time between two beats
+            // This accounts for tempo changes - critical for visual scrolling!
+            // V3_9_0_F_sub16: Removed console.log (was spamming 240 msgs/sec)
+            getElapsedTimeFromBeats: function(startBeat, endBeat) {
+                if (!trackMasterClockStart || this.tempoHistory.length === 0) return 0;
+                
+                const startTime = this.getTimeAtBeat(startBeat);
+                const endTime = this.getTimeAtBeat(endBeat);
+                const elapsed = endTime - startTime;
+                
+                return elapsed;
+            },
+            
+            // V3_9_0_G_sub6: Get beat position at a specific audioContext.currentTime
+            // Inverse of getTimeAtBeat - walks tempo history to find which beat a time represents
+            getBeatAtTime: function(targetTime) {
+                if (!trackMasterClockStart || this.tempoHistory.length === 0) return 0;
+                
+                // If target is before session start, return 0
+                if (targetTime <= trackMasterClockStart) return 0;
+                
+                let totalBeats = 0;
+                let lastTime = trackMasterClockStart;
+                
+                // Walk through each tempo period
+                for (let i = 0; i < this.tempoHistory.length; i++) {
+                    const period = this.tempoHistory[i];
+                    
+                    // End of this period is either next tempo change or target time
+                    const nextTime = (i < this.tempoHistory.length - 1) 
+                        ? this.tempoHistory[i + 1].time 
+                        : targetTime;
+                    
+                    // Only process if this period is before target time
+                    if (lastTime >= targetTime) break;
+                    
+                    // Calculate beats in this tempo period
+                    const endTime = Math.min(nextTime, targetTime);
+                    const elapsed = endTime - lastTime;
+                    const secondsPerBeat = 60.0 / period.tempo;
+                    const beatsInPeriod = elapsed / secondsPerBeat;
+                    
+                    totalBeats += beatsInPeriod;
+                    lastTime = endTime;
+                    
+                    // If we've reached target time, stop
+                    if (endTime >= targetTime) break;
+                }
+                
+                return totalBeats;
+            },
+            
+            // Logging helper for verification
+            logState: function(context) {
+                console.log(`[MasterClock] ${context}:`, {
+                    currentTime: this.currentTime.toFixed(3),
+                    currentTempo: this.currentTempo,
+                    tempoHistoryLength: this.tempoHistory.length,
+                    secondsPerBeat: this.secondsPerBeat.toFixed(3),
+                    secondsPerBar: this.secondsPerBar.toFixed(3),
+                    currentBeat: this.getCurrentBeat().toFixed(3),
+                    currentBar: this.getCurrentBar().toFixed(3),
+                    nextBeatTime: this.getNextBeatTime().toFixed(3),
+                    nextBarTime: this.getNextBarTime().toFixed(3)
+                });
+            }
+        };
+        
+        // V3_9_0_I_sub10: PIXEL GRID TRANSLATOR
+        // Converts between beat positions (DAW time) and pixel positions (screen space)
+        // Works alongside trackAudioMasterClock to provide complete timing system:
+        //   - trackAudioMasterClock: beats ↔ seconds (tempo history)
+        //   - trackAudioPixelGrid: beats ↔ pixels (tempo + zoom)
+        
+        const trackAudioPixelGrid = {
+            // Reference to master clock for tempo info
+            masterClock: trackAudioMasterClock,
+            
+            // Current zoom level (pixels per second)
+            get pixelsPerSecond() {
+                return gridState.zoomValue;
+            },
+            
+            // Pixels per beat at CURRENT tempo (no history)
+            get pixelsPerBeat() {
+                const secondsPerBeat = this.masterClock.secondsPerBeat;
+                return secondsPerBeat * this.pixelsPerSecond;
+            },
+            
+            // Pixels per bar at CURRENT tempo (no history)
+            get pixelsPerBar() {
+                const secondsPerBar = this.masterClock.secondsPerBar;
+                return secondsPerBar * this.pixelsPerSecond;
+            },
+            
+            // Convert beat position to pixel position (simple - no tempo history)
+            // Use this for visual elements that reference CURRENT tempo only
+            beatToPixel: function(beat) {
+                return beat * this.pixelsPerBeat;
+            },
+            
+            // Convert pixel position to beat position (simple - no tempo history)
+            pixelToBeat: function(pixel) {
+                return pixel / this.pixelsPerBeat;
+            },
+            
+            // Convert bar position to pixel position (simple - no tempo history)
+            barToPixel: function(bar) {
+                return bar * this.pixelsPerBar;
+            },
+            
+            // Convert pixel position to bar position (simple - no tempo history)
+            pixelToBar: function(pixel) {
+                return pixel / this.pixelsPerBar;
+            },
+            
+            // V3_9_0_I_sub10: Convert beat to pixel WITH tempo history
+            // Walk through tempo changes and accumulate pixel positions
+            // Use this for waveform positioning where tempo has changed
+            beatToPixelWithHistory: function(beat) {
+                if (!trackMasterClockStart || this.masterClock.tempoHistory.length === 0) {
+                    return this.beatToPixel(beat);  // Fall back to simple calculation
+                }
+                
+                let totalPixels = 0;
+                let lastTime = trackMasterClockStart;
+                let accumulatedBeats = 0;
+                
+                // Walk through each tempo period
+                for (let i = 0; i < this.masterClock.tempoHistory.length; i++) {
+                    const period = this.masterClock.tempoHistory[i];
+                    
+                    // Calculate beats in this period
+                    const secondsPerBeat = 60.0 / period.tempo;
+                    const beatsPerBar = 4.0;
+                    
+                    // Next tempo change or end of target beat
+                    const targetTime = this.masterClock.getTimeAtBeat(beat);
+                    const nextTime = (i < this.masterClock.tempoHistory.length - 1)
+                        ? this.masterClock.tempoHistory[i + 1].time
+                        : targetTime;
+                    
+                    // Calculate beats in this tempo period
+                    const elapsed = Math.min(nextTime, targetTime) - lastTime;
+                    const beatsInPeriod = elapsed / secondsPerBeat;
+                    
+                    // Convert to pixels at this tempo's rate
+                    const pixelsPerBeat = secondsPerBeat * this.pixelsPerSecond;
+                    const pixelsInPeriod = beatsInPeriod * pixelsPerBeat;
+                    
+                    totalPixels += pixelsInPeriod;
+                    accumulatedBeats += beatsInPeriod;
+                    lastTime = Math.min(nextTime, targetTime);
+                    
+                    // Stop if we've reached target beat
+                    if (accumulatedBeats >= beat) break;
+                }
+                
+                return totalPixels;
+            },
+            
+            // Logging helper for debugging
+            logState: function(context) {
+                console.log(`[PixelGrid] ${context}:`, {
+                    pixelsPerSecond: this.pixelsPerSecond,
+                    currentTempo: this.masterClock.currentTempo,
+                    pixelsPerBeat: this.pixelsPerBeat.toFixed(2),
+                    pixelsPerBar: this.pixelsPerBar.toFixed(2),
+                    secondsPerBeat: this.masterClock.secondsPerBeat.toFixed(3),
+                    secondsPerBar: this.masterClock.secondsPerBar.toFixed(3)
+                });
+            }
+        };
+        
+        // V3_9_0_D_sub1: Initialize trackAudioMasterClock.trackAudioContext reference when audio routing initializes
+        // This happens in initAudioRouting() - we'll update it there
 
         // V3.1.0-K: Animate LED meters
         function animateMeters() {
@@ -8700,17 +9340,14 @@ ${shaderCode}
                                 trackAudioSources[track].disconnect();
                                 trackAudioSources[track] = null;
                                 trackAudioBuffers[track] = null;
+                                trackLaunchBeats[track] = null;  // V3_9_0_F_sub2: Clear launch beat
+                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub6: Clear audio start time
                                 
                                 // V3.3.0_S: Recalculate zoom range when track stops
                                 recalculateZoomRange();
                                 
-                                // V3_6_0_M: Stop waveform scrolling and clear waveform
+                                // V3_6_0_M: Stop waveform scrolling (V3_9_0_F_sub4: keep waveform visible)
                                 stopAudioWaveformScroll(track);
-                                const canvas = document.getElementById(`waveform${track + 1}`);
-                                if (canvas) {
-                                    const ctx = canvas.getContext('2d');
-                                    drawEmptyWaveform(ctx, canvas);
-                                }
                                 
                                 // Remove green borders from all cells in track
                                 const allCellsInTrack = document.querySelectorAll(`.clip-slot[data-track="${track}"]`);
@@ -8727,13 +9364,31 @@ ${shaderCode}
                             return;
                         }
                         
-                        await playCellAudio(track, scene, cellData);
+                        // V3_9_0_F_sub3: Quantized launching for double-click (same as Enter key)
+                        let startTime;
                         
-                        // V3_6_0_M: Update shader for double-click launch (same as keyboard)
+                        if (isAnyTrackPlaying()) {
+                            // V3_9_0_F_sub9: Use tempo-history-aware master clock for quantization
+                            startTime = trackAudioMasterClock.getNextBarTime();
+                            if (!startTime) {
+                                // Fallback if something went wrong
+                                startTime = trackAudioContext.currentTime + 0.2;
+                            }
+                            console.log(`V3_9_0_F_sub9: Quantized double-click - waiting for bar boundary (tempo history)`);
+                        } else {
+                            // No tracks playing - start immediately (with 200ms buffer)
+                            startTime = trackAudioContext.currentTime + 0.2;
+                            startMasterClock(startTime); // V3_9_0_F_sub3: Initialize master clock
+                            console.log(`V3_9_0_F_sub3: First double-click - starting master clock at ${startTime.toFixed(3)}`);
+                        }
+                        
+                        await playCellAudio(track, scene, cellData, startTime);
+                        
+                        // V3_9_0_L_sub16: Update shader for double-click launch (now async/await)
                         try {
-                            updateCellShader(track, scene);
+                            await updateCellShader(track, scene);
                         } catch (error) {
-                            console.error('V3_6_0_M: Shader update failed (audio unaffected):', error);
+                            console.error('V3_9_0_L_sub16: Shader update failed (audio unaffected):', error);
                         }
                     });
                     
@@ -8924,6 +9579,14 @@ ${shaderCode}
                     gridState.trackMutes[t - 1] = isMuted;
                     autoSaveProject();
                 });
+                
+                // V3_9_0_B_sub1: Hover help for audio mute
+                muteBtn.addEventListener('mouseenter', () => {
+                    showStatus('Audio Mute - Silence track (,)', 'info');
+                });
+                muteBtn.addEventListener('mouseleave', () => {
+                    showStatus('', 'info');
+                });
                 soloBtn.addEventListener('click', () => {
                     soloBtn.classList.toggle('active');
                     const isSolo = soloBtn.classList.contains('active');
@@ -8959,6 +9622,14 @@ ${shaderCode}
                     }
                     
                     autoSaveProject();
+                });
+                
+                // V3_9_0_B_sub1: Hover help for audio solo
+                soloBtn.addEventListener('mouseenter', () => {
+                    showStatus('Audio Solo - Solo audio (.)', 'info');
+                });
+                soloBtn.addEventListener('mouseleave', () => {
+                    showStatus('', 'info');
                 });
                 
                 // V3_7_0_J: Initialize shader opacity knob
@@ -9046,6 +9717,14 @@ ${shaderCode}
                     updateTrackShaderOpacity(t - 1);
                 });
                 
+                // V3_9_0_B_sub1: Hover help for shader mute
+                shaderMuteBtn.addEventListener('mouseenter', () => {
+                    showStatus('Shader Mute - Hide visuals (Shift+,)', 'info');
+                });
+                shaderMuteBtn.addEventListener('mouseleave', () => {
+                    showStatus('', 'info');
+                });
+                
                 shaderSoloBtn.addEventListener('click', () => {
                     shaderSoloBtn.classList.toggle('active');
                     trackShaderSolo[t - 1] = shaderSoloBtn.classList.contains('active');
@@ -9056,47 +9735,191 @@ ${shaderCode}
                         updateTrackShaderOpacity(i);
                     }
                 });
+                
+                // V3_9_0_B_sub1: Hover help for shader solo
+                shaderSoloBtn.addEventListener('mouseenter', () => {
+                    showStatus('Shader Solo - Solo visuals (Shift+.)', 'info');
+                });
+                shaderSoloBtn.addEventListener('mouseleave', () => {
+                    showStatus('', 'info');
+                });
             }
             
-            // Initialize Master Mixer (V3.0.0-F)
+            // V3_9_0_C_sub5: Master tempo matches track structure (M/S buttons, display, knob)
             const mixerMaster = document.getElementById('mixerMaster');
             mixerMaster.innerHTML = `
-                <div class="mixer-layout">
-                    <div class="mixer-left" style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                        <div class="track-btn-group" style="justify-content: center;">
-                            <button class="track-btn mute" data-track="master">M</button>
-                            <button class="track-btn solo" data-track="master">S</button>
+                <div class="mixer-dual">
+                    <div class="mixer-shader">
+                        <div class="shader-controls">
+                            <div class="track-btn-group">
+                                <button class="track-btn" style="cursor: default; opacity: 0.3;">M</button>
+                                <button class="track-btn" style="cursor: default; opacity: 0.3;">S</button>
+                            </div>
+                            <div class="meter-container">
+                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50px; font-size: 16px; color: #fff; gap: 2px;">
+                                    <div id="tempoValue">120</div>
+                                    <div style="font-size: 10px; color: #888;">BPM</div>
+                                </div>
+                            </div>
+                            <canvas class="rotary-knob" id="rotaryTempo" width="30" height="30"></canvas>
                         </div>
-                        <div style="display: flex; justify-content: center;">
-                            <input type="number" 
-                                   id="liveTempoField" 
-                                   class="tempo-input" 
-                                   value="120" 
-                                   min="60" 
-                                   max="200" 
-                                   step="0.1"
-                                   title="Master Tempo (BPM)">
-                        </div>
-                        <canvas class="rotary-knob rotary-knob-large" id="rotaryMaster" width="60" height="60" style="margin-top: 10px;"></canvas>
                     </div>
-                    <div class="mixer-right">
-                        <div class="meter-container">
-                            <div class="meter-wrapper">
-                                <div class="meter-bar meter-bar-master" style="height: 120px;">
-                                    <div class="meter-fill-vertical" id="meterLMaster"></div>
+                    <div class="mixer-audio">
+                        <div class="audio-controls">
+                            <div class="track-btn-group">
+                                <button class="track-btn mute" data-track="master">M</button>
+                                <button class="track-btn solo" data-track="master">G</button>
+                            </div>
+                            <div class="meter-container">
+                                <div class="meter-wrapper">
+                                    <div class="meter-bar">
+                                        <div class="meter-fill-vertical" id="meterLMaster"></div>
+                                    </div>
+                                </div>
+                                <div class="meter-wrapper">
+                                    <div class="meter-bar">
+                                        <div class="meter-fill-vertical" id="meterRMaster"></div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="meter-wrapper">
-                                <div class="meter-bar meter-bar-master" style="height: 120px;">
-                                    <div class="meter-fill-vertical" id="meterRMaster"></div>
-                                </div>
-                            </div>
+                            <canvas class="rotary-knob" id="rotaryMaster" width="30" height="30"></canvas>
                         </div>
                     </div>
                 </div>
             `;
             
-            // Initialize master rotary knob
+            // V3_9_0_C_sub1: Initialize tempo rotary knob (30px, left side)
+            const canvasTempo = document.getElementById('rotaryTempo');
+            const ctxTempo = canvasTempo.getContext('2d');
+            let masterTempo = 120; // Default 120 BPM
+            let isDraggingTempo = false;
+            let lastYTempo = 0;
+            
+            function drawKnobTempo() {
+                ctxTempo.clearRect(0, 0, 30, 30);
+                ctxTempo.fillStyle = '#1a1a1a';
+                ctxTempo.beginPath();
+                ctxTempo.arc(15, 15, 13, 0, Math.PI * 2);
+                ctxTempo.fill();
+                ctxTempo.strokeStyle = '#444';
+                ctxTempo.lineWidth = 2;
+                ctxTempo.stroke();
+                
+                // Map 60-200 BPM to 0-1 range for knob position
+                const tempoNormalized = (masterTempo - 60) / (200 - 60);
+                
+                const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                const currentAngle = startAngle + (endAngle - startAngle) * tempoNormalized;
+                
+                ctxTempo.strokeStyle = '#00d4ff';
+                ctxTempo.lineWidth = 2;
+                ctxTempo.beginPath();
+                ctxTempo.arc(15, 15, 10, startAngle, currentAngle);
+                ctxTempo.stroke();
+                
+                ctxTempo.strokeStyle = '#fff';
+                ctxTempo.lineWidth = 2;
+                ctxTempo.beginPath();
+                ctxTempo.moveTo(15, 15);
+                ctxTempo.lineTo(15 + Math.cos(currentAngle) * 8, 15 + Math.sin(currentAngle) * 8);
+                ctxTempo.stroke();
+                
+                // V3_9_0_C_sub2: Draw cyan selection ring if master is selected
+                if (selectedKnobIndex === 4) {
+                    ctxTempo.strokeStyle = '#00d4ff';
+                    ctxTempo.lineWidth = 2;
+                    ctxTempo.beginPath();
+                    ctxTempo.arc(15, 15, 13, 0, Math.PI * 2);
+                    ctxTempo.stroke();
+                }
+            }
+            
+            // V3_9_0_C_sub2: Make updateTempo global for keyboard access
+            window.updateTempo = function(bpm) {
+                // V3_9_0_C_sub7: Round to 1 decimal place (allows 0.1 BPM increments)
+                masterTempo = Math.max(60, Math.min(200, Math.round(bpm * 10) / 10));
+                drawKnobTempo();
+                
+                // V3_9_0_C_sub7: Update tempo display (show 1 decimal place)
+                const tempoDisplay = document.getElementById('tempoValue');
+                if (tempoDisplay) {
+                    tempoDisplay.textContent = masterTempo.toFixed(1);
+                }
+                
+                // V3_9_0_C_sub2: Update gridState and trigger auto-save
+                gridState.masterTempo = masterTempo;
+                autoSaveProject();
+                
+                // V3_9_0_F_sub8: Record tempo change in master clock history
+                if (trackMasterClockStart) {
+                    trackAudioMasterClock.recordTempoChange(masterTempo);
+                }
+                
+                // V3_9_0_C_sub6: Update playback rates for all currently playing tracks
+                for (let track = 0; track < 4; track++) {
+                    if (trackAudioSources[track] && trackContainerData[track] && trackContainerData[track].audioBPM) {
+                        const playbackRate = gridState.masterTempo / trackContainerData[track].audioBPM;
+                        trackAudioSources[track].playbackRate.value = playbackRate;
+                        console.log(`V3_9_0_C_sub6: Track ${track + 1} playback rate updated: ${playbackRate.toFixed(4)} (${trackContainerData[track].audioBPM} → ${masterTempo} BPM)`);
+                    }
+                }
+                
+                // V3_9_0_F_sub6: Redraw beat grids and reposition waveforms for all playing tracks
+                // When tempo changes, beat grid spacing changes - must redraw at new spacing
+                for (let track = 0; track < 4; track++) {
+                    if (trackAudioSources[track] && trackContainerData[track]) {
+                        // Get canvas and context
+                        const canvas = document.getElementById(`waveform${track + 1}`);
+                        if (!canvas) continue;
+                        
+                        const ctx = canvas.getContext('2d');
+                        const audioBuffer = trackAudioBuffers[track];
+                        if (!audioBuffer) continue;
+                        
+                        // V3_9_0_F_sub7: Clear canvas first (prevent layered grids = thick bars)
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        
+                        // V3_9_0_F_sub7: Redraw blue waveform (fills canvas background)
+                        drawWaveformFromAudioBuffer(track + 1, audioBuffer);
+                        
+                        // V3_9_0_F_sub7: Redraw beat grid at NEW tempo spacing
+                        drawBeatGridOnWaveform(ctx, trackContainerData[track], audioBuffer, canvas.width, canvas.height);
+                        
+                        // Reposition waveform to maintain current bar at playhead
+                        positionTrackAudioWaveformAtCurrentBar(track + 1);
+                        
+                        console.log(`V3_9_0_F_sub6: Track ${track + 1} - redrew beat grid and repositioned at new tempo`);
+                    }
+                }
+                
+                // V3_9_0_G_sub2: Update Master Grid bar spacing at new tempo
+                updateMasterGrid();
+                
+                console.log(`V3_9_0_C_sub7: Master tempo set to ${masterTempo.toFixed(1)} BPM (playback rates updated)`);
+            };
+            
+            canvasTempo.addEventListener('mousedown', (e) => {
+                isDraggingTempo = true;
+                lastYTempo = e.clientY;
+            });
+            
+            window.addEventListener('mousemove', (e) => {
+                if (!isDraggingTempo) return;
+                const deltaY = lastYTempo - e.clientY;
+                // 0.07 sensitivity = ~1.4 BPM per 20px drag (140 BPM range / 100px typical drag)
+                updateTempo(masterTempo + deltaY * 0.07);
+                lastYTempo = e.clientY;
+            });
+            
+            window.addEventListener('mouseup', () => {
+                isDraggingTempo = false;
+            });
+            
+            // V3_9_0_C_sub1: Initial draw at 120 BPM
+            updateTempo(120);
+            
+            // V3_9_0_C_sub1: Initialize master volume knob (30px, matches tracks)
             const canvasMaster = document.getElementById('rotaryMaster');
             const ctxMaster = canvasMaster.getContext('2d');
             let volumeMaster = 0.5; // V3.1.0-M: Default 50% (12 o'clock)
@@ -9104,10 +9927,10 @@ ${shaderCode}
             let lastYMaster = 0;
             
             function drawKnobMaster() {
-                ctxMaster.clearRect(0, 0, 60, 60);
+                ctxMaster.clearRect(0, 0, 30, 30);
                 ctxMaster.fillStyle = '#1a1a1a';
                 ctxMaster.beginPath();
-                ctxMaster.arc(30, 30, 28, 0, Math.PI * 2);
+                ctxMaster.arc(15, 15, 13, 0, Math.PI * 2);
                 ctxMaster.fill();
                 ctxMaster.strokeStyle = '#444';
                 ctxMaster.lineWidth = 2;
@@ -9118,24 +9941,24 @@ ${shaderCode}
                 const currentAngle = startAngle + (endAngle - startAngle) * volumeMaster;
                 
                 ctxMaster.strokeStyle = '#00d4ff';
-                ctxMaster.lineWidth = 3;
+                ctxMaster.lineWidth = 2;
                 ctxMaster.beginPath();
-                ctxMaster.arc(30, 30, 22, startAngle, currentAngle);
+                ctxMaster.arc(15, 15, 10, startAngle, currentAngle);
                 ctxMaster.stroke();
                 
                 ctxMaster.strokeStyle = '#fff';
                 ctxMaster.lineWidth = 2;
                 ctxMaster.beginPath();
-                ctxMaster.moveTo(30, 30);
-                ctxMaster.lineTo(30 + Math.cos(currentAngle) * 18, 30 + Math.sin(currentAngle) * 18);
+                ctxMaster.moveTo(15, 15);
+                ctxMaster.lineTo(15 + Math.cos(currentAngle) * 8, 15 + Math.sin(currentAngle) * 8);
                 ctxMaster.stroke();
                 
                 // V3.1.0-N: Draw cyan selection ring if master knob is selected
                 if (selectedKnobIndex === 4) {
                     ctxMaster.strokeStyle = '#00d4ff';
-                    ctxMaster.lineWidth = 3;
+                    ctxMaster.lineWidth = 2;
                     ctxMaster.beginPath();
-                    ctxMaster.arc(30, 30, 28, 0, Math.PI * 2);
+                    ctxMaster.arc(15, 15, 13, 0, Math.PI * 2);
                     ctxMaster.stroke();
                 }
             }
@@ -9177,10 +10000,40 @@ ${shaderCode}
             knobDrawFunctions[4] = updateVolumeMaster;
             
             const muteBtnMaster = mixerMaster.querySelector('.track-btn.mute');
-            muteBtnMaster.addEventListener('click', () => muteBtnMaster.classList.toggle('active'));
+            muteBtnMaster.addEventListener('click', () => {
+                muteBtnMaster.classList.toggle('active');
+                const isMuted = muteBtnMaster.classList.contains('active');
+                
+                // V3_9_0_C_sub2: Mute all tracks
+                if (masterGainNode) {
+                    masterGainNode.gain.value = isMuted ? 0 : gridState.masterVolume;
+                }
+                
+                console.log(`V3_9_0_C_sub2: Master ${isMuted ? 'muted' : 'unmuted'} all tracks`);
+            });
+            
+            // V3_9_0_C_sub2: Hover help for master mute
+            muteBtnMaster.addEventListener('mouseenter', () => {
+                showStatus('Master Mute - Mute all tracks (,)', 'info');
+            });
+            muteBtnMaster.addEventListener('mouseleave', () => {
+                showStatus('', 'info');
+            });
             
             const soloBtnMaster = mixerMaster.querySelector('.track-btn.solo');
-            soloBtnMaster.addEventListener('click', () => soloBtnMaster.classList.toggle('active'));
+            // V3_9_0_G_sub3: Master Grid toggle button (existing G button in mixer)
+            soloBtnMaster.addEventListener('click', () => {
+                console.log('V3_9_0_G_sub3: Master Grid button clicked (mixer)');
+                toggleMasterGrid();
+            });
+            
+            // V3_9_0_G_sub3: Updated hover help
+            soloBtnMaster.addEventListener('mouseenter', () => {
+                showStatus('Master Grid - Toggle bar overlay (G key)', 'info');
+            });
+            soloBtnMaster.addEventListener('mouseleave', () => {
+                showStatus('', 'info');
+            });
             
             // V3.3.0_O: Initialize Zoom Control in mixer-spacer
             // V3_4_0_R: Use mixer-layout structure to align with volume knobs
@@ -9349,16 +10202,16 @@ ${shaderCode}
             let startTime;
             
             if (isAnyTrackPlaying()) {
-                // Tracks already playing - quantize to next bar boundary
-                startTime = getNextBarBoundary();
+                // V3_9_0_F_sub9: Use tempo-history-aware master clock for quantization
+                startTime = trackAudioMasterClock.getNextBarTime();
                 if (!startTime) {
                     // Fallback if something went wrong
-                    startTime = audioContext.currentTime + 0.2;
+                    startTime = trackAudioContext.currentTime + 0.2;
                 }
-                console.log(`V3_5_0_L: Quantized launch - waiting for bar boundary`);
+                console.log(`V3_9_0_F_sub9: Quantized scene launch - waiting for bar boundary (tempo history)`);
             } else {
                 // No tracks playing - start immediately (with 200ms buffer)
-                startTime = audioContext.currentTime + 0.2;
+                startTime = trackAudioContext.currentTime + 0.2;
                 startMasterClock(startTime); // V3_5_0_M: Pass ACTUAL start time
                 console.log(`V3_5_0_M: First launch - starting master clock at ${startTime.toFixed(3)}`);
             }
@@ -9378,16 +10231,11 @@ ${shaderCode}
                         trackAudioSources[track].disconnect();
                         trackAudioSources[track] = null;
                         trackAudioBuffers[track] = null;
+                        trackLaunchBeats[track] = null;  // V3_9_0_F_sub2: Clear launch beat
+                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub6: Clear audio start time
                         
-                        // Stop waveform scrolling
+                        // Stop waveform scrolling (V3_9_0_F_sub4: keep waveform visible)
                         stopAudioWaveformScroll(track);
-                        
-                        // Clear waveform
-                        const canvas = document.getElementById(`waveform${track + 1}`);
-                        if (canvas) {
-                            const ctx = canvas.getContext('2d');
-                            drawEmptyWaveform(ctx, canvas);
-                        }
                         
                         // V3_6_0_V: Remove .playing class from all cells in this track
                         document.querySelectorAll(`.clip-slot[data-track="${track}"]`).forEach(cell => {
@@ -9427,7 +10275,7 @@ ${shaderCode}
 
         // V3_6_0_A: Update shader for individual cell launch (simpler than scene logic)
         // V3_6_0_B: Update specific track's shader when cell is launched
-        function updateCellShader(track, scene) {
+        async function updateCellShader(track, scene) {
             const cellIndex = track * NUM_SCENES + scene;
             const cellData = gridState.cells[cellIndex];
             
@@ -9447,8 +10295,15 @@ ${shaderCode}
             // V3_6_0_P: Removed inline border styling - WASD cursor handles all visuals
             
             // V3_6_0_B: Update this track's shader specifically
-            console.log(`V3_6_0_B: Loading shader for Track ${track + 1} from "${container.name}"`);
-            updateLiveShader(track, container.shaderCode);
+            console.log(`V3_9_0_L_sub15: Loading shader for Track ${track + 1} from "${container.name}"`);
+            console.log(`V3_9_0_L_sub15: Shader code length: ${container.shaderCode.length} characters`);
+            
+            try {
+                await updateLiveShader(track, container.shaderCode);
+                console.log(`V3_9_0_L_sub15: Shader loaded successfully for Track ${track + 1}`);
+            } catch (error) {
+                console.error(`V3_9_0_L_sub15: Shader load failed for Track ${track + 1}:`, error);
+            }
         }
 
         // V3_6_0_W: Update waveform overlay (container name + shader thumbnail)
@@ -9678,9 +10533,26 @@ ${shaderCode}
                         audioEndTime: container.audioEndTime || 0,
                         audioLoopIn: container.audioLoopIn || 0,
                         audioLoopOut: container.audioLoopOut || 0,
-                        name: container.name
+                        name: container.name,
+                        // V3_9_0_L_sub4: Store timeline arrays for audio-reactive shaders
+                        shaderModATimeline: container.shaderModATimeline || null,
+                        shaderModBTimeline: container.shaderModBTimeline || null,
+                        shaderModCTimeline: container.shaderModCTimeline || null,
+                        fps: container.controlStates?.fps || 30,
+                        // V3_9_0_L_sub12: Store controlStates (with gains!) for shader reactivity
+                        controlStates: container.controlStates || {},
+                        // V3_9_0_L_sub20: Store shaderCode so pop-out can update when opened after loading
+                        shaderCode: container.shaderCode || null
                     };
                     console.log(`V3.2.0-Q: Stored timing data for Track ${track + 1}:`, trackContainerData[track]);
+                    
+                    // V3_9_0_L_sub12: Store controlStates (now available!)
+                    if (container.shaderModATimeline) {
+                        console.log(`💩 V3_9_0_L_sub12: Track ${track + 1} has timeline arrays:`, container.shaderModATimeline.length, 'samples');
+                        console.log('  First 5 modA values:', container.shaderModATimeline.slice(0, 5));
+                    } else {
+                        console.warn(`💩 V3_9_0_L_sub12: Track ${track + 1} NO TIMELINE ARRAYS in container!`);
+                    }
                 }
                 
                 // V3.2.0-D: PRE-LOAD AUDIO when container assigned (Ableton behavior)
@@ -9692,11 +10564,11 @@ ${shaderCode}
                         const audioFile = await getAudioFromLibrary(container.audioFilename);
                         const arrayBuffer = await audioFile.arrayBuffer();
                         
-                        if (!audioContext) {
-                            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        if (!trackAudioContext) {
+                            trackAudioContext = new (window.AudioContext || window.webkitAudioContext)();
                         }
                         
-                        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                        const audioBuffer = await trackAudioContext.decodeAudioData(arrayBuffer);
                         
                         // Store pre-loaded buffer in gridState
                         gridState.cells[cellIndex].audioBuffer = audioBuffer;
@@ -9712,7 +10584,7 @@ ${shaderCode}
                             if (canvas) canvas.style.transform = 'translateX(0px)';
                             
                             // V3.2.0-E: Position waveform at playhead (align Bar 1 with red line)
-                            positionAudioWaveformAtPlayhead(track + 1, audioBuffer);
+                            positionTrackAudioWaveformAtPlayhead(track + 1, audioBuffer);
                             
                             // V3.3.0_T: Update zoom range when new audio pre-loaded
                             recalculateZoomRange();
@@ -9820,6 +10692,10 @@ ${shaderCode}
                 // Update gridState
                 gridState.masterTempo = newTempo;
                 
+                // V3_9_0_A: Log master clock state after tempo change
+                // V3_9_0_D_sub1: Use trackAudioMasterClock
+                trackAudioMasterClock.logState('Tempo changed');
+                
                 // V3.3.0_U: Redraw all waveforms at new tempo (bars recalculated)
                 for (let track = 0; track < NUM_TRACKS; track++) {
                     if (trackAudioBuffers[track]) {
@@ -9851,9 +10727,18 @@ ${shaderCode}
                 }
                 
                 // V3.2.0-AB: Update waveform visual scaling for all loaded tracks
+                // V3_9_0_F_sub12: Use positionTrackAudioWaveformAtCurrentBar for PLAYING tracks
+                // (keeps current bar at playhead, not Bar 1)
                 for (let track = 0; track < NUM_TRACKS; track++) {
                     if (trackAudioBuffers[track] && trackContainerData[track]) {
-                        positionAudioWaveformAtPlayhead(track + 1, trackAudioBuffers[track]);
+                        // Check if track is playing
+                        if (trackAudioSources[track]) {
+                            // Playing - keep current bar at playhead
+                            positionTrackAudioWaveformAtCurrentBar(track + 1);
+                        } else {
+                            // Not playing - position Bar 1 at playhead
+                            positionTrackAudioWaveformAtPlayhead(track + 1, trackAudioBuffers[track]);
+                        }
                     }
                 }
                 
@@ -9867,6 +10752,9 @@ ${shaderCode}
                         console.log(`V3.3.0_Z: Restarted scroll animation for track ${track + 1} at new tempo`);
                     }
                 }
+                
+                // V3_9_0_G_sub2: Update Master Grid bar spacing at new tempo
+                updateMasterGrid();
                 
                 // Auto-save project
                 autoSaveProject();
@@ -9887,6 +10775,7 @@ ${shaderCode}
         let liveShaderContexts = [null, null, null, null];
         let liveShaderAnimationId = null; // Single render loop for all tracks
         let liveShaderStartTime = 0;
+        let lastTimelineDebugLog = 0; // V3_9_0_L_sub5: For throttled debug logging
         
         // V3_6_0_F: Pop-out window system
         let popOutWindow = null;
@@ -10070,7 +10959,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V3_8]</title>
+    <title>ONEMANSHYO App [V3_9]</title>
     <style>
         body {
             margin: 0;
@@ -10212,6 +11101,15 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                 });
                 
                 console.log('V3_6_0_F: Pop-out window initialized');
+                
+                // V3_9_0_L_sub20: If tracks already have containers loaded, update pop-out shaders
+                for (let track = 0; track < 4; track++) {
+                    if (trackContainerData[track] && trackContainerData[track].shaderCode) {
+                        console.log(`V3_9_0_L_sub20: Updating pop-out shader for track ${track + 1} (container already loaded)`);
+                        await updateLiveShader(track, trackContainerData[track].shaderCode);
+                    }
+                }
+                
             } catch (error) {
                 console.error('V3_6_0_F: Pop-out init failed:', error);
             }
@@ -10241,6 +11139,8 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
         
         // V3_6_0_B: Update specific track's shader without reinitializing device
         async function updateLiveShader(trackIndex, providedShaderCode) {
+            console.log(`V3_9_0_L_sub15: updateLiveShader called for track ${trackIndex}`);
+            
             if (!liveShaderDevices[trackIndex]) {
                 console.log(`V3_6_0_B: Track ${trackIndex} not initialized, skipping shader update`);
                 return;
@@ -10250,10 +11150,17 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
             const context = liveShaderContexts[trackIndex];
             const device = liveShaderDevices[trackIndex];
             
-            if (!canvas || !context || !device) return;
+            if (!canvas || !context || !device) {
+                console.error(`V3_9_0_L_sub15: Missing components for track ${trackIndex} - canvas:${!!canvas}, context:${!!context}, device:${!!device}`);
+                return;
+            }
+            
+            console.log(`V3_9_0_L_sub15: Creating shader module for track ${trackIndex}...`);
             
             try {
                 // Wrap container shader code
+                console.log(`V3_9_0_L_sub16: Provided shader code preview: ${providedShaderCode.substring(0, 200)}...`);
+                
                 const wrappedShader = `
 // V3_6_0_B: Container shader uniform structure (12 floats = 48 bytes)
 struct Uniforms {
@@ -10335,6 +11242,8 @@ ${providedShaderCode}
                         topology: 'triangle-list'
                     }
                 });
+                
+                console.log(`V3_9_0_L_sub15: Pipeline created successfully for track ${trackIndex}`);
                 
                 // Recreate bind group with existing uniform buffer
                 liveShaderBindGroups[trackIndex] = device.createBindGroup({
@@ -10465,10 +11374,10 @@ ${providedShaderCode}
         }
         
         function renderLiveShader() {
-            // Calculate master tempo-synced time (READ ONLY - doesn't modify sessionStartTime)
+            // Calculate master tempo-synced time (READ ONLY - doesn't modify trackMasterClockStart)
             let currentTime = 0;
-            if (sessionStartTime !== null && audioContext) {
-                const elapsed = audioContext.currentTime - sessionStartTime;
+            if (trackMasterClockStart !== null && trackAudioContext) {
+                const elapsed = trackAudioContext.currentTime - trackMasterClockStart;
                 const tempoScale = gridState.masterTempo / 120.0;
                 currentTime = elapsed * tempoScale;
             } else {
@@ -10491,18 +11400,19 @@ ${providedShaderCode}
                 const intensity = calculateTrackShaderOpacity(track);
                 canvas.style.opacity = intensity;
                 
-                // Update uniforms (12 floats = 48 bytes for container shaders)
-                // time, tempo, modA, modB, modC, resolutionX, resolutionY, padding×5
+                // V3_9_0_L_sub19: Restore V3.8.0 uniform structure (placeholder zeros for modA/B/C)
+                // Timeline audio reactivity will be added in next iteration
                 const uniformData = new Float32Array([
                     currentTime,
                     gridState.masterTempo,
-                    0, // modA (TODO: connect to FFT)
-                    0, // modB (TODO: connect to FFT)
-                    0, // modC (TODO: connect to FFT)
+                    0, // modA (TODO: connect to timeline)
+                    0, // modB (TODO: connect to timeline)
+                    0, // modC (TODO: connect to timeline)
                     canvas.width,
                     canvas.height,
                     0, 0, 0, 0, 0 // padding
                 ]);
+                
                 device.queue.writeBuffer(uniformBuffer, 0, uniformData);
                 
                 // Render this track's shader
@@ -10545,16 +11455,16 @@ ${providedShaderCode}
                     const intensity = calculateTrackShaderOpacity(track);
                     canvas.style.opacity = intensity;
                     
-                    // Update uniforms (same as inset)
+                    // V3_9_0_L_sub19: Match inset uniform structure exactly
                     const uniformData = new Float32Array([
                         currentTime,
                         gridState.masterTempo,
-                        0, // modA
-                        0, // modB
-                        0, // modC
+                        0, // modA (TODO: connect to timeline)
+                        0, // modB (TODO: connect to timeline)
+                        0, // modC (TODO: connect to timeline)
                         canvas.width,
                         canvas.height,
-                        0, 0, 0, 0, 0
+                        0, 0, 0, 0, 0 // padding
                     ]);
                     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
                     
@@ -10621,14 +11531,13 @@ ${providedShaderCode}
             const audioStartTime = containerData ? (containerData.audioStartTime || 0) : 0;
             const audioEndTime = containerData ? (containerData.audioEndTime || audioBuffer.duration) : audioBuffer.duration;
             
-            // V3.3.0_X: Scale audioStartTime/audioEndTime by tempo ratio (same as beat grid)
-            const tempoRatio = audioBPM / gridState.masterTempo;
-            const scaledStartTime = audioStartTime * tempoRatio;
-            const scaledEndTime = audioEndTime * tempoRatio;
+            // V3_9_0_I_sub6: REMOVED tempo scaling - amplitude bars must match beat grid positions!
+            // Beat grid uses audioStartTime/audioEndTime directly (master tempo spacing)
+            // Amplitude must do the same for alignment
             
             // V3.3.0_R: Draw bar-style waveform aligned with musical beats
             // V3.3.0_V: Draw at TIME positions (not evenly distributed) to match beat grid
-            // V3.3.0_X: Start from scaledStartTime (snap to beat grid)
+            // V3_9_0_I_sub6: Use audioStartTime directly (no scaling)
             const masterTempo = gridState.masterTempo || 128;
             const secondsPerBar = (4 / masterTempo) * 60; // 4 beats per bar
             const secondsPerBeat = secondsPerBar / 4;
@@ -10639,22 +11548,24 @@ ${providedShaderCode}
             const sampleRate = audioBuffer.sampleRate;
             
             // Calculate RMS amplitude for each BEAT (time-based, not evenly distributed)
-            // V3.3.0_X: Start from scaledStartTime, not 0
-            // V3.3.0_Y: Read samples from ORIGINAL positions, draw at SCALED positions
+            // V3_9_0_I_sub6: Start from audioStartTime (matches beat grid)
             let levels = [];
             let maxLevel = 0;
             
-            let beatTime = scaledStartTime; // V3.3.0_X: Start where beat grid starts (PLAYBACK time)
-            while (beatTime <= scaledEndTime) { // V3.3.0_X: End where beat grid ends!
-                // V3.3.0_Y: Convert playback time back to ORIGINAL audio time
-                // When audio plays slower (e.g. 126→124), playback time is LONGER than original
-                // So we divide by tempoRatio to get back to original sample position
-                const originalTime = beatTime / tempoRatio;
-                const originalBeatDuration = secondsPerBeat / tempoRatio;
+            // V3_9_0_I_sub7: Calculate tempo ratio for sample reading  
+            // Stay in DAW time - simple!
+            const playbackRate = masterTempo / audioBPM; // e.g., 120/124 = 0.968
+            
+            let beatTime = audioStartTime; // DAW time
+            while (beatTime <= audioEndTime) {
+                // V3_9_0_I_sub7: At this DAW time, where are we in buffer?
+                // Audio plays at playbackRate, so: bufferTime = DAW time * playbackRate
+                const bufferTime = beatTime * playbackRate;
+                const bufferBeatDuration = secondsPerBeat * playbackRate;
                 
-                // Calculate sample range from ORIGINAL time (where samples actually are in buffer)
-                const startSample = Math.floor(originalTime * sampleRate);
-                const endSample = Math.floor((originalTime + originalBeatDuration) * sampleRate);
+                // Read samples from buffer at time-stretched position
+                const startSample = Math.floor(bufferTime * sampleRate);
+                const endSample = Math.floor((bufferTime + bufferBeatDuration) * sampleRate);
                 
                 let sum = 0;
                 let count = 0;
@@ -10718,19 +11629,60 @@ ${providedShaderCode}
             console.log(`V3.1.0-M: Drew waveform for track ${track}`);
             
             // V3.1.0-R: Position waveform so Bar 1 is at playhead (center)
-            positionAudioWaveformAtPlayhead(track, audioBuffer);
+            positionTrackAudioWaveformAtPlayhead(track, audioBuffer);
         }
         
         // V3.1.0-R: Position waveform so Bar 1 (start) aligns with playhead (center)
         // V3.2.0-AB: Combined translateX + scaleX for tempo scaling
         // V3.3.0_I: FIXED - Bar 1 is at audioStartTime position, NOT pixel 0!
         // V3.3.0_W: Scale audioStartTime by tempo ratio (matches beat grid scaling)
-        function positionAudioWaveformAtPlayhead(track, audioBuffer) {
-            console.log(`V3.3.0_K: positionAudioWaveformAtPlayhead called for track ${track}`);
+        // V3_9_0_F_sub14: Store Bar 1 position - this NEVER changes regardless of tempo!
+        // V3_9_0_I_sub1: DIAGNOSTIC - extensive logging to debug alignment
+        function positionTrackAudioWaveformAtPlayhead(track, audioBuffer) {
+            const canvas = document.getElementById(`waveform${track}`);
+            if (!canvas) return;
+            
+            const containerData = trackContainerData[track - 1];
+            if (!containerData) return;
+            
+            const audioStartTime = containerData.audioStartTime || 0;
+            const pixelsPerSecond = gridState.zoomValue;
+            const bar1PositionPx = audioStartTime * pixelsPerSecond;
+            
+            trackBar1Positions[track - 1] = bar1PositionPx;
+            
+            const waveformsSection = canvas.closest('.waveforms-section');
+            if (!waveformsSection) return;
+            
+            const containerWidth = waveformsSection.offsetWidth;
+            const playheadPosition = containerWidth * 0.5;
+            
+            const canvasContainer = canvas.closest('.waveform-canvas-container');
+            const containerLeftOffset = canvasContainer ? canvasContainer.offsetLeft : 0;
+            const canvasLeftOffset = containerLeftOffset + canvas.offsetLeft;
+            
+            const playheadInCanvasSpace = playheadPosition - canvasLeftOffset;
+            const offsetNeeded = playheadInCanvasSpace - bar1PositionPx;
+            
+            const secondsPerBeat = 60.0 / gridState.masterTempo;
+            const offsetInSeconds = offsetNeeded / pixelsPerSecond;
+            const offsetInBeats = offsetInSeconds / secondsPerBeat;
+            
+            // V3_9_0_I_sub5: ONE console.log with all info (won't collapse)
+            console.warn(`🎵 Track ${track}: ${containerData.name} | ${containerData.audioBPM}→${gridState.masterTempo} BPM | audioStartTime=${audioStartTime.toFixed(3)}s | Bar1=${bar1PositionPx.toFixed(2)}px | Offset=${offsetNeeded.toFixed(2)}px (${offsetInBeats.toFixed(2)} beats = ${(offsetInBeats/4).toFixed(2)} bars)`);
+            
+            canvas.style.transformOrigin = 'left center';
+            canvas.style.transform = `translateX(${offsetNeeded}px)`;
+        }
+
+        // V3_9_0_F_sub6: Position waveform so CURRENT BAR is at playhead (tempo change repositioning)
+        // V3_9_0_F_sub14: Use STORED Bar 1 position - never recalculate based on tempo!
+        function positionTrackAudioWaveformAtCurrentBar(track) {
+            console.log(`V3_9_0_F_sub14: positionTrackAudioWaveformAtCurrentBar called for track ${track}`);
             
             const canvas = document.getElementById(`waveform${track}`);
             if (!canvas) {
-                console.log(`V3.3.0_K: Canvas not found for track ${track}`);
+                console.log(`V3_9_0_F_sub14: Canvas not found for track ${track}`);
                 return;
             }
             
@@ -10738,18 +11690,27 @@ ${providedShaderCode}
             const containerData = trackContainerData[track - 1];
             if (!containerData) return;
             
-            const audioStartTime = containerData.audioStartTime || 0;
+            // Calculate current beat position using Master Clock
+            const currentBeat = trackAudioMasterClock.getCurrentBeat();
+            const trackIndex = track - 1;
+            const launchBeat = trackLaunchBeats[trackIndex];
             
-            // V3.3.0_W: Scale audioStartTime by tempo ratio (same as beat grid)
-            const tempoRatio = containerData.audioBPM / gridState.masterTempo;
-            const scaledStartTime = audioStartTime * tempoRatio;
+            // V3_9_0_F_sub15: Get ACTUAL elapsed time using tempo history!
+            const elapsedTime = trackAudioMasterClock.getElapsedTimeFromBeats(launchBeat, currentBeat);
             
-            // V3.3.0_O: Use zoom value from control
-            // This is the key - ONE reference timeline for all tracks
+            // V3_9_0_F_sub14: Use STORED Bar 1 position (never recalculate!)
+            const bar1PositionPx = trackBar1Positions[trackIndex];
+            if (bar1PositionPx === null) {
+                console.log(`V3_9_0_F_sub15: Track ${track} has no stored Bar 1 position!`);
+                return;
+            }
+            
             const pixelsPerSecond = gridState.zoomValue;
-            const bar1PositionPx = scaledStartTime * pixelsPerSecond;
             
-            console.log(`V3.3.0_W: Track ${track} - Bar 1 at ${audioStartTime.toFixed(3)}s (original) → ${scaledStartTime.toFixed(3)}s (scaled) = ${bar1PositionPx.toFixed(2)}px on canvas`);
+            // Current bar position = Bar 1 position + actual elapsed time in pixels
+            const currentBarPositionPx = bar1PositionPx + (elapsedTime * pixelsPerSecond);
+            
+            console.log(`V3_9_0_F_sub15: Track ${track} - Bar 1 at ${bar1PositionPx.toFixed(2)}px, elapsed ${elapsedTime.toFixed(3)}s = current bar at ${currentBarPositionPx.toFixed(2)}px`);
             
             // Get waveforms-section width (parent container)
             const waveformsSection = canvas.closest('.waveforms-section');
@@ -10760,64 +11721,41 @@ ${providedShaderCode}
             // Playhead is at 50% of container
             const playheadPosition = containerWidth * 0.5;
             
-            // V3_6_0_AE: FIX - Get canvas position accounting for position: relative on container
-            // The waveform-canvas-container now has position: relative (for overlay positioning)
-            // This changed canvas.offsetLeft to be relative to container, not section
-            // We need the total offset from section: container offset + canvas offset within container
+            // Get canvas position accounting for position: relative on container
             const canvasContainer = canvas.closest('.waveform-canvas-container');
             const containerLeftOffset = canvasContainer ? canvasContainer.offsetLeft : 0;
             const canvasLeftOffset = containerLeftOffset + canvas.offsetLeft;
             
-            // V3.3.0_K: Simple translation - move Bar 1 to playhead
-            // Bar 1 is at bar1PositionPx on canvas, needs to be at playhead
+            // Position current bar at playhead
             const playheadInCanvasSpace = playheadPosition - canvasLeftOffset;
-            const offsetNeeded = playheadInCanvasSpace - bar1PositionPx;
+            const offsetNeeded = playheadInCanvasSpace - currentBarPositionPx;
             
-            // V3.3.0_K: NO SCALING! Just simple translateX
-            // Bars are already at master tempo spacing, no need to scale
-            canvas.style.transformOrigin = 'left center'; // Not used since no scaling
+            // Apply position
             canvas.style.transform = `translateX(${offsetNeeded}px)`;
             
-            console.log(`V3_6_0_AE: Track ${track} positioning (FIXED):`, {
-                audioStartTime: audioStartTime.toFixed(3),
-                scaledStartTime: scaledStartTime.toFixed(3),
-                tempoRatio: tempoRatio.toFixed(4),
-                bar1PositionPx: bar1PositionPx.toFixed(2),
-                containerLeftOffset: containerLeftOffset.toFixed(2),
-                canvasOffsetInContainer: canvas.offsetLeft.toFixed(2),
-                totalCanvasOffset: canvasLeftOffset.toFixed(2),
-                playheadInCanvasSpace: playheadInCanvasSpace.toFixed(2),
-                offsetNeeded: offsetNeeded.toFixed(2)
-            });
+            console.log(`V3_9_0_F_sub14: Track ${track} repositioned - current bar at playhead (offset: ${offsetNeeded.toFixed(2)}px)`);
         }
 
         // V3.2.0-Q: Draw beat grid on LIVE waveform canvas
         // V3.2.0-Z: Fixed to respect audioStartTime/audioEndTime + add visual markers
-        // V3.2.0-AB: Draw at ORIGINAL BPM, scaleX will stretch/compress to master tempo
-        // V3.3.0_W: Scale audioStartTime by tempo ratio (time-stretch affects position)
+        // V3_9_0_F_sub14: NO TEMPO SCALING - audioStartTime is absolute position, beat grid draws at master tempo spacing
         function drawBeatGridOnWaveform(ctx, containerData, audioBuffer, canvasWidth, canvasHeight) {
             const audioBPM = containerData.audioBPM;
             const audioStartTime = containerData.audioStartTime || 0;
             const audioEndTime = containerData.audioEndTime || audioBuffer.duration;
             const duration = audioBuffer.duration;
             
-            // V3.3.0_W: When audio is time-stretched, positions scale by tempo ratio
-            // Example: 126 BPM track at 124 BPM master = positions stretch by 126/124
-            const tempoRatio = audioBPM / gridState.masterTempo;
-            const scaledStartTime = audioStartTime * tempoRatio;
-            const scaledEndTime = audioEndTime * tempoRatio;
-            
-            // V3.3.0_K: Draw bars at MASTER tempo spacing (NOT original BPM)
-            // All tracks use the same bar spacing = naturally aligned
-            const secondsPerBar = (4 / gridState.masterTempo) * 60; // MASTER tempo, not audio BPM
+            // V3_9_0_F_sub14: NO tempo scaling!
+            // audioStartTime is an absolute position in seconds
+            // Beat grid draws at master tempo spacing starting from this position
+            // This keeps all tracks' Bar 1s at the SAME pixel position!
             
             // V3.3.0_O: Calculate pixels per second from zoom control
-            // This creates a COMMON reference timeline for all tracks
             const pixelsPerSecond = gridState.zoomValue;
             
             // V3.2.0-Z: Draw audioStart marker (slime green)
-            // V3.3.0_W: Use scaled position
-            const audioStartX = scaledStartTime * pixelsPerSecond;
+            // V3_9_0_F_sub14: Use audioStartTime directly (no scaling)
+            const audioStartX = audioStartTime * pixelsPerSecond;
             ctx.strokeStyle = '#7fff00'; // Slime green (chartreuse)
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -10826,8 +11764,8 @@ ${providedShaderCode}
             ctx.stroke();
             
             // V3.2.0-Z: Draw audioEnd marker (slime green)
-            // V3.3.0_W: Use scaled position
-            const audioEndX = scaledEndTime * pixelsPerSecond;
+            // V3_9_0_F_sub14: Use audioEndTime directly (no scaling)
+            const audioEndX = audioEndTime * pixelsPerSecond;
             ctx.strokeStyle = '#7fff00'; // Slime green
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -10835,44 +11773,51 @@ ${providedShaderCode}
             ctx.lineTo(audioEndX, canvasHeight);
             ctx.stroke();
             
-            // Draw beat grid (bars between start and end)
-            // V3.3.0_W: Start from scaled position
-            let barNumber = 1;
-            let barTime = scaledStartTime;
-            
-            // V3.2.0-Z: Stop at audioEndTime, not full duration
-            // V3.3.0_W: Use scaled end time
-            while (barTime <= scaledEndTime) {
-                const x = barTime * pixelsPerSecond;
+            // V3_9_0_K_sub1: Only draw beat grid if masterGridVisible is true
+            if (masterGridVisible) {
+                // V3_9_0_I_sub29: Reverted to 0% - no spacing reduction
+                // Get master grid beat width (pixels per bar at master tempo)
+                const masterPixelsPerBar = trackAudioPixelGrid.pixelsPerBar;
                 
-                // V3.3.0_N: Phrase markers - magenta at bars 1, 5, 9, 13 (aligned with numbers)
-                if (barNumber % 4 === 1) {
-                    // Phrase marker (every 4 bars) - MORE VISIBLE
-                    ctx.strokeStyle = 'rgba(255, 0, 255, 0.75)'; // Magenta, 75% opacity
-                    ctx.lineWidth = 2;
-                } else {
-                    // Regular bar line
-                    ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)'; // Cyan, 30% opacity
-                    ctx.lineWidth = 1;
+                // Calculate how many bars to draw based on canvas width
+                const barsNeeded = Math.ceil(canvasWidth / masterPixelsPerBar) + 2;
+                
+                // Draw bars at grid positions using master spacing (no reduction)
+                for (let barNum = 0; barNum < barsNeeded; barNum++) {
+                    const x = barNum * masterPixelsPerBar;  // Use master spacing directly
+                    
+                    // Skip if off canvas
+                    if (x < 0 || x > canvasWidth) continue;
+                    
+                    // V3.3.0_N: Phrase markers - magenta at bars 1, 5, 9, 13 (aligned with numbers)
+                    const barNumber = barNum + 1;  // Display as 1-indexed
+                    if (barNumber % 4 === 1) {
+                        // Phrase marker (every 4 bars) - MORE VISIBLE
+                        ctx.strokeStyle = 'rgba(255, 0, 255, 0.75)'; // Magenta, 75% opacity
+                        ctx.lineWidth = 2;
+                    } else {
+                        // Regular bar line
+                        ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)'; // Cyan, 30% opacity
+                        ctx.lineWidth = 1;
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvasHeight);
+                    ctx.stroke();
+                    
+                    // Draw bar number (every 4 bars for readability)
+                    if (barNumber % 4 === 1) {
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                        ctx.font = '10px monospace';
+                        ctx.fillText(barNumber.toString(), x + 2, 12);
+                    }
                 }
                 
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvasHeight);
-                ctx.stroke();
-                
-                // Draw bar number (every 4 bars for readability)
-                if (barNumber % 4 === 1) {
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-                    ctx.font = '10px monospace';
-                    ctx.fillText(barNumber.toString(), x + 2, 12);
-                }
-                
-                barNumber++;
-                barTime += secondsPerBar;
+                console.log(`V3_9_0_K_sub1: Drew beat grid - spacing ${masterPixelsPerBar.toFixed(2)}px per bar (master tempo), ${barsNeeded} bars drawn, visible=true`);
+            } else {
+                console.log(`V3_9_0_K_sub1: Skipped beat grid drawing - visible=false`);
             }
-            
-            console.log(`V3.3.0_K: Drew beat grid at MASTER tempo ${gridState.masterTempo} BPM (no scaling needed - all tracks same spacing)`);
         }
         
         // V3.2.0-Q: Draw container info overlay on waveform
@@ -10906,53 +11851,48 @@ ${providedShaderCode}
             // Stop any existing animation for this track
             stopAudioWaveformScroll(track);
             
-            // Wait for positioning to settle, then start animation
-            setTimeout(() => {
-                if (!trackAudioSources[track]) return; // Check if still playing
-                
-                // Store when playback started
-                const startTime = audioContext.currentTime;
-                
-                // V3.3.0_K: Read translateX only (no scaleX anymore)
-                const currentTransform = canvas.style.transform || '';
-                const translateMatch = currentTransform.match(/translateX\(([^)]+)px\)/);
-                const initialOffset = translateMatch ? parseFloat(translateMatch[1]) : 0;
-                
-                console.log(`V3.3.0_K: Simple scrolling - no scaling needed, bars pre-aligned at master tempo`);
-                
-                // V3.3.0_K: Get the playbackRate from the audio source
-                const playbackRate = trackAudioSources[track].playbackRate.value;
-                console.log(`V3.3.0_K: Track ${track + 1} playbackRate=${playbackRate}`);
-                
-                // V3.3.0_O: Use zoom value from control
-                const pixelsPerSecond = gridState.zoomValue;
-                
-                function animate() {
-                    // Check if source still exists
-                    if (!trackAudioSources[track]) {
-                        stopAudioWaveformScroll(track);
-                        return;
-                    }
-                    
-                    // Calculate elapsed REAL time
-                    const realTimeElapsed = audioContext.currentTime - startTime;
-                    
-                    // V3.3.0_M: Scroll at MASTER tempo (real time), not playbackRate
-                    // Canvas drawn at master tempo, audio time-stretched to master tempo
-                    // Visual scroll must match musical tempo = real time
-                    const scrollOffset = realTimeElapsed * pixelsPerSecond;
-                    
-                    // V3.3.0_M: Simple translateX only (no scaleX)
-                    canvas.style.transform = `translateX(${initialOffset - scrollOffset}px)`;
-                    
-                    // Continue animation
-                    waveformAnimations[`track${track}`] = requestAnimationFrame(animate);
+            // V3_9_0_F_sub18: Start animation immediately (no delay)
+            // The 50ms delay was causing jump - canvas transform read before positioning settled
+            if (!trackAudioSources[track]) return; // Check if still playing
+            
+            // V3.3.0_K: Read translateX only (no scaleX anymore)
+            const currentTransform = canvas.style.transform || '';
+            const translateMatch = currentTransform.match(/translateX\(([^)]+)px\)/);
+            const initialOffset = translateMatch ? parseFloat(translateMatch[1]) : 0;
+            
+            console.log(`V3_9_0_F_sub18: Starting animation immediately - initialOffset: ${initialOffset.toFixed(2)}px`);
+            
+            // V3.3.0_O: Use zoom value from control
+            const pixelsPerSecond = gridState.zoomValue;
+            
+            function animate() {
+                // Check if source still exists
+                if (!trackAudioSources[track]) {
+                    stopAudioWaveformScroll(track);
+                    return;
                 }
                 
-                // Start animation
-                requestAnimationFrame(animate);
-                console.log(`V3.3.0_M: Started waveform scroll for track ${track + 1} (master tempo = real time)`);
-            }, 50); // 50ms delay to let positioning settle
+                // V3_9_0_F_sub15: Calculate ACTUAL elapsed time using tempo history!
+                // This accounts for tempo changes - critical for visual sync
+                const currentBeat = trackAudioMasterClock.getCurrentBeat();
+                const launchBeat = trackLaunchBeats[track];
+                
+                // Get REAL time elapsed (walks tempo history)
+                const elapsedTime = trackAudioMasterClock.getElapsedTimeFromBeats(launchBeat, currentBeat);
+                
+                // Convert time to pixels
+                const scrollOffset = elapsedTime * pixelsPerSecond;
+                
+                // V3.3.0_M: Simple translateX only (no scaleX)
+                canvas.style.transform = `translateX(${initialOffset - scrollOffset}px)`;
+                
+                // Continue animation
+                waveformAnimations[`track${track}`] = requestAnimationFrame(animate);
+            }
+            
+            // Start animation
+            requestAnimationFrame(animate);
+            console.log(`V3_9_0_F_sub18: Started waveform scroll for track ${track + 1} immediately`);
         }
         
         // V3.1.0-T: Stop waveform scrolling animation
@@ -10965,13 +11905,324 @@ ${providedShaderCode}
             }
         }
 
+        // V3_9_0_F_sub19c: Clock dot animation
+        function startClockDotAnimation() {
+            if (!trackMasterClockStart || clockDotAnimation) return;
+            
+            const clockDot = document.getElementById('clockDot');
+            if (!clockDot) return;
+            
+            const waveformsSection = document.querySelector('.waveforms-section');
+            if (!waveformsSection) return;
+            
+            function animate() {
+                if (!trackMasterClockStart) {
+                    stopClockDotAnimation();
+                    return;
+                }
+                
+                // V3_9_0_F_sub20: Match CSS calc(50% - 36px) exactly
+                // CSS calculates 50% of clock-dot-lane width, then subtracts 36px
+                const waveformsSectionWidth = waveformsSection.offsetWidth;
+                const laneWidth = waveformsSectionWidth - 70;
+                const playheadInLane = (laneWidth * 0.5) - 36; // Matches CSS calc
+                const pixelsPerSecond = gridState.zoomValue;
+                
+                // V3_9_0_H_sub1: Bar-based positioning (stay in DAW world)
+                // NO time conversion - work directly in bars
+                // Clock dot represents current bar position on master timeline
+                
+                // V3_9_0_I_sub2: getCurrentBar() returns 0-based bar position
+                // At 1.1.1 DAW time: currentBar = 0
+                // Audio launches at beat 0 (which is 1.1.1 DAW time)
+                // Clock dot must also be at 0 to align with audio
+                const currentBar = trackAudioMasterClock.getCurrentBar();
+                
+                // How far apart are bars at master tempo? (pixels per bar)
+                const secondsPerBar = (60.0 / gridState.masterTempo) * 4.0;
+                const barSpacing = secondsPerBar * pixelsPerSecond;
+                
+                // V3_9_0_I_sub2: Use currentBar directly (0-based = 1.1.1 DAW time)
+                // currentBar = 0 → at playhead (1.1.1 DAW time)
+                // currentBar = 1 → 1 bar past playhead (2.1.1 DAW time)
+                // currentBar = 4 → 4 bars past playhead (5.1.1 DAW time)
+                const barsFromReference = currentBar;
+                
+                // Calculate position (pure bar-based math, no time conversion)
+                const scrolledDistance = barsFromReference * barSpacing;
+                
+                // Calculate position with wrapping
+                let dotPosition = playheadInLane - (scrolledDistance % laneWidth);
+                if (dotPosition < 0) {
+                    dotPosition += laneWidth;
+                }
+                
+                clockDot.style.left = `${dotPosition}px`;
+                
+                clockDotAnimation = requestAnimationFrame(animate);
+            }
+            
+            requestAnimationFrame(animate);
+            console.log('V3_9_0_H_sub1: Clock dot animation started - bar-based positioning');
+        }
+        
+        function stopClockDotAnimation() {
+            if (clockDotAnimation) {
+                cancelAnimationFrame(clockDotAnimation);
+                clockDotAnimation = null;
+                
+                // V3_9_0_G_sub9: Reset clock dot to playhead position (don't hide it)
+                const clockDot = document.getElementById('clockDot');
+                if (clockDot) {
+                    const waveformsSection = document.querySelector('.waveforms-section');
+                    if (waveformsSection) {
+                        // Match CSS calc(50% - 36px) exactly
+                        const waveformsSectionWidth = waveformsSection.offsetWidth;
+                        const laneWidth = waveformsSectionWidth - 70;
+                        const playheadInLane = (laneWidth * 0.5) - 36;
+                        
+                        // Reset to playhead position
+                        clockDot.style.left = `${playheadInLane}px`;
+                    }
+                }
+                
+                console.log('V3_9_0_G_sub9: Clock dot reset to playhead position');
+            }
+        }
+
+        // V3_9_0_G_sub5: DAW Clock readout animation
+        let dawClockAnimation = null;
+
+        function startDAWClockAnimation() {
+            if (!trackMasterClockStart || dawClockAnimation) return;
+            
+            const readout = document.getElementById('dawClockReadout');
+            if (!readout) return;
+            
+            function animate() {
+                if (!trackMasterClockStart) {
+                    stopDAWClockAnimation();
+                    return;
+                }
+                
+                // Get current beat from master clock (uses tempo history)
+                const currentBeat = trackAudioMasterClock.getCurrentBeat();
+                
+                // Calculate Bar.Beat.Sixteenth (Ableton Live format)
+                const totalBars = Math.floor(currentBeat / 4);
+                const currentBar = totalBars + 1; // 1-indexed for display
+                
+                const beatInBar = currentBeat % 4; // 0-3.999
+                const currentBeatNum = Math.floor(beatInBar) + 1; // 1-4
+                
+                const sixteenthFraction = (beatInBar % 1) * 4; // 0-3.999 (4 sixteenths per beat)
+                const sixteenth = Math.floor(sixteenthFraction) + 1; // 1-4
+                
+                // Format: Bar.Beat.Sixteenth
+                readout.textContent = `${currentBar}.${currentBeatNum}.${sixteenth}`;
+                
+                dawClockAnimation = requestAnimationFrame(animate);
+            }
+            
+            requestAnimationFrame(animate);
+            console.log('V3_9_0_G_sub5: DAW clock animation started');
+        }
+        
+        function stopDAWClockAnimation() {
+            if (dawClockAnimation) {
+                cancelAnimationFrame(dawClockAnimation);
+                dawClockAnimation = null;
+                
+                const readout = document.getElementById('dawClockReadout');
+                if (readout) {
+                    readout.textContent = '1.1.1';
+                }
+                
+                console.log('V3_9_0_G_sub5: DAW clock animation stopped');
+            }
+        }
+
+        // V3_9_0_G_sub3: Master Grid - fixed bar overlay at playhead for visual sync reference
+        let masterGridVisible = false;
+        
+        function initMasterGrid() {
+            console.log('V3_9_0_G_sub3: initMasterGrid called');
+            
+            const canvas = document.getElementById('masterGrid');
+            // V3_9_0_G_sub3: G button is the solo button in Master mixer (not a separate button)
+            const mixerMaster = document.getElementById('mixerMaster');
+            const btn = mixerMaster ? mixerMaster.querySelector('.track-btn.solo') : null;
+            
+            if (!canvas) {
+                console.error('V3_9_0_G_sub3: Master Grid canvas not found');
+                return;
+            }
+            console.log('V3_9_0_G_sub3: Canvas found:', canvas);
+            
+            if (!btn) {
+                console.error('V3_9_0_G_sub3: Master Grid button not found');
+                return;
+            }
+            console.log('V3_9_0_G_sub3: Button found (mixer solo/G):', btn);
+            
+            // V3_9_0_H_sub2: Size canvas to FULL waveforms section (include clock dot lane)
+            const waveformsSection = document.querySelector('.waveforms-section');
+            if (waveformsSection) {
+                canvas.width = waveformsSection.offsetWidth; // Full width including clock dot lane
+                canvas.height = 240; // All 4 tracks
+                console.log(`V3_9_0_H_sub2: Canvas sized - ${canvas.width}x${canvas.height} (FULL panel)`);
+            }
+            
+            // V3_9_0_G_sub3: Button click handler is wired in initLiveMixer (line ~9665)
+            // This function just checks initialization, handler is added where button is created
+            console.log('V3_9_0_G_sub3: Button handler wired in initLiveMixer');
+            
+            // G key handler
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'g' || e.key === 'G') {
+                    // Only if LIVE tab active and no input focused
+                    if (document.getElementById('liveMixerContainer').style.display !== 'none' &&
+                        document.activeElement.tagName !== 'INPUT' &&
+                        document.activeElement.tagName !== 'TEXTAREA') {
+                        console.log('V3_9_0_G_sub3: G key pressed');
+                        toggleMasterGrid();
+                    }
+                }
+            });
+            
+            console.log('V3_9_0_G_sub3: Master Grid initialized successfully');
+        }
+        
+        function toggleMasterGrid() {
+            masterGridVisible = !masterGridVisible;
+            
+            const canvas = document.getElementById('masterGrid');
+            const mixerMaster = document.getElementById('mixerMaster');
+            const btn = mixerMaster ? mixerMaster.querySelector('.track-btn.solo') : null;
+            
+            if (!canvas) {
+                console.error('V3_9_0_G_sub3: Canvas not found in toggleMasterGrid');
+                return;
+            }
+            
+            if (!btn) {
+                console.error('V3_9_0_G_sub3: Button not found in toggleMasterGrid');
+                return;
+            }
+            
+            if (masterGridVisible) {
+                canvas.style.display = 'block';
+                btn.classList.add('active');
+                drawMasterGrid();
+                console.log('V3_9_0_G_sub3: Master Grid visible');
+            } else {
+                canvas.style.display = 'none';
+                btn.classList.remove('active');
+                console.log('V3_9_0_G_sub3: Master Grid hidden');
+            }
+            
+            // V3_9_0_K_sub1: Redraw all track waveforms to update beat grid visibility
+            // V3_9_0_K_sub2: Check BOTH playing tracks AND loaded-but-not-playing tracks
+            for (let i = 0; i < 4; i++) {
+                let audioBuffer = null;
+                let containerData = null;
+                
+                // Check if track is playing (has buffer in trackAudioBuffers)
+                if (trackAudioBuffers[i] && trackContainerData[i]) {
+                    audioBuffer = trackAudioBuffers[i];
+                    containerData = trackContainerData[i];
+                    console.log(`V3_9_0_K_sub2: Track ${i + 1} is playing, will redraw`);
+                } else {
+                    // Check if track has loaded container (in gridState.cells)
+                    // cellIndex = track * NUM_SCENES + scene, check all 8 scenes for this track
+                    const NUM_SCENES = 8;
+                    for (let scene = 0; scene < NUM_SCENES; scene++) {
+                        const cellIndex = i * NUM_SCENES + scene;
+                        if (gridState.cells[cellIndex] && gridState.cells[cellIndex].audioBuffer) {
+                            audioBuffer = gridState.cells[cellIndex].audioBuffer;
+                            // Get containerData from trackContainerData if available
+                            if (trackContainerData[i]) {
+                                containerData = trackContainerData[i];
+                            }
+                            console.log(`V3_9_0_K_sub2: Track ${i + 1} has loaded cell at scene ${scene}, will redraw`);
+                            break; // Found a loaded cell, that's enough
+                        }
+                    }
+                }
+                
+                // Redraw if we found audio buffer
+                if (audioBuffer) {
+                    drawWaveformFromAudioBuffer(i + 1, audioBuffer);
+                    console.log(`V3_9_0_K_sub2: Redrew track ${i + 1} waveform with beat grid visible=${masterGridVisible}`);
+                }
+            }
+        }
+        
+        function drawMasterGrid() {
+            const canvas = document.getElementById('masterGrid');
+            if (!canvas || !masterGridVisible) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // V3_9_0_H_sub8: Playhead position MUST match CSS (.waveforms-section::before left: 50%)
+            // CSS playhead: 50% of waveforms-section width
+            // Master Grid canvas: same width as waveforms-section
+            // Therefore: playheadX = 50% of canvas width
+            const playheadX = canvas.width * 0.5;
+            
+            // Bar spacing at current master tempo
+            const secondsPerBar = (60.0 / gridState.masterTempo) * 4.0; // 4 beats per bar
+            const pixelsPerSecond = gridState.zoomValue;
+            const pixelsPerBar = secondsPerBar * pixelsPerSecond;
+            
+            // Calculate how many bars to draw in each direction
+            const barsToLeft = Math.ceil(playheadX / pixelsPerBar) + 2; // Extra for safety
+            const barsToRight = Math.ceil((canvas.width - playheadX) / pixelsPerBar) + 2;
+            
+            // Draw bars from left edge to right edge
+            for (let barNum = -barsToLeft; barNum < barsToRight; barNum++) {
+                const x = playheadX + (barNum * pixelsPerBar);
+                
+                // Skip if off canvas
+                if (x < 0 || x > canvas.width) continue;
+                
+                // V3_9_0_H_sub9: With correct playhead (sub8), use simple phrase check
+                // Phrase markers at bars 0, 4, 8, 12... (visual 1, 5, 9, 13...)
+                const isPhrase = (barNum % 4 === 0);
+                
+                if (isPhrase) {
+                    // Phrase marker - brighter, thicker
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+                    ctx.lineWidth = 2;
+                } else {
+                    // Regular bar - subtle
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.lineWidth = 1;
+                }
+                
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+        }
+        
+        function updateMasterGrid() {
+            // Called when tempo changes to redraw at new spacing
+            if (masterGridVisible) {
+                drawMasterGrid();
+            }
+        }
+
         // V3.1.0-I: Play audio from cell (fixed to match loadContainer approach)
         async function playCellAudio(track, scene, cellData, startTime = null) {
             try {
-                // V3.1.0-I: Resume audioContext (browser security requirement)
-                if (audioContext && audioContext.state === 'suspended') {
-                    await audioContext.resume();
-                    console.log('V3.1.0-I: AudioContext resumed');
+                // V3.1.0-I: Resume trackAudioContext (browser security requirement)
+                // V3_9_0_D_sub1: Use trackAudioContext (LIVE tab only)
+                if (trackAudioContext && trackAudioContext.state === 'suspended') {
+                    await trackAudioContext.resume();
+                    console.log('V3_9_0_D_sub1: trackAudioContext resumed');
                 }
                 
                 // Load container to get audio filename
@@ -10989,6 +12240,8 @@ ${providedShaderCode}
                     trackAudioSources[track].stop();
                     trackAudioSources[track].disconnect();
                     trackAudioSources[track] = null;
+                    trackLaunchBeats[track] = null;  // V3_9_0_F_sub2: Clear launch beat
+                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub6: Clear audio start time
                     
                     // V3.1.0-T: Stop waveform scrolling
                     stopAudioWaveformScroll(track);
@@ -11018,11 +12271,11 @@ ${providedShaderCode}
                     console.log(`V3.2.0-D: Loading audio (not pre-loaded): ${container.audioFilename}`);
                     const file = await getAudioFromLibrary(container.audioFilename);
                     const arrayBuffer = await file.arrayBuffer();
-                    audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    audioBuffer = await trackAudioContext.decodeAudioData(arrayBuffer);
                 }
                 
                 // Create and configure audio source
-                const source = audioContext.createBufferSource();
+                const source = trackAudioContext.createBufferSource();
                 source.buffer = audioBuffer;
                 source.loop = true; // Loop forever
                 
@@ -11051,15 +12304,29 @@ ${providedShaderCode}
                 trackAudioSources[track] = source;
                 trackAudioBuffers[track] = audioBuffer;
                 
-                // V3.1.0-M: Draw waveform for this track
-                drawWaveformFromAudioBuffer(track + 1, audioBuffer);
+                // V3_9_0_L_sub6: Track when audio actually starts (for timeline lookup)
+                trackAudioStartContextTime[track] = startTime || trackAudioContext.currentTime;
+                console.log(`V3_9_0_L_sub6: Track ${track + 1} audio starts at audioContext time: ${trackAudioStartContextTime[track].toFixed(3)}`);
                 
-                // V3.2.0-G: Reset transform before positioning (clears leftover scroll offset)
-                const canvas = document.getElementById(`waveform${track + 1}`);
-                if (canvas) canvas.style.transform = 'translateX(0px)';
+                // V3_9_0_F_sub2: Track beat position when this track launched (for waveform scrolling)
+                if (startTime !== null) {
+                    trackLaunchBeats[track] = trackAudioMasterClock.getBeatAtTime(startTime);
+                } else {
+                    trackLaunchBeats[track] = trackAudioMasterClock.getCurrentBeat();
+                }
+                console.log(`V3_9_0_G_sub6: Track ${track + 1} launched at beat ${trackLaunchBeats[track].toFixed(3)}`);
                 
-                // V3.2.0-G: Position waveform at playhead
-                positionAudioWaveformAtPlayhead(track + 1, audioBuffer);
+                // V3_9_0_A: Log master clock state after launch
+                trackAudioMasterClock.logState(`Track ${track + 1} launched`);
+                
+                // V3_9_0_F_sub17: DON'T redraw waveform on launch!
+                // Waveform is already correctly drawn when container loads
+                // Redrawing causes visual glitch/jump
+                // drawWaveformFromAudioBuffer(track + 1, audioBuffer); // REMOVED
+                
+                // V3_9_0_G_sub7: ALWAYS reposition Bar 1 at playhead on launch
+                // This ensures track starts at 1.1.1 every time, even if relaunching
+                positionTrackAudioWaveformAtPlayhead(track + 1, audioBuffer);
                 
                 // V3.1.0-T: Start waveform scrolling animation
                 startAudioWaveformScroll(track, audioBuffer);
@@ -11094,6 +12361,9 @@ ${providedShaderCode}
             track3: null
         };
         
+        // V3_9_0_F_sub19b: Clock dot animation
+        let clockDotAnimation = null;
+        
         // Track selected knob and cell for keyboard control
         let selectedKnobIndex = -1; // -1 = none, 0-3 = tracks, 4 = master
         let selectedSceneIndex = 0; // V3_5_0_H: Scene cursor for W/S navigation (0-7)
@@ -11101,7 +12371,7 @@ ${providedShaderCode}
         let draggedCell = null; // { track, scene } during drag
         
         // V3.1.0-M: Keyboard handlers for LIVE tab
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', async (e) => {  // V3_9_0_L_sub17: Made async for await updateCellShader
             // Only handle if LIVE tab is active
             const liveTabActive = document.getElementById('liveTab').classList.contains('active');
             if (!liveTabActive) return;
@@ -11181,10 +12451,11 @@ ${providedShaderCode}
             
             // V3.1.0-S: Spacebar - stop/start all playing tracks
             // V3_5_0_F: Changed to global play/pause (suspend/resume audioContext)
+            // V3_9_0_D_sub1: Use trackAudioContext (LIVE tab only)
             if (e.code === 'Space') {
                 e.preventDefault();
                 
-                if (!audioContext) {
+                if (!trackAudioContext) {
                     showStatus('No audio context', 'info');
                     return;
                 }
@@ -11197,18 +12468,18 @@ ${providedShaderCode}
                     return;
                 }
                 
-                // Toggle pause/resume using audioContext state
-                if (audioContext.state === 'running') {
+                // Toggle pause/resume using trackAudioContext state
+                if (trackAudioContext.state === 'running') {
                     // Currently playing - pause it
-                    audioContext.suspend().then(() => {
+                    trackAudioContext.suspend().then(() => {
                         showStatus('Paused', 'info');
-                        console.log('V3_5_0_F: Space - paused (audioContext suspended)');
+                        console.log('V3_9_0_D_sub1: Space - paused (trackAudioContext suspended)');
                     });
-                } else if (audioContext.state === 'suspended') {
+                } else if (trackAudioContext.state === 'suspended') {
                     // Currently paused - resume it
-                    audioContext.resume().then(() => {
+                    trackAudioContext.resume().then(() => {
                         showStatus('Playing', 'success');
-                        console.log('V3_5_0_F: Space - resumed (audioContext resumed)');
+                        console.log('V3_9_0_D_sub1: Space - resumed (trackAudioContext resumed)');
                     });
                 }
                 
@@ -11230,19 +12501,14 @@ ${providedShaderCode}
                         trackAudioSources[track].disconnect();
                         trackAudioSources[track] = null;
                         trackAudioBuffers[track] = null;
+                        trackLaunchBeats[track] = null;  // V3_9_0_F_sub2: Clear launch beat
+                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub6: Clear audio start time
                         
                         // V3.3.0_S: Recalculate zoom range when track stops
                         recalculateZoomRange();
                         
-                        // V3.1.0-T: Stop waveform scrolling
+                        // V3.1.0-T: Stop waveform scrolling (V3_9_0_F_sub4: keep waveform visible)
                         stopAudioWaveformScroll(track);
-                        
-                        // Clear waveform
-                        const canvas = document.getElementById(`waveform${track + 1}`);
-                        if (canvas) {
-                            const ctx = canvas.getContext('2d');
-                            drawEmptyWaveform(ctx, canvas);
-                        }
                     }
                     
                     // V3_6_0_O: Clear shader from live output
@@ -11253,6 +12519,19 @@ ${providedShaderCode}
                             ctx.clearRect(0, 0, shaderCanvas.width, shaderCanvas.height);
                         }
                     }
+                    
+                    // V3_9_0_G_sub8: Clear waveform canvas
+                    const waveformCanvas = document.getElementById(`waveform${track + 1}`);
+                    if (waveformCanvas) {
+                        const ctx = waveformCanvas.getContext('2d');
+                        if (ctx) {
+                            ctx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
+                        }
+                    }
+                    
+                    // V3_9_0_G_sub8: Clear container data for this track
+                    trackContainerData[track] = null;
+                    trackBar1Positions[track] = null;
                     
                     // V3_6_0_O: Clear shader from pop-out if open
                     if (popOutWindow && !popOutWindow.closed) {
@@ -11284,28 +12563,40 @@ ${providedShaderCode}
             }
             
             // V3_8_0_I: Arrow Left/Right - shader opacity control (tracks 1-4 only)
-            if (selectedKnobIndex >= 0 && selectedKnobIndex < 4 && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+            // V3_9_0_C_sub1: OR tempo control when master selected
+            if (selectedKnobIndex >= 0 && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
                 e.preventDefault();
                 
                 // V3_8_0_J: Blur library cards to prevent scrolling
                 const focusedLibraryCard = document.querySelector('.library-card:focus');
                 if (focusedLibraryCard) focusedLibraryCard.blur();
                 
-                const delta = e.key === 'ArrowRight' ? 0.02 : -0.02; // 2% per press
-                const trackIndex = selectedKnobIndex;
-                const currentOpacity = trackShaderOpacity[trackIndex];
-                const newOpacity = Math.max(0, Math.min(1, currentOpacity + delta));
-                
-                // Use stored shader knob update function
-                if (shaderKnobDrawFunctions[trackIndex]) {
-                    shaderKnobDrawFunctions[trackIndex](newOpacity);
+                if (selectedKnobIndex === 4) {
+                    // V3_9_0_E_sub1: Master selected - control tempo with 0.1 BPM increments
+                    const delta = e.key === 'ArrowRight' ? 0.1 : -0.1; // 0.1 BPM per press
+                    const currentTempo = gridState.masterTempo || 120;
+                    const newTempo = Math.max(60, Math.min(200, currentTempo + delta));
+                    
+                    updateTempo(newTempo);
+                    console.log(`V3_9_0_E_sub1: Master tempo ${currentTempo.toFixed(1)} → ${newTempo.toFixed(1)} BPM (${e.key})`);
+                } else if (selectedKnobIndex >= 0 && selectedKnobIndex < 4) {
+                    // V3_8_0_I: Track selected - control shader opacity
+                    const delta = e.key === 'ArrowRight' ? 0.02 : -0.02; // 2% per press
+                    const trackIndex = selectedKnobIndex;
+                    const currentOpacity = trackShaderOpacity[trackIndex];
+                    const newOpacity = Math.max(0, Math.min(1, currentOpacity + delta));
+                    
+                    // Use stored shader knob update function
+                    if (shaderKnobDrawFunctions[trackIndex]) {
+                        shaderKnobDrawFunctions[trackIndex](newOpacity);
+                    }
+                    
+                    console.log(`V3_8_0_I: Track ${trackIndex + 1} shader opacity ${Math.round(newOpacity * 100)}% (${e.key})`);
                 }
-                
-                console.log(`V3_8_0_I: Track ${trackIndex + 1} shader opacity ${Math.round(newOpacity * 100)}% (${e.key})`);
                 return;
             }
             
-            // Arrow Up/Down - audio volume control
+            // Arrow Up/Down - audio volume control (tracks) OR tempo control (master)
             if (selectedKnobIndex >= 0 && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
                 e.preventDefault();
                 
@@ -11313,23 +12604,21 @@ ${providedShaderCode}
                 const focusedLibraryCard = document.querySelector('.library-card:focus');
                 if (focusedLibraryCard) focusedLibraryCard.blur();
                 
-                const delta = e.key === 'ArrowUp' ? 0.02 : -0.02; // 2% per press
-                
-                console.log(`V3_5_0_B DEBUG: Arrow ${e.key} pressed, selectedKnobIndex=${selectedKnobIndex}`);
-                
                 if (selectedKnobIndex === 4) {
-                    // Master knob
-                    const currentVol = gridState.masterVolume;
+                    // V3_9_0_E_sub1: Master selected - control master volume
+                    const delta = e.key === 'ArrowUp' ? 0.02 : -0.02; // 2% per press
+                    const currentVol = gridState.masterVolume || 1.0;
                     const newVol = Math.max(0, Math.min(1, currentVol + delta));
                     
-                    console.log(`V3_5_0_B DEBUG: Master volume ${currentVol.toFixed(2)} → ${newVol.toFixed(2)}`);
-                    
-                    // V3_5_0_C: Call updateVolumeMaster function
+                    // Update master volume (use knob draw function)
                     if (knobDrawFunctions[4]) {
                         knobDrawFunctions[4](newVol);
                     }
+                    
+                    console.log(`V3_9_0_E_sub1: Master volume ${Math.round(currentVol * 100)}% → ${Math.round(newVol * 100)}% (${e.key})`);
                 } else {
-                    // Track knob
+                    // Track knob - control volume
+                    const delta = e.key === 'ArrowUp' ? 0.02 : -0.02; // 2% per press
                     const currentVol = gridState.trackVolumes[selectedKnobIndex];
                     const newVol = Math.max(0, Math.min(1, currentVol + delta));
                     
@@ -11343,7 +12632,7 @@ ${providedShaderCode}
                 }
             }
             
-            // V3_5_0_G: , key (comma) - toggle mute on selected track (1-4 only)
+            // V3_5_0_G: , key (comma) - toggle mute on selected track (1-4) OR master (5)
             if (e.key === ',') {
                 if (selectedKnobIndex >= 0 && selectedKnobIndex < 4) {
                     e.preventDefault();
@@ -11370,11 +12659,27 @@ ${providedShaderCode}
                     } else {
                         console.error(`V3_5_0_G: Mute button not found for track ${trackNum}`);
                     }
+                } else if (selectedKnobIndex === 4) {
+                    // V3_9_0_C_sub2: Master mute on comma key
+                    e.preventDefault();
+                    
+                    const muteBtnMaster = document.querySelector('.track-btn.mute[data-track="master"]');
+                    if (muteBtnMaster) {
+                        muteBtnMaster.classList.toggle('active');
+                        const isMuted = muteBtnMaster.classList.contains('active');
+                        
+                        // Mute all tracks via master gain
+                        if (masterGainNode) {
+                            masterGainNode.gain.value = isMuted ? 0 : gridState.masterVolume;
+                        }
+                        
+                        console.log(`V3_9_0_C_sub2: Master ${isMuted ? 'muted' : 'unmuted'} all tracks (comma key)`);
+                    }
                 }
                 return;
             }
             
-            // V3_5_0_G: . key (period) - toggle solo on selected track (1-4 only)
+            // V3_5_0_G: . key (period) - toggle solo on selected track (1-4) OR master G (5)
             if (e.key === '.') {
                 if (selectedKnobIndex >= 0 && selectedKnobIndex < 4) {
                     e.preventDefault();
@@ -11421,6 +12726,16 @@ ${providedShaderCode}
                         autoSaveProject();
                     } else {
                         console.error(`V3_5_0_G: Solo button not found for track ${trackNum}`);
+                    }
+                } else if (selectedKnobIndex === 4) {
+                    // V3_9_0_C_sub2: Master G button on period key (grid toggle, future)
+                    e.preventDefault();
+                    
+                    const gridBtnMaster = document.querySelector('.track-btn.solo[data-track="master"]');
+                    if (gridBtnMaster) {
+                        gridBtnMaster.classList.toggle('active');
+                        const isActive = gridBtnMaster.classList.contains('active');
+                        console.log(`V3_9_0_C_sub2: Master grid ${isActive ? 'on' : 'off'} (period key) - not yet implemented`);
                     }
                 }
                 return;
@@ -11514,15 +12829,8 @@ ${providedShaderCode}
                         trackAudioSources[i] = null;
                         trackAudioBuffers[i] = null;
                         
-                        // Stop waveform scrolling
+                        // Stop waveform scrolling (V3_9_0_F_sub4: keep waveform visible)
                         stopAudioWaveformScroll(i);
-                        
-                        // Clear waveform
-                        const canvas = document.getElementById(`waveform${i + 1}`);
-                        if (canvas) {
-                            const ctx = canvas.getContext('2d');
-                            drawEmptyWaveform(ctx, canvas);
-                        }
                         
                         // Remove playing visual
                         const cells = document.querySelectorAll(`.clip-slot[data-track="${i}"]`);
@@ -11537,7 +12845,13 @@ ${providedShaderCode}
                 
                 if (stoppedCount > 0) {
                     // V3_5_0_L: Reset master clock when all tracks stopped
-                    sessionStartTime = null;
+                    trackMasterClockStart = null;
+                    
+                    // V3_9_0_F_sub19c: Stop clock dot animation
+                    stopClockDotAnimation();
+                    
+                    // V3_9_0_G_sub5: Stop DAW clock readout animation
+                    stopDAWClockAnimation();
                     
                     // V3_6_0_Q: Remove playing indicator from all scene triggers
                     document.querySelectorAll('.scene-trigger').forEach(t => t.classList.remove('playing'));
@@ -11676,27 +12990,27 @@ ${providedShaderCode}
                         let startTime;
                         
                         if (isAnyTrackPlaying()) {
-                            // Tracks already playing - quantize to next bar boundary
-                            startTime = getNextBarBoundary();
+                            // V3_9_0_F_sub9: Use tempo-history-aware master clock for quantization
+                            startTime = trackAudioMasterClock.getNextBarTime();
                             if (!startTime) {
                                 // Fallback if something went wrong
-                                startTime = audioContext.currentTime + 0.2;
+                                startTime = trackAudioContext.currentTime + 0.2;
                             }
-                            console.log(`V3_5_0_L: Quantized cell launch - waiting for bar boundary`);
+                            console.log(`V3_9_0_F_sub9: Quantized cell launch - waiting for bar boundary (tempo history)`);
                         } else {
                             // No tracks playing - start immediately (with 200ms buffer)
-                            startTime = audioContext.currentTime + 0.2;
+                            startTime = trackAudioContext.currentTime + 0.2;
                             startMasterClock(startTime); // V3_5_0_M: Pass ACTUAL start time
                             console.log(`V3_5_0_M: First cell launch - starting master clock at ${startTime.toFixed(3)}`);
                         }
                         
                         playCellAudio(track, scene, cellData, startTime);
                         
-                        // V3_6_0_A: Update shader for this cell (wrapped in try/catch - CANNOT break audio)
+                        // V3_9_0_L_sub16: Update shader for this cell (now async/await)
                         try {
-                            updateCellShader(track, scene);
+                            await updateCellShader(track, scene);
                         } catch (error) {
-                            console.error('V3_6_0_A: Shader update failed (audio unaffected):', error);
+                            console.error('V3_9_0_L_sub16: Shader update failed (audio unaffected):', error);
                         }
                         
                         console.log(`V3_5_0_I: Launched cell Track ${track + 1}, Scene ${scene + 1} (Enter key)`);
@@ -11708,19 +13022,14 @@ ${providedShaderCode}
                             trackAudioSources[track].disconnect();
                             trackAudioSources[track] = null;
                             trackAudioBuffers[track] = null;
+                            trackLaunchBeats[track] = null;  // V3_9_0_F_sub2: Clear launch beat
+                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub6: Clear audio start time
                             
                             // Recalculate zoom range when track stops
                             recalculateZoomRange();
                             
-                            // Stop waveform scrolling
+                            // Stop waveform scrolling (V3_9_0_F_sub4: keep waveform visible)
                             stopAudioWaveformScroll(track);
-                            
-                            // Clear waveform
-                            const canvas = document.getElementById(`waveform${track + 1}`);
-                            if (canvas) {
-                                const ctx = canvas.getContext('2d');
-                                drawEmptyWaveform(ctx, canvas);
-                            }
                             
                             // V3_6_0_V: Remove .playing class from all cells in this track
                             document.querySelectorAll(`.clip-slot[data-track="${track}"]`).forEach(cell => {
