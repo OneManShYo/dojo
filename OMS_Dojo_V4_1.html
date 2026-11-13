@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V4_0
+ONEMANSHYO Dojo App V4_1
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V4_0
+Version: V4_1
 -->
 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V4_0]</title>
+    <title>ONEMANSHYO App [V4_1]</title>
     <style>
         * {
             margin: 0;
@@ -308,7 +308,7 @@ Version: V4_0
             margin: 0;
         }
 
-        /* V4_0_0_C_sub56: Kill spinners on RMS field */
+        /* V4_0_0_C_sub136: Kill spinners on RMS field */
         #rmsCalibration::-webkit-outer-spin-button,
         #rmsCalibration::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -1090,11 +1090,11 @@ Version: V4_0
             background: #0c0c0c;
             border: 2px solid #444; /* Complete modular border */
             border-radius: 3px; /* V3_7_0_I: Rounded corners to match other modules */
-            display: flex; /* V4_0_0_C_sub83: Changed for wrapper */
+            display: flex; /* V4_0_0_C_sub133: Changed for wrapper */
             overflow: hidden;
         }
 
-        /* V4_0_0_C_sub83: Grid containers wrapper (matches .mixer-controls-area pattern) */
+        /* V4_0_0_C_sub133: Grid containers wrapper (matches .mixer-controls-area pattern) */
         .grid-containers {
             display: flex;
             flex-direction: column;
@@ -1174,15 +1174,15 @@ Version: V4_0
 
         /* Fixed Mixer Section */
         .mixer-section {
-            height: 141px; /* V4_0_0_C_sub80: Reduced to match 137px track-controls + borders */
+            height: 141px; /* V4_0_0_C_sub130: Reduced to match 137px track-controls + borders */
             background: #1a1a1a;
-            border: 2px solid #444; /* V4_0_0_C_sub82: Restored - unified panel border */
+            border: 2px solid #444; /* V4_0_0_C_sub132: Restored - unified panel border */
             border-radius: 3px; /* V3_7_0_I: Rounded corners to match other modules */
-            display: flex; /* V4_0_0_C_sub82: Changed to flex for wrapper */
+            display: flex; /* V4_0_0_C_sub132: Changed to flex for wrapper */
             flex-shrink: 0;
         }
 
-        /* V4_0_0_C_sub82: Mixer controls wrapper (matches .waveform-tracks-area pattern) */
+        /* V4_0_0_C_sub132: Mixer controls wrapper (matches .waveform-tracks-area pattern) */
         .mixer-controls-area {
             display: grid;
             grid-template-columns: 181px 181px 181px 181px 181px; /* V3_8_0_U: 5 columns × 181px = 905px */
@@ -1363,16 +1363,16 @@ Version: V4_0
         /* Track Controls (in fixed mixer section) */
         .track-controls {
             background: #2a2a2a;
-            border: none; /* V4_0_0_C_sub82: No individual borders inside panel */
-            border-right: 1px solid #444; /* V4_0_0_C_sub82: Divider between columns */
-            border-radius: 0; /* V4_0_0_C_sub82: No rounded corners inside panel */
+            border: none; /* V4_0_0_C_sub132: No individual borders inside panel */
+            border-right: 1px solid #444; /* V4_0_0_C_sub132: Divider between columns */
+            border-radius: 0; /* V4_0_0_C_sub132: No rounded corners inside panel */
             padding: 5px 10px 10px 10px; /* V3_7_0_N: Reduced bottom padding for ultra compact */
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
-        /* V4_0_0_C_sub82: Last column (Master) - no right divider */
+        /* V4_0_0_C_sub132: Last column (Master) - no right divider */
         #mixerMaster {
             border-right: none;
         }
@@ -1594,20 +1594,20 @@ Version: V4_0
         }
 
         /* Waveform Section (Bottom) */
-        /* V4_0_0_C_sub76: Changed from flex to grid - proper 2-column layout (tracks | controls) */
+        /* V4_0_0_C_sub136: Changed from flex to grid - proper 2-column layout (tracks | controls) */
         .waveforms-section {
             height: 248px; /* V3_9_0_F_sub19c: 240px + 8px clock dot lane */
             background: #0c0c0c;
             border: 2px solid #444; /* V3_7_0_C: Complete border for modular look */
             border-radius: 3px; /* V3_7_0_I: Rounded corners to match other modules */
-            display: grid; /* V4_0_0_C_sub76: Changed from flex to grid */
-            grid-template-columns: 1fr 110px; /* V4_0_0_C_sub76: tracks (fluid) | controls (fixed 110px) */
+            display: grid; /* V4_0_0_C_sub136: Changed from flex to grid */
+            grid-template-columns: 1fr 110px; /* V4_0_0_C_sub136: tracks (fluid) | controls (fixed 110px) */
             gap: 0;
             flex-shrink: 0;
             position: relative; /* V3.1.0-Q: For playhead indicator positioning */
         }
 
-        /* V4_0_0_C_sub76: New container for tracks (column 1 of grid) */
+        /* V4_0_0_C_sub136: New container for tracks (column 1 of grid) */
         .waveform-tracks-area {
             display: flex;
             flex-direction: column;
@@ -1620,7 +1620,7 @@ Version: V4_0
         .waveform-track {
             flex: 1;
             display: grid; /* V3.2.0-K: Each row is a grid */
-            grid-template-columns: 1fr 70px; /* V4_0_0_C_sub78: Removed 110px spacer - just canvas | controls */
+            grid-template-columns: 1fr 70px; /* V4_0_0_C_sub138: Removed 110px spacer - just canvas | controls */
             gap: 0; /* V3_4_0_J: No gap - controls flush against canvas */
             background: transparent;
             border: none;
@@ -1646,7 +1646,7 @@ Version: V4_0
             padding: 0; /* V3_4_0_I: No padding for modular look */
             gap: 0; /* V3_4_0_I: No gap between rows */
             position: relative; /* V3.3.0_Q: For z-index to work */
-            z-index: 300; /* V4_0_0_C_sub71: Above clock dot lane (200) */
+            z-index: 300; /* V4_0_0_C_sub131: Above clock dot lane (200) */
             width: 70px; /* V3_4_0_H: Align with SCENES column */
             height: 100%; /* V3_4_0_J: Fill track height */
         }
@@ -1693,15 +1693,15 @@ Version: V4_0
         }
 
         /* V3.2.0-K: Waveform canvas container (right cell in each row) */
+        /* V4_1_0_B_sub17: POC model - no flex, explicit height for absolute canvas */
         .waveform-canvas-container {
             background: #000;
-            border: 1px solid #222;
+            border: none;
             border-radius: 2px;
-            display: flex;
-            align-items: center;
-            padding: 2px;
-            position: relative; /* V3_6_0_W: For overlay positioning */
-            overflow: hidden; /* V3_6_0_Y: Clip scrolling waveform, prevent layout issues */
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+            height: 100%; /* V4_1_0_B_sub17: Explicit height */
         }
 
         /* V3_6_0_W: Waveform overlay - shader thumbnail + container name */
@@ -1771,15 +1771,15 @@ Version: V4_0
             background: #000;
         }
 
-        /* V4_0_0_C_sub76: Waveform master controls - now grid column 2 (static positioning) */
+        /* V4_0_0_C_sub136: Waveform master controls - now grid column 2 (static positioning) */
         .waveform-master-controls {
-            position: static; /* V4_0_0_C_sub76: Changed from absolute - natural grid flow */
-            height: 100%; /* V4_0_0_C_sub76: Fill parent height naturally */
+            position: static; /* V4_0_0_C_sub136: Changed from absolute - natural grid flow */
+            height: 100%; /* V4_0_0_C_sub136: Fill parent height naturally */
             width: 110px; /* Fixed width - matches grid column */
             background: #2a2a2a;
             border: 1px solid #444;
             border-radius: 2px;
-            z-index: 300; /* V4_0_0_C_sub71: Above clock dot lane (200) */
+            z-index: 300; /* V4_0_0_C_sub131: Above clock dot lane (200) */
             pointer-events: none;
             display: flex;
             flex-direction: column;
@@ -1796,36 +1796,27 @@ Version: V4_0
             white-space: nowrap;
         }
 
+        /* V4_1_0_B_sub17: POC model - absolute positioning for transform */
         .waveform-canvas {
-            /* V4.0.0_C_sub39: Removed fixed width - let canvas be natural size */
-            /* Canvas draws at full audio duration × zoom, container clips to 800px window */
+            position: absolute;
+            top: 0;
+            left: 0;
             height: 100%;
             background: #000;
             border-radius: 2px;
-            position: relative; /* V3.3.0_Q: For z-index to work */
-            z-index: 1; /* V3.3.0_Q: Behind controls */
+            z-index: 1;
         }
         
         /* V3.1.0-Q: Playhead indicator (fixed at center) */
-        /* V4.0.0_C_sub57: Updated for canvas on left (400px = center of 800px) */
-        .waveforms-section::before {
-            content: '';
-            position: absolute;
-            left: 400px; /* V4.0.0_C_sub57: Center of 800px canvas (was 510px with spacer) */
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #ff00ff; /* Magenta */
-            z-index: 10;
-            pointer-events: none;
-        }
+        /* V4_1_0_B_sub13: Dynamic positioning - center of track area */
+        /* V4_1_0_B_sub18: Playhead now drawn on master grid canvas */
 
         /* V3_9_0_F_sub19c: Clock dot lane - shows master clock position */
-        /* V4.0.0_C_sub57: Updated for canvas on left */
+        /* V4.0.0_C_sub137: Updated for canvas on left */
         .clock-dot-lane {
             position: absolute;
             bottom: 0;
-            left: 0; /* V4.0.0_C_sub57: Canvas starts at 0 now (no spacer) */
+            left: 0; /* V4.0.0_C_sub137: Canvas starts at 0 now (no spacer) */
             width: 800px; /* V4.0.0_C_sub30: Match canvas width */
             height: 8px;
             background: #0c0c0c;
@@ -1852,7 +1843,7 @@ Version: V4_0
         .master-grid-canvas {
             position: absolute;
             top: 0;
-            left: 3px; /* V4_0_0_D_sub42: Try 3px (was 2px in sub41) */
+            left: 0; /* V4_1_0_A_sub1: Removed band-aid offset, show true misalignment */
             width: 800px; /* V4.0.0_C_sub28: Match canvas width */
             height: 240px; /* All 4 tracks (not including clock-dot-lane) */
             pointer-events: none; /* Don't block waveform interactions */
@@ -1965,7 +1956,7 @@ Version: V4_0
     <div class="header">
         <div class="header-left">
             <div class="header-brand">ONEMANSHYO</div>
-            <div class="header-app">Shader Baker [V4_0]</div>
+            <div class="header-app">Shader Baker [V4_1]</div>
         </div>
         <div class="header-greeting" id="headerGreeting">Hi Friend, I'm Wes!</div>
     </div>
@@ -2807,7 +2798,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     <div class="performance-view">
                         <!-- V3_7_0_D: Grid Section - wraps headers + scrollable grid for modular framing -->
                         <div class="grid-section">
-                            <!-- V4_0_0_C_sub83: Wrapper for grid of OMS containers (matches .mixer-controls-area pattern) -->
+                            <!-- V4_0_0_C_sub133: Wrapper for grid of OMS containers (matches .mixer-controls-area pattern) -->
                             <div class="grid-containers">
                                 <!-- Fixed Grid Headers -->
                                 <div class="grid-headers" id="gridHeaders">
@@ -2840,7 +2831,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 
                         <!-- Fixed Mixer Section -->
                         <div class="mixer-section">
-                            <!-- V4_0_0_C_sub82: Wrapper for unified panel (matches .waveform-tracks-area pattern) -->
+                            <!-- V4_0_0_C_sub132: Wrapper for unified panel (matches .waveform-tracks-area pattern) -->
                             <div class="mixer-controls-area">
                                 <!-- V3_8_0_V: Removed mixer-spacer div - now 5 columns (mixer1-4 + mixerMaster) -->
                                 <div class="track-controls" id="mixer1"></div>
@@ -2852,13 +2843,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         </div>
 
                         <!-- Waveform Section (V3.0.0-F: Moved inside performance-view for proper flex layout) -->
-                        <!-- V4_0_0_C_sub76: Changed to grid layout - tracks | controls -->
+                        <!-- V4_0_0_C_sub136: Changed to grid layout - tracks | controls -->
                         <div class="waveforms-section">
-                            <!-- V4_0_0_C_sub76: Grid column 1 - all tracks -->
+                            <!-- V4_0_0_C_sub136: Grid column 1 - all tracks -->
                             <div class="waveform-tracks-area">
                             <!-- V3.2.0-M: Each track is a modular row (control + canvas) -->
                             <!-- V4.0.0_C_sub28: Added left spacer for 800px canvas math -->
-                            <!-- V4.0.0_C_sub57: Reordered - canvas left, spacer right -->
+                            <!-- V4.0.0_C_sub137: Reordered - canvas left, spacer right -->
                             <div class="waveform-track">
                                 <div class="waveform-canvas-container">
                                     <canvas class="waveform-canvas" id="waveform1"></canvas>
@@ -2959,20 +2950,21 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                 <div class="clock-dot" id="clockDot"></div>
                             </div>
                             </div>
-                            <!-- V4_0_0_C_sub76: End waveform-tracks-area -->
+                            <!-- V4_0_0_C_sub136: End waveform-tracks-area -->
                             
-                            <!-- V4_0_0_C_sub76: Grid column 2 - master controls (sibling to tracks) -->
+                            <!-- V4_0_0_C_sub136: Grid column 2 - master controls (sibling to tracks) -->
                             <div class="waveform-master-controls">
                                 <div class="waveform-clock-readout" id="dawClockReadout">1.1.1</div>
-                                <!-- V4_0_0_C_sub51: RMS calibration field - expanded range, no spinners -->
+                                <!-- V4_0_0_C_sub131: RMS calibration field - expanded range, no spinners -->
                                 <div style="margin-top: 8px; text-align: center;">
                                     <label style="color: #888; font-size: 11px; margin-right: 4px;">RMS:</label>
                                     <input type="number" id="rmsCalibration" value="1.0" min="0.0" max="10.0" step="0.001" 
                                            style="width: 70px; background: #1a1a1a; color: white; border: 1px solid #333; 
                                                   padding: 2px 4px; font-size: 11px; text-align: center; pointer-events: auto;">
                                 </div>
-                                <!-- V4.0.0_C_sub61: Waveform zoom control - 2x multiples only -->
-                                <!-- V4.0.0_C_sub62: Added 16x option -->
+                                <!-- V4.0.0_C_sub131: Waveform zoom control - 2x multiples only -->
+                                <!-- V4.0.0_C_sub132: Added 16x option -->
+                                <!-- V4_1_0_B_sub13: Removed 16x (longer than any track) -->
                                 <div style="margin-top: 8px; text-align: center;">
                                     <label style="color: #888; font-size: 11px; margin-right: 4px;">Zoom:</label>
                                     <select id="waveformZoom" 
@@ -2983,7 +2975,6 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                         <option value="2">2x</option>
                                         <option value="4">4x</option>
                                         <option value="8">8x</option>
-                                        <option value="16">16x</option>
                                     </select>
                                 </div>
                                 <!-- V4_0_0_D_sub1: Tempo control moved from Master column -->
@@ -2994,9 +2985,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                     </div>
                                     <canvas class="rotary-knob" id="rotaryTempo" width="30" height="30" style="margin: 4px auto 0; display: block;"></canvas>
                                 </div>
-                                <!-- V4_0_0_C_sub69: Master Grid toggle button moved from Master column -->
-                                <div style="margin-top: 8px; text-align: center;">
-                                    <button id="masterGridButton" class="track-btn" style="width: 30px; height: 30px; font-size: 14px; font-weight: bold;">G</button>
+                                <!-- V4_1_0_B_sub4: Grid visibility toggles (M=Master, T=Track, W=Waveform) -->
+                                <div style="margin-top: 8px; display: flex; justify-content: center; gap: 2px;">
+                                    <button id="masterGridButton" class="track-btn" style="width: 24px; height: 24px; font-size: 11px; font-weight: bold;" title="Master Grid">M</button>
+                                    <button id="trackGridButton" class="track-btn" style="width: 24px; height: 24px; font-size: 11px; font-weight: bold;" title="Track Grid">T</button>
+                                    <button id="waveformButton" class="track-btn" style="width: 24px; height: 24px; font-size: 11px; font-weight: bold;" title="Waveform">W</button>
                                 </div>
                             </div>
                         </div>
@@ -3079,13 +3072,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             trackShaderSolo: [false, false, false, false], // Shader soloed
             trackShaderManual: [false, false, false, false], // Manual override active
             masterVolume: 0.5, // V3.1.0-M: Default 50% volume (12 o'clock)
-            masterShaderOpacity: 1.0, // V4_0_0_C_sub68: Master shader opacity (composite fade)
-            masterShaderOpacityBeforeMute: 1.0, // V4_0_0_C_sub68: Store value when muted
+            masterShaderOpacity: 1.0, // V4_0_0_C_sub138: Master shader opacity (composite fade)
+            masterShaderOpacityBeforeMute: 1.0, // V4_0_0_C_sub138: Store value when muted
             masterTempo: 120,
             zoomValue: 10, // V3.3.0_S: Default 10 px/sec = shows 64 bars @ 128 BPM (120 seconds)
             minZoom: 10,   // V3.3.0_S: Dynamic minimum (full zoom out = entire longest track)
             maxZoom: 200,  // V3.3.0_S: Fixed maximum (full zoom in)
-            waveformZoom: 1.0, // V4.0.0_C_sub61: Waveform display zoom (0.5, 1, 2, 4, 8)
+            waveformZoom: 1.0, // V4.0.0_C_sub131: Waveform display zoom (0.5, 1, 2, 4, 8)
             lastSceneLaunched: null
         };
         
@@ -5992,16 +5985,16 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             containers.push(container);
             saveLibraryContainers(containers);
             
-            // V3.9.0_L_sub5: Debug logging to diagnose analysis check
-            console.log('V3.9.0_L_sub5: Add to Library clicked');
-            console.log('V3.9.0_L_sub5: audioLoaded =', audioLoaded);
-            console.log('V3.9.0_L_sub5: audioElement =', audioElement);
-            console.log('V3.9.0_L_sub5: container.hasAudio =', container.hasAudio);
-            console.log('V3.9.0_L_sub5: container.audioFilename =', container.audioFilename);
+            // V3.9.0_L_sub13: Debug logging to diagnose analysis check
+            console.log('V3.9.0_L_sub13: Add to Library clicked');
+            console.log('V3.9.0_L_sub13: audioLoaded =', audioLoaded);
+            console.log('V3.9.0_L_sub13: audioElement =', audioElement);
+            console.log('V3.9.0_L_sub13: container.hasAudio =', container.hasAudio);
+            console.log('V3.9.0_L_sub13: container.audioFilename =', container.audioFilename);
             
             // V3_9_0_L_sub1: Analyze audio timeline if loaded (populate shader mod timelines)
             if (audioLoaded && audioElement) {
-                console.log('V3.9.0_L_sub5: Starting audio timeline analysis (Add to Library)...');
+                console.log('V3.9.0_L_sub13: Starting audio timeline analysis (Add to Library)...');
                 await analyzeAudioTimeline(container);
                 
                 // Re-save with timeline data included
@@ -6010,10 +6003,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 if (containerIndex >= 0) {
                     updatedContainers[containerIndex] = container;
                     saveLibraryContainers(updatedContainers);
-                    console.log('V3.9.0_L_sub5: Timeline data saved to container (Add to Library)');
+                    console.log('V3.9.0_L_sub13: Timeline data saved to container (Add to Library)');
                 }
             } else {
-                console.warn('V3.9.0_L_sub5: Skipping analysis - audioLoaded:', audioLoaded, 'audioElement:', audioElement);
+                console.warn('V3.9.0_L_sub13: Skipping analysis - audioLoaded:', audioLoaded, 'audioElement:', audioElement);
             }
             
             // V2.9.0-K: Auto-save .oms file to Audio Library folder
@@ -6439,7 +6432,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 audioLoopIn: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopInField').value) : (existingContainer.audioLoopIn || null),  // V3.2.0-Y: Save loop in
                 audioLoopOut: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopOutField').value) : (existingContainer.audioLoopOut || null),  // V3.2.0-Y: Save loop out
                 hasAudio: !!audioFilename,
-                // V4_0_0_D_sub57: ALWAYS preserve timeline arrays!
+                // V4_0_0_D_sub137: ALWAYS preserve timeline arrays!
                 shaderModATimeline: existingContainer.shaderModATimeline || null,
                 shaderModBTimeline: existingContainer.shaderModBTimeline || null,
                 shaderModCTimeline: existingContainer.shaderModCTimeline || null,
@@ -6453,25 +6446,25 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             containers[containerIndex] = updatedContainer;
             saveLibraryContainers(containers);
             
-            // V3.9.0_L_sub5: Debug logging to diagnose analysis check
-            console.log('V3.9.0_L_sub5: UPDATE button clicked');
-            console.log('V3.9.0_L_sub5: audioLoaded =', audioLoaded);
-            console.log('V3.9.0_L_sub5: audioElement =', audioElement);
-            console.log('V3.9.0_L_sub5: updatedContainer.hasAudio =', updatedContainer.hasAudio);
-            console.log('V3.9.0_L_sub5: updatedContainer.audioFilename =', updatedContainer.audioFilename);
+            // V3.9.0_L_sub13: Debug logging to diagnose analysis check
+            console.log('V3.9.0_L_sub13: UPDATE button clicked');
+            console.log('V3.9.0_L_sub13: audioLoaded =', audioLoaded);
+            console.log('V3.9.0_L_sub13: audioElement =', audioElement);
+            console.log('V3.9.0_L_sub13: updatedContainer.hasAudio =', updatedContainer.hasAudio);
+            console.log('V3.9.0_L_sub13: updatedContainer.audioFilename =', updatedContainer.audioFilename);
             
-            // V4_0_0_D_sub58: Re-analyze if audio loaded but timeline arrays missing
+            // V4_0_0_D_sub138: Re-analyze if audio loaded but timeline arrays missing
             if (audioLoaded && audioElement && 
                 (!updatedContainer.shaderModATimeline || 
                  !updatedContainer.shaderModBTimeline || 
                  !updatedContainer.shaderModCTimeline)) {
-                console.log('V4_0_0_D_sub58: Timeline arrays missing - running analysis...');
+                console.log('V4_0_0_D_sub138: Timeline arrays missing - running analysis...');
                 await analyzeAudioTimeline(updatedContainer);
                 
                 // Re-save with timeline data
                 containers[containerIndex] = updatedContainer;
                 saveLibraryContainers(containers);
-                console.log('V4_0_0_D_sub58: Timeline analysis complete and saved');
+                console.log('V4_0_0_D_sub138: Timeline analysis complete and saved');
             }
             
             // V2.9.0-K: Auto-save .oms file to Audio Library folder
@@ -8888,17 +8881,31 @@ ${shaderCode}
 
         // V4_0_0_D_sub35: BEAT-BASED COORDINATE SYSTEM
         // Single source of truth for all visual positioning
-        const PIXELS_PER_BAR = 25;   // Fixed Master Grid spacing
+        // V4_1_0_B: TEMPO-BASED formula (proven in V12 test app)
+        // V4_1_0_B_sub3: Recalibrated so 1x = previous 4x (good default view)
+        // pixelsPerBeat = BASE_PIXELS_PER_SECOND * secondsPerBeat / zoom
+        const BASE_PIXELS_PER_SECOND = 6.25;  // 25/4 so 1x = previous 4x
         const BEATS_PER_BAR = 4;     // 4/4 time signature
-        const PIXELS_PER_BEAT = PIXELS_PER_BAR / BEATS_PER_BAR;  // 6.25px per beat
+        
+        // V4_1_0_B: Tempo-based pixels per beat (zoom-aware)
+        function getPixelsPerBeat() {
+            const masterBPM = gridState.masterTempo || 120;
+            const secondsPerBeat = 60 / masterBPM;
+            return BASE_PIXELS_PER_SECOND * secondsPerBeat / (gridState.waveformZoom || 1.0);
+        }
+        
+        // Helper function to get current pixels per bar (derived from beat)
+        function getPixelsPerBar() {
+            return getPixelsPerBeat() * BEATS_PER_BAR;
+        }
 
         // Helper functions for coordinate conversion (beats ↔ pixels)
         function beatToPixel(beat) {
-            return beat * PIXELS_PER_BEAT;
+            return beat * getPixelsPerBeat();
         }
 
         function pixelToBeat(pixel) {
-            return pixel / PIXELS_PER_BEAT;
+            return pixel / getPixelsPerBeat();
         }
 
         // V3.1.0-H: Web Audio routing
@@ -8906,7 +8913,7 @@ ${shaderCode}
         let masterGainNode = null;
         let trackAudioSources = [null, null, null, null]; // Active audio sources per track
         let trackAudioBuffers = [null, null, null, null]; // Loaded audio buffers per track
-        let trackAudioStartContextTime = [null, null, null, null]; // V3_9_0_L_sub6: audioContext.currentTime when each track's audio started
+        let trackAudioStartContextTime = [null, null, null, null]; // V3_9_0_L_sub13: audioContext.currentTime when each track's audio started
         let trackLaunchBeats = [null, null, null, null];  // V3_9_0_F_sub2: Beat position when each track launched
         let trackBar1Positions = [null, null, null, null]; // V3_9_0_F_sub14: Bar 1 pixel position on canvas (fixed, never changes)
         // V3.1.0-K: Analyser nodes for LED meters
@@ -8951,35 +8958,35 @@ ${shaderCode}
                 });
             }
             
-            // V4_0_0_C_sub52: RMS calibration field - redraw waveforms on change
-            // V4.0.0_C_sub63: Use unified updateTrackWaveform()
+            // V4_0_0_C_sub132: RMS calibration field - redraw waveforms on change
+            // V4.0.0_C_sub133: Use unified updateTrackWaveform()
             const rmsField = document.getElementById('rmsCalibration');
             if (rmsField) {
                 rmsField.addEventListener('input', () => {
-                    console.log('🔧 sub63: RMS changed to', rmsField.value);
-                    // V4.0.0_C_sub63: Use unified function
+                    console.log('🔧 sub133: RMS changed to', rmsField.value);
+                    // V4.0.0_C_sub133: Use unified function
                     for (let track = 0; track < 4; track++) {
                         updateTrackWaveform(track);
                     }
                 });
             }
             
-            // V4.0.0_C_sub61: Waveform zoom control - redraw waveforms on change
-            // V4.0.0_C_sub63: GLOBAL control - use unified updateTrackWaveform()
+            // V4.0.0_C_sub131: Waveform zoom control - redraw waveforms on change
+            // V4.0.0_C_sub133: GLOBAL control - use unified updateTrackWaveform()
             const zoomField = document.getElementById('waveformZoom');
             if (zoomField) {
                 zoomField.addEventListener('change', () => {
                     const newZoom = parseFloat(zoomField.value);
                     gridState.waveformZoom = newZoom;
-                    console.log(`🔍 sub66: Waveform zoom changed to ${newZoom}x - updating ALL tracks`);
+                    console.log(`🔍 sub136: Waveform zoom changed to ${newZoom}x - updating ALL tracks`);
                     
-                    // V4.0.0_C_sub64: Debug - show what's in trackContainerData
-                    console.log('🔍 sub66: trackContainerData array:', trackContainerData);
+                    // V4.0.0_C_sub134: Debug - show what's in trackContainerData
+                    console.log('🔍 sub136: trackContainerData array:', trackContainerData);
                     for (let i = 0; i < 4; i++) {
-                        console.log(`🔍 sub66: trackContainerData[${i}]:`, trackContainerData[i] ? trackContainerData[i].name : 'EMPTY');
+                        console.log(`🔍 sub136: trackContainerData[${i}]:`, trackContainerData[i] ? trackContainerData[i].name : 'EMPTY');
                     }
                     
-                    // V4.0.0_C_sub63: Unified function ensures consistent behavior
+                    // V4.0.0_C_sub133: Unified function ensures consistent behavior
                     for (let track = 0; track < 4; track++) {
                         updateTrackWaveform(track);
                     }
@@ -9010,7 +9017,7 @@ ${shaderCode}
                 // This accounts for the 200ms buffer
                 trackMasterClockStart = actualStartTime;
                 
-                // V3_9_0_F_sub8: Initialize tempo history
+                // V3_9_0_F_sub13: Initialize tempo history
                 trackAudioMasterClock.initializeTempoHistory(actualStartTime, gridState.masterTempo);
                 
                 console.log(`V3_5_0_M: Master clock started at ${trackMasterClockStart.toFixed(3)}`);
@@ -9018,7 +9025,7 @@ ${shaderCode}
                 // V3_9_0_F_sub19c: Start clock dot animation
                 startClockDotAnimation();
                 
-                // V3_9_0_G_sub5: Start DAW clock readout animation
+                // V3_9_0_G_sub13: Start DAW clock readout animation
                 startDAWClockAnimation();
             }
         }
@@ -9108,13 +9115,13 @@ ${shaderCode}
         // Reference: Christoph Guttandin - "Synchronizing Audio on the Web" (ADC22)
         
         const trackAudioMasterClock = {
-            // V3_9_0_F_sub8: BAR/BEAT MASTER CLOCK with TEMPO HISTORY
+            // V3_9_0_F_sub13: BAR/BEAT MASTER CLOCK with TEMPO HISTORY
             // Tracks tempo changes to maintain consistent bar positions
             
             // AudioContext reference (set during initialization)
             trackAudioContext: null,
             
-            // V3_9_0_F_sub8: Tempo history - track all tempo changes
+            // V3_9_0_F_sub13: Tempo history - track all tempo changes
             // Each entry: { time: audioContext.currentTime, tempo: BPM }
             tempoHistory: [],
             
@@ -9138,16 +9145,16 @@ ${shaderCode}
                 return this.secondsPerBeat * 4.0; // Assuming 4/4 time signature
             },
             
-            // V3_9_0_F_sub8: Initialize tempo history (called when first track launches)
+            // V3_9_0_F_sub13: Initialize tempo history (called when first track launches)
             initializeTempoHistory: function(startTime, tempo) {
                 this.tempoHistory = [{ time: startTime, tempo: tempo }];
-                console.log(`V3_9_0_F_sub8: Tempo history initialized at ${startTime.toFixed(3)}s, ${tempo} BPM`);
+                console.log(`V3_9_0_F_sub13: Tempo history initialized at ${startTime.toFixed(3)}s, ${tempo} BPM`);
             },
             
-            // V3_9_0_F_sub8: Record tempo change
+            // V3_9_0_F_sub13: Record tempo change
             recordTempoChange: function(tempo) {
                 if (this.tempoHistory.length === 0) {
-                    console.error('V3_9_0_F_sub8: Cannot record tempo change - history not initialized!');
+                    console.error('V3_9_0_F_sub13: Cannot record tempo change - history not initialized!');
                     return;
                 }
                 
@@ -9156,10 +9163,10 @@ ${shaderCode}
                     tempo: tempo
                 });
                 
-                console.log(`V3_9_0_F_sub8: Tempo change recorded - ${this.tempoHistory.length} entries, now ${tempo} BPM at ${this.currentTime.toFixed(3)}s`);
+                console.log(`V3_9_0_F_sub13: Tempo change recorded - ${this.tempoHistory.length} entries, now ${tempo} BPM at ${this.currentTime.toFixed(3)}s`);
             },
             
-            // V3_9_0_F_sub8: Calculate current bar by walking tempo history
+            // V3_9_0_F_sub13: Calculate current bar by walking tempo history
             // V4_0_0_D_sub2: Return 1-indexed DAW bars (1, 2, 3...) not 0-indexed (0, 1, 2...)
             // V4_0_0_D_sub4: Return fractional bars (1.25, 1.5, 1.75...) for smooth animation
             getCurrentBar: function() {
@@ -9198,7 +9205,7 @@ ${shaderCode}
                 return Math.floor(bar) * 4 + beatInBar;  // Absolute beat position
             },
             
-            // V3_9_0_F_sub8: Get time at specific bar (walks tempo history forward)
+            // V3_9_0_F_sub13: Get time at specific bar (walks tempo history forward)
             getTimeAtBar: function(targetBar) {
                 if (!trackMasterClockStart || this.tempoHistory.length === 0) return 0;
                 
@@ -9269,7 +9276,7 @@ ${shaderCode}
                 return elapsed;
             },
             
-            // V3_9_0_G_sub6: Get beat position at a specific audioContext.currentTime
+            // V3_9_0_G_sub13: Get beat position at a specific audioContext.currentTime
             // Inverse of getTimeAtBeat - walks tempo history to find which beat a time represents
             getBeatAtTime: function(targetTime) {
                 if (!trackMasterClockStart || this.tempoHistory.length === 0) return 0;
@@ -9324,7 +9331,7 @@ ${shaderCode}
             }
         };
         
-        // V3_9_0_I_sub10: PIXEL GRID TRANSLATOR
+        // V3_9_0_I_sub13: PIXEL GRID TRANSLATOR
         // Converts between beat positions (DAW time) and pixel positions (screen space)
         // Works alongside trackAudioMasterClock to provide complete timing system:
         //   - trackAudioMasterClock: beats ↔ seconds (tempo history)
@@ -9372,7 +9379,7 @@ ${shaderCode}
                 return pixel / this.pixelsPerBar;
             },
             
-            // V3_9_0_I_sub10: Convert beat to pixel WITH tempo history
+            // V3_9_0_I_sub13: Convert beat to pixel WITH tempo history
             // Walk through tempo changes and accumulate pixel positions
             // Use this for waveform positioning where tempo has changed
             beatToPixelWithHistory: function(beat) {
@@ -9600,7 +9607,7 @@ ${shaderCode}
                                 trackAudioSources[track] = null;
                                 trackAudioBuffers[track] = null;
                                 trackLaunchBeats[track] = null;  // V3_9_0_F_sub2: Clear launch beat
-                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub6: Clear audio start time
+                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub13: Clear audio start time
                                 
                                 // V3.3.0_S: Recalculate zoom range when track stops
                                 recalculateZoomRange();
@@ -9644,17 +9651,17 @@ ${shaderCode}
                             startTime = trackAudioMasterClock.getNextBarTime();
                             if (!startTime) {
                                 // Fallback if something went wrong
-                                startTime = trackAudioContext.currentTime + 0.005;  // V4_0_0_B_sub7: 5ms
+                                startTime = trackAudioContext.currentTime + 0.005;  // V4_0_0_B_sub13: 5ms
                             }
                             console.log('V4_0_0_B_sub3: Track past 1.1.1 - master clock continues');
                         } else {
                             // NO - reset master clock to 1.1.1, immediate start
-                            // V4_0_0_B_sub6: Separate clock reference (NOW) from audio start (FUTURE)
-                            // V4_0_0_B_sub7: 5ms buffer for M1 Pro BEAST MODE
+                            // V4_0_0_B_sub13: Separate clock reference (NOW) from audio start (FUTURE)
+                            // V4_0_0_B_sub13: 5ms buffer for M1 Pro BEAST MODE
                             const clockRef = trackAudioContext.currentTime;  // NOW
                             const audioStart = trackAudioContext.currentTime + 0.005;  // 5ms FUTURE
                             
-                            // V4_0_0_B_sub6: FORCE RESET master clock using NOW (not future!)
+                            // V4_0_0_B_sub13: FORCE RESET master clock using NOW (not future!)
                             trackMasterClockStart = clockRef;
                             trackAudioMasterClock.initializeTempoHistory(clockRef, gridState.masterTempo);
                             
@@ -9664,7 +9671,7 @@ ${shaderCode}
                             startClockDotAnimation();
                             startDAWClockAnimation();
                             
-                            console.log(`V4_0_0_B_sub7: FORCE reset - clock ref at ${clockRef.toFixed(3)}, audio starts at ${audioStart.toFixed(3)} (5ms buffer)`);
+                            console.log(`V4_0_0_B_sub13: FORCE reset - clock ref at ${clockRef.toFixed(3)}, audio starts at ${audioStart.toFixed(3)} (5ms buffer)`);
                             
                             // Audio uses FUTURE time
                             startTime = audioStart;
@@ -10033,7 +10040,7 @@ ${shaderCode}
                 });
             }
             
-            // V3_9_0_C_sub5: Master tempo matches track structure (M/S buttons, display, knob)
+            // V3_9_0_C_sub13: Master tempo matches track structure (M/S buttons, display, knob)
             const mixerMaster = document.getElementById('mixerMaster');
             mixerMaster.innerHTML = `
                 <div class="mixer-dual">
@@ -10131,11 +10138,11 @@ ${shaderCode}
             
             // V3_9_0_C_sub2: Make updateTempo global for keyboard access
             window.updateTempo = function(bpm) {
-                // V3_9_0_C_sub7: Round to 1 decimal place (allows 0.1 BPM increments)
+                // V3_9_0_C_sub13: Round to 1 decimal place (allows 0.1 BPM increments)
                 masterTempo = Math.max(60, Math.min(200, Math.round(bpm * 10) / 10));
                 drawKnobTempo();
                 
-                // V3_9_0_C_sub7: Update tempo display (show 1 decimal place)
+                // V3_9_0_C_sub13: Update tempo display (show 1 decimal place)
                 const tempoDisplay = document.getElementById('tempoValue');
                 if (tempoDisplay) {
                     tempoDisplay.textContent = masterTempo.toFixed(1);
@@ -10145,21 +10152,21 @@ ${shaderCode}
                 gridState.masterTempo = masterTempo;
                 autoSaveProject();
                 
-                // V3_9_0_F_sub8: Record tempo change in master clock history
+                // V3_9_0_F_sub13: Record tempo change in master clock history
                 if (trackMasterClockStart) {
                     trackAudioMasterClock.recordTempoChange(masterTempo);
                 }
                 
-                // V3_9_0_C_sub6: Update playback rates for all currently playing tracks
+                // V3_9_0_C_sub13: Update playback rates for all currently playing tracks
                 for (let track = 0; track < 4; track++) {
                     if (trackAudioSources[track] && trackContainerData[track] && trackContainerData[track].audioBPM) {
                         const playbackRate = gridState.masterTempo / trackContainerData[track].audioBPM;
                         trackAudioSources[track].playbackRate.value = playbackRate;
-                        console.log(`V3_9_0_C_sub6: Track ${track + 1} playback rate updated: ${playbackRate.toFixed(4)} (${trackContainerData[track].audioBPM} → ${masterTempo} BPM)`);
+                        console.log(`V3_9_0_C_sub13: Track ${track + 1} playback rate updated: ${playbackRate.toFixed(4)} (${trackContainerData[track].audioBPM} → ${masterTempo} BPM)`);
                     }
                 }
                 
-                // V3_9_0_F_sub6: Redraw beat grids and reposition waveforms for all playing tracks
+                // V3_9_0_F_sub13: Redraw beat grids and reposition waveforms for all playing tracks
                 // When tempo changes, beat grid spacing changes - must redraw at new spacing
                 for (let track = 0; track < 4; track++) {
                     if (trackAudioSources[track] && trackContainerData[track]) {
@@ -10171,26 +10178,26 @@ ${shaderCode}
                         const audioBuffer = trackAudioBuffers[track];
                         if (!audioBuffer) continue;
                         
-                        // V3_9_0_F_sub7: Clear canvas first (prevent layered grids = thick bars)
+                        // V3_9_0_F_sub13: Clear canvas first (prevent layered grids = thick bars)
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         
-                        // V3_9_0_F_sub7: Redraw blue waveform (fills canvas background)
+                        // V3_9_0_F_sub13: Redraw blue waveform (fills canvas background)
                         drawWaveformFromAudioBuffer(track + 1, audioBuffer);
                         
-                        // V3_9_0_F_sub7: Redraw beat grid at NEW tempo spacing
+                        // V3_9_0_F_sub13: Redraw beat grid at NEW tempo spacing
                         drawBeatGridOnWaveform(ctx, trackContainerData[track], audioBuffer, canvas.width, canvas.height);
                         
                         // Reposition waveform to maintain current bar at playhead
                         positionTrackAudioWaveformAtCurrentBar(track + 1);
                         
-                        console.log(`V3_9_0_F_sub6: Track ${track + 1} - redrew beat grid and repositioned at new tempo`);
+                        console.log(`V3_9_0_F_sub13: Track ${track + 1} - redrew beat grid and repositioned at new tempo`);
                     }
                 }
                 
                 // V3_9_0_G_sub2: Update Master Grid bar spacing at new tempo
                 updateMasterGrid();
                 
-                console.log(`V3_9_0_C_sub7: Master tempo set to ${masterTempo.toFixed(1)} BPM (playback rates updated)`);
+                console.log(`V3_9_0_C_sub13: Master tempo set to ${masterTempo.toFixed(1)} BPM (playback rates updated)`);
             };
             
             canvasTempo.addEventListener('mousedown', (e) => {
@@ -10314,7 +10321,7 @@ ${shaderCode}
                 showStatus('', 'info');
             });
             
-            // V4_0_0_C_sub69: S button now disabled (solo doesn't apply to master audio)
+            // V4_0_0_C_sub139: S button now disabled (solo doesn't apply to master audio)
             const soloBtnMaster = mixerMaster.querySelector('.track-btn.solo');
             soloBtnMaster.addEventListener('mouseenter', () => {
                 showStatus('Master Solo - Not applicable', 'info');
@@ -10323,7 +10330,7 @@ ${shaderCode}
                 showStatus('', 'info');
             });
             
-            // V4_0_0_C_sub68: Initialize master shader opacity knob (30px, left side)
+            // V4_0_0_C_sub138: Initialize master shader opacity knob (30px, left side)
             const canvasShaderMaster = document.getElementById('rotaryShaderMaster');
             const ctxShaderMaster = canvasShaderMaster.getContext('2d');
             let masterShaderOpacity = 1.0; // Default 100% (12 o'clock)
@@ -10372,7 +10379,7 @@ ${shaderCode}
                     updateTrackShaderOpacity(track);
                 }
                 
-                console.log(`V4_0_0_C_sub68: Master shader opacity set to ${(masterShaderOpacity * 100).toFixed(0)}%`);
+                console.log(`V4_0_0_C_sub138: Master shader opacity set to ${(masterShaderOpacity * 100).toFixed(0)}%`);
             };
             
             canvasShaderMaster.addEventListener('mousedown', (e) => {
@@ -10408,7 +10415,7 @@ ${shaderCode}
                     updateMasterShaderOpacity(gridState.masterShaderOpacityBeforeMute || 1.0);
                 }
                 
-                console.log(`V4_0_0_C_sub68: Master shader ${isMuted ? 'muted' : 'unmuted'} (all visuals)`);
+                console.log(`V4_0_0_C_sub138: Master shader ${isMuted ? 'muted' : 'unmuted'} (all visuals)`);
             });
             
             shaderMuteBtnMaster.addEventListener('mouseenter', () => {
@@ -10484,19 +10491,47 @@ ${shaderCode}
                 console.log('V3_8_0_L: Trackpad pinch-to-zoom enabled on waveforms');
             }
             
-            // V4_0_0_C_sub69: Master Grid button handler (moved to Track Area below Tempo)
+            // V4_1_0_B_sub4: Grid visibility button handlers (M, T, W)
             const masterGridButton = document.getElementById('masterGridButton');
             if (masterGridButton) {
                 masterGridButton.addEventListener('click', () => {
-                    console.log('V4_0_0_C_sub69: Master Grid button clicked (Track Area)');
+                    console.log('V4_1_0_B_sub4: Master Grid button clicked');
                     toggleMasterGrid();
                 });
-                
                 masterGridButton.addEventListener('mouseenter', () => {
-                    showStatus('Master Grid - Toggle bar overlay (G key)', 'info');
+                    showStatus('Master Grid - Toggle overlay (M key)', 'info');
                 });
-                
                 masterGridButton.addEventListener('mouseleave', () => {
+                    showStatus('', 'info');
+                });
+            }
+            
+            const trackGridButton = document.getElementById('trackGridButton');
+            if (trackGridButton) {
+                trackGridButton.classList.add('active');  // Default on
+                trackGridButton.addEventListener('click', () => {
+                    console.log('V4_1_0_B_sub4: Track Grid button clicked');
+                    toggleTrackGrid();
+                });
+                trackGridButton.addEventListener('mouseenter', () => {
+                    showStatus('Track Grid - Toggle beat markers (T key)', 'info');
+                });
+                trackGridButton.addEventListener('mouseleave', () => {
+                    showStatus('', 'info');
+                });
+            }
+            
+            const waveformButton = document.getElementById('waveformButton');
+            if (waveformButton) {
+                waveformButton.classList.add('active');  // Default on
+                waveformButton.addEventListener('click', () => {
+                    console.log('V4_1_0_B_sub4: Waveform button clicked');
+                    toggleWaveform();
+                });
+                waveformButton.addEventListener('mouseenter', () => {
+                    showStatus('Waveform - Toggle amplitude bars (W key)', 'info');
+                });
+                waveformButton.addEventListener('mouseleave', () => {
                     showStatus('', 'info');
                 });
             }
@@ -10625,17 +10660,17 @@ ${shaderCode}
                 startTime = trackAudioMasterClock.getNextBarTime();
                 if (!startTime) {
                     // Fallback if something went wrong
-                    startTime = trackAudioContext.currentTime + 0.005;  // V4_0_0_B_sub7: 5ms
+                    startTime = trackAudioContext.currentTime + 0.005;  // V4_0_0_B_sub13: 5ms
                 }
                 console.log('V4_0_0_B_sub3: Track past 1.1.1 - master clock continues (scene launch)');
             } else {
                 // NO - reset master clock to 1.1.1, immediate start
-                // V4_0_0_B_sub6: Separate clock reference (NOW) from audio start (FUTURE)
-                // V4_0_0_B_sub7: 5ms buffer for M1 Pro BEAST MODE
+                // V4_0_0_B_sub13: Separate clock reference (NOW) from audio start (FUTURE)
+                // V4_0_0_B_sub13: 5ms buffer for M1 Pro BEAST MODE
                 const clockRef = trackAudioContext.currentTime;  // NOW
                 const audioStart = trackAudioContext.currentTime + 0.005;  // 5ms FUTURE
                 
-                // V4_0_0_B_sub6: FORCE RESET master clock using NOW (not future!)
+                // V4_0_0_B_sub13: FORCE RESET master clock using NOW (not future!)
                 trackMasterClockStart = clockRef;
                 trackAudioMasterClock.initializeTempoHistory(clockRef, gridState.masterTempo);
                 
@@ -10645,7 +10680,7 @@ ${shaderCode}
                 startClockDotAnimation();
                 startDAWClockAnimation();
                 
-                console.log(`V4_0_0_B_sub7: FORCE reset - clock ref at ${clockRef.toFixed(3)}, audio starts at ${audioStart.toFixed(3)} (5ms buffer, scene)`);
+                console.log(`V4_0_0_B_sub13: FORCE reset - clock ref at ${clockRef.toFixed(3)}, audio starts at ${audioStart.toFixed(3)} (5ms buffer, scene)`);
                 
                 // Audio uses FUTURE time
                 startTime = audioStart;
@@ -10667,7 +10702,7 @@ ${shaderCode}
                         trackAudioSources[track] = null;
                         trackAudioBuffers[track] = null;
                         trackLaunchBeats[track] = null;  // V3_9_0_F_sub2: Clear launch beat
-                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub6: Clear audio start time
+                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub13: Clear audio start time
                         
                         // Stop waveform scrolling (V3_9_0_F_sub4: keep waveform visible)
                         stopAudioWaveformScroll(track);
@@ -10962,8 +10997,8 @@ ${shaderCode}
                 
                 // V3.2.0-Q: Store container audio timing data for beat grid & sync
                 if (container) {
-                    // V4_0_0_D_sub56: Debug container structure
-                    console.log(`📊 sub56: Loading container "${container.name}" to Track ${track + 1}`);
+                    // V4_0_0_D_sub136: Debug container structure
+                    console.log(`📊 sub136: Loading container "${container.name}" to Track ${track + 1}`);
                     console.log(`  Timeline Arrays: A=${container.shaderModATimeline ? container.shaderModATimeline.length : 'NULL'}, B=${container.shaderModBTimeline ? container.shaderModBTimeline.length : 'NULL'}, C=${container.shaderModCTimeline ? container.shaderModCTimeline.length : 'NULL'}`);
                     
                     // Check if timeline arrays are in controlStates instead
@@ -10986,24 +11021,24 @@ ${shaderCode}
                         audioLoopOut: container.audioLoopOut || 0,
                         audioSnapLastBar: container.audioSnapLastBar || null,  // V4.0.0_D_sub27: Bar count for beat grid
                         name: container.name,
-                        // V4_0_0_D_sub56: Store timeline arrays properly
+                        // V4_0_0_D_sub136: Store timeline arrays properly
                         shaderModATimeline: timelineA,
                         shaderModBTimeline: timelineB,
                         shaderModCTimeline: timelineC,
                         fps: container.controlStates?.fps || 30,
-                        // V3_9_0_L_sub12: Store controlStates (with gains!) for shader reactivity
+                        // V3_9_0_L_sub13: Store controlStates (with gains!) for shader reactivity
                         controlStates: container.controlStates || {},
                         // V3_9_0_L_sub20: Store shaderCode so pop-out can update when opened after loading
                         shaderCode: container.shaderCode || null
                     };
                     console.log(`V3.2.0-Q: Stored timing data for Track ${track + 1}:`, trackContainerData[track]);
                     
-                    // V3_9_0_L_sub12: Store controlStates (now available!)
+                    // V3_9_0_L_sub13: Store controlStates (now available!)
                     if (container.shaderModATimeline) {
-                        console.log(`💩 V3_9_0_L_sub12: Track ${track + 1} has timeline arrays:`, container.shaderModATimeline.length, 'samples');
+                        console.log(`💩 V3_9_0_L_sub13: Track ${track + 1} has timeline arrays:`, container.shaderModATimeline.length, 'samples');
                         console.log('  First 5 modA values:', container.shaderModATimeline.slice(0, 5));
                     } else {
-                        console.warn(`💩 V3_9_0_L_sub12: Track ${track + 1} NO TIMELINE ARRAYS in container!`);
+                        console.warn(`💩 V3_9_0_L_sub13: Track ${track + 1} NO TIMELINE ARRAYS in container!`);
                     }
                 }
                 
@@ -11179,7 +11214,7 @@ ${shaderCode}
                 }
                 
                 // V3.2.0-AB: Update waveform visual scaling for all loaded tracks
-                // V3_9_0_F_sub12: Use positionTrackAudioWaveformAtCurrentBar for PLAYING tracks
+                // V3_9_0_F_sub13: Use positionTrackAudioWaveformAtCurrentBar for PLAYING tracks
                 // (keeps current bar at playhead, not Bar 1)
                 for (let track = 0; track < NUM_TRACKS; track++) {
                     if (trackAudioBuffers[track] && trackContainerData[track]) {
@@ -11227,7 +11262,7 @@ ${shaderCode}
         let liveShaderContexts = [null, null, null, null];
         let liveShaderAnimationId = null; // Single render loop for all tracks
         let liveShaderStartTime = 0;
-        let lastTimelineDebugLog = 0; // V3_9_0_L_sub5: For throttled debug logging
+        let lastTimelineDebugLog = 0; // V3_9_0_L_sub13: For throttled debug logging
         
         // V3_6_0_F: Pop-out window system
         let popOutWindow = null;
@@ -11411,7 +11446,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V4_0]</title>
+    <title>ONEMANSHYO App [V4_1]</title>
     <style>
         body {
             margin: 0;
@@ -11814,7 +11849,7 @@ ${providedShaderCode}
         function updateTrackShaderOpacity(track) {
             const opacity = calculateTrackShaderOpacity(track);
             
-            // V4_0_0_C_sub68: Apply master shader opacity (composite fade)
+            // V4_0_0_C_sub138: Apply master shader opacity (composite fade)
             const masterOpacity = gridState.masterShaderOpacity !== undefined ? gridState.masterShaderOpacity : 1.0;
             const finalOpacity = opacity * masterOpacity;
             
@@ -11850,9 +11885,9 @@ ${providedShaderCode}
             if (!containerData.shaderModATimeline || 
                 !containerData.shaderModBTimeline || 
                 !containerData.shaderModCTimeline) {
-                // V4_0_0_D_sub55: Only log once per track
+                // V4_0_0_D_sub135: Only log once per track
                 if (!getTimelineModulatorValues.noTimelineLogged || !getTimelineModulatorValues.noTimelineLogged[track]) {
-                    console.log(`⚠️ sub55: Track ${track + 1} has NO TIMELINE DATA - no shader reactivity`);
+                    console.log(`⚠️ sub135: Track ${track + 1} has NO TIMELINE DATA - no shader reactivity`);
                     console.log(`  Container: "${containerData.name || 'Unknown'}"`);
                     console.log(`  modATimeline: ${containerData.shaderModATimeline ? `${containerData.shaderModATimeline.length} samples` : 'NULL'}`);
                     console.log(`  modBTimeline: ${containerData.shaderModBTimeline ? `${containerData.shaderModBTimeline.length} samples` : 'NULL'}`);
@@ -11925,7 +11960,7 @@ ${providedShaderCode}
                 const lastIndex = modATimeline.length - 1;
                 
                 // V4_0_0_A_sub3: Calculate waveforms and apply to clamped values
-                // V4_0_0_A_sub5: DON'T apply gain to waveform (gain already in timeline!)
+                // V4_0_0_A_sub13: DON'T apply gain to waveform (gain already in timeline!)
                 const waveformA = calculateMod(elapsedBeats, modASubdiv, modAWaveform);
                 const waveformB = calculateMod(elapsedBeats, modBSubdiv, modBWaveform);
                 const waveformC = calculateMod(elapsedBeats, modCSubdiv, modCWaveform);
@@ -11939,7 +11974,7 @@ ${providedShaderCode}
             
             // V4_0_0_A_sub3: Calculate waveform values (reusing existing calculateMod function)
             // This adds the same waveform oscillation layer that Controls tab uses
-            // V4_0_0_A_sub5: DON'T apply gain - it's already in timeline arrays!
+            // V4_0_0_A_sub13: DON'T apply gain - it's already in timeline arrays!
             const waveformA = calculateMod(elapsedBeats, modASubdiv, modAWaveform);
             const waveformB = calculateMod(elapsedBeats, modBSubdiv, modBWaveform);
             const waveformC = calculateMod(elapsedBeats, modCSubdiv, modCWaveform);
@@ -11953,7 +11988,7 @@ ${providedShaderCode}
             };
             
             // V4_0_0_A_sub3: Log values once per second (updated to show waveform layer)
-            // V4_0_0_A_sub5: Gain shown but NOT applied to waveform (already in timeline)
+            // V4_0_0_A_sub13: Gain shown but NOT applied to waveform (already in timeline)
             if (now - getTimelineModulatorValues.lastLog < 50) {  // Same log cycle
                 console.log(`  TIMELINE: modA=${modATimeline[timelineIndex].toFixed(3)}, modB=${modBTimeline[timelineIndex].toFixed(3)}, modC=${modCTimeline[timelineIndex].toFixed(3)}`);
                 console.log(`  WAVEFORM: A=${waveformA.toFixed(3)} (${modAWaveform},${modASubdiv}), B=${waveformB.toFixed(3)} (${modBWaveform},${modBSubdiv}), C=${waveformC.toFixed(3)} (${modCWaveform},${modCSubdiv})`);
@@ -12104,9 +12139,9 @@ ${providedShaderCode}
         // V3.1.0-M: Draw real waveform from audio buffer data
         // V3.2.0-Z: Use bar-style waveform (matches Controls tab) + fix beat grid alignment
         function drawWaveformFromAudioBuffer(track, audioBuffer) {
-            // V4_0_0_C_sub54: Debug - log every call to this function
+            // V4_0_0_C_sub134: Debug - log every call to this function
             const rmsValue = parseFloat(document.getElementById('rmsCalibration')?.value) || 1.0;
-            console.log(`🎨 sub54: drawWaveformFromAudioBuffer called - Track ${track}, RMS ${rmsValue}`);
+            console.log(`🎨 sub134: drawWaveformFromAudioBuffer called - Track ${track}, RMS ${rmsValue}`);
             
             const canvas = document.getElementById(`waveform${track}`);
             if (!canvas) return;
@@ -12119,19 +12154,18 @@ ${providedShaderCode}
             const masterTempo = gridState.masterTempo || 128;
             const secondsPerBar = (4 / masterTempo) * 60; // 4 beats per bar
             
-            // V4_0_0_D_sub40: Use audioSnapLastBar for canvas width (same as grid drawing!)
-            // This ensures canvas width and grid bars use identical math
-            const waveformZoom = gridState.waveformZoom || 1.0;
-            const pixelsPerBar = 25 / waveformZoom; // Base 25px ÷ zoom (2x = 12.5px, zoom OUT)
+            // V4_1_0_B: Use centralized tempo-based formula
+            const PIXELS_PER_BAR = getPixelsPerBar();
             
             // V4_0_0_D_sub40: Use audioSnapLastBar if available, fallback to duration calculation
             const numberOfBars = (containerData && containerData.audioSnapLastBar) 
                 ? containerData.audioSnapLastBar 
                 : Math.ceil((audioEndTime - audioStartTime) / secondsPerBar);
             
-            canvas.width = numberOfBars * pixelsPerBar; // Zoomed width
+            canvas.width = numberOfBars * PIXELS_PER_BAR;
+            canvas.style.width = canvas.width + 'px';  // V4_1_0_B_sub17: Explicit CSS width like POC
             
-            console.log(`V4_0_0_D_sub40: Canvas width = ${numberOfBars} bars × ${pixelsPerBar}px = ${canvas.width}px`);
+            console.log(`V4_1_0_B_sub17: Canvas width = ${numberOfBars} bars × ${PIXELS_PER_BAR}px = ${canvas.width}px`);
             
             const ctx = canvas.getContext('2d');
             const width = canvas.width;
@@ -12141,13 +12175,8 @@ ${providedShaderCode}
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, width, height);
             
-            // V3_9_0_I_sub6: REMOVED tempo scaling - amplitude bars must match beat grid positions!
-            // Beat grid uses audioStartTime/audioEndTime directly (master tempo spacing)
-            // Amplitude must do the same for alignment
-            
+            // V4_1_0_B_sub13: Reverted to bar-style waveform (POC style doesn't work with short track height)
             // V3.3.0_R: Draw bar-style waveform aligned with musical beats
-            // V3.3.0_V: Draw at TIME positions (not evenly distributed) to match beat grid
-            // V3_9_0_I_sub6: Use audioStartTime directly (no scaling)
             const secondsPerBeat = secondsPerBar / 4;
             
             const channelData = audioBuffer.getChannelData(0);
@@ -12155,31 +12184,19 @@ ${providedShaderCode}
             const sampleRate = audioBuffer.sampleRate;
             
             // Calculate RMS amplitude for each BEAT (time-based, not evenly distributed)
-            // V3_9_0_I_sub6: Start from audioStartTime (matches beat grid)
             let levels = [];
             let maxLevel = 0;
             
-            // V3_9_0_I_sub7: Calculate tempo ratio for sample reading  
-            // Stay in DAW time - simple!
-            const playbackRate = masterTempo / audioBPM; // e.g., 120/124 = 0.968
+            // Calculate tempo ratio for sample reading  
+            const playbackRate = masterTempo / audioBPM;
             
-            let beatTime = audioStartTime; // DAW time
-            let beatCount = 0; // V4_0_0_C_sub54: Count beats for debug
+            let beatTime = audioStartTime;
             while (beatTime <= audioEndTime) {
-                // V4_0_0_C_sub50: Get RMS calibration value
-                const rmsCalibration = parseFloat(document.getElementById('rmsCalibration').value) || 1.0;
+                const rmsCalibration = parseFloat(document.getElementById('rmsCalibration')?.value) || 1.0;
                 
-                // V4_0_0_C_sub54: Debug first beat only
-                if (beatCount === 0) {
-                    console.log(`🎨 sub54: First beat - RMS ${rmsCalibration}, beatTime ${beatTime.toFixed(2)}, playbackRate ${playbackRate.toFixed(3)}`);
-                }
-                
-                // V3_9_0_I_sub7: At this DAW time, where are we in buffer?
-                // Audio plays at playbackRate, so: bufferTime = DAW time * playbackRate
                 const bufferTime = beatTime * playbackRate * rmsCalibration;
                 const bufferBeatDuration = secondsPerBeat * playbackRate;
                 
-                // Read samples from buffer at time-stretched position
                 const startSample = Math.floor(bufferTime * sampleRate);
                 const endSample = Math.floor((bufferTime + bufferBeatDuration) * sampleRate);
                 
@@ -12191,12 +12208,10 @@ ${providedShaderCode}
                 }
                 
                 const rms = count > 0 ? Math.sqrt(sum / count) : 0;
-                // Store with PLAYBACK time (where it will be drawn)
                 levels.push({ time: beatTime, amplitude: rms });
                 maxLevel = Math.max(maxLevel, rms);
                 
-                beatTime += secondsPerBeat; // Next beat at master tempo
-                beatCount++; // V4_0_0_C_sub54: Increment beat counter
+                beatTime += secondsPerBeat;
             }
             
             // Normalize levels
@@ -12204,34 +12219,31 @@ ${providedShaderCode}
                 levels = levels.map(l => ({ time: l.time, amplitude: l.amplitude / maxLevel }));
             }
             
-            // V4.0.0_C_sub42: Match Master Grid coordinate system
-            // V4.0.0_C_sub61: Apply waveform zoom to bar spacing
-            // Master Grid: 25px per bar × zoom, 4 bars per phrase
-            const barWidthPx = pixelsPerBar / 4; // Each beat = 1/4 of a bar (zoomed)
-            const barSpacing = 1;
-            const actualBarWidth = Math.max(barWidthPx - barSpacing, 2);
-            
-            for (let i = 0; i < levels.length; i++) {
-                let amplitude = levels[i].amplitude;
-                amplitude = Math.pow(amplitude, 0.7); // Compression curve
+            // Draw bar-style waveform
+            if (waveformVisible) {
+                const barWidthPx = PIXELS_PER_BAR / 4;
+                const barSpacing = 1;
+                const actualBarWidth = Math.max(barWidthPx - barSpacing, 2);
                 
-                if (amplitude < 0.02) continue; // Skip quiet bars
-                
-                const barHeight = amplitude * height * 0.9;
-                const y = (height - barHeight) / 2;
-                
-                const intensity = Math.floor(150 + amplitude * 105);
-                const alpha = 0.7 + amplitude * 0.3;
-                
-                // V4.0.0_C_sub42: Use Master Grid coordinate system
-                // Master Grid: bar_number × 25px (center = bar 16 = 400px)
-                // Convert time to bar number, then to pixels
-                const timeFromStart = levels[i].time - audioStartTime; // Seconds from Bar 1
-                const barNumber = timeFromStart / secondsPerBar; // Which bar (can be fractional)
-                const x = barNumber * pixelsPerBar; // Position in grid (25px per bar)
-                
-                ctx.fillStyle = `rgba(0, ${intensity}, 255, ${alpha})`;
-                ctx.fillRect(x, y, actualBarWidth, barHeight);
+                for (let i = 0; i < levels.length; i++) {
+                    let amplitude = levels[i].amplitude;
+                    amplitude = Math.pow(amplitude, 0.7); // Compression curve
+                    
+                    if (amplitude < 0.02) continue;
+                    
+                    const barHeight = amplitude * height * 0.9;
+                    const y = (height - barHeight) / 2;
+                    
+                    const intensity = Math.floor(150 + amplitude * 105);
+                    const alpha = 0.7 + amplitude * 0.3;
+                    
+                    const timeFromStart = levels[i].time - audioStartTime;
+                    const barNumber = timeFromStart / secondsPerBar;
+                    const x = barNumber * PIXELS_PER_BAR;
+                    
+                    ctx.fillStyle = `rgba(0, ${intensity}, 255, ${alpha})`;
+                    ctx.fillRect(x, y, actualBarWidth, barHeight);
+                }
             }
             
             // Draw center line
@@ -12255,15 +12267,15 @@ ${providedShaderCode}
             positionTrackAudioWaveformAtPlayhead(track, audioBuffer);
         }
         
-        // V4.0.0_C_sub63: UNIFIED track waveform update function
-        // V4.0.0_C_sub64: Added debug logging
-        // V4.0.0_C_sub66: Better error handling and validation
+        // V4.0.0_C_sub133: UNIFIED track waveform update function
+        // V4.0.0_C_sub134: Added debug logging
+        // V4.0.0_C_sub136: Better error handling and validation
         // Use this everywhere to ensure consistent behavior across all tracks
         function updateTrackWaveform(trackIndex) {
             try {
-                console.log(`🔍 sub66: updateTrackWaveform called for track ${trackIndex}`);
+                console.log(`🔍 sub136: updateTrackWaveform called for track ${trackIndex}`);
                 const containerData = trackContainerData[trackIndex];
-                console.log(`🔍 sub66: Track ${trackIndex} containerData:`, containerData ? containerData.name : 'NULL');
+                console.log(`🔍 sub136: Track ${trackIndex} containerData:`, containerData ? containerData.name : 'NULL');
                 
                 // Find audioBuffer for this track (search all scenes)
                 let audioBuffer = null;
@@ -12274,23 +12286,23 @@ ${providedShaderCode}
                     if (cellData && cellData.audioBuffer) {
                         audioBuffer = cellData.audioBuffer;
                         foundScene = scene;
-                        console.log(`🔍 sub66: Track ${trackIndex} found audioBuffer in scene ${scene}`);
+                        console.log(`🔍 sub136: Track ${trackIndex} found audioBuffer in scene ${scene}`);
                         break;
                     }
                 }
                 
                 if (!audioBuffer) {
-                    console.log(`🔍 sub66: Track ${trackIndex} - NO audioBuffer found, skipping`);
+                    console.log(`🔍 sub136: Track ${trackIndex} - NO audioBuffer found, skipping`);
                     return;
                 }
                 
                 if (!containerData) {
-                    console.log(`🔍 sub66: Track ${trackIndex} - NO containerData, skipping`);
+                    console.log(`🔍 sub136: Track ${trackIndex} - NO containerData, skipping`);
                     return;
                 }
                 
-                // V4.0.0_C_sub66: Both exist - proceed with redraw
-                console.log(`🔍 sub66: Track ${trackIndex} - REDRAWING with zoom ${gridState.waveformZoom}`);
+                // V4.0.0_C_sub136: Both exist - proceed with redraw
+                console.log(`🔍 sub136: Track ${trackIndex} - REDRAWING with zoom ${gridState.waveformZoom}`);
                 stopAudioWaveformScroll(trackIndex);
                 drawWaveformFromAudioBuffer(trackIndex + 1, audioBuffer);
                 
@@ -12299,13 +12311,12 @@ ${providedShaderCode}
                     startAudioWaveformScroll(trackIndex + 1, audioBuffer);
                 }
             } catch (error) {
-                console.error(`❌ sub66: Error in updateTrackWaveform for track ${trackIndex}:`, error);
+                console.error(`❌ sub136: Error in updateTrackWaveform for track ${trackIndex}:`, error);
             }
         }
         
         // V4.0.0_C_sub45: Position Track Grid so Bar 1 aligns with playhead
-        // Track Grid canvas starts at Bar 1 (x=0), bars every 25px
-        // Playhead is fixed at 510px (110px spacer + 400px center)
+        // V4_1_0_A_sub13: Draw at x=0, translateX to put Bar 1 at playhead
         function positionTrackAudioWaveformAtPlayhead(track, audioBuffer) {
             const canvas = document.getElementById(`waveform${track}`);
             if (!canvas) return;
@@ -12313,49 +12324,25 @@ ${providedShaderCode}
             const containerData = trackContainerData[track - 1];
             if (!containerData) return;
             
-            // V4.0.0_C_sub45: Bar 1 is at canvas x=0 (Track Grid starts at Bar 1)
-            const bar1PositionPx = 0;  // Canvas origin = Bar 1
+            // V4_1_0_B_sub13: DYNAMIC playhead position (like POC)
+            const container = canvas.parentElement;
+            const playheadX = container ? container.clientWidth / 2 : 400;
             
-            trackBar1Positions[track - 1] = bar1PositionPx;
+            trackBar1Positions[track - 1] = 0;  // Bar 1 at canvas x=0
             
-            // Playhead position (fixed)
-            const playheadPosition = 400;  // V4.0.0_C_sub60: Center of 800px canvas (no spacer offset)
-            
-            const canvasContainer = canvas.closest('.waveform-canvas-container');
-            const containerLeftOffset = canvasContainer ? canvasContainer.offsetLeft : 0;
-            const canvasLeftOffset = containerLeftOffset + canvas.offsetLeft;
-            
-            // V4_0_0_D_sub8: DEBUG - Show all offset measurements
-            console.warn(`🔍 sub8 DEBUG - Track ${track} Offset Measurements:`);
-            console.warn(`  playheadPosition: ${playheadPosition}px`);
-            console.warn(`  canvasContainer.offsetLeft: ${canvasContainer ? canvasContainer.offsetLeft : 'NULL'}px`);
-            console.warn(`  canvas.offsetLeft: ${canvas.offsetLeft}px`);
-            console.warn(`  canvasLeftOffset (sum): ${canvasLeftOffset}px`);
-            console.warn(`  canvas.offsetParent: ${canvas.offsetParent ? canvas.offsetParent.className : 'NULL'}`);
-            if (canvasContainer) {
-                console.warn(`  canvasContainer.offsetParent: ${canvasContainer.offsetParent ? canvasContainer.offsetParent.className : 'NULL'}`);
-            }
-            
-            const playheadInCanvasSpace = playheadPosition - canvasLeftOffset;
-            
-            // Offset needed to position Bar 1 (x=0) at playhead
-            // V4_0_0_D_sub54: Fixed double subtraction bug
-            const offsetNeeded = Math.round(playheadInCanvasSpace - bar1PositionPx);
-            
-            console.warn(`🎵 Track ${track}: ${containerData.name} | Bar 1 at canvas x=0 | Offset=${offsetNeeded.toFixed(2)}px to playhead`);
+            console.log(`📍 Track ${track}: container=${container?.clientWidth}px, playheadX=${playheadX}px, translateX=${playheadX}px`);
             
             canvas.style.transformOrigin = 'left center';
-            canvas.style.transform = `translateX(${offsetNeeded}px)`;
+            canvas.style.transform = `translateX(${playheadX}px)`;
         }
 
         // V4_0_0_D_sub36: BEAT-BASED positioning (Phase 2)
         // Position waveform so CURRENT BAR is at playhead
+        // V4_1_0_B_sub13: Dynamic playhead position
         function positionTrackAudioWaveformAtCurrentBar(track) {
-            console.log(`V4_0_0_D_sub36: positionTrackAudioWaveformAtCurrentBar - beat-based`);
-            
             const canvas = document.getElementById(`waveform${track}`);
             if (!canvas) {
-                console.log(`V4_0_0_D_sub36: Canvas not found for track ${track}`);
+                console.log(`V4_1_0_B_sub13: Canvas not found for track ${track}`);
                 return;
             }
             
@@ -12363,48 +12350,29 @@ ${providedShaderCode}
             const containerData = trackContainerData[track - 1];
             if (!containerData) return;
             
+            // V4_1_0_B_sub13: Dynamic playhead position
+            const container = canvas.parentElement;
+            const playheadPosition = container ? container.clientWidth / 2 : 400;
+            
             // Calculate current beat position using Master Clock
             const currentBeat = trackAudioMasterClock.getCurrentBeat();
             const trackIndex = track - 1;
             const launchBeat = trackLaunchBeats[trackIndex];
             
             // V4_0_0_D_sub36: BEAT-BASED calculation (NO time conversion!)
-            const elapsedBeats = currentBeat - launchBeat;
+            const elapsedBeats = currentBeat - (launchBeat || 0);
             
-            // Get STORED Bar 1 position (canvas x=0)
-            const bar1PositionPx = trackBar1Positions[trackIndex];
-            if (bar1PositionPx === null) {
-                console.log(`V4_0_0_D_sub36: Track ${track} has no stored Bar 1 position!`);
-                return;
-            }
-            
-            // Direct beat → pixel conversion (NO tempo calculations!)
-            const currentBarPositionPx = bar1PositionPx + beatToPixel(elapsedBeats);
-            
-            console.log(`V4_0_0_D_sub36: Track ${track} - Bar 1 at ${bar1PositionPx.toFixed(2)}px, elapsed ${elapsedBeats.toFixed(3)} beats = current bar at ${currentBarPositionPx.toFixed(2)}px`);
-            
-            // Get waveforms-section width (parent container)
-            const waveformsSection = canvas.closest('.waveforms-section');
-            if (!waveformsSection) return;
-            
-            const containerWidth = waveformsSection.offsetWidth;
-            
-            // Playhead is at 50% of container
-            const playheadPosition = containerWidth * 0.5;
-            
-            // Get canvas position accounting for position: relative on container
-            const canvasContainer = canvas.closest('.waveform-canvas-container');
-            const containerLeftOffset = canvasContainer ? canvasContainer.offsetLeft : 0;
-            const canvasLeftOffset = containerLeftOffset + canvas.offsetLeft;
-            
-            // Position current bar at playhead
-            const playheadInCanvasSpace = playheadPosition - canvasLeftOffset;
-            const offsetNeeded = playheadInCanvasSpace - currentBarPositionPx;
+            // V4_1_0_B_sub13: SIMPLIFIED POSITIONING
+            // Bar 1 is at canvas x=0
+            // Playhead is at center of container
+            // Offset = playheadPosition - scrollAmount
+            const scrollOffset = beatToPixel(elapsedBeats);
+            const offsetNeeded = playheadPosition - scrollOffset;
             
             // Apply position
             canvas.style.transform = `translateX(${offsetNeeded}px)`;
             
-            console.log(`V3_9_0_F_sub14: Track ${track} repositioned - current bar at playhead (offset: ${offsetNeeded.toFixed(2)}px)`);
+            console.log(`V4_1_0_B_sub13: Track ${track} - elapsed ${elapsedBeats.toFixed(3)} beats, offset=${offsetNeeded.toFixed(2)}px`);
         }
 
         // V3.2.0-Q: Draw beat grid on LIVE waveform canvas
@@ -12449,28 +12417,37 @@ ${providedShaderCode}
             ctx.stroke();
             
             // V4_0_0_D_sub29: Track grid uses MASTER GRID spacing (25px per bar)
-            // Must match Master Grid exactly - no tempo calculations!
-            if (masterGridVisible && containerData.audioSnapLastBar) {
+            // V4_1_0_B_sub4: Now controlled by trackGridVisible toggle
+            if (trackGridVisible && containerData.audioSnapLastBar) {
                 const numberOfBars = containerData.audioSnapLastBar;
                 
-                // FIXED spacing - same as Master Grid (25px per bar)
-                const pixelsPerBar = 25;
+                // V4_1_0_B: Use centralized tempo-based formula
+                const PIXELS_PER_BAR = getPixelsPerBar();
                 
-                const waveformZoom = gridState.waveformZoom || 1.0;
-                const zoomedPixelsPerBar = pixelsPerBar / waveformZoom;
+                // V4_1_0_B_sub13: Debug - compare with Master Grid
+                console.log(`🔷 TRACK GRID: pixelsPerBar=${PIXELS_PER_BAR.toFixed(2)}, tempo=${gridState.masterTempo}, zoom=${gridState.waveformZoom}`);
+                console.log(`🔷 TRACK GRID Bar 1 at canvas x=0, Bar 5 at canvas x=${(4 * PIXELS_PER_BAR).toFixed(1)}`);
                 
-                const showYellowBars = waveformZoom < 8;
-                const showBarNumbers = waveformZoom < 8;
+                // V4_1_0_A_sub16: Zoom-based visibility - declutter at high zoom
+                // V4_1_0_B_sub13: 4x and 8x show only magenta phrase markers (no yellow bars, no numbers)
+                const zoom = gridState.waveformZoom;
+                const showYellowBars = zoom < 4;       // Hide yellow bars at 4x and above
+                const showBarNumbers = zoom < 4;       // Hide numbers at 4x and above
                 
-                console.log(`📊 sub29: Track grid - ${numberOfBars} bars @ 25px/bar (Master Grid spacing)`);
+                console.log(`📊 TRACK GRID: ${PIXELS_PER_BAR.toFixed(1)}px per bar, zoom=${zoom}x, yellowBars=${showYellowBars}, numbers=${showBarNumbers}`);
                 
-                // Draw bars: 0, 25px, 50px, 75px, 100px...
+                // V4_1_0_A_sub13: Draw at x=0, translateX puts Bar 1 at playhead
                 for (let bar = 0; bar < numberOfBars + 5; bar++) {
-                    const x = bar * zoomedPixelsPerBar;
+                    const x = bar * PIXELS_PER_BAR;
                     if (x < 0 || x > canvasWidth) continue;
                     
                     const isPhrase = (bar % 4 === 0);
                     if (!isPhrase && !showYellowBars) continue;
+                    
+                    // Log first few phrase markers
+                    if (isPhrase && bar <= 12) {
+                        console.log(`📊 TRACK BAR ${bar + 1}: x=${x} (bar ${bar} × ${PIXELS_PER_BAR})`);
+                    }
                     
                     ctx.strokeStyle = isPhrase ? 'rgba(255, 0, 255, 0.75)' : 'rgba(255, 255, 0, 0.5)';
                     ctx.lineWidth = isPhrase ? 2 : 1;
@@ -12488,8 +12465,8 @@ ${providedShaderCode}
                 }
                 
                 // Yellow snap line at last complete bar
-                const snapX = numberOfBars * zoomedPixelsPerBar;
-                console.log(`🟡 sub29: Yellow snap line - Bar ${numberOfBars} at x=${snapX.toFixed(2)}px`);
+                const snapX = numberOfBars * PIXELS_PER_BAR;
+                console.log(`🟡 sub13: Yellow snap line - Bar ${numberOfBars} at x=${snapX}px`);
                 ctx.strokeStyle = '#ffff00';
                 ctx.lineWidth = 3;
                 ctx.beginPath();
@@ -12524,6 +12501,8 @@ ${providedShaderCode}
 
         // V3.1.0-T: Start waveform scrolling animation
         // V4_0_0_D_sub37: BEAT-BASED scrolling (Phase 3)
+        // V4_0_0_D_sub37: BEAT-BASED scrolling (Phase 3)
+        // V4_1_0_B_sub13: Dynamic playhead position (like POC)
         function startAudioWaveformScroll(track, audioBuffer) {
             const canvas = document.getElementById(`waveform${track + 1}`);
             if (!canvas || !trackAudioSources[track]) return;
@@ -12534,12 +12513,11 @@ ${providedShaderCode}
             // Start animation immediately
             if (!trackAudioSources[track]) return;
             
-            // Read current translateX
-            const currentTransform = canvas.style.transform || '';
-            const translateMatch = currentTransform.match(/translateX\(([^)]+)px\)/);
-            const initialOffset = translateMatch ? parseFloat(translateMatch[1]) : 0;
+            // V4_1_0_B_sub13: Dynamic playhead based on container width
+            const container = canvas.parentElement;
+            const playheadX = container ? container.clientWidth / 2 : 400;
             
-            console.log(`V4_0_0_D_sub37: Starting beat-based scroll - initialOffset: ${initialOffset.toFixed(2)}px`);
+            console.log(`V4_1_0_B_sub13: Starting beat-based scroll - playheadX: ${playheadX}px (dynamic)`);
             
             function animate() {
                 // Check if source still exists
@@ -12551,13 +12529,13 @@ ${providedShaderCode}
                 // V4_0_0_D_sub37: BEAT-BASED calculation (NO time conversion!)
                 const currentBeat = trackAudioMasterClock.getCurrentBeat();
                 const launchBeat = trackLaunchBeats[track];
-                const elapsedBeats = currentBeat - launchBeat;
+                const elapsedBeats = currentBeat - (launchBeat || 0);
                 
                 // Direct beat → pixel conversion
                 const scrollOffset = beatToPixel(elapsedBeats);
                 
-                // Update position
-                canvas.style.transform = `translateX(${initialOffset - scrollOffset}px)`;
+                // Update position: playheadX - scrollAmount
+                canvas.style.transform = `translateX(${playheadX - scrollOffset}px)`;
                 
                 // Continue animation
                 waveformAnimations[`track${track}`] = requestAnimationFrame(animate);
@@ -12565,7 +12543,7 @@ ${providedShaderCode}
             
             // Start animation
             requestAnimationFrame(animate);
-            console.log(`V4_0_0_D_sub37: Started beat-based waveform scroll for track ${track + 1}`);
+            console.log(`V4_1_0_B_sub13: Started beat-based waveform scroll for track ${track + 1}`);
         }
         
         // V3.1.0-T: Stop waveform scrolling animation
@@ -12579,11 +12557,21 @@ ${providedShaderCode}
         }
 
         // V3_9_0_F_sub19c: Clock dot animation
+        // V4_1_0_B_sub13: Dynamic playhead position
         function startClockDotAnimation() {
             if (!trackMasterClockStart || clockDotAnimation) return;
             
             const clockDot = document.getElementById('clockDot');
-            if (!clockDot) return;
+            const clockDotLane = document.querySelector('.clock-dot-lane');
+            if (!clockDot || !clockDotLane) return;
+            
+            // V4_1_0_B_sub13: Dynamic lane width based on track container
+            const trackContainer = document.querySelector('.waveform-canvas-container');
+            const laneWidth = trackContainer ? trackContainer.clientWidth : 800;
+            const playheadInLane = laneWidth / 2;
+            
+            // Update clock-dot-lane width to match
+            clockDotLane.style.width = `${laneWidth}px`;
             
             function animate() {
                 if (!trackMasterClockStart) {
@@ -12591,31 +12579,12 @@ ${providedShaderCode}
                     return;
                 }
                 
-                // V4.0.0_C_sub36: Fixed 800px layout
-                const laneWidth = 800;  // Fixed clock-dot-lane width
-                const playheadInLane = 400;  // Center of 800px lane
-                
-                // V4_0_0_D_sub6: Use Master Grid rate (25px per bar) instead of zoomValue
-                // This matches waveform scroll rate for perfect sync
-                const pixelsPerBar = 25;  // Master Grid spacing
-                const secondsPerBar = (60.0 / gridState.masterTempo) * 4.0;
-                const pixelsPerSecond = pixelsPerBar / secondsPerBar;  // Same as waveforms
+                // V4_1_0_B: Use centralized tempo-based formula
+                const pixelsPerBar = getPixelsPerBar();
                 
                 // V3_9_0_H_sub1: Bar-based positioning (stay in DAW world)
-                // NO time conversion - work directly in bars
-                // Clock dot represents current bar position on master timeline
-                
-                // V4_0_0_D_sub5: getCurrentBar() now returns 1-indexed (1, 2, 3...)
-                // Convert to 0-indexed for positioning math (bar 1 = 0 bars from start)
                 const currentBar = trackAudioMasterClock.getCurrentBar() - 1;
-                
-                // V4_0_0_D_sub6: barSpacing now derived from pixelsPerBar
-                const barSpacing = pixelsPerBar;  // 25px per bar
-                
-                // V4_0_0_D_sub5: currentBar now 0-indexed for positioning
-                // currentBar = 0 → at playhead (bar 1 = 1.1.1 DAW time)
-                // currentBar = 1 → 1 bar past playhead (bar 2 = 2.1.1 DAW time)
-                // currentBar = 4 → 4 bars past playhead (bar 5 = 5.1.1 DAW time)
+                const barSpacing = pixelsPerBar;
                 const barsFromReference = currentBar;
                 
                 // Calculate position (pure bar-based math, no time conversion)
@@ -12633,7 +12602,7 @@ ${providedShaderCode}
             }
             
             requestAnimationFrame(animate);
-            console.log('V4.0.0_C_sub36: Clock dot animation started - fixed 800px layout');
+            console.log(`V4_1_0_B_sub13: Clock dot animation started - dynamic ${laneWidth}px layout`);
         }
         
         function stopClockDotAnimation() {
@@ -12641,18 +12610,19 @@ ${providedShaderCode}
                 cancelAnimationFrame(clockDotAnimation);
                 clockDotAnimation = null;
                 
-                // V4.0.0_C_sub36: Reset clock dot to playhead position (center of 800px lane)
+                // V4_1_0_B_sub13: Reset clock dot to dynamic playhead position
                 const clockDot = document.getElementById('clockDot');
-                if (clockDot) {
-                    const playheadInLane = 400;  // Center of 800px lane
+                const trackContainer = document.querySelector('.waveform-canvas-container');
+                if (clockDot && trackContainer) {
+                    const playheadInLane = trackContainer.clientWidth / 2;
                     clockDot.style.left = `${playheadInLane}px`;
                 }
                 
-                console.log('V4.0.0_C_sub36: Clock dot reset to playhead position (400px)');
+                console.log('V4_1_0_B_sub13: Clock dot reset to dynamic playhead position');
             }
         }
 
-        // V3_9_0_G_sub5: DAW Clock readout animation
+        // V3_9_0_G_sub13: DAW Clock readout animation
         let dawClockAnimation = null;
 
         function startDAWClockAnimation() {
@@ -12687,7 +12657,7 @@ ${providedShaderCode}
             }
             
             requestAnimationFrame(animate);
-            console.log('V3_9_0_G_sub5: DAW clock animation started');
+            console.log('V3_9_0_G_sub13: DAW clock animation started');
         }
         
         function stopDAWClockAnimation() {
@@ -12700,12 +12670,15 @@ ${providedShaderCode}
                     readout.textContent = '1.1.1';
                 }
                 
-                console.log('V3_9_0_G_sub5: DAW clock animation stopped');
+                console.log('V3_9_0_G_sub13: DAW clock animation stopped');
             }
         }
 
         // V3_9_0_G_sub3: Master Grid - fixed bar overlay at playhead for visual sync reference
         let masterGridVisible = false;
+        // V4_1_0_B_sub4: Track Grid and Waveform visibility toggles
+        let trackGridVisible = true;   // Track grid on waveform (cyan/magenta bars)
+        let waveformVisible = true;    // Blue amplitude bars
         
         function initMasterGrid() {
             console.log('V3_9_0_G_sub3: initMasterGrid called');
@@ -12739,49 +12712,60 @@ ${providedShaderCode}
             // This function just checks initialization, handler is added where button is created
             console.log('V3_9_0_G_sub3: Button handler wired in initLiveMixer');
             
-            // G key handler
+            // V4_1_0_B_sub4: M, T, W key handlers for grid visibility
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'g' || e.key === 'G') {
-                    // Only if LIVE tab active and no input focused
-                    if (document.getElementById('liveMixerContainer').style.display !== 'none' &&
-                        document.activeElement.tagName !== 'INPUT' &&
-                        document.activeElement.tagName !== 'TEXTAREA') {
-                        console.log('V3_9_0_G_sub3: G key pressed');
+                // Only if LIVE tab active and no input focused
+                if (document.getElementById('liveMixerContainer').style.display !== 'none' &&
+                    document.activeElement.tagName !== 'INPUT' &&
+                    document.activeElement.tagName !== 'TEXTAREA') {
+                    if (e.key === 'm' || e.key === 'M') {
+                        console.log('V4_1_0_B_sub4: M key pressed');
                         toggleMasterGrid();
+                    } else if (e.key === 't' || e.key === 'T') {
+                        console.log('V4_1_0_B_sub4: T key pressed');
+                        toggleTrackGrid();
+                    } else if (e.key === 'w' || e.key === 'W') {
+                        console.log('V4_1_0_B_sub4: W key pressed');
+                        toggleWaveform();
                     }
                 }
             });
             
             console.log('V3_9_0_G_sub3: Master Grid initialized successfully');
+            
+            // V4_1_0_B_sub18: Always draw playhead on init
+            drawMasterGrid();
         }
         
         function toggleMasterGrid() {
             masterGridVisible = !masterGridVisible;
             
             const canvas = document.getElementById('masterGrid');
-            // V4_0_0_C_sub69: Button moved to Track Area
+            // V4_0_0_C_sub139: Button moved to Track Area
             const btn = document.getElementById('masterGridButton');
             
             if (!canvas) {
-                console.error('V4_0_0_C_sub69: Canvas not found in toggleMasterGrid');
+                console.error('V4_0_0_C_sub139: Canvas not found in toggleMasterGrid');
                 return;
             }
             
             if (!btn) {
-                console.error('V4_0_0_C_sub69: Button not found in toggleMasterGrid');
+                console.error('V4_0_0_C_sub139: Button not found in toggleMasterGrid');
                 return;
             }
             
+            // V4_1_0_B_sub18: Canvas always visible for playhead, just toggle button state
+            canvas.style.display = 'block';
             if (masterGridVisible) {
-                canvas.style.display = 'block';
                 btn.classList.add('active');
-                drawMasterGrid();
-                console.log('V4_0_0_C_sub69: Master Grid visible');
+                console.log('V4_1_0_B_sub18: Master Grid ON');
             } else {
-                canvas.style.display = 'none';
                 btn.classList.remove('active');
-                console.log('V4_0_0_C_sub69: Master Grid hidden');
+                console.log('V4_1_0_B_sub18: Master Grid OFF (playhead still visible)');
             }
+            
+            // Always redraw (playhead always, grid only if visible)
+            drawMasterGrid();
             
             // V3_9_0_K_sub1: Redraw all track waveforms to update beat grid visibility
             // V3_9_0_K_sub2: Check BOTH playing tracks AND loaded-but-not-playing tracks
@@ -12820,39 +12804,132 @@ ${providedShaderCode}
             }
         }
         
+        // V4_1_0_B_sub4: Toggle Track Grid visibility
+        function toggleTrackGrid() {
+            trackGridVisible = !trackGridVisible;
+            const btn = document.getElementById('trackGridButton');
+            if (btn) {
+                if (trackGridVisible) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            }
+            // V4_1_0_B_sub13: Redraw ALL waveforms using correct cell lookup
+            const NUM_SCENES = 8;
+            for (let i = 0; i < 4; i++) {
+                let audioBuffer = trackAudioBuffers[i];
+                if (!audioBuffer) {
+                    // Search through all scenes for this track
+                    for (let scene = 0; scene < NUM_SCENES; scene++) {
+                        const cellIndex = i * NUM_SCENES + scene;
+                        if (gridState.cells[cellIndex] && gridState.cells[cellIndex].audioBuffer) {
+                            audioBuffer = gridState.cells[cellIndex].audioBuffer;
+                            break;
+                        }
+                    }
+                }
+                if (audioBuffer) {
+                    drawWaveformFromAudioBuffer(i + 1, audioBuffer);
+                }
+            }
+            console.log(`V4_1_0_B_sub13: Track Grid ${trackGridVisible ? 'visible' : 'hidden'}`);
+        }
+        
+        // V4_1_0_B_sub4: Toggle Waveform visibility
+        function toggleWaveform() {
+            waveformVisible = !waveformVisible;
+            const btn = document.getElementById('waveformButton');
+            if (btn) {
+                if (waveformVisible) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            }
+            // V4_1_0_B_sub13: Redraw ALL waveforms using correct cell lookup
+            const NUM_SCENES = 8;
+            for (let i = 0; i < 4; i++) {
+                let audioBuffer = trackAudioBuffers[i];
+                if (!audioBuffer) {
+                    // Search through all scenes for this track
+                    for (let scene = 0; scene < NUM_SCENES; scene++) {
+                        const cellIndex = i * NUM_SCENES + scene;
+                        if (gridState.cells[cellIndex] && gridState.cells[cellIndex].audioBuffer) {
+                            audioBuffer = gridState.cells[cellIndex].audioBuffer;
+                            break;
+                        }
+                    }
+                }
+                if (audioBuffer) {
+                    drawWaveformFromAudioBuffer(i + 1, audioBuffer);
+                }
+            }
+            console.log(`V4_1_0_B_sub13: Waveform ${waveformVisible ? 'visible' : 'hidden'}`);
+        }
+        
         function drawMasterGrid() {
             const canvas = document.getElementById('masterGrid');
-            if (!canvas || !masterGridVisible) return;
+            if (!canvas) return;
+            
+            // V4_1_0_B_sub18: Always position canvas and draw playhead
+            const trackContainer = document.querySelector('.waveform-canvas-container');
+            if (!trackContainer) return;
+            
+            const containerWidth = trackContainer.clientWidth;
+            const playheadX = containerWidth / 2;
+            
+            // Position Master Grid to align with track container
+            const parentRect = canvas.parentElement.getBoundingClientRect();
+            const containerRect = trackContainer.getBoundingClientRect();
+            const leftOffset = containerRect.left - parentRect.left;
+            canvas.style.left = `${leftOffset}px`;
+            canvas.style.width = `${containerWidth}px`;
+            canvas.width = containerWidth;
             
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // V4_0_0_D_sub30: FIXED MUSICAL GRID - 256 bars (64 phrases)
-            // 256 bars × 25px = 6,400px (extends beyond viewport)
-            
-            const pixelsPerBar = 25;  // 25px per bar
-            const barsPerPhrase = 4;  // 4 bars per phrase
-            const totalBars = 256;    // 256 bars (musical number, 2^8)
-            
-            for (let bar = 0; bar <= totalBars; bar++) {
-                const x = bar * pixelsPerBar;
+            // V4_1_0_B_sub18: Only draw grid lines if masterGridVisible
+            if (masterGridVisible) {
+                const pixelsPerBar = getPixelsPerBar();
+                const barsPerPhrase = 4;
                 
-                // Phrase markers (every 4 bars): thick white
-                const isPhrase = (bar % barsPerPhrase === 0);
+                console.log(`🔲 MASTER GRID: pixelsPerBar=${pixelsPerBar.toFixed(2)}, playheadX=${playheadX}`);
                 
-                if (isPhrase) {
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
-                    ctx.lineWidth = 2;
-                } else {
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                    ctx.lineWidth = 1;
+                const barsToLeft = Math.ceil(playheadX / pixelsPerBar) + 2;
+                const barsToRight = Math.ceil((canvas.width - playheadX) / pixelsPerBar) + 2;
+                
+                for (let barOffset = -barsToLeft; barOffset <= barsToRight; barOffset++) {
+                    const x = playheadX + (barOffset * pixelsPerBar);
+                    
+                    if (x < 0 || x > canvas.width) continue;
+                    
+                    const barNumber = barOffset + 1;
+                    const isPhrase = (barOffset % barsPerPhrase === 0);
+                    
+                    if (isPhrase) {
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+                        ctx.lineWidth = 2;
+                    } else {
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.lineWidth = 1;
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
                 }
-                
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
-                ctx.stroke();
             }
+            
+            // V4_1_0_B_sub18: ALWAYS draw playhead (magenta line)
+            ctx.strokeStyle = '#ff00ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(playheadX, 0);
+            ctx.lineTo(playheadX, canvas.height);
+            ctx.stroke();
         }
         
         function updateMasterGrid() {
@@ -12888,7 +12965,7 @@ ${providedShaderCode}
                     trackAudioSources[track].disconnect();
                     trackAudioSources[track] = null;
                     trackLaunchBeats[track] = null;  // V3_9_0_F_sub2: Clear launch beat
-                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub6: Clear audio start time
+                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub13: Clear audio start time
                     
                     // V3.1.0-T: Stop waveform scrolling
                     stopAudioWaveformScroll(track);
@@ -12941,24 +13018,24 @@ ${providedShaderCode}
                 source.connect(trackGainNodes[track]);
                 
                 // V3.2.0-A: Start playback at specified time (or immediately if no time given)
-                // V4_0_0_B_sub5: Start FROM Bar 1 (audioStartTime), not file position 0
+                // V4_0_0_B_sub13: Start FROM Bar 1 (audioStartTime), not file position 0
                 const audioStartTime = containerData.audioStartTime || 0;
                 
                 if (startTime !== null) {
                     source.start(startTime, audioStartTime);
-                    console.log(`V4_0_0_B_sub5: Audio starts at context time ${startTime.toFixed(3)}, FROM Bar 1 at ${audioStartTime.toFixed(3)}s in file`);
+                    console.log(`V4_0_0_B_sub13: Audio starts at context time ${startTime.toFixed(3)}, FROM Bar 1 at ${audioStartTime.toFixed(3)}s in file`);
                 } else {
                     source.start(0, audioStartTime);
-                    console.log(`V4_0_0_B_sub5: Audio starts immediately, FROM Bar 1 at ${audioStartTime.toFixed(3)}s in file`);
+                    console.log(`V4_0_0_B_sub13: Audio starts immediately, FROM Bar 1 at ${audioStartTime.toFixed(3)}s in file`);
                 }
                 
                 // Store reference
                 trackAudioSources[track] = source;
                 trackAudioBuffers[track] = audioBuffer;
                 
-                // V3_9_0_L_sub6: Track when audio actually starts (for timeline lookup)
+                // V3_9_0_L_sub13: Track when audio actually starts (for timeline lookup)
                 trackAudioStartContextTime[track] = startTime || trackAudioContext.currentTime;
-                console.log(`V3_9_0_L_sub6: Track ${track + 1} audio starts at audioContext time: ${trackAudioStartContextTime[track].toFixed(3)}`);
+                console.log(`V3_9_0_L_sub13: Track ${track + 1} audio starts at audioContext time: ${trackAudioStartContextTime[track].toFixed(3)}`);
                 
                 // V3_9_0_F_sub2: Track beat position when this track launched (for waveform scrolling)
                 if (startTime !== null) {
@@ -12966,7 +13043,7 @@ ${providedShaderCode}
                 } else {
                     trackLaunchBeats[track] = trackAudioMasterClock.getCurrentBeat();
                 }
-                console.log(`V3_9_0_G_sub6: Track ${track + 1} launched at beat ${trackLaunchBeats[track].toFixed(3)}`);
+                console.log(`V3_9_0_G_sub13: Track ${track + 1} launched at beat ${trackLaunchBeats[track].toFixed(3)}`);
                 
                 // V3_9_0_A: Log master clock state after launch
                 trackAudioMasterClock.logState(`Track ${track + 1} launched`);
@@ -12976,7 +13053,7 @@ ${providedShaderCode}
                 // Redrawing causes visual glitch/jump
                 // drawWaveformFromAudioBuffer(track + 1, audioBuffer); // REMOVED
                 
-                // V3_9_0_G_sub7: ALWAYS reposition Bar 1 at playhead on launch
+                // V3_9_0_G_sub13: ALWAYS reposition Bar 1 at playhead on launch
                 // This ensures track starts at 1.1.1 every time, even if relaunching
                 positionTrackAudioWaveformAtPlayhead(track + 1, audioBuffer);
                 
@@ -13154,7 +13231,7 @@ ${providedShaderCode}
                         trackAudioSources[track] = null;
                         trackAudioBuffers[track] = null;
                         trackLaunchBeats[track] = null;  // V3_9_0_F_sub2: Clear launch beat
-                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub6: Clear audio start time
+                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub13: Clear audio start time
                         
                         // V3.3.0_S: Recalculate zoom range when track stops
                         recalculateZoomRange();
@@ -13172,7 +13249,7 @@ ${providedShaderCode}
                         }
                     }
                     
-                    // V3_9_0_G_sub8: Clear waveform canvas
+                    // V3_9_0_G_sub13: Clear waveform canvas
                     const waveformCanvas = document.getElementById(`waveform${track + 1}`);
                     if (waveformCanvas) {
                         const ctx = waveformCanvas.getContext('2d');
@@ -13181,7 +13258,7 @@ ${providedShaderCode}
                         }
                     }
                     
-                    // V3_9_0_G_sub8: Clear container data for this track
+                    // V3_9_0_G_sub13: Clear container data for this track
                     trackContainerData[track] = null;
                     trackBar1Positions[track] = null;
                     
@@ -13502,7 +13579,7 @@ ${providedShaderCode}
                     // V3_9_0_F_sub19c: Stop clock dot animation
                     stopClockDotAnimation();
                     
-                    // V3_9_0_G_sub5: Stop DAW clock readout animation
+                    // V3_9_0_G_sub13: Stop DAW clock readout animation
                     stopDAWClockAnimation();
                     
                     // V3_6_0_Q: Remove playing indicator from all scene triggers
@@ -13631,9 +13708,9 @@ ${providedShaderCode}
             if (e.key === 'Enter') {
                 e.preventDefault();
                 
-                // V4_0_0_D_sub53: INSTANT response - log with timestamp
+                // V4_0_0_D_sub133: INSTANT response - log with timestamp
                 const now = performance.now();
-                console.log(`🎹 sub53: Enter pressed at ${now.toFixed(1)}ms`);
+                console.log(`🎹 sub133: Enter pressed at ${now.toFixed(1)}ms`);
                 
                 if (selectedCell) {
                     // V4_0_0_D_sub46: JUST LAUNCH - super simple
@@ -13642,7 +13719,7 @@ ${providedShaderCode}
                     const cellData = gridState.cells[cellIndex];
                     
                     if (cellData) {
-                        // V4_0_0_D_sub53: Stop current audio if playing
+                        // V4_0_0_D_sub133: Stop current audio if playing
                         if (trackAudioSources[track]) {
                             trackAudioSources[track].stop();
                             trackAudioSources[track].disconnect();
@@ -13652,17 +13729,17 @@ ${providedShaderCode}
                             stopAudioWaveformScroll(track);
                         }
                         
-                        // V4_0_0_D_sub53: Check if master clock needs starting
+                        // V4_0_0_D_sub133: Check if master clock needs starting
                         if (!trackMasterClockStart) {
                             const now = trackAudioContext.currentTime;
                             trackMasterClockStart = now;
                             trackAudioMasterClock.initializeTempoHistory(now, gridState.masterTempo);
                             startClockDotAnimation();
                             startDAWClockAnimation();
-                            console.log(`🎹 sub53: Started master clock`);
+                            console.log(`🎹 sub133: Started master clock`);
                         }
                         
-                        // V4_0_0_D_sub53: Calculate timing ONCE
+                        // V4_0_0_D_sub133: Calculate timing ONCE
                         const startTime = getNextBarBoundary();  
                         const startBeat = trackAudioMasterClock.getBeatAtTime(startTime);
                         const startBar = Math.round(startBeat / 4);
@@ -13670,19 +13747,19 @@ ${providedShaderCode}
                         // Set launch beat for animation
                         trackLaunchBeats[track] = startBar * 4;
                         
-                        // V4_0_0_D_sub53: Position Bar 1 at playhead
+                        // V4_0_0_D_sub133: Position Bar 1 at playhead
                         const canvas = document.getElementById(`waveform${track + 1}`);
                         if (canvas) {
                             // We want Bar 1 of the track at the playhead
                             const bar1Offset = 387.5;  // Bar 1 at playhead position
                             canvas.style.transform = `translateX(-${bar1Offset}px)`;
-                            console.log(`🎹 sub53: Waveform reset to Bar 1 (will start at master bar ${startBar})`);
+                            console.log(`🎹 sub133: Waveform reset to Bar 1 (will start at master bar ${startBar})`);
                         }
                         
                         // Launch audio with calculated time
                         playCellAudio(track, scene, cellData, startTime);
                         
-                        console.log(`🎹 sub53: Launching Track ${track + 1}, Scene ${scene + 1} at bar ${startBar}`);
+                        console.log(`🎹 sub133: Launching Track ${track + 1}, Scene ${scene + 1} at bar ${startBar}`);
                         showStatus(`Launching Track ${track + 1}, Scene ${scene + 1}`, 'success');
                         
                         // V4_0_0_D_sub44: Fire and forget - don't await, keeps Enter key responsive
@@ -13700,7 +13777,7 @@ ${providedShaderCode}
                             trackAudioSources[track] = null;
                             trackAudioBuffers[track] = null;
                             trackLaunchBeats[track] = null;  // V3_9_0_F_sub2: Clear launch beat
-                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub6: Clear audio start time
+                                trackAudioStartContextTime[track] = null;  // V3_9_0_L_sub13: Clear audio start time
                             
                             // Recalculate zoom range when track stops
                             recalculateZoomRange();

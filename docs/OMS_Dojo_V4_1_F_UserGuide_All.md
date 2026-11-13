@@ -1,13 +1,13 @@
-# OMS SHADER BAKER V4.0.0_D - USER GUIDE
+# OMS SHADER BAKER V4.1.0 - USER GUIDE
 
-**Version:** V4.0.0_D Final Build  
-**Date:** November 25, 2025
+**Version:** V4.1.0 Production Release  
+**Date:** November 27, 2025
 
 ---
 
 ## QUICK START
 
-1. Open `OMS_ShaderBaker_V4_0_0_D.html`
+1. Open `OMS_ShaderBaker_V4_1_0.html`
 2. Settings tab (S) → "Set Application Folder"
 3. Settings → GREETING → Type custom greeting (optional)
 4. Controls tab (C) → Create shader
@@ -16,34 +16,38 @@
 7. LIVE tab → Drag to grid
 8. Pop Out → Second monitor (optional)
 9. Press Enter to launch!
+10. **NEW:** Press M to verify grid alignment!
 
 ---
 
-## WHAT'S NEW IN V4.0.0
+## WHAT'S NEW IN V4.1.0
 
-### 🎵 Audio-Reactive LIVE Tab
+### 🎯 Perfect Grid Alignment
 
-**Your shaders now react to audio during performance!**
-- Timeline-based reactivity (pre-analyzed FFT)
-- Perfect match to Controls tab preview
-- Bass, mids, treble all working
-- No CPU overhead (pre-calculated)
+**Track grids now align exactly with Master Grid!**
+- Press M to show the Master Grid overlay
+- Track beat markers line up with white bar lines
+- Tempo changes maintain alignment
+- Zoom changes maintain alignment
+- Professional-grade precision
 
-### 🎯 Enter Key Fixed
+### 🔧 M/T/W Visibility Toggles
 
-**Works like a CDJ cue button:**
-- Instant response every tap
-- Re-cues to Bar 1
-- No more blocking
-- Professional workflow
+**New buttons in LIVE tab:**
+- **M** - Master Grid (white bar overlay) - default OFF
+- **T** - Track Grid (cyan/magenta markers) - default ON
+- **W** - Waveform (blue amplitude bars) - default ON
 
-### 📊 S Button (Snap to Bar)
+**Keyboard shortcuts:** Press M, T, or W keys
 
-**New in Controls tab:**
-- Calculates complete bars
-- Shows count in Last Bar field
-- Saves to container
-- LIVE tab uses for grid alignment
+### 📏 Recalibrated Zoom
+
+**New zoom levels:**
+- 0.5x - Very zoomed out
+- 1x - Default view (~20+ bars)
+- 2x - Closer view
+- 4x - Detail view (phrase markers only)
+- 8x - Extreme detail (phrase markers only)
 
 ---
 
@@ -85,8 +89,6 @@
 
 ### Step 2: Prepare for Performance
 
-**NEW V4.0.0 Steps:**
-
 1. **Load final audio file**
 2. **Set Audio Start** (where Bar 1 begins)
 3. **Click S button** → calculates bars
@@ -99,7 +101,8 @@
 1. **Drag .oms** from Library to grid
 2. **Press Enter** → launches at next bar
 3. **Shaders react** to audio automatically
-4. **Press Enter again** → re-cue to Bar 1
+4. **Press M** → verify grid alignment
+5. **Press Enter again** → re-cue to Bar 1
 
 ---
 
@@ -125,17 +128,66 @@
 - **Scene:** Click number (launches all 4 tracks)
 - **Cell:** Double-click or Enter (single track)
 - Always starts at next bar boundary
-- Visual countdown (coming in V1.0)
 
-### Audio Reactivity
+### Verifying Alignment
 
-**Automatic in V4.0.0:**
-- No setup required
-- Uses timeline data from container
-- Modulators work automatically:
-  - modA: Bass response
-  - modB: Mid response
-  - modC: Treble response
+**NEW in V4.1.0:**
+1. Launch a track
+2. Press **M** to show Master Grid
+3. Track grid bars align with white lines
+4. Change tempo - stays aligned
+5. Change zoom - stays aligned
+
+---
+
+## VISIBILITY TOGGLES
+
+### M Button (Master Grid)
+
+**What:** White bar overlay spanning all tracks
+
+**Default:** OFF
+
+**Use:**
+- Verify track grid alignment
+- See the "ruler" tracks scroll under
+- Confirm perfect sync
+
+### T Button (Track Grid)
+
+**What:** Cyan/magenta beat markers on waveform
+
+**Default:** ON
+
+**Use:**
+- See beat positions in audio
+- Navigate by bar numbers
+- Visual timing reference
+
+### W Button (Waveform)
+
+**What:** Blue amplitude visualization
+
+**Default:** ON
+
+**Use:**
+- See audio dynamics
+- Identify drops/breaks
+- Visual mixing reference
+
+### Combinations
+
+**Alignment check:**
+- M: ON, T: ON, W: OFF
+- See both grids without waveform
+
+**Clean mixing:**
+- M: OFF, T: ON, W: ON
+- Normal performance view
+
+**Audio only:**
+- M: OFF, T: OFF, W: ON
+- Just the waveform
 
 ---
 
@@ -210,34 +262,32 @@
 - `]`: Zoom out
 - Trackpad: Pinch/spread
 
-**Display:**
-- `G`: Toggle beat grid
+### Display (NEW!)
+
+- `M`: Toggle Master Grid
+- `T`: Toggle Track Grid
+- `W`: Toggle Waveform
+- `G`: Toggle grid (legacy, same as M)
 
 ---
 
-## S BUTTON WORKFLOW
+## ZOOM SYSTEM
 
-### Purpose
+### Zoom Levels
 
-Ensures perfect beat grid alignment by calculating exact bar count.
+| Level | View | Best For |
+|-------|------|----------|
+| 0.5x | Very zoomed out | Overview |
+| 1x | Default (~20+ bars) | Normal mixing |
+| 2x | Closer | Detail work |
+| 4x | Detail | Beat alignment |
+| 8x | Extreme | Phrase markers only |
 
-### How to Use
+### At High Zoom (4x, 8x)
 
-1. **Load audio file** in Controls tab
-2. **Set Audio Start** (green line at Bar 1)
-3. **Set Audio End** (or use file end)
-4. **Set BPM** accurately
-5. **Click S button**
-6. **Last Bar field** shows count (e.g., 164)
-7. **Yellow line** appears at snap point
-8. **Save container** → includes bar count
-
-### Why It Matters
-
-- LIVE tab uses this for grid spacing
-- Prevents drift over time
-- Ensures bars align with music
-- "Ableton warp marker" approach
+- Bar numbers hidden (too cluttered)
+- Only magenta phrase markers shown
+- Better for seeing song structure
 
 ---
 
@@ -248,7 +298,7 @@ Ensures perfect beat grid alignment by calculating exact bar count.
 **Creating:**
 1. Design shader in Controls/Code
 2. Load audio (optional)
-3. Click S → snap to bars (NEW!)
+3. Click S → snap to bars
 4. "Add to Library" → FFT analysis
 5. Name your container
 6. Auto-saves to LIBRARY folder
@@ -257,7 +307,7 @@ Ensures perfect beat grid alignment by calculating exact bar count.
 1. Library tab → see all containers
 2. Drag to LIVE grid cell
 3. Launch with Enter
-4. Update button → instant (V4.0.0)
+4. Update button → instant
 
 ### .omsp Projects
 
@@ -280,41 +330,14 @@ Ensures perfect beat grid alignment by calculating exact bar count.
 
 ---
 
-## AUDIO REACTIVITY DETAILS
-
-### Timeline System (V4.0.0)
-
-**How It Works:**
-1. **Analysis Phase** (Controls Tab):
-   - "Add to Library" analyzes FFT
-   - Creates timeline arrays
-   - 30 or 60 samples per second
-   - Stores in container
-
-2. **Performance Phase** (LIVE Tab):
-   - Reads timeline data
-   - Calculates waveform live
-   - Combines: `timeline × waveform`
-   - Perfect sync with audio
-
-### Modulator Settings
-
-**In Controls Tab:**
-- Subdivision: Waveform rate (1/4, Whole, etc.)
-- Waveform: Type (sine, cycler, etc.)
-- Gain: Amplitude (0.1-10.0)
-- Freq1/Freq2: FFT range (Hz)
-
-**In LIVE Tab:**
-- All settings from container
-- No adjustment needed
-- Works automatically
-
----
-
 ## TROUBLESHOOTING
 
 ### Common Issues
+
+**Grid Not Aligned:**
+- This should be fixed in V4.1.0!
+- Press M to verify alignment
+- If misaligned, report as bug
 
 **No Audio Reactivity:**
 - Re-save with "Add to Library"
@@ -324,12 +347,7 @@ Ensures perfect beat grid alignment by calculating exact bar count.
 **Enter Key Not Working:**
 - Check cell has container
 - Verify not in text field
-- Should work every tap now
-
-**Grid Misalignment:**
-- Click S button in Controls
-- Re-save container
-- Check BPM is correct
+- Should work every tap
 
 **Shader Not Compiling:**
 - Check Code tab for errors
@@ -362,6 +380,7 @@ Ensures perfect beat grid alignment by calculating exact bar count.
 - Build grid layout
 - Save project (.omsp)
 - Test Enter key response
+- **NEW:** Press M to verify alignment
 
 ### During Performance
 
@@ -371,6 +390,7 @@ Ensures perfect beat grid alignment by calculating exact bar count.
 - Enter for re-cueing
 - Esc for emergency
 - Pop-out to projector
+- **NEW:** M to show grid if needed
 
 ### Optimization
 
@@ -387,6 +407,7 @@ Ensures perfect beat grid alignment by calculating exact bar count.
 
 ### What's Rock Solid ✅
 
+- Grid alignment (100% fixed in V4.1.0)
 - Audio engine (100%)
 - File system (100%)
 - Basic mixing (100%)
@@ -396,14 +417,13 @@ Ensures perfect beat grid alignment by calculating exact bar count.
 ### What's Very Good 🟢
 
 - Audio reactivity (~90%)
-- Visual sync (~80%)
-- Beat grid (~80%)
+- Visual sync (~95%)
+- Beat grid (~100%)
 - Timeline system (~90%)
 
 ### Still Improving 🟡
 
-- Master Grid alignment (~70%)
-- Edge case handling
+- Edge case handling (~80%)
 - Final polish
 
 ### Safe For:
@@ -415,7 +435,7 @@ Ensures perfect beat grid alignment by calculating exact bar count.
 
 ---
 
-## V3 → V4 MIGRATION
+## V4.0.x → V4.1.0 MIGRATION
 
 ### Your Files Work!
 
@@ -423,13 +443,12 @@ Ensures perfect beat grid alignment by calculating exact bar count.
 - All .omsp projects load
 - No migration required
 
-### To Optimize:
+### What's Better:
 
-1. Load container in Controls
-2. Click S button (snap)
-3. Click Update (preserves FFT)
-4. Re-save
-5. Now optimized for V4!
+- Grid alignment fixed
+- New M/T/W toggles
+- Recalibrated zoom
+- Canvas-drawn playhead
 
 ---
 
@@ -452,6 +471,11 @@ SELECTION                  ZOOM
     [1-4] Tracks              [[] Zoom In
     [5] Master                []] Zoom Out
     [Tab] Cycle               [Trackpad] Pinch
+
+VISIBILITY (NEW!)
+    [M] Master Grid
+    [T] Track Grid
+    [W] Waveform
 ```
 
 ---
@@ -473,14 +497,14 @@ SELECTION                  ZOOM
 - Report bugs with steps
 - Include .oms files if possible
 - Check console (F12)
-- Note version (V4.0.0_D)
+- Note version (V4.1.0)
 
 ---
 
 **END OF USER GUIDE**
 
-Version: V4.0.0_D Final Build  
-Date: November 25, 2025  
+Version: V4.1.0 Production Release
+Date: November 27, 2025
 License: GPL-3.0
 
-*"After 58 iterations, it works!"*
+*"Perfect grid alignment, finally!"*

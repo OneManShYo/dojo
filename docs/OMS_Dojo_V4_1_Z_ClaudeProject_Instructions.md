@@ -1,14 +1,14 @@
-# OMS SHADER BAKER V4.0.0_D - CLAUDE PROJECT INSTRUCTIONS
+# OMS SHADER BAKER V4.1.0 - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** V4.0.0_D  
-**Date:** November 25, 2025  
+**Version:** V4.1.0  
+**Date:** November 27, 2025  
 **Purpose:** Complete project context for Claude AI development
 
 ---
 
 ## CRITICAL NOTES
 
-After 500+ iterations and reaching V4.0.0, the project has matured significantly. Claude must:
+After 500+ iterations and reaching V4.1.0, the project has matured significantly. Claude must:
 - Think through decisions carefully before implementing
 - Not rush ahead with changes
 - Understand the problem, look at code, discuss, and confirm before development
@@ -22,7 +22,7 @@ After 500+ iterations and reaching V4.0.0, the project has matured significantly
 ## TABLE OF CONTENTS
 
 1. [About Wes Smith - Creator Context](#about-wes-smith---creator-context)
-2. [Current State - V4.0.0_D](#current-state---v400d)
+2. [Current State - V4.1.0](#current-state---v410)
 3. [Development Protocols](#development-protocols)
 4. [Communication Guidelines](#communication-guidelines)
 5. [Key Architectural Principles](#key-architectural-principles)
@@ -59,18 +59,18 @@ After 500+ iterations and reaching V4.0.0, the project has matured significantly
 
 ---
 
-## CURRENT STATE - V4.0.0_D
+## CURRENT STATE - V4.1.0
 
-### Production Readiness: ~78%
+### Production Readiness: ~85%
 
-**V4.0.0_D Complete (58 sub-iterations):**
-✅ **Timeline Reactivity** - LIVE tab shaders react to audio  
-✅ **Bar-Based Beat Grid** - Uses verified bar count from prep  
-✅ **Enter Key Fix** - CDJ-style instant re-cueing  
-✅ **Waveform Sync** - Locked to master clock  
-✅ **S Button** - Snap to complete bars  
-✅ **Update Button** - Instant (preserves FFT data)  
-✅ **Beat-Based Coordinates** - Prevents drift  
+**V4.1.0 Complete (35 sub-iterations across A + B):**
+✅ **Track/Master Grid Alignment** - POC-proven architecture  
+✅ **Tempo-Based Pixel Formula** - Same formula everywhere  
+✅ **CSS Positioning Fix** - position: absolute (not relative)  
+✅ **Canvas-Drawn Playhead** - Same coordinate system as grid  
+✅ **M/T/W Visibility Toggles** - Master/Track/Waveform layers  
+✅ **Recalibrated Zoom** - 0.5x to 8x  
+✅ **Dynamic Playhead Position** - containerWidth / 2  
 
 ### What Works (100%)
 
@@ -79,18 +79,18 @@ After 500+ iterations and reaching V4.0.0, the project has matured significantly
 - File system (.oms, .omsp)
 - Keyboard navigation
 - Enter key responsiveness
-- Basic shader compositing
+- Grid alignment (FIXED!)
+- Shader compositing
 
-### What's Good (80-90%)
+### What's Very Good (90-95%)
 
 - Timeline reactivity system
 - Visual synchronization
 - Beat grid alignment
 - Shader modulation
 
-### Still Improving (70%)
+### Still Improving (80%)
 
-- Master Grid perfect alignment
 - Edge case handling
 - Final visual polish
 
@@ -109,7 +109,7 @@ After 500+ iterations and reaching V4.0.0, the project has matured significantly
 ### Sub-Iteration System
 
 **For complex problems:**
-- V4_0_0_D_sub1, sub2, sub3... sub58
+- V4_1_0_C_sub1, sub2, sub3... sub35
 - Each sub is cumulative (contains all previous)
 - Both HTML and MD files get sub numbers
 - Final working version renamed without sub
@@ -165,6 +165,59 @@ After 500+ iterations and reaching V4.0.0, the project has matured significantly
 - SessionStartTime set once per session
 - Beat-based calculations prevent drift
 
+### Tempo-Based Pixel Formula (V4.1.0 - POC-Proven)
+
+**Core Formula:**
+```javascript
+const BASE_PIXELS_PER_SECOND = 6.25;
+const BEATS_PER_BAR = 4;
+
+function getPixelsPerBeat() {
+    const masterBPM = gridState.masterTempo || 120;
+    const secondsPerBeat = 60 / masterBPM;
+    return BASE_PIXELS_PER_SECOND * secondsPerBeat / (gridState.waveformZoom || 1.0);
+}
+
+function getPixelsPerBar() {
+    return getPixelsPerBeat() * BEATS_PER_BAR;
+}
+```
+
+**Golden Rule:** Same formula used EVERYWHERE = perfect alignment.
+
+### CSS Positioning Model (V4.1.0)
+
+**Container:**
+```css
+.waveform-canvas-container {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    /* NO display: flex */
+}
+```
+
+**Canvas:**
+```css
+.waveform-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+}
+```
+
+**Why:** `position: absolute` + translateX = predictable transforms from container origin (0,0).
+
+### Layer Architecture
+
+| Layer | Behavior | Drawing |
+|-------|----------|---------|
+| Master Grid | FIXED | Bar 1 at playheadX, extends left/right |
+| Track Grid | SCROLLS | Drawn at bar positions, translateX moves |
+| Waveform | SCROLLS | Blue amplitude bars, same canvas as TG |
+| Playhead | FIXED | Magenta line on MG canvas at playheadX |
+
 ### Two-Layer Modulator System
 
 **Layer 1: Timeline Data**
@@ -178,17 +231,6 @@ After 500+ iterations and reaching V4.0.0, the project has matured significantly
 - Subdivision controls rate
 
 **Final:** `modulator = timeline × waveform`
-
-### Beat-Based Coordinates
-
-```javascript
-const PIXELS_PER_BAR = 25;
-const BEATS_PER_BAR = 4;
-const PIXELS_PER_BEAT = 6.25;
-
-// Everything uses beats → pixels
-const scrollOffset = elapsedBeats * PIXELS_PER_BEAT;
-```
 
 ### Separation of Domains
 
@@ -214,13 +256,17 @@ const scrollOffset = elapsedBeats * PIXELS_PER_BEAT;
 - **C:** Grid alignment experiments (83 subs!)
 - **D:** Critical production fixes (58 subs)
 
-### Key Lessons from V4.0.0_D
+### V4.1.0 Major Changes (Current)
+- **A:** Grid alignment investigation (17 subs) + POC
+- **B:** POC architecture port (18 subs)
 
-1. Don't use `await` in keyboard handlers
-2. Never null critical animation data
-3. Simple solutions > complex logic
-4. User knows the DJ workflow
-5. Sometimes 58 iterations are needed
+### Key Lessons from V4.1.0
+
+1. POC first when debugging complex alignment
+2. CSS position: relative vs absolute fundamentally different
+3. Same formula everywhere = alignment
+4. Canvas-drawn playhead guarantees coordinate match
+5. Don't mix positioning models (bar1X matters)
 
 ---
 
@@ -245,6 +291,12 @@ const scrollOffset = elapsedBeats * PIXELS_PER_BEAT;
 - **Master Clock:** Browser's audio timeline (never stops)
 - **Session Start:** When first track launches
 - **Session Time:** Relative to session start
+
+### Pixels Per Beat/Bar
+
+- **pixelsPerBeat:** BASE × (60 / masterBPM) / zoom
+- **pixelsPerBar:** pixelsPerBeat × 4
+- **Golden Rule:** Same formula in ALL places
 
 ---
 
@@ -278,12 +330,11 @@ const scrollOffset = elapsedBeats * PIXELS_PER_BEAT;
 ### Path to V1.0
 
 **Remaining Work:**
-1. Perfect Master Grid alignment (1-2 days)
-2. Final visual polish (1 day)
-3. Complete testing (1 day)
-4. No more hackathon fixes
+1. Final edge case testing (1-2 days)
+2. Documentation polish (0.5 day)
+3. No more hackathon fixes
 
-**Timeline:** 3-5 days to production V1.0
+**Timeline:** 2 days to production V1.0
 
 ### Testing Priorities
 
@@ -303,32 +354,30 @@ const scrollOffset = elapsedBeats * PIXELS_PER_BEAT;
 - Maintain existing patterns
 - Test thoroughly before delivery
 
-### User Feedback Integration
+### V4.1.0 Achievements to Preserve
 
-**Recent feedback that shaped V4.0.0:**
-- "there should be no limit you are just hitting the key"
-- "that is some stupid shit that you coded"
-- "DJ 101 mate"
-- "backwards compatibility to shit is just backwards"
-
-**Result:** Simplified Enter key, proper CDJ behavior
+**NEVER break these:**
+- Tempo-based pixel formula
+- CSS position: absolute on canvas
+- Canvas-drawn playhead
+- Same formula everywhere principle
 
 ---
 
 ## FILE NAMING CONVENTIONS
 
 **Development:**
-- `OMS_ShaderBaker_V4_0_0_E.html`
-- `OMS_ShaderBaker_V4_0_0_E_DescriptiveName.md`
+- `OMS_ShaderBaker_V4_1_0_C.html`
+- `OMS_ShaderBaker_V4_1_0_C_DescriptiveName.md`
 
 **Sub-iterations:**
-- `OMS_ShaderBaker_V4_0_0_E_sub1.html`
-- `OMS_ShaderBaker_V4_0_0_E_sub1_DescriptiveName.md`
+- `OMS_ShaderBaker_V4_1_0_C_sub1.html`
+- `OMS_ShaderBaker_V4_1_0_C_sub1_DescriptiveName.md`
 
 **Production:**
-- `OMS_ShaderBaker_V4_0_0.html` (no letter)
+- `OMS_ShaderBaker_V4_1_0.html` (no letter)
 
-**Use underscores, not periods:** V4_0_0 (NOT V4.0.0)
+**Use underscores, not periods:** V4_1_0 (NOT V4.1.0)
 
 ---
 
@@ -344,13 +393,15 @@ const scrollOffset = elapsedBeats * PIXELS_PER_BEAT;
 8. Deliver both HTML and notes
 9. Test before delivery
 10. Respect the architecture
+11. **Same formula everywhere = alignment**
+12. **CSS position: absolute, not relative**
 
 ---
 
 **END OF CLAUDE PROJECT INSTRUCTIONS**
 
-Version: V4.0.0_D  
-Date: November 25, 2025  
-Total Iterations: 500+  
-Production Readiness: ~78%  
+Version: V4.1.0
+Date: November 27, 2025
+Total Iterations: 500+
+Production Readiness: ~85%
 License: GPL-3.0

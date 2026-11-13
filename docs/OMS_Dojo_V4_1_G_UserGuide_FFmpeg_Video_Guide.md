@@ -1,8 +1,8 @@
-# FFMPEG VIDEO EXPORT GUIDE - OMS SHADER BAKER V4.0.0
+# FFMPEG VIDEO EXPORT GUIDE - OMS SHADER BAKER V4.1.0
 
 **Purpose:** Export shaders as ProRes 422 video for Ableton Live + EboSuite  
-**Version:** V4.0.0_D  
-**Date:** November 25, 2025
+**Version:** V4.1.0  
+**Date:** November 27, 2025
 
 ---
 
@@ -15,23 +15,19 @@ OMS Shader Baker → WebM/MP4 → FFmpeg → ProRes 422 → Ableton Live + EboSu
      (render)        (export)   (convert)   (import)      (perform live)
 ```
 
-**NEW in V4.0.0:** Timeline reactivity is pre-baked into exports!
-
 ---
 
-## WHAT'S NEW IN V4.0.0
+## WHAT'S NEW IN V4.1.0
 
-**Timeline-Based Reactivity:**
-- Exported videos now include pre-analyzed FFT data
-- Perfect sync between Controls preview and rendered output
-- S button ensures bar-aligned exports
-- Timeline data baked into visual reactivity
+**Perfect Grid Alignment:**
+- Exported videos now render with perfect beat timing
+- Timeline reactivity is pre-baked accurately
+- Bar-aligned exports work flawlessly in Ableton
 
-**Workflow Improvements:**
-- Click S before rendering (snap to bars)
-- Renders exactly the number of bars specified
-- No drift or misalignment in exports
-- Better Ableton Live integration
+**Visibility Testing:**
+- Use M key to verify alignment before rendering
+- Track grids match Master Grid exactly
+- Confident exports every time
 
 ---
 
@@ -66,20 +62,21 @@ ffmpeg -version
 
 ## STEP 2: RENDER VIDEO IN OMS SHADER BAKER
 
-### V4.0.0 Preparation
+### V4.1.0 Preparation
 
 1. **Controls Tab Setup:**
    - Load your audio file
    - Set BPM accurately
    - Set Audio Start (Bar 1 position)
-   - **NEW:** Click S button (snap to bars)
+   - Click S button (snap to bars)
    - Verify Last Bar field shows count
 
-2. **Timeline Analysis:**
-   - Click "Add to Library" (analyzes FFT)
-   - Creates timeline arrays
-   - Saves audio reactivity data
-   - Essential for V4.0.0 exports
+2. **Verify Alignment (NEW!):**
+   - Go to LIVE tab
+   - Load container
+   - Press M to show Master Grid
+   - Confirm track grid aligns perfectly
+   - Return to Controls tab
 
 3. **Render Settings:**
    - Resolution: 1920×1080 (recommended)
@@ -95,7 +92,7 @@ ffmpeg -version
    - Filename: `shader_output_[timestamp].webm`
    - SILENT video (audio in Ableton)
 
-**V4.0.0 Advantage:** Timeline reactivity is now perfectly baked into the video!
+**V4.1.0 Advantage:** Grid-perfect timing baked into the video!
 
 ---
 
@@ -112,7 +109,7 @@ ffmpeg -i shader_output.webm \
        output.mov
 ```
 
-### V4.0.0 Bar-Aligned Export
+### V4.1.0 Bar-Aligned Export
 
 Since you used the S button, your video is exactly N bars:
 
@@ -162,15 +159,15 @@ ffmpeg -i shader_164bars.webm \
    - Drag audio to audio track
    - Align Bar 1 positions
 
-3. **V4.0.0 Sync Advantage:**
-   - Video has timeline reactivity baked in
+3. **V4.1.0 Sync Advantage:**
+   - Video has grid-perfect timing
    - Perfect sync with audio track
    - Bar boundaries align perfectly
    - No manual warping needed
 
 ### Warp Settings
 
-**Since V4.0.0 uses bar-aligned exports:**
+**Since V4.1.0 uses grid-aligned exports:**
 - Enable Warp on video clip
 - Set correct BPM
 - Warp markers auto-align to bars
@@ -178,7 +175,7 @@ ffmpeg -i shader_164bars.webm \
 
 ---
 
-## V4.0.0 BATCH WORKFLOW
+## V4.1.0 BATCH WORKFLOW
 
 ### Multiple Shaders for One Track
 
@@ -198,7 +195,7 @@ done
 
 ### Organizing by Bar Count
 
-**V4.0.0 S Button Advantage:**
+**V4.1.0 S Button Advantage:**
 - All exports have verified bar counts
 - Name files with bar count: `shader_intro_64bars.webm`
 - Easy to organize in Ableton: 64-bar sections, 128-bar drops, etc.
@@ -231,7 +228,7 @@ ffmpeg -i shader_timeline.webm \
 
 ### File Size Estimates
 
-**With V4.0.0 Timeline Reactivity:**
+**With V4.1.0 Timeline Reactivity:**
 - 164 bars @ 120 BPM = 328 seconds
 - ProRes 422 HQ @ 1080p60: ~7.2 GB
 - ProRes 422 Std @ 1080p30: ~2.4 GB
@@ -261,6 +258,7 @@ ffmpeg -i shader_timeline.webm \
 2. Check Last Bar field shows count
 3. Name file with bar count
 4. Set exact BPM in Ableton
+5. **NEW:** Press M in LIVE tab to verify before rendering
 
 ### Large File Sizes
 
@@ -278,7 +276,7 @@ ffmpeg -i shader_timeline.mov \
 
 ---
 
-## V4.0.0 BEST PRACTICES
+## V4.1.0 BEST PRACTICES
 
 ### Preparation Checklist
 
@@ -287,6 +285,7 @@ ffmpeg -i shader_timeline.mov \
 ✅ Click S button (snap to bars)  
 ✅ Verify Last Bar count  
 ✅ "Add to Library" (timeline analysis)  
+✅ **NEW:** Press M to verify alignment  
 ✅ Test in preview  
 ✅ Render at target resolution  
 
@@ -299,7 +298,7 @@ Include bar count in filename:
 
 ### Ableton Organization
 
-**V4.0.0 Bar-Based Structure:**
+**V4.1.0 Bar-Based Structure:**
 - Intro: 64 bars
 - Buildup: 32 bars
 - Drop: 128 bars
@@ -308,7 +307,7 @@ Include bar count in filename:
 
 ---
 
-## ADVANCED V4.0.0 TECHNIQUES
+## ADVANCED V4.1.0 TECHNIQUES
 
 ### Concatenate Bar-Aligned Sections
 
@@ -326,12 +325,12 @@ ffmpeg -f concat -safe 0 -i filelist.txt -c copy full_track.mov
 
 ### Extract Specific Bar Ranges
 
-Since V4.0.0 exports are bar-aligned:
+Since V4.1.0 exports are bar-aligned:
 
 ```bash
 # Extract bars 65-128 (at 120 BPM, bar = 2 seconds)
-# Start: 64 bars * 2 sec = 128 seconds
-# Duration: 64 bars * 2 sec = 128 seconds
+# Start: 64 bars × 2 sec = 128 seconds
+# Duration: 64 bars × 2 sec = 128 seconds
 
 ffmpeg -i full_track.mov \
        -ss 128 \
@@ -364,18 +363,19 @@ for f in *.webm; do ffmpeg -i "$f" -c:v prores_ks -profile:v 3 "${f%.webm}.mov";
 
 ---
 
-## COMPLETE V4.0.0 WORKFLOW
+## COMPLETE V4.1.0 WORKFLOW
 
 1. **Create Shader** with audio reactivity
 2. **Load Audio** and set BPM
 3. **Click S Button** to snap to bars
 4. **Add to Library** for timeline analysis
-5. **Render Video** with baked reactivity
-6. **Convert to ProRes** via FFmpeg
-7. **Import to Ableton** with EboSuite
-8. **Perform Live** with perfect sync!
+5. **Press M** to verify grid alignment (NEW!)
+6. **Render Video** with baked reactivity
+7. **Convert to ProRes** via FFmpeg
+8. **Import to Ableton** with EboSuite
+9. **Perform Live** with perfect sync!
 
-**Result:** Professional audio-visual performance with timeline-accurate reactivity!
+**Result:** Professional audio-visual performance with grid-perfect timing!
 
 ---
 
@@ -397,6 +397,6 @@ for f in *.webm; do ffmpeg -i "$f" -c:v prores_ks -profile:v 3 "${f%.webm}.mov";
 
 **END OF FFMPEG VIDEO EXPORT GUIDE**
 
-Version: V4.0.0_D  
-Date: November 25, 2025  
+Version: V4.1.0
+Date: November 27, 2025
 License: GPL-3.0

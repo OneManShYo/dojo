@@ -1,8 +1,8 @@
-# CLAUDE SHADER CREATION GUIDE - OMS SHADER BAKER V4.0.0
+# CLAUDE SHADER CREATION GUIDE - OMS SHADER BAKER V4.1.0
 
 **Purpose:** Guide for creating WGSL shaders using Claude AI  
-**Version:** V4.0.0_D  
-**Date:** November 25, 2025
+**Version:** V4.1.0  
+**Date:** November 27, 2025
 
 ---
 
@@ -18,24 +18,24 @@
 6. **Claude generates new shader**
 7. **Copy new shader** back to Code tab
 8. **See instant preview** in canvas
-9. **NEW:** Test audio reactivity in LIVE tab!
+9. **Test in LIVE tab** with perfect grid alignment!
 
 **That's it!** No shader programming knowledge required.
 
 ---
 
-## WHAT'S NEW IN V4.0.0
+## WHAT'S NEW IN V4.1.0
 
-**Audio Reactivity in LIVE Tab:**
-- Your shaders now react to audio during performance
-- Same visual behavior as Controls tab preview
-- Timeline-based reactivity (pre-analyzed FFT)
-- Perfect synchronization with music
+**Perfect Grid Alignment:**
+- Track grids now align exactly with Master Grid
+- Press M to verify alignment visually
+- Tempo-based positioning (no drift)
+- Professional-grade precision
 
-**Better Workflow:**
-- Create in Controls tab
-- Save with S button (snap to bar)
-- Perform in LIVE tab with full reactivity
+**Visibility Toggles:**
+- M key: Toggle Master Grid overlay
+- T key: Toggle Track Grid markers
+- W key: Toggle Waveform display
 
 ---
 
@@ -143,27 +143,21 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
 
 ---
 
-## V4.0.0 MODULATOR SYSTEM
+## MODULATOR SYSTEM
 
-### Understanding the Two-Layer System
+### Understanding Modulators
 
-**Layer 1: Timeline Data (Pre-analyzed FFT)**
-- Captured during "Add to Library" in Controls tab
-- Contains actual audio levels over time
-- Already has gains applied
-- Stored in .oms container
+**modA (Bass):** 30-500 Hz
+- Kick drums, sub bass, bass drops
+- Best for: Big movements, main pulse, impact effects
 
-**Layer 2: Waveform Oscillation (Live Calculation)**
-- Sine, square, triangle, sawtooth, cycler, etc.
-- Based on elapsed beats (musical timing)
-- Subdivision controls rate
-- Calculated each frame
+**modB (Mids):** 500-2000 Hz
+- Vocals, synths, guitars, snare hits
+- Best for: Color shifts, secondary motion, texture
 
-**Final Result:**
-```
-modA = Timeline[index] × Waveform
-     = (Audio Level × Gain) × Oscillator
-```
+**modC (Treble):** 2000-20000 Hz
+- Hi-hats, cymbals, sparkle, air
+- Best for: Fine details, flickering, shimmer effects
 
 ### Using Modulators in Shaders
 
@@ -216,13 +210,12 @@ let color = vec3(red, green, blue);
 
 ## OPTIMIZING FOR LIVE PERFORMANCE
 
-### V4.0.0 Considerations
+### V4.1.0 Considerations
 
-**Timeline-Based Reactivity:**
-- Modulators in LIVE tab use pre-analyzed data
-- Test in Controls tab first (live FFT analysis)
-- Save with proper timeline data ("Add to Library")
-- LIVE tab will match exactly
+**Grid Alignment:**
+- Your shaders will display with perfectly aligned beat grids
+- Press M to see the Master Grid overlay
+- Visual sync is now guaranteed
 
 **Performance Tips:**
 - Target 60fps (check in LIVE tab with 4 tracks)
@@ -234,12 +227,12 @@ let color = vec3(red, green, blue);
 
 1. **Create shader** in Controls tab
 2. **Load audio** and set parameters
-3. **Test reactivity** with preview
-4. **Click S button** to snap to bars
-5. **Add to Library** (analyzes FFT)
-6. **Save as .oms** container
-7. **LIVE tab** - drag to grid
-8. **Launch** - see perfect reactivity!
+3. **Click S button** to snap to bars
+4. **Add to Library** (analyzes FFT)
+5. **Save as .oms** container
+6. **LIVE tab** - drag to grid
+7. **Launch** - see perfect alignment!
+8. **Press M** - verify with Master Grid
 
 ---
 
@@ -326,7 +319,7 @@ let flicker = sin(uTime * 10.0) * 0.5 + 0.5;
 // Wave motion
 let wave = sin(uv.x * 10.0 + uTime * 2.0);
 
-// Beat-synced (V4.0.0 - works in LIVE tab!)
+// Beat-synced (works in LIVE tab!)
 let beat = sin(uTime * 2.0) * uModA;
 ```
 
@@ -343,7 +336,7 @@ let color = vec3(circle * brightness + detail);
 
 ---
 
-## BEST PRACTICES FOR V4.0.0
+## BEST PRACTICES FOR V4.1.0
 
 ### Development Workflow
 
@@ -361,7 +354,7 @@ let color = vec3(circle * brightness + detail);
 3. **Test in LIVE Tab**
    - Drag to grid
    - Launch with Enter
-   - Verify reactivity matches
+   - Press M to verify alignment
    - Test with other tracks
 
 ### Audio Reactivity Balance
@@ -410,25 +403,23 @@ Claude: [simplifies calculations while preserving effect]
 
 ---
 
-## V4.0.0 SPECIFIC TIPS
+## V4.1.0 SPECIFIC TIPS
 
-**Timeline Analysis:**
-- Always use "Add to Library" for timeline data
-- Timeline captures actual audio dynamics
-- LIVE tab uses this pre-analyzed data
-- No live FFT in performance (more efficient)
+**Grid Alignment:**
+- Use M key to verify alignment during development
+- Track grids will match Master Grid exactly
+- Tempo changes maintain alignment
+- Zoom changes maintain alignment
 
-**S Button Magic:**
-- Snaps to complete bars
-- Ensures beat grid alignment
-- Stores bar count in container
-- Critical for synchronized performances
+**Visibility Toggles:**
+- Use T key to hide track grid for cleaner look
+- Use W key to see just beat markers (no waveform)
+- Useful for debugging and presentation
 
-**Enter Key Testing:**
-- Test rapid re-cueing with Enter
-- Shader should handle sudden restarts
-- Bar 1 positioning is critical
-- Works like CDJ cue button now
+**Zoom System:**
+- 1x is new default (shows ~20+ bars)
+- 4x/8x show phrase markers only
+- Good for overview vs detail views
 
 ---
 
@@ -450,18 +441,20 @@ Claude: [simplifies calculations while preserving effect]
 
 ## CONCLUSION
 
-V4.0.0 brings your shaders to life in the LIVE tab with perfect audio reactivity. The workflow is simple:
+V4.1.0 brings perfect grid alignment to your shader workflow. Combined with Claude AI for shader creation, you can:
 
-1. **Create** with Claude's help
-2. **Prepare** with timeline analysis
-3. **Perform** with full reactivity
+1. **Create** stunning audio-reactive shaders
+2. **Prepare** with bar-aligned timeline analysis
+3. **Perform** with confidence knowing grids align
+4. **Verify** alignment with M key anytime
 
-No shader programming required - just describe what you want to see, and Claude translates that into WGSL code.
+No shader programming required - just describe what you want, and Claude translates that into WGSL code.
 
 **The power is in iteration:**
 - Start simple
 - Build complexity
 - Test in LIVE tab
+- Press M to verify alignment
 - Refine for performance
 
 Now go create something amazing! 🎨✨
@@ -470,7 +463,7 @@ Now go create something amazing! 🎨✨
 
 **END OF CLAUDE SHADER CREATION GUIDE**
 
-Version: V4.0.0_D  
-Date: November 25, 2025  
-Website: https://itswessmithyo.com  
+Version: V4.1.0
+Date: November 27, 2025
+Website: https://itswessmithyo.com
 License: GPL-3.0
