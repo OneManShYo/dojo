@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V2_9
+ONEMANSHYO Dojo App V3_0
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V2_9
-Build Date: November 11, 2025
+Version: V3_0
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V2_9]</title>
+    <title>ONEMANSHYO App [V3_0]</title>
     <style>
         * {
             margin: 0;
@@ -28,8 +27,20 @@ Build Date: November 11, 2025
             color: #e0e0e0;
             height: 100vh;
             overflow: hidden;
+        }
+
+        /* V3.0.0-H: App wrapper for centering entire app */
+        /* V3.0.0-N: Added side borders for physical device feel */
+        /* V3.0.0-P: Changed to box-shadow inset for full-height visibility */
+        .app-wrapper {
+            max-width: 1470px;
+            margin: 0 auto;
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            box-shadow: 
+                inset 5px 0 0 0 #555,    /* Left border */
+                inset -5px 0 0 0 #555;   /* Right border */
         }
 
         .container {
@@ -50,7 +61,10 @@ Build Date: November 11, 2025
         }
 
         .preview-panel {
-            flex: 1;
+            width: 1070px; /* V3.0.0-D: Fixed width to fit 14" MacBook Pro (1470px total with 400px left panel) */
+            min-width: 1070px;
+            max-width: 1070px;
+            flex-shrink: 0;
             display: flex;
             flex-direction: column;
         }
@@ -78,11 +92,14 @@ Build Date: November 11, 2025
         }
 
         .header .version {
-            font-size: 11px;
+            font-size: 14px;
             color: #999;
             font-weight: 400;
             display: inline;
-            margin-left: 10px;
+            margin-left: 10px; /* V2.1.1-A: Back with title, not separated */
+            background: linear-gradient(45deg, #00d4ff, #ff006e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         /* V2.1.0-C: Tab system */
@@ -93,11 +110,11 @@ Build Date: November 11, 2025
             display: flex;
             align-items: center;
             padding: 0 20px;
-            gap: 10px;
+            gap: 5px; /* V3.0.0-B: Reduced from 10px to 5px to fit 5 tabs */
         }
 
         .tab {
-            padding: 8px 20px;
+            padding: 8px 16px; /* V3.0.0-A: Reduced from 20px to 16px to fit 5 tabs */
             font-size: 14px;
             font-weight: 500;
             color: #999;
@@ -436,6 +453,7 @@ Build Date: November 11, 2025
             align-items: center;
             padding: 10px 20px;
             box-sizing: border-box;
+            position: relative; /* V3.0.0-O: For drag text overlay positioning */
         }
 
         .waveform-section canvas {
@@ -454,23 +472,121 @@ Build Date: November 11, 2025
             font-size: 24px;
         }
 
+        /* V3.0.0-K: Audio controls strip with 5 bordered cells */
         .audio-controls-strip {
-            height: 40px;
+            height: 60px;
             background: linear-gradient(180deg, #2a2a2a, #222);
             border-top: 1px solid #333;
             display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 0 20px;
+            align-items: stretch;
+            padding: 0;
             box-sizing: border-box;
         }
 
-        .audio-controls-strip .btn {
-            height: 28px;
-            padding: 4px 12px;
-            font-size: 13px;
+        /* V3.0.0-K: Cell structure - each cell is a bordered container */
+        .controls-cell {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8px 12px;
+            border-right: 1px solid #333;
+            box-sizing: border-box;
+        }
+
+        .controls-cell:last-child {
+            border-right: none;
+        }
+
+        /* V3.0.0-K: Label row inside each cell */
+        .cell-label-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 4px;
+            font-size: 10px;
+            color: #888;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .cell-label-row .label-item {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .cell-label-row .label-item.clickable {
+            cursor: pointer;
+        }
+
+        .cell-label-row .label-item.clickable:hover {
+            color: #0dd;
+        }
+
+        /* V3.0.0-K: Controls row inside each cell */
+        .cell-controls-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Cell 1: Transport buttons horizontal */
+        .controls-cell.transport {
+            width: 250px;
+            flex-shrink: 0;
+        }
+
+        .controls-cell.transport .cell-controls-row {
+            flex-direction: row;
+            gap: 4px;
+        }
+
+        /* Cell 2: Audio Start/End */
+        .controls-cell.audio-timing {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        /* Cell 3: Audio Tempo/Pitch */
+        .controls-cell.audio-props {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        /* Cell 4: Loop In/Out */
+        .controls-cell.loop-timing {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        /* Cell 5: Grid + Upload/Remove buttons */
+        .controls-cell.actions {
+            width: 140px;
+            flex-shrink: 0;
+        }
+
+        .controls-cell.actions .cell-controls-row {
+            gap: 8px;
+        }
+
+        /* V3.0.0-K: Button styling for cells */
+        .controls-cell .btn {
+            height: 24px;
+            padding: 2px 10px;
+            font-size: 12px;
             flex-shrink: 0;
             min-height: unset;
+            width: 100%;
+        }
+
+        /* V3.0.0-L: Transport buttons horizontal - equal width */
+        .controls-cell.transport .btn {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Actions cell buttons side by side */
+        .controls-cell.actions .btn {
+            flex: 1;
+            min-width: 0;
         }
 
         /* V2.2.0-F: Standard inactive button styling (applies to all buttons) */
@@ -487,45 +603,25 @@ Build Date: November 11, 2025
         }
 
 
-        .audio-controls-strip input[type="number"] {
-            width: 80px;
-            height: 28px;
-            padding: 4px 8px;
-            font-size: 13px;
+        /* V3.0.0-K: Input field styling for cells */
+        .cell-controls-row input[type="number"],
+        .cell-controls-row input[type="text"] {
+            flex: 1;
+            min-width: 0;
+            height: 24px;
+            padding: 2px 6px;
+            font-size: 12px;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
             color: #fff;
             border-radius: 0;
             -moz-appearance: textfield;
-            min-height: unset;
         }
 
-        /* V2.4.0-G: Styling for Audio Start/End text input fields */
-        .audio-controls-strip input[type="text"] {
-            height: 28px;
-            padding: 4px 8px;
-            font-size: 13px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-            border-radius: 0;
-            min-height: unset;
-        }
-
-        .audio-controls-strip input[type="number"]::-webkit-outer-spin-button,
-        .audio-controls-strip input[type="number"]::-webkit-inner-spin-button {
+        .cell-controls-row input[type="number"]::-webkit-outer-spin-button,
+        .cell-controls-row input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
-        }
-
-        .audio-controls-strip .spacer {
-            flex: 1;
-        }
-
-        .audio-controls-strip label {
-            font-size: 12px;
-            color: #ccc;
-            margin-right: 4px;
         }
 
         /* V2.2.0-A: Audio Tempo field styling */
@@ -912,13 +1008,376 @@ Build Date: November 11, 2025
             background: rgba(255,255,255,0.15);
             border-color: rgba(255,255,255,0.3);
         }
+
+        /* ========================================
+           LIVE TAB STYLES (V3.0.0-A)
+           Performance Grid, Mixer, Waveforms
+           ======================================== */
+        
+        .live-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Performance View */
+        .performance-view {
+            flex: 1;
+            background: linear-gradient(180deg, #1e1e1e, #252525);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Fixed Headers Section */
+        .grid-headers {
+            display: grid;
+            grid-template-columns: 90px 196px 196px 196px 196px 196px; /* V3.0.0-F: 5 columns (90px scenes + 4 tracks + master × 196px = 1070px) */
+            gap: 0;
+            background: #0c0c0c;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        /* Scrollable Scene Rows */
+        .scenes-scroll-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #0c0c0c;
+        }
+
+        .scenes-grid {
+            display: grid;
+            grid-template-columns: 90px 196px 196px 196px 196px 196px; /* V3.0.0-F: 5 columns matching grid-headers */
+            gap: 0;
+            padding: 0;
+            min-height: 100%;
+        }
+
+        /* Fixed Mixer Section */
+        .mixer-section {
+            height: 140px;
+            background: #1a1a1a;
+            border-top: 2px solid #444;
+            display: grid;
+            grid-template-columns: 90px 196px 196px 196px 196px 196px; /* V3.0.0-F: 5 columns matching grid layout */
+            gap: 0;
+            padding: 10px 0;
+            flex-shrink: 0;
+        }
+
+        .mixer-spacer {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 3px;
+            margin: 0 0;
+        }
+
+        .grid-corner {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .track-header {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            padding: 15px 10px;
+            text-align: center;
+        }
+
+        .track-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+
+        .track-status {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .track-status.connected {
+            color: #00ff00;
+        }
+
+        .instance-selector {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            color: #00d4ff;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-top: 8px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .instance-selector:hover {
+            border-color: #00d4ff;
+        }
+
+        .instance-selector option {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        .scene-trigger {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            padding: 10px;
+        }
+
+        .scene-trigger:hover {
+            background: #333;
+            border-color: #00d4ff;
+        }
+
+        .scene-trigger.active {
+            background: #00d4ff;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .scene-number {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .clip-slot {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            aspect-ratio: 4 / 3;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .clip-slot:hover {
+            background: #222;
+            border-color: #00d4ff;
+        }
+
+        .clip-slot.empty {
+            color: #444;
+            font-size: 11px;
+        }
+
+        .clip-slot.has-clip {
+            background: #2a2a2a;
+            border-color: #ff006e;
+        }
+
+        .clip-slot.playing {
+            background: #00d4ff;
+            color: #000;
+            font-weight: 600;
+        }
+
+        /* Track Controls (in fixed mixer section) */
+        .track-controls {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 3px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .track-control-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .mixer-layout {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .mixer-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .mixer-right {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+        }
+
+        /* Rotary Knob Styling */
+        .rotary-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .rotary-knob {
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+        }
+
+        .volume-label {
+            font-size: 10px;
+            color: #666;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        /* Track Buttons */
+        .track-btn-group {
+            display: flex;
+            gap: 4px;
+        }
+
+        .track-btn {
+            width: 28px;
+            height: 28px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            color: #999;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.15s;
+        }
+
+        .track-btn:hover {
+            background: #333;
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+
+        .track-btn.active {
+            background: #ff006e;
+            border-color: #ff006e;
+            color: #fff;
+        }
+
+        .track-btn.mute.active {
+            background: #ff6b00;
+            border-color: #ff6b00;
+        }
+
+        .track-btn.solo.active {
+            background: #00ff00;
+            border-color: #00ff00;
+            color: #000;
+        }
+
+        /* Meter Styling */
+        .meter-container {
+            display: flex;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .meter-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            flex: 1;
+        }
+
+        .meter-bar {
+            width: 100%;
+            height: 80px;
+            background: #0c0c0c;
+            border: 1px solid #333;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .meter-fill-vertical {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(to top, #00ff00, #ffff00, #ff0000);
+            transition: height 0.05s;
+        }
+
+        .meter-label {
+            font-size: 9px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        /* Waveform Section (Bottom) */
+        .waveforms-section {
+            height: 220px; /* V3.0.0-G: Increased from 180px to show all 4 waveforms properly (~52px per track) */
+            background: #0c0c0c;
+            border-top: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            gap: 2px; /* V3.0.0-C: Increased from 1px for better separation */
+            padding: 5px;
+            flex-shrink: 0;
+        }
+
+        .waveform-track {
+            flex: 1;
+            background: #000;
+            border: 1px solid #222;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            padding: 2px 5px;
+            gap: 8px;
+        }
+
+        .waveform-label {
+            font-size: 10px;
+            color: #00d4ff;
+            font-weight: 600;
+            min-width: 50px;
+        }
+
+        .waveform-canvas {
+            flex: 1;
+            height: 100%;
+            background: #000;
+            border-radius: 2px;
+        }
     </style>
 </head>
 <body>
+    <!-- V3.0.0-H: App wrapper for centering entire app -->
+    <div class="app-wrapper">
     <!-- V2.1.1-A: Header now full-width outside container -->
     <div class="header">
         <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-        <span class="version">[V2_9]</span>
+        <span class="version">[V3_0]</span>
     </div>
     
     <div class="container">
@@ -930,6 +1389,7 @@ Build Date: November 11, 2025
                 <button class="tab" id="presetsTab" onclick="switchTab('presets')">Presets</button>
                 <button class="tab" id="libraryTab" onclick="switchTab('library')">Library</button>
                 <button class="tab" id="codeTab" onclick="switchTab('code')">Code</button>
+                <button class="tab" id="liveTab" onclick="switchTab('live')">LIVE</button>
             </div>
             
             <!-- V2.1.0-C: Controls Tab Content -->
@@ -1211,7 +1671,7 @@ Build Date: November 11, 2025
                     <button class="btn" onclick="exportShaderTxt()" title="Export Shader as .txt File">Export .txt</button>
                 </div>
                 <textarea class="editor" id="shaderCode" placeholder="Paste your shader code here...">
-// ONEMANSHYO Dojo V2_9 - Flower Power
+// OMS Shader Baker v2.0.3c - Flower Power
 // Available uniforms:
 //   uniforms.time - elapsed time in seconds
 //   uniforms.tempo - shader visual tempo (for modulator timing)
@@ -1393,72 +1853,177 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             <!-- Waveform Section (Middle - 120px Fixed Height) -->
             <div class="waveform-section">
+                <!-- V3.0.0-O: "Drag Audio Here" text overlay (shown when no audio) -->
+                <div id="dragAudioText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; color: rgba(255,255,255,0.3); pointer-events: none; z-index: 1;">
+                    Drag Audio Here
+                </div>
+                
                 <!-- Waveform canvas (shown when audio loaded) -->
                 <canvas id="waveformCanvas" style="display: none;"></canvas>
                 
                 <!-- Upload button (shown when no audio) -->
                 <button class="btn" onclick="document.getElementById('audioFile').click()" id="uploadBtn" style="flex: 1;">
-                    <span id="audioFileName">Upload Audio</span>
+                    <span id="audioFileName" style="display: none;">Upload Audio</span>
                 </button>
                 <input type="file" id="audioFile" accept="audio/*" style="display: none;" onchange="loadAudioFile(event)">
                 <input type="file" id="omsFile" accept=".oms" style="display: none;" onchange="handleOmsFileImport(event)">
             </div>
             
-            <!-- Audio Controls Strip (Bottom - 40px Fixed Height) -->
+            <!-- V3.0.0-K: Audio Controls Strip with 5 Bordered Cells (60px Fixed Height) -->
             <div class="audio-controls-strip">
-                <!-- V2.1.1-H: Transport controls with standard button styling -->
-                <button class="btn" id="playBtn" onclick="toggleAudioPlayback()" title="Play/Pause (Spacebar)" disabled>Play</button>
-                <button class="btn" id="stopBtn" onclick="stopAudio()" title="Stop Audio" disabled>Stop</button>
-                <button class="btn" id="loopBtn" onclick="toggleLoop()" title="Loop: Audio repeats IN to OUT" disabled>Loop</button>
                 
-                <div style="width: 1px; height: 24px; background: #333; margin: 0 12px;"></div>
+                <!-- CELL 1: Transport Controls (250px fixed) -->
+                <div class="controls-cell transport">
+                    <div class="cell-label-row">
+                        <div class="label-item">Audio Transport</div>
+                    </div>
+                    <div class="cell-controls-row">
+                        <button class="btn" id="playBtn" onclick="toggleAudioPlayback()" title="Play/Pause (Spacebar)" disabled>Play</button>
+                        <button class="btn" id="stopBtn" onclick="stopAudio()" title="Stop Audio" disabled>Stop</button>
+                        <button class="btn" id="loopBtn" onclick="toggleLoop()" title="Loop: Audio repeats IN to OUT" disabled>Loop</button>
+                    </div>
+                </div>
                 
-                <!-- V2.4.0-A: Audio Start/End fields (MM:SS.mmm format) -->
-                <!-- Arrow keys: Up/Down=±0.1s, Left/Right=±1.0s -->
-                <!-- V2.4.0-G: Click label to quick reset -->
-                <label for="audioStartField" onclick="setAudioStartToZero()" style="cursor: pointer;" title="Audio Start Time | Click to reset to 00:00.000">Audio Start</label>
-                <input type="text" id="audioStartField" value="00:00.000" 
-                       placeholder="00:00.000" title="Audio Start Time (MM:SS.mmm) | Arrow keys: Up/Down=±0.1s, Left/Right=±1.0s" 
-                       style="width: 90px;" disabled>
+                <!-- CELL 2: Audio Start/End (flex: 1, min 200px) -->
+                <div class="controls-cell audio-timing">
+                    <div class="cell-label-row">
+                        <div class="label-item clickable" onclick="setAudioStartToZero()" title="Audio Start | Click to reset">Audio Start</div>
+                        <div class="label-item clickable" onclick="setAudioEndToMax()" title="Audio End | Click to reset">Audio End</div>
+                    </div>
+                    <div class="cell-controls-row">
+                        <input type="text" id="audioStartField" value="00:00.000" 
+                               placeholder="00:00.000" title="Audio Start Time (MM:SS.mmm) | Arrow keys: Up/Down=±0.1s, Left/Right=±1.0s" 
+                               disabled>
+                        <input type="text" id="audioEndField" value="00:00.000" 
+                               placeholder="00:00.000" title="Audio End Time (MM:SS.mmm) | Arrow keys: Up/Down=±0.1s, Left/Right=±1.0s" 
+                               disabled>
+                    </div>
+                </div>
                 
-                <label for="audioEndField" onclick="setAudioEndToMax()" style="cursor: pointer;" title="Audio End Time | Click to reset to song end">Audio End</label>
-                <input type="text" id="audioEndField" value="00:00.000" 
-                       placeholder="00:00.000" title="Audio End Time (MM:SS.mmm) | Arrow keys: Up/Down=±0.1s, Left/Right=±1.0s" 
-                       style="width: 90px;" disabled>
+                <!-- CELL 3: Audio Tempo/Pitch (flex: 1, min 170px) -->
+                <div class="controls-cell audio-props">
+                    <div class="cell-label-row">
+                        <div class="label-item">Audio Tempo</div>
+                        <div class="label-item">Pitch</div>
+                    </div>
+                    <div class="cell-controls-row">
+                        <input type="text" id="audioTempoField" value="120.00" 
+                               placeholder="120.00" title="Manual audio tempo entry in decimal format (e.g., 127.53 from Ableton) | Arrow keys: Up/Down=±0.01, Left/Right=±1.0">
+                        <input type="text" id="pitchField" value="0.00" 
+                               placeholder="0.00" title="Pitch adjustment (±16%) | Arrow keys: Up/Down=±0.1%, Left/Right=±1.0% | Affects playback speed and BPM" 
+                               disabled>
+                    </div>
+                </div>
                 
-                <div style="width: 1px; height: 24px; background: #333; margin: 0 12px;"></div>
+                <!-- CELL 4: Loop In/Out (flex: 1, min 140px) -->
+                <div class="controls-cell loop-timing">
+                    <div class="cell-label-row">
+                        <div class="label-item clickable" onclick="setInToStart()" title="Click to set to start">Loop In</div>
+                        <div class="label-item clickable" onclick="setOutToEnd()" title="Click to set to end">Loop Out</div>
+                    </div>
+                    <div class="cell-controls-row">
+                        <input type="text" id="inBeat" value="17.1" title="Loop In (Bar.Beat format: 1.1, 17.1, etc.)">
+                        <input type="text" id="outBeat" value="33.1" title="Loop Out (Bar.Beat format: 1.1, 33.1, etc.)">
+                    </div>
+                </div>
                 
-                <!-- Audio Tempo field - Manual text entry (DAW format: 123.00) -->
-                <!-- V2.3.0-I: Arrow keys - Up/Down=±0.01, Left/Right=±1.0 -->
-                <label for="audioTempoField">Audio Tempo</label>
-                <input type="text" id="audioTempoField" value="120.00" 
-                       placeholder="120.00" title="Manual audio tempo entry in decimal format (e.g., 127.53 from Ableton) | Arrow keys: Up/Down=±0.01, Left/Right=±1.0" 
-                       style="width: 80px;">
+                <!-- CELL 5: Grid + Upload/Remove buttons (140px fixed) -->
+                <div class="controls-cell actions">
+                    <div class="cell-label-row">
+                        <div class="label-item">Audio File</div>
+                    </div>
+                    <div class="cell-controls-row">
+                        <button class="btn inactive" id="gridFreeBtn" onclick="toggleGrid()" title="Grid: OFF (hidden) - Click to show">Grid</button>
+                        <button class="btn" onclick="document.getElementById('audioFile').click()" id="uploadActionBtn" title="Upload audio file">Upload</button>
+                        <button class="btn" onclick="removeAudio()" id="removeBtn" style="display: none;" title="Remove loaded audio">X</button>
+                    </div>
+                </div>
                 
-                <!-- V2.8.0-D: Pitch control - Adjusts playback speed/tempo -->
-                <label for="pitchField">Pitch</label>
-                <input type="text" id="pitchField" value="0.00" 
-                       placeholder="0.00" title="Pitch adjustment (±16%) | Arrow keys: Up/Down=±0.1%, Left/Right=±1.0% | Affects playback speed and BPM" 
-                       style="width: 70px;" disabled>
-                
-                <div style="width: 1px; height: 24px; background: #333; margin: 0 12px;"></div>
-                
-                <label id="inLabel" onclick="setInToStart()" style="cursor: pointer;" title="Click to set to start (0)">Loop In</label>
-                <input type="text" id="inBeat" value="17.1" style="width: 60px;" title="Loop In (Bar.Beat format: 1.1, 17.1, etc.)">
-                
-                <label id="outLabel" onclick="setOutToEnd()" style="cursor: pointer;" title="Click to set to end">Loop Out</label>
-                <input type="text" id="outBeat" value="33.1" style="width: 60px;" title="Loop Out (Bar.Beat format: 1.1, 33.1, etc.)">
-                
-                
-                <!-- V2.4.0-B: Grid button now functional - toggles bar grid on waveform -->
-                <!-- V2.4.0-E: Starts inactive (off), becomes active when audio loads -->
-                <button class="btn inactive" id="gridFreeBtn" onclick="toggleGrid()" title="Grid: OFF (hidden) - Click to show">Grid</button>
-                
-                <!-- V2.3.0-H: Remove Audio button (shown when audio loaded) -->
-                <div style="width: 1px; height: 24px; background: #333; margin: 0 12px;"></div>
-                <button class="btn" onclick="removeAudio()" id="removeBtn" style="display: none;" title="Remove loaded audio">Remove Audio</button>
-                
-                <div class="spacer"></div>
+            </div>
+            
+            <!-- ========================================
+                 LIVE MIXER (V3.0.0-B) - In Right Panel
+                 Shown when LIVE tab active, replaces canvas
+                 ======================================== -->
+            <div id="liveMixerContainer" style="display: none; height: 100%; overflow: hidden;">
+                <div class="live-container">
+                    <!-- Performance View -->
+                    <div class="performance-view">
+                        <!-- Fixed Grid Headers -->
+                        <div class="grid-headers" id="gridHeaders">
+                            <div class="grid-corner">SCENES</div>
+                            <div class="track-header">
+                                <div class="track-title">Track 1</div>
+                                <div class="track-status">Not Connected</div>
+                                <select class="instance-selector">
+                                    <option value="">Not Connected</option>
+                                </select>
+                            </div>
+                            <div class="track-header">
+                                <div class="track-title">Track 2</div>
+                                <div class="track-status">Not Connected</div>
+                                <select class="instance-selector">
+                                    <option value="">Not Connected</option>
+                                </select>
+                            </div>
+                            <div class="track-header">
+                                <div class="track-title">Track 3</div>
+                                <div class="track-status">Not Connected</div>
+                                <select class="instance-selector">
+                                    <option value="">Not Connected</option>
+                                </select>
+                            </div>
+                            <div class="track-header">
+                                <div class="track-title">Track 4</div>
+                                <div class="track-status">Not Connected</div>
+                                <select class="instance-selector">
+                                    <option value="">Not Connected</option>
+                                </select>
+                            </div>
+                            <div class="track-header">
+                                <div class="track-title">Master</div>
+                                <div class="track-status">Master Channel</div>
+                            </div>
+                        </div>
+
+                        <!-- Scrollable Scenes Grid -->
+                        <div class="scenes-scroll-container">
+                            <div class="scenes-grid" id="scenesGrid">
+                                <!-- Grid populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Fixed Mixer Section -->
+                        <div class="mixer-section">
+                            <div class="mixer-spacer"></div>
+                            <div class="track-controls" id="mixer1"></div>
+                            <div class="track-controls" id="mixer2"></div>
+                            <div class="track-controls" id="mixer3"></div>
+                            <div class="track-controls" id="mixer4"></div>
+                            <div class="track-controls" id="mixerMaster"></div>
+                        </div>
+
+                        <!-- Waveform Section (V3.0.0-F: Moved inside performance-view for proper flex layout) -->
+                        <div class="waveforms-section">
+                            <div class="waveform-track">
+                                <div class="waveform-label">Track 1</div>
+                                <canvas class="waveform-canvas" id="waveform1"></canvas>
+                            </div>
+                            <div class="waveform-track">
+                                <div class="waveform-label">Track 2</div>
+                                <canvas class="waveform-canvas" id="waveform2"></canvas>
+                            </div>
+                            <div class="waveform-track">
+                                <div class="waveform-label">Track 3</div>
+                                <canvas class="waveform-canvas" id="waveform3"></canvas>
+                            </div>
+                            <div class="waveform-track">
+                                <div class="waveform-label">Track 4</div>
+                                <canvas class="waveform-canvas" id="waveform4"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
         </div>
@@ -1466,6 +2031,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
     
     <!-- V2.1.1-A: Status bar now full-width outside container -->
     <span id="shaderStatus" class="status">WebGPU Ready</span>
+    </div> <!-- V3.0.0-H: End app-wrapper -->
 
     <script>
         let device, context, pipeline, canvas;
@@ -1491,7 +2057,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         let currentAudioFile = null;  // V2.8.0-L: Store current audio File object for filename
         let bassLevel = 0, midLevel = 0, trebleLevel = 0;
         
-        // V2.8.0-A: BroadcastChannel for DojoLive communication
+        // V2.8.0-A: BroadcastChannel for ShaderBakerLive communication
         const instanceId = 'sb-' + Math.random().toString(36).substr(2, 9);
         const liveChannel = new BroadcastChannel('oms-live-channel');
         let isBroadcasting = false;
@@ -1762,8 +2328,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             if (!file) return;
             
             // V2.1.0-A: Update UI - hide upload button, show waveform and remove button
+            // V3.0.0-K: Also toggle uploadActionBtn/removeBtn in Cell 5
+            // V3.0.0-O: Hide drag audio text
             document.getElementById('uploadBtn').style.display = 'none';
+            document.getElementById('dragAudioText').style.display = 'none';
             document.getElementById('waveformCanvas').style.display = 'block';
+            document.getElementById('uploadActionBtn').style.display = 'none';
             document.getElementById('removeBtn').style.display = 'inline-block';
             
             // Show loading state
@@ -1832,6 +2402,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     markAsCustomState();
                 };
                 
+                console.log('V2.7.0-AE: Audio loaded, attaching freq listeners...');
                 
                 // V2.7.0-AE: Enable freq fields and attach listeners with direct property assignment
                 const freqPairs = [
@@ -1844,6 +2415,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     const freq1Field = document.getElementById(pair.freq1);
                     const freq2Field = document.getElementById(pair.freq2);
                     
+                    console.log(`Enabling and attaching listeners to ${pair.freq1} and ${pair.freq2}`);
                     
                     // Enable fields
                     freq1Field.disabled = false;
@@ -1851,24 +2423,31 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     
                     // Use direct property assignment (more reliable than addEventListener)
                     freq1Field.oninput = function() {
+                        console.log(`${pair.freq1} changed to ${freq1Field.value}`);
                         const freq1 = parseInt(freq1Field.value) || 0;
                         const freq2 = parseInt(freq2Field.value) || 0;
                         if (freq1 > freq2) {
+                            console.log(`Push behavior: ${pair.freq2} = ${freq1}`);
                             freq2Field.value = freq1;
                         }
+                        console.log('Calling markAsCustomState()');
                         markAsCustomState();
                     };
                     
                     freq2Field.oninput = function() {
+                        console.log(`${pair.freq2} changed to ${freq2Field.value}`);
                         const freq1 = parseInt(freq1Field.value) || 0;
                         const freq2 = parseInt(freq2Field.value) || 0;
                         if (freq2 < freq1) {
+                            console.log(`Push behavior: ${pair.freq1} = ${freq2}`);
                             freq1Field.value = freq2;
                         }
+                        console.log('Calling markAsCustomState()');
                         markAsCustomState();
                     };
                 });
                 
+                console.log('V2.7.0-AE: All freq listeners attached');
                 
                 // V2.7.0-AE: Disable renderDuration with magenta overlay (audio timing active)
                 const renderDurationField = document.getElementById('renderDuration');
@@ -2248,6 +2827,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const adjustedBPM = audioTempo * playbackRate;
             document.getElementById('audioTempoField').value = adjustedBPM.toFixed(2);
             
+            console.log(`V2.8.0-D: Pitch ${audioPitch.toFixed(2)}% applied, playbackRate: ${playbackRate.toFixed(4)}, adjusted BPM: ${adjustedBPM.toFixed(2)}`);
         }
         
         // Remove audio
@@ -2266,8 +2846,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             staticWaveformCache = null;
             
             // V2.1.0-A: Reset UI - show upload button, hide waveform and remove button
+            // V3.0.0-K: Also toggle uploadActionBtn/removeBtn in Cell 5
+            // V3.0.0-O: Show drag audio text
             document.getElementById('uploadBtn').style.display = 'flex';
+            document.getElementById('dragAudioText').style.display = 'block';
             document.getElementById('waveformCanvas').style.display = 'none';
+            document.getElementById('uploadActionBtn').style.display = 'inline-block';
             document.getElementById('removeBtn').style.display = 'none';
             document.getElementById('audioFile').value = '';
             
@@ -2949,7 +3533,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         const beatsPerSecond = audioTempo / 60.0;  // FIX: Use audioTempo, not currentTempo
                         const inBeatTime = inBeat / beatsPerSecond;
                         audioElement.currentTime = inBeatTime;
-                        audioElement.play().catch(() => {});
+                        audioElement.play().catch(e => console.log('Audio play failed:', e));
                     }
                     // Otherwise: preserve position and play state (do nothing)
                 }
@@ -2960,7 +3544,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     render();
                 }
                 
-                // V2.8.0-A: Announce shader name update to DojoLive
+                // V2.8.0-A: Announce shader name update to ShaderBakerLive
                 announcePresence();
                 
                 // V2.8.0-B: Capture and broadcast canvas snapshot after 1 frame
@@ -3361,16 +3945,17 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 showStatus('Shader code copied to clipboard!', 'success');
             }).catch(err => {
                 showStatus('Failed to copy shader code', 'error');
+                console.error('Copy failed:', err);
             });
         }
 
         // V2.6.0-R: Parse shader name from code comment
         function parseShaderNameFromCode(shaderCode) {
-            // Look for pattern: // ONEMANSHYO Dojo [version] - ShaderName
+            // Look for pattern: // OMS Shader Baker [version] - ShaderName
             const lines = shaderCode.split('\n');
             for (const line of lines) {
                 const trimmed = line.trim();
-                if (trimmed.startsWith('// ONEMANSHYO Dojo')) {
+                if (trimmed.startsWith('// OMS Shader Baker')) {
                     // Find last dash and extract name after it
                     const lastDashIndex = trimmed.lastIndexOf(' - ');
                     if (lastDashIndex !== -1) {
@@ -3546,7 +4131,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 
         // V2.1.0-C: Tab switching function
         function switchTab(tabName) {
-            // Hide all tab contents
+            // Hide all tab contents in left panel
             document.getElementById('controlsTabContent').classList.remove('active');
             document.getElementById('codeTabContent').classList.remove('active');
             document.getElementById('presetsTabContent').classList.remove('active');
@@ -3557,23 +4142,73 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('codeTab').classList.remove('active');
             document.getElementById('presetsTab').classList.remove('active');
             document.getElementById('libraryTab').classList.remove('active'); // V2.8.0-F
+            document.getElementById('liveTab').classList.remove('active'); // V3.0.0-B
+            
+            // V3.0.0-B: Hide/show right panel content based on tab
+            const previewContainer = document.querySelector('.preview-container');
+            const waveformSection = document.querySelector('.waveform-section');
+            const audioControlsStrip = document.querySelector('.audio-controls-strip');
+            const liveMixerContainer = document.getElementById('liveMixerContainer');
             
             // Show selected tab content and activate tab
             if (tabName === 'controls') {
                 document.getElementById('controlsTabContent').classList.add('active');
                 document.getElementById('controlsTab').classList.add('active');
+                // Show canvas, hide LIVE mixer
+                previewContainer.style.display = 'flex';
+                waveformSection.style.display = 'flex';
+                audioControlsStrip.style.display = 'flex';
+                liveMixerContainer.style.display = 'none';
             } else if (tabName === 'code') {
                 document.getElementById('codeTabContent').classList.add('active');
                 document.getElementById('codeTab').classList.add('active');
+                // Show canvas, hide LIVE mixer
+                previewContainer.style.display = 'flex';
+                waveformSection.style.display = 'flex';
+                audioControlsStrip.style.display = 'flex';
+                liveMixerContainer.style.display = 'none';
             } else if (tabName === 'presets') {
                 document.getElementById('presetsTabContent').classList.add('active');
                 document.getElementById('presetsTab').classList.add('active');
+                // Show canvas, hide LIVE mixer
+                previewContainer.style.display = 'flex';
+                waveformSection.style.display = 'flex';
+                audioControlsStrip.style.display = 'flex';
+                liveMixerContainer.style.display = 'none';
             } else if (tabName === 'library') { // V2.8.0-F
                 document.getElementById('libraryTabContent').classList.add('active');
                 document.getElementById('libraryTab').classList.add('active');
                 refreshLibraryList(); // Update library display
+                // Show canvas, hide LIVE mixer
+                previewContainer.style.display = 'flex';
+                waveformSection.style.display = 'flex';
+                audioControlsStrip.style.display = 'flex';
+                liveMixerContainer.style.display = 'none';
                 
                 // V2.9.0-P: Auto-focus first card for keyboard navigation
+                setTimeout(() => {
+                    const firstCard = document.querySelector('.library-card');
+                    if (firstCard) firstCard.focus();
+                }, 50);
+            } else if (tabName === 'live') { // V3.0.0-B
+                // Show Library in left panel
+                document.getElementById('libraryTabContent').classList.add('active');
+                document.getElementById('liveTab').classList.add('active');
+                refreshLibraryList(); // Update library display
+                
+                // Hide canvas/audio controls, show LIVE mixer
+                previewContainer.style.display = 'none';
+                waveformSection.style.display = 'none';
+                audioControlsStrip.style.display = 'none';
+                liveMixerContainer.style.display = 'block';
+                
+                // Initialize LIVE tab if not already initialized
+                if (!window.liveInitialized) {
+                    initLiveTab();
+                    window.liveInitialized = true;
+                }
+                
+                // Auto-focus first card for keyboard navigation
                 setTimeout(() => {
                     const firstCard = document.querySelector('.library-card');
                     if (firstCard) firstCard.focus();
@@ -3624,7 +4259,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         importedCount++;
                         
                     } catch (error) {
-                        // (no-op)
+                        console.error(`Failed to import ${file.name}:`, error);
                     }
                 }
                 
@@ -3689,6 +4324,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const stored = localStorage.getItem('omsUserPresets');
                 return stored ? JSON.parse(stored) : [];
             } catch (error) {
+                console.error('Failed to load user presets:', error);
                 return [];
             }
         }
@@ -3698,6 +4334,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             try {
                 localStorage.setItem('omsUserPresets', JSON.stringify(presets));
             } catch (error) {
+                console.error('Failed to save user presets:', error);
                 showStatus('Save failed - localStorage error');
             }
         }
@@ -3735,6 +4372,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 showStatus(`Library set: ${audioLibraryHandle.name}`, 'success');
             } catch (error) {
                 if (error.name !== 'AbortError') {
+                    console.error('Failed to setup audio library:', error);
                     showStatus('Failed to setup audio library', 'error');
                 }
             }
@@ -3769,14 +4407,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     }
                 }
             } catch (error) {
-                // (no-op)
+                console.error('Failed to load audio library handle:', error);
             }
             return false;
         }
         
         async function openLibraryDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open('OMSDojo', 1);
+                const request = indexedDB.open('OMSShaderBaker', 1);
                 request.onerror = () => reject(request.error);
                 request.onsuccess = () => resolve(request.result);
                 request.onupgradeneeded = (event) => {
@@ -3808,6 +4446,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 showStatus('Set Library folder first to save', 'error');
                 if (autoOpen) {
                     // V2.9.0-V: Auto-open Library picker
+                    console.log('V2.9.0-V: Auto-opening Library folder picker');
                     await setAudioLibrary();
                     // Check again after picker
                     return !!audioLibraryHandle;
@@ -3822,6 +4461,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const stored = localStorage.getItem('omsLibrary');
                 return stored ? JSON.parse(stored) : [];
             } catch (error) {
+                console.error('Failed to load library:', error);
                 return [];
             }
         }
@@ -3831,6 +4471,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 localStorage.setItem('omsLibrary', JSON.stringify(containers));
                 broadcastLibrary();  // V2.9.0-A: Broadcast library after save
             } catch (error) {
+                console.error('Failed to save library:', error);
                 showStatus('Error saving library (storage full?)', 'error');
             }
         }
@@ -3883,6 +4524,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         // V2.9.0-T: Auto-save .oms file to LIBRARY folder (uses container.name)
         async function saveContainerToOMS(container) {
             if (!audioLibraryHandle) {
+                console.log('V2.9.0-T: LIBRARY not set up - skipping .oms save');
                 showStatus('Container saved to browser. Set Library folder to save .oms file.', 'info');
                 return;
             }
@@ -3891,6 +4533,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // V2.9.0-T: Use container name for .oms filename (like Ableton .asd files)
                 const omsFilename = container.name + '.oms';
                 
+                console.log('V2.9.0-T: Saving .oms file:', omsFilename);
                 
                 // Create JSON content
                 const omsContent = JSON.stringify(container, null, 2);
@@ -3901,9 +4544,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 await writable.write(omsContent);
                 await writable.close();
                 
+                console.log('V2.9.0-T: Successfully saved .oms file:', omsFilename);
                 showStatus(`Saved: ${container.name} → ${omsFilename}`, 'success');
                 
             } catch (error) {
+                console.error('V2.9.0-T: Failed to save .oms file:', error);
                 showStatus('Container saved to browser. Failed to save .oms file: ' + error.message, 'error');
             }
         }
@@ -4104,19 +4749,21 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     const oldFilename = oldName + '.oms';
                     const newFilename = newName + '.oms';
                     
+                    console.log('V2.9.0-T: Renaming .oms file:', oldFilename, '→', newFilename);
                     
                     // Delete old .oms file
                     try {
                         await audioLibraryHandle.removeEntry(oldFilename);
+                        console.log('V2.9.0-T: Deleted old .oms file');
                     } catch (error) {
-                        // (no-op)
+                        console.warn('V2.9.0-T: Could not delete old .oms file:', error);
                     }
                     
                     // Save container with new name
                     await saveContainerToOMS(containers[containerIndex]);
                     
                 } catch (error) {
-                    // (no-op)
+                    console.error('V2.9.0-T: Failed to rename .oms file:', error);
                 }
             }
             
@@ -4135,6 +4782,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // V2.9.0-I: Warn if unsaved changes
             if (isDirty) {
                 showStatus('⚠ Unsaved changes - loading anyway', 'error');
+                console.log('V2.9.0-I: Loading container with unsaved changes');
             }
             
             // V2.9.0-T: Read .oms file from LIBRARY if available
@@ -4142,49 +4790,65 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             if (audioLibraryHandle) {
                 try {
+                    console.log('V2.9.0-T: Reading .oms file from LIBRARY:', container.name + '.oms');
                     const omsFilename = container.name + '.oms';
                     const fileHandle = await audioLibraryHandle.getFileHandle(omsFilename);
                     const file = await fileHandle.getFile();
                     const text = await file.text();
                     containerData = JSON.parse(text);
+                    console.log('V2.9.0-T: Successfully loaded from .oms file');
                 } catch (error) {
+                    console.warn('V2.9.0-T: Failed to read .oms file, using localStorage:', error);
                     showStatus(`Loaded from browser (${container.name}.oms not found in LIBRARY)`, 'info');
                 }
             } else {
-                // (no-op)
+                console.log('V2.9.0-T: LIBRARY not set, using localStorage data');
             }
             
+            console.log('V2.9.0-T: Loading container:', containerData.name);
+            console.log('V2.9.0-T: Audio filename:', containerData.audioFilename || 'none');
             
             // V2_9_0_H: Clear existing audio first before loading new container
             removeAudio();
             currentAudioFile = null;
             
             // V2.9.0-T: Load shader code
+            console.log('V2.9.0-U: Setting shader code, length:', containerData.shaderCode?.length || 0);
             document.getElementById('shaderCode').value = containerData.shaderCode;
             
             // V2.9.0-U: Apply control states with error handling
             if (containerData.controlStates) {
                 try {
+                    console.log('V2.9.0-U: Applying control states...');
                     applyControlState(containerData.controlStates);
+                    console.log('V2.9.0-U: Control states applied successfully');
                 } catch (error) {
+                    console.error('V2.9.0-U: Error applying control states:', error);
                     // Continue even if control state application fails
                 }
             }
             
             // V2.9.0-T: Load audio from LIBRARY if filename exists
             if (containerData.audioFilename) {
+                console.log('V2.9.0-T: Attempting to load audio from LIBRARY...');
                 try {
                     if (!audioLibraryHandle) {
+                        console.log('V2.9.0-T: LIBRARY not set up');
                         showStatus(`Container loaded. Set Library folder to load: ${containerData.audioFilename}`, 'info');
                     } else {
+                        console.log('V2.9.0-T: Getting audio file from LIBRARY...');
                         const file = await getAudioFromLibrary(containerData.audioFilename);
+                        console.log('V2.9.0-T: Audio file retrieved, loading...');
                         const fakeEvent = { target: { files: [file] } };
                         await loadAudioFile(fakeEvent);
+                        console.log('V2.9.0-T: Audio loaded successfully');
                     }
                 } catch (error) {
+                    console.error('V2.9.0-T: Failed to load audio from LIBRARY:', error);
                     showStatus(`Container loaded. Audio not found in LIBRARY: ${containerData.audioFilename}`, 'error');
                 }
             } else if (containerData.audioData) {
+                console.log('V2.9.0-T: Loading embedded audio data (legacy)...');
                 // V2.8.0-L: Backward compatibility for old containers with embedded audio
                 try {
                     const response = await fetch(containerData.audioData);
@@ -4192,10 +4856,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     const file = new File([blob], `${containerData.name}.mp3`, { type: 'audio/mpeg' });
                     const fakeEvent = { target: { files: [file] } };
                     await loadAudioFile(fakeEvent);
+                    console.log('V2.9.0-T: Embedded audio loaded successfully');
                 } catch (error) {
+                    console.error('V2.9.0-T: Failed to load embedded audio:', error);
                     showStatus('Container loaded (embedded audio failed)', 'error');
                 }
             } else {
+                console.log('V2.9.0-T: No audio in container');
                 showStatus(`Loaded: ${containerData.name} (no audio)`, 'success');
             }
             
@@ -4214,9 +4881,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             // V2_9_0_H: Final status only if audio loaded successfully
             if (audioLoaded) {
+                console.log('V2.9.0-T: Container load complete with audio');
                 showStatus(`Loaded: ${containerData.name} with audio`, 'success');
             } else {
-                // (no-op)
+                console.log('V2.9.0-T: Container load complete (no audio)');
             }
         }
         
@@ -4293,7 +4961,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 try {
                     const omsFilename = container.name + '.oms';
                     await audioLibraryHandle.removeEntry(omsFilename);
+                    console.log('V2.9.0-T: Deleted .oms file:', omsFilename);
                 } catch (error) {
+                    console.error('V2.9.0-T: Failed to delete .oms file:', error);
                     // Continue with removal from localStorage even if .oms deletion fails
                 }
             }
@@ -4373,6 +5043,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     refreshLibraryList();
                     
                 } catch (error) {
+                    console.error('Failed to import .oms file:', error);
                     showStatus('Failed to import .oms file', 'error');
                 }
             };
@@ -4460,6 +5131,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 try {
                     await initThumbnailShader(canvas, preset.code, index);
                 } catch (error) {
+                    console.error(`Failed to init user thumbnail ${index}:`, error);
                     canvas.style.background = 'rgba(255,0,0,0.2)';
                 }
             }
@@ -4496,7 +5168,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             {
                 name: "Tron Tunnel",
                 orientation: "portrait",
-                code: `// ONEMANSHYO Dojo V2.5.0 - TronTunnel Pink-Blue
+                code: `// OMS Shader Baker V2.5.0 - TronTunnel Pink-Blue
 // Available uniforms:
 //   uniforms.time - elapsed time in seconds
 //   uniforms.tempo - shader visual tempo in BPM (for modulator timing)
@@ -4580,7 +5252,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             {
                 name: "Tron Grid",
                 orientation: "portrait",
-                code: `// ONEMANSHYO Dojo V2.0.2 - SonOfTronGrid
+                code: `// OMS Shader Baker V2.0.2 - SonOfTronGrid
 // Available uniforms:
 //   uniforms.time - elapsed time in seconds
 //   uniforms.tempo - shader visual tempo in BPM (for modulator timing)
@@ -4731,7 +5403,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             {
                 name: "MetaBalls",
                 orientation: "square",
-                code: `// ONEMANSHYO Dojo V2.0.2 - Lava Lamp Metaballs
+                code: `// OMS Shader Baker V2.0.2 - Lava Lamp Metaballs
 // Available uniforms:
 //   uniforms.time - elapsed time in seconds
 //   uniforms.tempo - shader visual tempo in BPM (for modulator timing)
@@ -4802,7 +5474,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             {
                 name: "Flower Power",
                 orientation: "square",
-                code: `// ONEMANSHYO Dojo v1.0.6 - Flower Power
+                code: `// OMS Shader Baker v1.0.6 - Flower Power
 // Available uniforms:
 //   uniforms.time - elapsed time in seconds
 //   uniforms.tempo - tempo in BPM (beats per minute)
@@ -4866,7 +5538,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             {
                 name: "Retro Fish Farm",
                 orientation: "square",
-                code: `// ONEMANSHYO Dojo - Retro Fish Farm
+                code: `// OMS Shader Baker - Retro Fish Farm
 // Available uniforms:
 //   uniforms.time - elapsed time in seconds
 //   uniforms.tempo - tempo in BPM (beats per minute)
@@ -5038,6 +5710,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 try {
                     await initThumbnailShader(canvas, preset.code, index);
                 } catch (error) {
+                    console.error(`Failed to init thumbnail ${index}:`, error);
                     canvas.style.background = 'rgba(255,0,0,0.2)';
                 }
             }
@@ -5199,11 +5872,13 @@ ${shaderCode}
                 const ctx2d = displayCanvas.getContext('2d');
                 if (ctx2d) {
                     ctx2d.drawImage(offscreenCanvas, 0, 0);
+                    console.log(`Thumbnail ${index} rendered and copied successfully`);
                 } else {
                     throw new Error('Failed to get 2D context for display');
                 }
                 
             } catch (error) {
+                console.error(`Thumbnail ${index} render error:`, error);
                 // Draw error indicator on display canvas
                 const ctx = displayCanvas.getContext('2d');
                 if (ctx) {
@@ -5395,7 +6070,7 @@ ${shaderCode}
                                 importedCount++;
                                 
                             } catch (error) {
-                                // (no-op)
+                                console.error(`Failed to import ${file.name}:`, error);
                             }
                         }
                     }
@@ -6204,6 +6879,7 @@ ${shaderCode}
                 await writable.write(jsonContent);
                 await writable.close();
                 
+                console.log('V2.9.0-V: Saved Control State to LIBRARY:', filename);
                 
                 // Update dropdown (now loads from LIBRARY files)
                 await updateControlStatesDropdown();
@@ -6214,6 +6890,7 @@ ${shaderCode}
                 showStatus(`Control State saved: ${name} → ${filename}`, 'success');
                 
             } catch (error) {
+                console.error('V2.9.0-V: Failed to save Control State:', error);
                 showStatus('Failed to save Control State: ' + error.message, 'error');
             }
         }
@@ -6331,7 +7008,7 @@ ${shaderCode}
                                     filename: entry.name
                                 };
                             } catch (error) {
-                                // (no-op)
+                                console.error(`Failed to load Control State: ${entry.name}`, error);
                             }
                         }
                     }
@@ -6352,7 +7029,7 @@ ${shaderCode}
                         }
                     }
                 } catch (error) {
-                    // (no-op)
+                    console.error('V2.9.0-V: Failed to load Control States from LIBRARY:', error);
                 }
             }
             
@@ -6411,6 +7088,7 @@ ${shaderCode}
                         showStatus('Control State not found', 'error');
                     }
                 } catch (error) {
+                    console.error('V2.9.0-V: Failed to load user Control State:', error);
                     showStatus('Failed to load Control State', 'error');
                 }
             }
@@ -6422,12 +7100,14 @@ ${shaderCode}
             try {
                 const infoBox = document.getElementById('controlStateInfo');
                 if (!infoBox) {
+                    console.error('Info box element not found');
                     return;
                 }
                 
                 const titleDiv = infoBox.querySelector('.control-state-info-title');
                 const contentDiv = infoBox.querySelector('.control-state-info-content');
                 if (!titleDiv || !contentDiv) {
+                    console.error('Info box title or content div not found');
                     return;
                 }
                 
@@ -6475,20 +7155,24 @@ ${shaderCode}
                 `;
                 
                 infoBox.style.display = 'block';
+                console.log('Info box updated (no title)');
             } catch (error) {
-                // (no-op)
+                console.error('Error in updateControlStateInfo:', error);
             }
         }
 
         // V2.7.0-M: Mark state as Custom when controls change
         // V2.7.0-Q: Simplified - Custom always visible
         function markAsCustomState() {
+            console.log('V2.7.0-AE: markAsCustomState() called');
             isDirty = true; // V2.9.0-I: Track unsaved changes
             const select = document.getElementById('controlStateSelect');
             select.value = 'custom';
+            console.log('V2.7.0-AE: Dropdown set to custom, calling updateControlStateInfo()');
             
             // Update info box
             updateControlStateInfo();
+            console.log('V2.7.0-AE: updateControlStateInfo() completed');
         }
 
         // V2.7.0-AD: Add change listeners to control fields
@@ -6512,15 +7196,18 @@ ${shaderCode}
         // V2.7.0-AE: Add renderDuration listener with debugging
         const renderDurationField = document.getElementById('renderDuration');
         if (renderDurationField) {
+            console.log('V2.7.0-AE: Attaching renderDuration listener');
             renderDurationField.oninput = function() {
+                console.log(`renderDuration changed to ${renderDurationField.value}`);
+                console.log('Calling markAsCustomState() from renderDuration');
                 markAsCustomState();
             };
         }
 
-        // V2.8.0-A: BroadcastChannel communication for DojoLive
+        // V2.8.0-A: BroadcastChannel communication for ShaderBakerLive
         function announcePresence() {
             try {
-                const shaderName = getShaderNameFromCode() || 'Dojo Instance';
+                const shaderName = getShaderNameFromCode() || 'Shader Baker Instance';
                 
                 liveChannel.postMessage({
                     type: 'announce',
@@ -6530,8 +7217,9 @@ ${shaderCode}
                 });
                 
                 isBroadcasting = true;
+                console.log(`📡 Announced: ${instanceId} - ${shaderName}`);
             } catch (error) {
-                // (no-op)
+                console.error('Error announcing presence:', error);
             }
         }
         
@@ -6549,6 +7237,7 @@ ${shaderCode}
         function broadcastSnapshot() {
             try {
                 if (!canvas) {
+                    console.warn('Canvas not available for snapshot');
                     return;
                 }
                 
@@ -6562,12 +7251,13 @@ ${shaderCode}
                     timestamp: Date.now()
                 });
                 
+                console.log(`📸 Snapshot broadcasted: ${instanceId} (${Math.round(imageData.length / 1024)}KB)`);
             } catch (error) {
-                // (no-op)
+                console.error('Error broadcasting snapshot:', error);
             }
         }
         
-        // V2.9.0-A: Broadcast complete library to DojoLive
+        // V2.9.0-A: Broadcast complete library to ShaderBakerLive
         function broadcastLibrary() {
             try {
                 const containers = getLibraryContainers();
@@ -6579,8 +7269,9 @@ ${shaderCode}
                     timestamp: Date.now()
                 });
                 
+                console.log(`📚 Library broadcasted: ${instanceId} (${containers.length} containers)`);
             } catch (error) {
-                // (no-op)
+                console.error('Error broadcasting library:', error);
             }
         }
         
@@ -6593,13 +7284,14 @@ ${shaderCode}
             }, 5000);
         }
         
-        // V2.8.0-A: Listen for control messages from DojoLive
+        // V2.8.0-A: Listen for control messages from ShaderBakerLive
         liveChannel.onmessage = (event) => {
             const msg = event.data;
+            console.log('Received message from Live:', msg);
             
             // Future: Handle scene launch commands, preset switches, etc.
             if (msg.type === 'control' && msg.target === instanceId) {
-                // (no-op)
+                console.log('Control command received:', msg);
             }
         };
 
@@ -6618,23 +7310,334 @@ ${shaderCode}
         announcePresence(); // Announce on page load
         broadcastLibrary(); // V2.9.0-A: Broadcast library on page load
         startHeartbeat(); // Start 5-second heartbeat
+        console.log('OMS Shader Baker V2.9.0 initialized');
+        console.log(`Instance ID: ${instanceId}`);
+        console.log('Broadcasting on oms-live-channel (announcements + library + canvas snapshots)');
         
         // V2.8.0-L: Load audio library handle from IndexedDB
         loadAudioLibraryHandle().then(loaded => {
             if (loaded) {
-                // (no-op)
+                console.log('Audio library handle restored');
             }
         });
         
         // V2.8.0-C: Auto-snapshot on page load (500ms delay for canvas render)
         setTimeout(() => {
             broadcastSnapshot();
+            console.log('Initial snapshot broadcasted');
         }, 500);
         
         // V2.8.0-A: Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             liveChannel.close();
         });
+
+        // ========================================
+        // LIVE TAB FUNCTIONS (V3.0.0-A)
+        // ========================================
+        
+        const NUM_TRACKS = 4;
+        const NUM_SCENES = 8;
+
+        function initLiveTab() {
+            initLiveHeaders();
+            initLiveScenes();
+            initLiveMixer();
+            initLiveWaveforms();
+            console.log('LIVE tab initialized (V3.0.0-A)');
+        }
+
+        // Initialize Track Headers
+        function initLiveHeaders() {
+            // Headers are static HTML, no dynamic initialization needed
+        }
+
+        // Initialize Scene Grid
+        function initLiveScenes() {
+            const scenes = document.getElementById('scenesGrid');
+            scenes.innerHTML = '';
+            
+            for (let s = 0; s < NUM_SCENES; s++) {
+                // Scene trigger
+                const trigger = document.createElement('div');
+                trigger.className = 'scene-trigger';
+                trigger.innerHTML = `<div class="scene-number">Scene ${s + 1}</div>`;
+                trigger.dataset.scene = s;
+                trigger.addEventListener('click', () => launchScene(s));
+                scenes.appendChild(trigger);
+
+                // Clip slots for tracks 1-4
+                for (let t = 0; t < NUM_TRACKS; t++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'clip-slot empty';
+                    slot.textContent = 'Empty';
+                    slot.dataset.track = t;
+                    slot.dataset.scene = s;
+                    scenes.appendChild(slot);
+                }
+                
+                // Master column (empty/disabled)
+                const masterSlot = document.createElement('div');
+                masterSlot.className = 'clip-slot master-slot';
+                masterSlot.textContent = '';
+                masterSlot.style.background = '#111';
+                scenes.appendChild(masterSlot);
+            }
+        }
+
+        // Initialize Mixer Section
+        function initLiveMixer() {
+            for (let t = 1; t <= NUM_TRACKS; t++) {
+                const mixer = document.getElementById(`mixer${t}`);
+                mixer.innerHTML = `
+                    <div class="track-control-row">
+                        <div class="track-btn-group">
+                            <button class="track-btn mute" data-track="${t}">M</button>
+                            <button class="track-btn solo" data-track="${t}">S</button>
+                        </div>
+                        <div class="volume-label" id="volLabel${t}">-∞</div>
+                    </div>
+                    <div class="mixer-layout">
+                        <div class="mixer-left">
+                            <canvas class="rotary-knob" id="rotary${t}" width="60" height="60"></canvas>
+                        </div>
+                        <div class="mixer-right">
+                            <div class="meter-container">
+                                <div class="meter-wrapper">
+                                    <div class="meter-bar">
+                                        <div class="meter-fill-vertical" id="meterL${t}"></div>
+                                    </div>
+                                    <div class="meter-label">L</div>
+                                </div>
+                                <div class="meter-wrapper">
+                                    <div class="meter-bar">
+                                        <div class="meter-fill-vertical" id="meterR${t}"></div>
+                                    </div>
+                                    <div class="meter-label">R</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Initialize rotary knob
+                const canvas = document.getElementById(`rotary${t}`);
+                const ctx = canvas.getContext('2d');
+                let volume = 0.75; // Default 75%
+                let isDragging = false;
+                let lastY = 0;
+                
+                function drawKnob() {
+                    ctx.clearRect(0, 0, 60, 60);
+                    
+                    // Background circle
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.beginPath();
+                    ctx.arc(30, 30, 28, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Border
+                    ctx.strokeStyle = '#444';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // Volume arc (-135° to +135°, 270° total range)
+                    const startAngle = -135 * Math.PI / 180;
+                    const endAngle = 135 * Math.PI / 180;
+                    const currentAngle = startAngle + (endAngle - startAngle) * volume;
+                    
+                    ctx.strokeStyle = '#00d4ff';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(30, 30, 22, startAngle, currentAngle);
+                    ctx.stroke();
+                    
+                    // Center indicator line
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(30, 30);
+                    ctx.lineTo(30 + Math.cos(currentAngle) * 18, 30 + Math.sin(currentAngle) * 18);
+                    ctx.stroke();
+                }
+                
+                function updateVolume(newVolume) {
+                    volume = Math.max(0, Math.min(1, newVolume));
+                    drawKnob();
+                    
+                    const volLabel = document.getElementById(`volLabel${t}`);
+                    if (volume === 0) {
+                        volLabel.textContent = '-∞';
+                    } else {
+                        const db = Math.round((1 - volume) * 20);
+                        volLabel.textContent = `-${db}`;
+                    }
+                }
+                
+                canvas.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    lastY = e.clientY;
+                });
+                
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const deltaY = lastY - e.clientY;
+                    updateVolume(volume + deltaY * 0.005);
+                    lastY = e.clientY;
+                });
+                
+                window.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+                
+                // Initial draw
+                updateVolume(0.75);
+                
+                // Mute/Solo buttons
+                const muteBtn = mixer.querySelector('.track-btn.mute');
+                const soloBtn = mixer.querySelector('.track-btn.solo');
+                
+                muteBtn.addEventListener('click', () => muteBtn.classList.toggle('active'));
+                soloBtn.addEventListener('click', () => soloBtn.classList.toggle('active'));
+            }
+            
+            // Initialize Master Mixer (V3.0.0-F)
+            const mixerMaster = document.getElementById('mixerMaster');
+            mixerMaster.innerHTML = `
+                <div class="track-control-row">
+                    <div class="track-btn-group">
+                        <button class="track-btn mute" data-track="master">M</button>
+                    </div>
+                    <div class="volume-label" id="volLabelMaster">-∞</div>
+                </div>
+                <div class="mixer-layout">
+                    <div class="mixer-left">
+                        <canvas class="rotary-knob" id="rotaryMaster" width="60" height="60"></canvas>
+                    </div>
+                    <div class="mixer-right">
+                        <div class="meter-container">
+                            <div class="meter-wrapper">
+                                <div class="meter-bar">
+                                    <div class="meter-fill-vertical" id="meterLMaster"></div>
+                                </div>
+                                <div class="meter-label">L</div>
+                            </div>
+                            <div class="meter-wrapper">
+                                <div class="meter-bar">
+                                    <div class="meter-fill-vertical" id="meterRMaster"></div>
+                                </div>
+                                <div class="meter-label">R</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Initialize master rotary knob
+            const canvasMaster = document.getElementById('rotaryMaster');
+            const ctxMaster = canvasMaster.getContext('2d');
+            let volumeMaster = 0.75;
+            let isDraggingMaster = false;
+            let lastYMaster = 0;
+            
+            function drawKnobMaster() {
+                ctxMaster.clearRect(0, 0, 60, 60);
+                ctxMaster.fillStyle = '#1a1a1a';
+                ctxMaster.beginPath();
+                ctxMaster.arc(30, 30, 28, 0, Math.PI * 2);
+                ctxMaster.fill();
+                ctxMaster.strokeStyle = '#444';
+                ctxMaster.lineWidth = 2;
+                ctxMaster.stroke();
+                
+                const startAngle = -135 * Math.PI / 180;
+                const endAngle = 135 * Math.PI / 180;
+                const currentAngle = startAngle + (endAngle - startAngle) * volumeMaster;
+                
+                ctxMaster.strokeStyle = '#00d4ff';
+                ctxMaster.lineWidth = 3;
+                ctxMaster.beginPath();
+                ctxMaster.arc(30, 30, 24, startAngle + Math.PI / 2, currentAngle + Math.PI / 2);
+                ctxMaster.stroke();
+                
+                ctxMaster.strokeStyle = '#fff';
+                ctxMaster.lineWidth = 2;
+                ctxMaster.beginPath();
+                ctxMaster.moveTo(30, 30);
+                ctxMaster.lineTo(30 + Math.cos(currentAngle + Math.PI / 2) * 20, 30 + Math.sin(currentAngle + Math.PI / 2) * 20);
+                ctxMaster.stroke();
+            }
+            
+            function updateVolumeMaster(vol) {
+                volumeMaster = Math.max(0, Math.min(1, vol));
+                drawKnobMaster();
+                const db = volumeMaster === 0 ? '-∞' : `${Math.round((volumeMaster - 1) * 60)} dB`;
+                document.getElementById('volLabelMaster').textContent = db;
+            }
+            
+            canvasMaster.addEventListener('mousedown', (e) => {
+                isDraggingMaster = true;
+                lastYMaster = e.clientY;
+            });
+            
+            window.addEventListener('mousemove', (e) => {
+                if (!isDraggingMaster) return;
+                const deltaY = lastYMaster - e.clientY;
+                updateVolumeMaster(volumeMaster + deltaY * 0.005);
+                lastYMaster = e.clientY;
+            });
+            
+            window.addEventListener('mouseup', () => {
+                isDraggingMaster = false;
+            });
+            
+            updateVolumeMaster(0.75);
+            
+            const muteBtnMaster = mixerMaster.querySelector('.track-btn.mute');
+            muteBtnMaster.addEventListener('click', () => muteBtnMaster.classList.toggle('active'));
+        }
+
+        // Scene launching
+        function launchScene(sceneIndex) {
+            console.log(`Launching Scene ${sceneIndex + 1}`);
+            
+            // Visual feedback
+            const triggers = document.querySelectorAll('.scene-trigger');
+            triggers.forEach((t, i) => {
+                if (i === sceneIndex) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+        }
+
+        // Waveform Viewing
+        function initLiveWaveforms() {
+            [1, 2, 3, 4].forEach(track => {
+                const canvas = document.getElementById(`waveform${track}`);
+                const ctx = canvas.getContext('2d');
+                
+                // Set canvas size
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                
+                // Draw empty waveform
+                drawEmptyWaveform(ctx, canvas);
+            });
+        }
+
+        function drawEmptyWaveform(ctx, canvas) {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height / 2);
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.stroke();
+        }
+
     </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
-# OMS DOJO V2_9 - COMPLETE USER GUIDE
+# OMS SHADER BAKER V3.0.0 - COMPLETE USER GUIDE
 
-**Version:** V2_9  
+**Version:** V3.0.0  
 **Last Updated:** November 2025  
 **Purpose:** Complete user documentation
 
@@ -15,10 +15,11 @@
 5. [Presets Tab](#presets-tab)
 6. [Library Tab](#library-tab)
 7. [Code Tab](#code-tab)
-8. [Keyboard Navigation](#keyboard-navigation)
-9. [Rendering Videos](#rendering-videos)
-10. [Workflows](#workflows)
-11. [Troubleshooting](#troubleshooting)
+8. [LIVE Tab (NEW)](#live-tab-performance-interface)
+9. [Keyboard Navigation](#keyboard-navigation)
+10. [Rendering Videos](#rendering-videos)
+11. [Workflows](#workflows)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -32,7 +33,7 @@
 
 ### Opening the Application
 
-1. Download `OMS_Dojo_V2_9.html`
+1. Download `OMS_ShaderBaker_V2_9_0.html`
 2. Double-click to open in default browser, or
 3. Right-click → Open With → Chrome/Safari
 
@@ -87,7 +88,7 @@
 
 ### Why LIBRARY Folder Required?
 
-**V2_9 requires LIBRARY folder for all saves.** This creates a professional, file-based workflow like DAW software (Ableton Live, Logic Pro).
+**V2.9.0 requires LIBRARY folder for all saves.** This creates a professional, file-based workflow like DAW software (Ableton Live, Logic Pro).
 
 **Two Modes:**
 1. **LIBRARY Set** - All saves to folder (persistent, professional)
@@ -359,7 +360,7 @@ Library tab manages containers - complete packages of shader + audio + settings.
 
 **Basic Structure:**
 ```wgsl
-// ONEMANSHYO Dojo V2_9 - MyShader
+// OMS Shader Baker v2.9.0 - MyShader
 
 @fragment
 fn main(@location(0) fragCoord: vec2f) -> @location(0) vec4f {
@@ -369,7 +370,7 @@ fn main(@location(0) fragCoord: vec2f) -> @location(0) vec4f {
 ```
 
 **Shader Name:**
-- First line comment: `// ONEMANSHYO Dojo V2_9 - MyShader`
+- First line comment: `// OMS Shader Baker v2.9.0 - MyShader`
 - Used for auto-suggested container names
 
 **Compile:**
@@ -397,6 +398,336 @@ fn main(@location(0) fragCoord: vec2f) -> @location(0) vec4f {
 let pulse = u.modA * 2.0; // Kick drum pulse
 let color = vec3f(u.modB, u.modC, 1.0); // Bass-reactive color
 ```
+
+---
+
+## LIVE TAB (PERFORMANCE INTERFACE)
+
+### Overview (NEW in V3.0.0)
+
+The **LIVE tab** is the 5th tab in Shader Baker V3.0.0, providing a complete performance interface for real-time mixing of shader visuals and audio. 
+
+**Current Status (V3.0.0):**
+- ✅ UI shell complete (visual interface)
+- ❌ Functionality not implemented yet
+- Foundation for V3.1.0+ feature integration
+
+**What It Will Do (V3.1.0+):**
+- Load .oms containers into performance grid
+- Play audio from multiple tracks simultaneously
+- Render shaders live with audio reactivity
+- Mix audio + visuals in real-time
+- Replace Ableton + EboSuite workflow
+
+---
+
+### Interface Layout
+
+**When You Click LIVE Tab:**
+
+**LEFT SIDE:** Library containers visible
+- Browse your .oms files
+- See all available shaders
+
+**RIGHT SIDE:** Performance interface
+- Performance grid (4 tracks × 8 scenes)
+- Mixer section (5 columns: Track 1-4 + Master)
+- Waveform section (4 track strips)
+
+---
+
+### Performance Grid
+
+**Layout:**
+```
+ Scenes │ Track 1 │ Track 2 │ Track 3 │ Track 4 │ Master
+────────┼─────────┼─────────┼─────────┼─────────┼────────
+   1    │  Cell   │  Cell   │  Cell   │  Cell   │  (-)
+   2    │  Cell   │  Cell   │  Cell   │  Cell   │  (-)
+   3    │  Cell   │  Cell   │  Cell   │  Cell   │  (-)
+  ...   │  ...    │  ...    │  ...    │  ...    │  ...
+   8    │  Cell   │  Cell   │  Cell   │  Cell   │  (-)
+```
+
+**Components:**
+- **Scene triggers:** Left column (1-8) - launch entire rows
+- **Clip cells:** 4 tracks × 8 scenes = 32 cells
+- **Track headers:** Show track names and connection status
+- **Master column:** 5th column (disabled cells)
+
+**Cell Appearance:**
+- 4:3 landscape aspect ratio
+- Empty cells show "Empty" text
+- Future: Will show shader thumbnails
+
+---
+
+### Mixer Section
+
+**5 Mixer Columns:**
+
+**Tracks 1-4 (Per Track):**
+- Rotary volume knob (drag up/down to adjust)
+- Volume label (shows dB value)
+- Mute button [M] (orange when active)
+- Solo button [S] (cyan when active)
+- Vertical L/R stereo meters (placeholders)
+
+**Master Column (Track 5):**
+- Master volume knob
+- Master mute button [M]
+- Master L/R meters
+- Global output control
+
+**Rotary Knob Usage:**
+1. Click and hold knob
+2. Drag mouse up = louder
+3. Drag mouse down = quieter
+4. Release to set value
+5. Value shown above knob in dB
+
+**Current Status:**
+- ✅ Knobs respond to mouse drag
+- ✅ Mute/Solo buttons toggle states
+- ❌ No audio effect yet (visual only)
+- ❌ Meters don't animate (placeholders)
+
+---
+
+### Waveform Section
+
+**4 Horizontal Strips:**
+- Track 1 waveform strip
+- Track 2 waveform strip
+- Track 3 waveform strip
+- Track 4 waveform strip
+
+**Purpose:**
+- Visual sync grid for audio
+- See waveforms while performing
+- Always visible (no scrolling)
+
+**Current Status:**
+- ❌ Placeholders only (no waveforms yet)
+- Requires audio loading (V3.1.0+)
+
+---
+
+### Scene Triggers
+
+**Left Column Buttons (1-8):**
+
+**Current Behavior (V3.0.0):**
+- Click scene button
+- Button highlights (cyan border)
+- Status bar updates: "Scene X launched"
+- Visual feedback only
+
+**Future Behavior (V3.1.0+):**
+- Click scene button
+- Launches all 4 clips in that row
+- Audio starts playing
+- Shaders render with audio reactivity
+- Crossfade between scenes
+
+---
+
+### Track Headers
+
+**Displays:**
+- Track number (Track 1-4)
+- Connection status ("Not Connected" / "Connected - [Name]")
+- Future: Instance dropdown for container assignment
+
+**Master Header:**
+- Shows "Master" title
+- Shows "Master Channel" status
+- No instance assignment
+
+---
+
+### What Works (V3.0.0)
+
+**UI Interaction:**
+- ✅ Tab switches to LIVE properly
+- ✅ Library visible on left
+- ✅ Performance grid displays
+- ✅ Mixer controls respond to mouse
+- ✅ Scene triggers clickable
+- ✅ Mute/Solo buttons toggle
+- ✅ Scrolling works (scenes scroll, headers/mixer stay fixed)
+
+**Visual State:**
+- ✅ Knob positions update when dragged
+- ✅ Buttons change color when active
+- ✅ Scene highlights when launched
+- ✅ Status bar shows feedback
+
+---
+
+### What Doesn't Work Yet
+
+**Container Loading:**
+- ❌ Can't assign containers to cells
+- ❌ Grid cells remain empty
+- ❌ No right-click menu yet
+- ❌ No drag/drop yet
+
+**Audio Playback:**
+- ❌ No audio engine integration
+- ❌ Can't play audio files
+- ❌ Volume knobs don't affect audio
+- ❌ Mute/Solo don't work
+- ❌ Meters don't animate
+
+**Shader Rendering:**
+- ❌ No shaders in cells
+- ❌ Can't render live
+- ❌ No visual preview
+
+**Scene Launching:**
+- ❌ Doesn't trigger playback
+- ❌ Visual feedback only
+
+---
+
+### Future Functionality (V3.1.0+)
+
+**Container Assignment:**
+```
+1. Right-click empty cell
+2. Select "Assign Container from LIBRARY"
+3. Choose .oms file
+4. Container loads into cell
+5. Cell shows shader thumbnail
+```
+
+**Audio Playback:**
+```
+1. Click cell with container
+2. Audio loads from .oms file
+3. Playback starts
+4. Volume knob controls level
+5. Mute/Solo work
+6. Meters animate with audio
+```
+
+**Shader Rendering:**
+```
+1. Container assigned to cell
+2. Shader compiles for that track
+3. Renders to hidden canvas
+4. Updates in real-time
+5. Audio-reactive (FFT data)
+```
+
+**Scene Launching:**
+```
+1. Click scene trigger
+2. All 4 cells in row launch
+3. Audio crossfades
+4. Shaders transition
+5. Professional performance workflow
+```
+
+---
+
+### Layout Specifications
+
+**Right Panel (LIVE Mixer):**
+- Width: 1070px (fixed)
+- Optimized for 14" MacBook Pro
+
+**Grid Columns:**
+- Scenes: 90px
+- Track 1-4: 196px each
+- Master: 196px
+- Total: 1070px
+
+**Vertical Sections:**
+- Grid headers: 60px (fixed, always visible)
+- Scenes grid: Flex (scrolls with 8+ scenes)
+- Mixer section: 140px (fixed, always visible)
+- Waveforms: 220px (fixed, always visible)
+
+**App Total Width:**
+- Left panel: 400px
+- Right panel: 1070px
+- Side borders: 5px each
+- Total: 1480px (centered on screen)
+
+---
+
+### Workflow Preview (V3.1.0+)
+
+**Setup Phase:**
+```
+1. Create shaders in Code tab
+2. Save as .oms containers (Library tab)
+3. Switch to LIVE tab
+4. Assign containers to grid cells
+5. Audio loads automatically
+```
+
+**Performance Phase:**
+```
+1. Launch scene 1 (4 tracks start)
+2. Mix with volume knobs
+3. Mute/Solo individual tracks
+4. Launch scene 2 (crossfade)
+5. Real-time audio + visual mixing
+```
+
+**No External Tools:**
+- No Ableton Live needed
+- No EboSuite needed
+- No FFmpeg conversion needed
+- Just browser + MIDI controller (future)
+
+---
+
+### Current Use (V3.0.0)
+
+**What You Can Do Now:**
+1. Click LIVE tab
+2. See performance interface layout
+3. Understand future workflow
+4. Test UI interactions (knobs, buttons)
+5. Browse Library containers on left
+
+**What to Wait For:**
+- V3.1.0: Container loading + audio playback
+- V3.2.0: Shader rendering + real-time mixing
+- V3.3.0: MIDI control + advanced features
+
+**Continue Using:**
+- Controls/Presets/Library/Code tabs for work
+- Render videos for current workflow
+- Export to ProRes for Ableton + EboSuite
+
+---
+
+### Tips
+
+**Exploring LIVE Tab:**
+- Click all mixer controls to see interaction
+- Try scene triggers (visual feedback)
+- Check different tabs to understand layout
+- Library stays visible on left when LIVE active
+
+**Preparing for V3.1.0:**
+- Organize containers in LIBRARY folder
+- Create varied shaders for performance
+- Plan which containers go in which cells
+- Think about scene structure (8 scenes = set structure)
+
+**Performance Setup Ideas:**
+- Scene 1: Intro visuals
+- Scene 2-3: Build energy
+- Scene 4: Drop section
+- Scene 5-6: Breakdown
+- Scene 7: Second drop
+- Scene 8: Outro
 
 ---
 
@@ -458,8 +789,8 @@ let color = vec3f(u.modB, u.modC, 1.0); // Bass-reactive color
 
 ### File Naming
 
-**Format:** `OMS_Dojo_YYYYMMDD_HHMMSS.webm`  
-**Example:** `OMS_Dojo_20251112_143022.webm`
+**Format:** `OMS_ShaderBaker_YYYYMMDD_HHMMSS.webm`  
+**Example:** `OMS_ShaderBaker_20251112_143022.webm`
 
 ### Converting to ProRes
 
@@ -601,7 +932,7 @@ See **FFmpeg Video Guide** for detailed instructions.
 
 **Solution:** Use Chrome or Safari
 
-**Workaround:** None - LIBRARY folder required in V2_9
+**Workaround:** None - LIBRARY folder required in V2.9.0
 
 ### Render Hangs
 
@@ -766,20 +1097,25 @@ https://www.itswessmithyo.com/
 
 ## SUMMARY
 
-**V2_9 Key Features:**
-- LIBRARY folder required for saves
-- Auto-save .oms files (DAW workflow)
-- Keyboard-first navigation
-- Container management (shader + audio + settings)
-- Control States as .oms files
+**V3.0.0 Key Features:**
+- All V2.9.0 features preserved (LIBRARY, auto-save, keyboard navigation)
+- NEW: LIVE tab with performance interface (UI shell)
+- 5 tabs total: Controls, Presets, Library, Code, LIVE
+- Foundation for real-time mixing (V3.1.0+)
 - Professional file-based workflow
+
+**LIVE Tab Status:**
+- UI shell complete (visual interface)
+- Functionality coming in V3.1.0+
+- Preview of future performance tool
 
 **Recommended Workflow:**
 1. Set up LIBRARY folder (one-time)
 2. Add audio files to folder
 3. Create shaders, save as containers
 4. Keyboard navigate library
-5. Render videos for performance
+5. Render videos for current performances
+6. Explore LIVE tab (preview future features)
 
 ---
 

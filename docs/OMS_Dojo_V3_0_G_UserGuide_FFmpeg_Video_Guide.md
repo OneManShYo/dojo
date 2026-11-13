@@ -1,4 +1,4 @@
-# OMS DOJO - FFMPEG VIDEO CONVERSION GUIDE
+# OMS SHADER BAKER - FFMPEG VIDEO CONVERSION GUIDE
 
 **Version:** V2.7.0  
 **Purpose:** Convert WebM exports to ProRes 422 for Ableton Live + EboSuite  
@@ -21,7 +21,7 @@
 
 ### The Problem
 
-ONEMANSHYO Dojo exports videos as WebM (VP8 codec). While this format works fine for web playback, EboSuite (Max for Live video plugin) performs best with ProRes 422.
+OMS Shader Baker exports videos as WebM (VP8 codec). While this format works fine for web playback, EboSuite (Max for Live video plugin) performs best with ProRes 422.
 
 **WebM Issues in EboSuite:**
 - Occasional frame drops
@@ -141,7 +141,7 @@ ffmpeg -i input.webm -c:v prores_ks -profile:v 3 -c:a pcm_s16le output.mov
 
 **Example:**
 ```bash
-ffmpeg -i OMS_Dojo_20251109_143022.webm -c:v prores_ks -profile:v 3 -c:a pcm_s16le Drop_Section_ProRes.mov
+ffmpeg -i OMS_ShaderBaker_20251109_143022.webm -c:v prores_ks -profile:v 3 -c:a pcm_s16le Drop_Section_ProRes.mov
 ```
 
 ### Silent Videos (No Audio)
@@ -272,7 +272,7 @@ ffmpeg -i input.webm -c:v prores_ks -profile:v 3 -r 30 output.mov
 ffmpeg -i input.webm -c:v prores_ks -profile:v 3 -r 30 output.mov
 ```
 
-**Note:** Not recommended - render at target FPS in Dojo instead.
+**Note:** Not recommended - render at target FPS in Shader Baker instead.
 
 ### Audio Options
 
@@ -326,7 +326,7 @@ done
 ffmpeg -i input.webm -c:v prores_ks -profile:v 3 \
   -metadata title="Track Name - Drop Section" \
   -metadata artist="DJ Name" \
-  -metadata comment="ONEMANSHYO Dojo V2.7.0" \
+  -metadata comment="OMS Shader Baker V2.7.0" \
   output.mov
 ```
 
@@ -359,7 +359,7 @@ ffmpeg -i input.webm -c:v prores_ks -profile:v 3 \
 
 ### Complete DJ Set Preparation
 
-**1. Render in Dojo:**
+**1. Render in Shader Baker:**
 - Select "HD Render" or "4K Final" Control State
 - Render all track videos (WebM format)
 
@@ -444,7 +444,7 @@ DJ_Set_2025/
 **Solution:**
 - Use PCM audio: `-c:a pcm_s16le`
 - Or remove audio entirely: `-an`
-- Verify source video timing in Dojo
+- Verify source video timing in Shader Baker
 
 ### "Invalid profile 3"
 
@@ -592,7 +592,7 @@ https://support.apple.com/en-us/HT202410
 **EboSuite Manual:**
 https://ebosuite.com/manual/
 
-**ONEMANSHYO Dojo:**
+**OMS Shader Baker:**
 https://www.itswessmithyo.com/
 
 ---

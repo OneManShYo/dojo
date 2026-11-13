@@ -1,8 +1,8 @@
-# OMS DOJO - CLAUDE SHADER CREATION GUIDE V2.7.0
+# OMS SHADER BAKER - CLAUDE SHADER CREATION GUIDE V2.7.0
 
 **Version:** V2.7.0  
 **Purpose:** Guide for creating WGSL shaders conversationally with Claude AI  
-**Audience:** Users creating custom shaders for ONEMANSHYO Dojo
+**Audience:** Users creating custom shaders for OMS Shader Baker
 
 ---
 
@@ -23,7 +23,7 @@
 
 ### What This Guide Covers
 
-This guide shows you how to work with Claude AI to create WGSL (WebGPU Shading Language) fragment shaders for ONEMANSHYO Dojo. You don't need to be a shader expert - Claude handles the technical details while you focus on creative vision.
+This guide shows you how to work with Claude AI to create WGSL (WebGPU Shading Language) fragment shaders for OMS Shader Baker. You don't need to be a shader expert - Claude handles the technical details while you focus on creative vision.
 
 ### What You Need to Know
 
@@ -965,7 +965,7 @@ fn hsv2rgb(c: vec3<f32>) -> vec3<f32> {
 ### Next Steps
 
 1. Start with simple shader (pulsing circle)
-2. Test in Dojo
+2. Test in Shader Baker
 3. Refine with Claude
 4. Experiment with audio reactivity
 5. Build preset library
