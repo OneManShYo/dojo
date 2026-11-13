@@ -1,6 +1,6 @@
-# OMS SHADER BAKER V3.0.0 - CLAUDE PROJECT INSTRUCTIONS
+# OMS SHADER BAKER V3.1.0 - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** V3.0.0  
+**Version:** V3.1.0  
 **Date:** November 2025  
 **Purpose:** Complete project context for Claude AI development in this Project
 
@@ -11,11 +11,11 @@
 1. [About Wes Smith - Creator Context](#about-wes-smith---creator-context)
 2. [ONEMANSHYO - The Origin Story](#onemanshyo---the-origin-story)
 3. [Current Production Workflow](#current-production-workflow)
-4. [OMS Shader Baker V3.0.0 - Current State](#oms-shader-baker-v30---current-state)
+4. [OMS Shader Baker V3.1.0 - Current State](#oms-shader-baker-v310---current-state)
 5. [Development Protocols - CRITICAL](#development-protocols---critical)
 6. [Communication Guidelines](#communication-guidelines)
 7. [Technical Architecture](#technical-architecture)
-8. [Roadmap - V3.1.0 and Beyond](#roadmap---v310-and-beyond)
+8. [Roadmap - V3.2.0 and Beyond](#roadmap---v320-and-beyond)
 9. [Critical Terminology](#critical-terminology)
 10. [What Never to Suggest](#what-never-to-suggest)
 
@@ -230,7 +230,7 @@ When Claude suggests "add audio playback to Shader Baker" or "make Shader Baker 
 
 - Shader Baker CREATES visuals
 - Ableton/EboSuite PLAYS them
-- The future LIVE tab will integrate both creation AND performance in one tool
+- The LIVE tab integrates both creation AND performance in one tool
 
 ### What Makes Current Workflow Work
 
@@ -249,7 +249,7 @@ When Claude suggests "add audio playback to Shader Baker" or "make Shader Baker 
 - Complex multi-vendor integration
 - Can't create new visuals on the fly during performance
 
-### What OMS LIVE Tab Will Replace
+### What OMS LIVE Tab Replaces
 
 **Goal:** Replace Ableton + EboSuite with integrated LIVE tab in browser
 
@@ -273,21 +273,21 @@ When Claude suggests "add audio playback to Shader Baker" or "make Shader Baker 
 CURRENT:
 Shader Baker → FFmpeg → Ableton + EboSuite → Performance
 
-FUTURE:
+V3.1.0:
 Shader Baker (Controls/Presets/Library/Code tabs) + LIVE tab → Performance
 ```
 
 ---
 
-## OMS SHADER BAKER V3.0.0 - CURRENT STATE
+## OMS SHADER BAKER V3.1.0 - CURRENT STATE
 
 ### Project Identity
 
 **Name:** OMS Shader Baker  
-**Current Version:** V3.0.0  
-**Type:** Single-file HTML application (~330KB)  
+**Current Version:** V3.1.0  
+**Type:** Single-file HTML application (~390KB)  
 **License:** GPL-3.0 (free and open source)  
-**Purpose:** Audio-reactive WebGPU shader tool for DJ performance visuals
+**Purpose:** Audio-reactive WebGPU shader tool + live performance mixing
 
 ### Core Concept
 
@@ -301,8 +301,9 @@ OMS Shader Baker is a **COMPLETE professional production tool**, NOT just a cont
 - LIBRARY folder stores .oms containers (shader + audio + control states)
 - User-definable frequency mapping (30-50Hz kick, 50-75Hz sub-bass, etc.)
 - 32768 FFT samples for precise audio analysis (~1.46Hz precision)
+- **NEW V3.1.0:** LIVE tab for real-time multi-track performance
 
-### V3.0.0 Status - 5 TABS
+### V3.1.0 Status - 5 TABS
 
 **Tabs 1-4: FULLY FUNCTIONAL (V2.9.0 features preserved)**
 
@@ -312,6 +313,8 @@ OMS Shader Baker is a **COMPLETE professional production tool**, NOT just a cont
 - Modulator controls (waveforms, gain, phase)
 - Render settings (resolution, FPS, format)
 - Audio controls (load, playback, loop points)
+- Control States (render presets)
+- **NEW:** Project States (.omsp files for LIVE tab sessions)
 
 **Tab 2: Presets**
 - 5 built-in library shaders (Tunnel, Plasma, etc.)
@@ -332,31 +335,33 @@ OMS Shader Baker is a **COMPLETE professional production tool**, NOT just a cont
 - Direct shader editing
 - Real-time compilation
 
-**Tab 5: LIVE (NEW in V3.0.0) - UI SHELL ONLY**
+**Tab 5: LIVE (V3.1.0) - FULLY FUNCTIONAL**
 
-**What's Complete (UI Shell):**
-- ✅ 5th tab button in tab bar
-- ✅ Performance grid layout (4 tracks × 8 scenes = 32 cells)
-- ✅ Fixed track headers (Track 1-4 + Master, always visible)
-- ✅ Scrollable scene rows (8 scenes with trigger buttons)
-- ✅ Mixer section (140px height, 5 columns, always visible)
-- ✅ Rotary volume knobs (canvas-rendered, drag interaction)
-- ✅ Mute/Solo buttons per track (visual state toggle)
-- ✅ Vertical L/R stereo meters (placeholders)
-- ✅ Waveform section (220px height, 4 tracks, always visible)
-- ✅ Fixed 1070px width (optimized for 14" MacBook Pro)
-- ✅ App centered (1470px total with borders)
-- ✅ Side borders (5px #555, inset box-shadow)
-- ✅ Professional hardware-style aesthetic
+**What Works (Complete Performance System):**
+- ✅ Performance grid (4 tracks × 8 scenes = 32 cells)
+- ✅ Container drag-drop (Library → Grid, Cell → Cell)
+- ✅ Shader thumbnails in cells (WebGPU rendered)
+- ✅ Multi-track audio playback (4 simultaneous tracks)
+- ✅ Web Audio routing (track gains + master gain)
+- ✅ Volume control (rotary knobs, drag interaction)
+- ✅ Mute/Solo buttons (functional, affects audio)
+- ✅ Real waveforms (from audio data, mono display)
+- ✅ Playhead indicator (magenta line at center)
+- ✅ Waveform positioning (Bar 1 at playhead)
+- ✅ LED meters (animated, real-time FFT data)
+- ✅ Project States (.omsp files, auto-save)
+- ✅ Keyboard controls (Delete, Tab, Arrow keys, Spacebar)
+- ✅ Hardware mixer aesthetic (10px side borders)
 
-**What's NOT Working (Planned V3.1.0+):**
-- ❌ No container → grid cell assignment yet
-- ❌ No audio playback functionality
-- ❌ No shader rendering in cells
-- ❌ No scene launching triggers
-- ❌ Meters are placeholders (no animation)
-- ❌ Volume/mute/solo controls don't affect audio
-- ❌ Waveforms are placeholders (no audio data)
+**What Doesn't Work Yet (Planned V3.2.0+):**
+- ❌ Shader rendering in grid cells (thumbnails only, not animated)
+- ❌ Waveform scrolling during playback (static positioning)
+- ❌ Scene launching (individual cells trigger, not scenes)
+- ❌ Master output compositing (no visual output canvas)
+- ❌ MIDI control integration (Web MIDI API)
+- ❌ Ableton Link synchronization
+- ❌ Crossfading between cells
+- ❌ Recording/export from LIVE tab
 
 **Tab Switching Behavior:**
 - When LIVE tab active: Library displays on LEFT, LIVE mixer on RIGHT
@@ -364,6 +369,16 @@ OMS Shader Baker is a **COMPLETE professional production tool**, NOT just a cont
 - All V2.9.0 features work identically in tabs 1-4
 
 ### Development History
+
+**V3.1.0 - November 2025**
+- 22 iterations (A-V) building complete LIVE tab functionality
+- Project States system (.omsp files)
+- Multi-track audio playback
+- Mute/Solo functionality
+- Real waveforms with playhead
+- Shader thumbnails in cells
+- Keyboard controls
+- Hardware mixer aesthetic
 
 **V3.0.0 - November 2025**
 - 16 iterations (A-P) building LIVE tab UI shell
@@ -385,7 +400,7 @@ OMS Shader Baker is a **COMPLETE professional production tool**, NOT just a cont
 ### File Structure
 
 **Single-File Philosophy:**
-- One HTML file (~330KB for V3.0.0)
+- One HTML file (~390KB for V3.1.0)
 - All functionality self-contained
 - No external dependencies
 - No build process
@@ -393,7 +408,7 @@ OMS Shader Baker is a **COMPLETE professional production tool**, NOT just a cont
 - Works in browser with HTTPS (for WebGPU + File System Access API)
 
 **Deliverables Package (9 files per release):**
-1. OMS_ShaderBaker_V3_0_0.html (main app)
+1. OMS_ShaderBaker_V3_1_0.html (main app)
 2. _A_Deliverables.txt (package inventory)
 3. _B_Complete_Changelog.md (all iterations)
 4. _C_Developer_Documentation.md (technical reference)
@@ -408,7 +423,7 @@ OMS Shader Baker is a **COMPLETE professional production tool**, NOT just a cont
 **LIBRARY Folder Required for V2.9.0+ Features:**
 
 Two operational modes:
-1. **Persistent Mode:** LIBRARY folder set, all saves to .oms files
+1. **Persistent Mode:** LIBRARY folder set, all saves to files
 2. **Temp Session:** No LIBRARY, nothing saves, close browser = lose everything
 
 **LIBRARY Folder Contents:**
@@ -418,6 +433,8 @@ Two operational modes:
   ├── Cosmic_Flow.oms (container)
   ├── QuickTest_ControlState.oms (control state preset)
   ├── HD_Settings_ControlState.oms (control state preset)
+  ├── default.omsp (auto-saved LIVE tab session)
+  ├── MySet_2025-11-13_01.omsp (saved project state)
   ├── track01.mp3 (audio file)
   ├── track02.mp3 (audio file)
   └── bass_loop_128.mp3 (audio file)
@@ -462,12 +479,37 @@ Two operational modes:
 }
 ```
 
+### .OMSP File Format (NEW V3.1.0)
+
+**Project State .omsp File:**
+```json
+{
+  "version": "3.1.0",
+  "created": "2025-11-13T10:30:00.000Z",
+  "gridState": {
+    "cells": [
+      { "containerId": "1731234567890", "name": "Bass_Tunnel" },
+      null,
+      { "containerId": "1731234567891", "name": "Cosmic_Flow" },
+      null,
+      // ... 32 cells total (8 scenes × 4 tracks)
+    ],
+    "trackVolumes": [0.5, 0.5, 0.5, 0.5],
+    "trackMutes": [false, false, false, false],
+    "trackSolos": [false, false, false, false],
+    "masterVolume": 0.5,
+    "masterTempo": 120,
+    "lastSceneLaunched": -1
+  }
+}
+```
+
 **Key Points:**
-- Container name = .oms filename (1:1 match)
-- Auto-save on Add/Update (DAW-style workflow)
-- Audio filename stored in JSON (original name preserved)
-- Pattern matches Ableton .asd files (companion files)
-- Control States save as {Name}_ControlState.oms
+- .omsp = OMS Project (LIVE tab session state)
+- Auto-saves to default.omsp instantly on any change
+- Manual save: {Name}_YYYY-MM-DD_01.omsp format
+- Stores complete LIVE tab configuration
+- Grid assignments reference .oms container IDs
 
 ### Technical Stack
 
@@ -482,6 +524,13 @@ Two operational modes:
 - Real-time frequency domain analysis
 - Tempo detection algorithms
 
+**Audio Playback (NEW V3.1.0):**
+- Web Audio API graph
+- 4 independent source nodes (per track)
+- 4 gain nodes (track volume control)
+- 1 master gain node (master volume)
+- AudioContext routing: sources → track gains → master gain → destination
+
 **Video Export:**
 - WebM VP8 codec (720p-2160p)
 - 24/30/60 FPS options
@@ -491,8 +540,9 @@ Two operational modes:
 **Storage:**
 - LIBRARY folder (File System Access API)
 - IndexedDB (permission persistence)
-- LocalStorage (UI preferences only)
+- LocalStorage (container data, UI preferences)
 - .oms file format (JSON with shader + states + audio reference)
+- .omsp file format (JSON with LIVE tab session state)
 
 **Browser Requirements:**
 - Chrome 88+ or Safari 15.2+ (recommended)
@@ -519,17 +569,17 @@ Two operational modes:
 
 **Example:**
 ```
-Before building iteration A:
+Before building iteration W:
 
-1. Should I add LIVE tab grid functionality?
-   a) Yes, add container loading to cells
-   b) No, plan audio routing first
+1. Should I add waveform scrolling during playback?
+   a) Yes, animate waveforms past fixed playhead
+   b) No, keep static positioning for now
    c) Different approach
 
-2. Should audio playback use:
-   a) Existing Web Audio nodes (already working)
-   b) New dedicated LIVE tab audio engine
-   c) Shared engine with modifications
+2. Should scrolling use:
+   a) CSS transform (GPU accelerated)
+   b) Canvas redraw (more control)
+   c) Both (hybrid approach)
 
 "yes go" when ready to proceed.
 ```
@@ -548,39 +598,40 @@ Before building iteration A:
 **Version Format Examples:**
 ```
 Production Release:
-- Filename: OMS_ShaderBaker_V3_0_0.html
-- Title tag: <title>OMS Shader Baker v3.0.0</title>
-- UI header: OMS Shader Baker [V3.0.0]
+- Filename: OMS_ShaderBaker_V3_1_0.html
+- Title tag: <title>OMS Shader Baker v3.1.0</title>
+- UI header: OMS Shader Baker [V3.1.0]
 
 Development Build:
-- Filename: OMS_ShaderBaker_V3_1_0_A.html
-- Title tag: <title>OMS Shader Baker v3.1.0a</title>
-- UI header: OMS Shader Baker [V3.1.0_A]
+- Filename: OMS_ShaderBaker_V3_1_0_W.html
+- Title tag: <title>OMS Shader Baker v3.1.0w</title>
+- UI header: OMS Shader Baker [V3.1.0_W]
 ```
 
 ### Version Naming Rules
 
 **CRITICAL - Use Underscores in Development:**
-- V3_1_0_A (CORRECT - underscores, sorts properly)
-- V3.1.0.A (WRONG - periods break sorting)
-- V3-1-0-A (WRONG - hyphens break sorting)
+- V3_1_0_W (CORRECT - underscores, sorts properly)
+- V3.1.0.W (WRONG - periods break sorting)
+- V3-1-0-W (WRONG - hyphens break sorting)
 
 **Why Underscores:**
 - Sorts correctly in file systems
 - Changed 50+ iterations ago based on experience
 - Non-negotiable convention
+- **CRITICAL:** V3.1.0 iterations A-V kept breaking this rule - DO NOT REPEAT
 
 **Production vs Development:**
 ```
 Production (no letter):
-- V3_0_0 in filename
-- v3.0.0 in title tag
-- [V3.0.0] in UI
+- V3_1_0 in filename
+- v3.1.0 in title tag
+- [V3.1.0] in UI
 
 Development (with letter):
-- V3_1_0_A in filename
-- v3.1.0a in title tag
-- [V3.1.0_A] in UI
+- V3_1_0_W in filename
+- v3.1.0w in title tag
+- [V3.1.0_W] in UI
 ```
 
 ### Iteration Process - Standard Pattern
@@ -598,8 +649,8 @@ Development (with letter):
 **3. Deliver Phase:**
 - Provide TWO files per iteration:
   ```
-  OMS_ShaderBaker_V3_1_0_A_GridLoading.html
-  OMS_ShaderBaker_V3_1_0_A_GridLoading_Notes.txt
+  OMS_ShaderBaker_V3_1_0_W_FeatureName.html
+  OMS_ShaderBaker_V3_1_0_W_FeatureName_Notes.txt
   ```
 - Notes file includes: what changed, why, what works, what doesn't
 
@@ -640,6 +691,7 @@ Development (with letter):
 **Current Sizes:**
 - V2.9.0: 272KB
 - V3.0.0: ~330KB
+- V3.1.0: ~390KB
 - Target: Stay under 500KB
 
 ### Single-File Philosophy - Non-Negotiable
@@ -708,8 +760,10 @@ Development (with letter):
 - "Shader Tempo" vs "Audio BPM" (different timing controls)
 - "Modulators" (not "parameters")
 - "Control States" (render configurations)
+- "Project States" (LIVE tab sessions)
 - "LIBRARY folder" (not "Audio Library" or "Library folder")
 - ".oms file" (container format)
+- ".omsp file" (project state format)
 - "Container" (shader + audio + states in .oms file)
 
 **LIVE Tab Systems:**
@@ -719,6 +773,7 @@ Development (with letter):
 - "Cell" (grid intersection, holds container reference)
 - "Master output" (composited visual from 4 tracks)
 - "Mixer section" (4 tracks + master controls)
+- "Waveform section" (4 track waveforms with playhead)
 
 **Audio Systems:**
 - "Web Audio API" (browser audio)
@@ -738,31 +793,32 @@ Development (with letter):
 
 ## TECHNICAL ARCHITECTURE
 
-### Current V3.0.0 Architecture
+### Current V3.1.0 Architecture
 
 **Single HTML File Structure:**
 ```
-OMS_ShaderBaker_V3_0_0.html (~330KB)
+OMS_ShaderBaker_V3_1_0.html (~390KB)
 ├── HTML Structure (lines 1-50)
 │   ├── Meta tags, title
-│   ├── CSS (<style> block, ~2000 lines)
+│   ├── CSS (<style> block, ~3500 lines)
 │   └── Body structure
-├── Tab System (lines ~2000-2500)
-│   ├── Tab 1: Controls
+├── Tab System (lines ~1450-2500)
+│   ├── Tab 1: Controls (+ Project States)
 │   ├── Tab 2: Presets
 │   ├── Tab 3: Library
 │   ├── Tab 4: Code
-│   └── Tab 5: LIVE (NEW)
-├── LIVE Tab HTML (lines ~2500-3000)
+│   └── Tab 5: LIVE (complete functionality)
+├── LIVE Tab HTML (lines ~2500-3200)
 │   ├── Performance grid (4×8)
 │   ├── Mixer section (5 columns)
 │   └── Waveform section (4 tracks)
-└── JavaScript (lines ~3000-7670)
+└── JavaScript (lines ~3200-9211)
     ├── WebGPU setup
     ├── Web Audio setup
     ├── LIBRARY folder management
     ├── .oms file system
-    ├── LIVE tab initialization
+    ├── .omsp file system (NEW V3.1.0)
+    ├── LIVE tab functionality
     └── All functionality
 ```
 
@@ -776,15 +832,16 @@ OMS_ShaderBaker_V3_0_0.html (~330KB)
 │ ┌───────┬───────┬───────┬───────┬────────┐                 │
 │ │Track 1│Track 2│Track 3│Track 4│ Master │ ← Headers       │
 │ ├───────┼───────┼───────┼───────┼────────┤                 │
-│ │ Cell  │ Cell  │ Cell  │ Cell  │  Cell  │ ← Scene 1      │
-│ │ Cell  │ Cell  │ Cell  │ Cell  │  Cell  │ ← Scene 2      │
-│ │ Cell  │ Cell  │ Cell  │ Cell  │  Cell  │ ← Scene 3      │
-│ │ Cell  │ Cell  │ Cell  │ Cell  │  Cell  │ ← Scene 4      │
-│ │ Cell  │ Cell  │ Cell  │ Cell  │  Cell  │ ← Scene 5      │
-│ │ Cell  │ Cell  │ Cell  │ Cell  │  Cell  │ ← Scene 6      │
-│ │ Cell  │ Cell  │ Cell  │ Cell  │  Cell  │ ← Scene 7      │
-│ │ Cell  │ Cell  │ Cell  │ Cell  │  Cell  │ ← Scene 8      │
+│ │ [img] │ [img] │ [img] │ [img] │  Cell  │ ← Scene 1      │
+│ │ [img] │ [img] │ [img] │ [img] │  Cell  │ ← Scene 2      │
+│ │ [img] │ [img] │ [img] │ [img] │  Cell  │ ← Scene 3      │
+│ │ [img] │ [img] │ [img] │ [img] │  Cell  │ ← Scene 4      │
+│ │ [img] │ [img] │ [img] │ [img] │  Cell  │ ← Scene 5      │
+│ │ [img] │ [img] │ [img] │ [img] │  Cell  │ ← Scene 6      │
+│ │ [img] │ [img] │ [img] │ [img] │  Cell  │ ← Scene 7      │
+│ │ [img] │ [img] │ [img] │ [img] │  Cell  │ ← Scene 8      │
 │ └───────┴───────┴───────┴───────┴────────┘                 │
+│   [img] = shader thumbnail                                   │
 ├─────────────────────────────────────────────────────────────┤
 │ Mixer Section (140px, fixed)                                │
 │ ┌──────┬──────┬──────┬──────┬──────┐                       │
@@ -794,38 +851,50 @@ OMS_ShaderBaker_V3_0_0.html (~330KB)
 │ │Meter │Meter │Meter │Meter │Meter │   (L/R meters)       │
 │ └──────┴──────┴──────┴──────┴──────┘                       │
 ├─────────────────────────────────────────────────────────────┤
-│ Waveform Section (220px, fixed)                             │
+│ Waveform Section (240px, fixed)                             │
 │ ┌───────────────────────────────────────────────────────┐  │
-│ │ Track 1 Waveform ▂▃▅▆█▆▅▃▂ (52px height)             │  │
-│ │ Track 2 Waveform ▂▃▅▆█▆▅▃▂                            │  │
-│ │ Track 3 Waveform ▂▃▅▆█▆▅▃▂                            │  │
-│ │ Track 4 Waveform ▂▃▅▆█▆▅▃▂                            │  │
-│ └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+│ │             ║                                          │  │
+│ │ Track 1: ▂▃▅║█▆▅▃▂ (52px height)                      │  │
+│ │             ║                                          │  │
+│ │ Track 2: ▂▃▅║█▆▅▃▂                                    │  │
+│ │             ║                                          │  │
+│ │ Track 3: ▂▃▅║█▆▅▃▂                                    │  │
+│ │             ║                                          │  │
+│ │ Track 4: ▂▃▅║█▆▅▃▂                                    │  │
+│ │             ║                                          │  │
+│ └─────────────║───────────────────────────────────────────┘  │
+│               ║ ← Magenta playhead (fixed at center)         │
+└───────────────║───────────────────────────────────────────────┘
 ```
 
-### Integration Points (Shared with V2.9.0)
+### Integration Points (Shared Systems)
 
 **Shared Audio Engine:**
 ```javascript
-// Already exists in V3.0.0, shared with LIVE tab
+// Shared with Controls tab, extended for LIVE tab
 let audioContext = null;
-let audioSource = null;
+let audioSource = null;  // Controls tab
 let analyser = null;
-let audioBuffer = null;
+
+// NEW V3.1.0: LIVE tab extensions
+let trackAudioSources = [null, null, null, null];  // 4 tracks
+let trackGainNodes = [null, null, null, null];     // 4 track volumes
+let trackAnalysers = [null, null, null, null];     // 4 track meters
+let masterGainNode = null;                          // Master volume
 ```
 
 **Shared File System:**
 ```javascript
-// Already exists in V3.0.0, LIVE tab will use same system
+// Already exists, LIVE tab uses same system
 let audioLibraryHandle = null; // LIBRARY folder access
 // .oms file loading functions
+// .omsp file loading functions (NEW V3.1.0)
 // Container management functions
 ```
 
 **Shared WebGPU System:**
 ```javascript
-// Already exists in V3.0.0, LIVE tab needs separate pipelines
+// Already exists, LIVE tab uses for thumbnails
 let device = null;
 let context = null;
 let pipeline = null;
@@ -834,143 +903,86 @@ let pipeline = null;
 
 **Shared State Management:**
 ```javascript
-// Already exists in V3.0.0
+// Already exists
 const discoveredInstances = new Map();
 let activeContainerId = null;
+
+// NEW V3.1.0: LIVE tab state
+const gridState = {
+    cells: Array(32).fill(null),
+    trackVolumes: [0.5, 0.5, 0.5, 0.5],
+    trackMutes: [false, false, false, false],
+    trackSolos: [false, false, false, false],
+    masterVolume: 0.5,
+    masterTempo: 120,
+    lastSceneLaunched: -1
+};
 ```
 
-**LIVE Tab Specific (V3.0.0):**
-```javascript
-// Added in V3.0.0
-const trackVolumes = [75, 75, 75, 75]; // Visual only
-let liveTabInitialized = false;
+### Audio Routing Architecture (V3.1.0)
 
-// Planned for V3.1.0+
-const cellAssignments = {}; // track-scene → container
-const activePlayback = {}; // track → playback state
-const trackGains = []; // Web Audio gain nodes (4 tracks)
-const masterGain = null; // Master gain node
-```
-
-### Future Architecture (V3.1.0+ Planned)
-
-**Audio Routing Plan:**
 ```javascript
 // 4 Web Audio source nodes (one per track)
-const trackSources = [null, null, null, null];
+trackAudioSources[0] → trackGainNodes[0] ┐
+trackAudioSources[1] → trackGainNodes[1] ├→ masterGainNode → destination
+trackAudioSources[2] → trackGainNodes[2] ┤
+trackAudioSources[3] → trackGainNodes[3] ┘
 
-// 4 gain nodes (per-track volume)
-const trackGains = [null, null, null, null];
-
-// Master gain node
-let masterGain = null;
-
-// Routing:
-// trackSource[0] → trackGain[0] ┐
-// trackSource[1] → trackGain[1] ├→ masterGain → destination
-// trackSource[2] → trackGain[2] ┤
-// trackSource[3] → trackGain[3] ┘
-```
-
-**Shader Routing Plan:**
-```javascript
-// 4 independent WebGPU render pipelines
-const trackPipelines = [null, null, null, null];
-
-// 4 canvas elements (hidden, one per track)
-const trackCanvases = [null, null, null, null];
-
-// Master output canvas (visible)
-let masterCanvas = document.getElementById('master-output');
-
-// Each track renders to its canvas
-// Master canvas composites 4 track canvases
+// Each track also has analyser for meters
+trackAnalysers[0] → meters (visual only, no audio routing)
+trackAnalysers[1] → meters
+trackAnalysers[2] → meters
+trackAnalysers[3] → meters
 ```
 
 ---
 
-## ROADMAP - V3.1.0 AND BEYOND
+## ROADMAP - V3.2.0 AND BEYOND
 
-### V3.1.0: Container Loading + Audio Playback
+### V3.2.0: Real-Time Shader Rendering
 **Timeline:** December 2025
 
 **Features:**
 ```javascript
-// Container → Grid Assignment
-function assignContainerToCell(containerId, track, scene) {
-    // Load .oms from LIBRARY
-    // Store assignment in cellAssignments{}
-    // Update cell visual (show container name)
-    // Enable scene launching
-}
+// Shader rendering per track (4 simultaneous)
+const trackPipelines = [null, null, null, null];
+const trackCanvases = [null, null, null, null];
 
-// Audio Playback
-function launchCell(track, scene) {
-    // Get container from cellAssignments
-    // Load audio file from LIBRARY
-    // Create Web Audio source node
-    // Connect to track gain node
-    // Start playback
-    // Store in activePlayback{}
-}
-
-// Real-time Meters
-function updateMeters() {
-    // Get FFT data per track from analyser nodes
-    // Animate meter bars (L/R channels)
-    // Update continuously via requestAnimationFrame
-}
-```
-
-**UI/UX:**
-- Right-click cell → "Assign Container from LIBRARY"
-- Browse available .oms files
-- Click to assign container to cell
-- Cell displays container name
-- Click scene button → launches all 4 cells in row
-- Volume knobs control track gain nodes
-- Mute/Solo buttons affect audio routing
-- Meters animate with real-time audio levels
-
-### V3.2.0: Shader Rendering Integration
-**Timeline:** Q1 2026
-
-**Features:**
-```javascript
-// Shader Per Track
-function startShaderRendering(track, shaderCode) {
-    // Create WebGPU pipeline for track
-    // Render to hidden track canvas
+// Each track renders shader in cell (not just thumbnail)
+function renderShaderInCell(track, scene, shaderCode) {
+    // Create WebGPU pipeline for cell
+    // Render continuously at 60fps
     // Update with FFT data per track
-    // Audio-reactive rendering
+    // Display in grid cell
 }
 
-// Visual Compositing
+// Master output compositing
 function compositeTracks() {
     // Blend 4 track canvases
     // Layer/blend modes (additive, multiply, screen)
     // Render to master output canvas
     // Real-time compositing via requestAnimationFrame
 }
-
-// Shader Loading from Containers
-function loadShaderForTrack(track, containerId) {
-    // Load .oms container
-    // Extract shader code
-    // Compile WGSL shader
-    // Create render pipeline
-    // Start rendering loop
-}
 ```
 
 **Visual Output:**
-- 4 tracks render shaders simultaneously
-- Each track has independent WebGPU pipeline
-- Master canvas composites 4 tracks
+- 4 tracks render shaders simultaneously in cells
+- Each cell has independent WebGPU pipeline
+- Master column composites 4 tracks
 - Real-time audio-reactive visuals
 - Blend modes for creative compositing
 
-### V3.3.0: MIDI Control + Advanced Features
+### V3.3.0: Waveform Animation + Scene Launching
+**Timeline:** Q1 2026
+
+**Features:**
+- Waveform scrolling during playback
+- Scene launching (trigger all 4 cells in row)
+- Crossfading between cells
+- Transport controls (play/pause/stop per track)
+- Beat-aligned triggering
+
+### V3.4.0: MIDI Control + Advanced Features
 **Timeline:** Q1 2026
 
 **Features:**
@@ -1038,8 +1050,10 @@ Solo creator workflow:
 **File System:**
 - "LIBRARY folder" (exactly this, not variations)
 - ".oms file" (container format)
+- ".omsp file" (project state format)
 - "Container" (shader + audio ref + control states)
 - "Control State" (render configuration preset)
+- "Project State" (LIVE tab session configuration)
 
 **LIVE Tab:**
 - "Performance grid" (the 4×8 cell layout)
@@ -1048,6 +1062,7 @@ Solo creator workflow:
 - "Cell" (grid intersection holding container reference)
 - "Mixer section" (volume/mute/solo controls)
 - "Master output" (composited visual display)
+- "Waveform section" (4 track waveforms with playhead)
 
 **Technical:**
 - "WebGPU shader rendering"
@@ -1078,6 +1093,7 @@ Solo creator workflow:
 - ❌ "Library folder" (it's "LIBRARY folder" - all caps)
 - ❌ "Container file" (it's ".oms file")
 - ❌ "Music videos" (videos are silent, not music videos)
+- ❌ "Session file" (it's ".omsp file" or "Project State")
 
 **Wrong Technical Terms:**
 - ❌ "Parameters" (use "modulators" or "controls")
@@ -1192,7 +1208,7 @@ Solo creator workflow:
 
 **Claude MUST:**
 - [ ] One feature per iteration
-- [ ] Use correct version naming (underscores)
+- [ ] Use correct version naming (underscores in dev builds!)
 - [ ] Update version display (title tag + UI header)
 - [ ] Maintain single-file architecture
 - [ ] Preserve all existing functionality
@@ -1223,7 +1239,7 @@ Solo creator workflow:
 **In Project Memory:**
 - ✅ This comprehensive instruction document
 - ✅ Background about Wes and ONEMANSHYO
-- ✅ Current V3.0.0 state
+- ✅ Current V3.1.0 state
 - ✅ Development protocols
 - ✅ Technical architecture
 - ✅ Future roadmap
@@ -1280,18 +1296,20 @@ Solo creator workflow:
 
 ### Success Metrics
 
-**V3.0.0 Complete When:**
-- ✅ LIVE tab UI shell done (COMPLETE)
-- ✅ All V2.9.0 features preserved (COMPLETE)
-- ✅ 5 tabs working properly (COMPLETE)
-- ✅ No performance regressions (COMPLETE)
-
 **V3.1.0 Complete When:**
-- ⏳ Container → grid assignment working
-- ⏳ Audio playback from 4 tracks
-- ⏳ Volume/mute/solo controls functional
-- ⏳ Real-time meters animating
-- ⏳ Scene launching triggers playback
+- ✅ LIVE tab fully functional (COMPLETE)
+- ✅ Multi-track audio playback (COMPLETE)
+- ✅ Mute/Solo controls (COMPLETE)
+- ✅ Real waveforms (COMPLETE)
+- ✅ Project States system (COMPLETE)
+- ✅ Keyboard controls (COMPLETE)
+- ✅ Hardware mixer aesthetic (COMPLETE)
+
+**V3.2.0 Complete When:**
+- ⏳ Real-time shader rendering in cells
+- ⏳ Master output compositing
+- ⏳ Visual blend modes
+- ⏳ Animated shader displays
 
 **V4.0.0 Vision Complete When:**
 - ⏳ Complete Ableton + EboSuite replacement
@@ -1304,9 +1322,9 @@ Solo creator workflow:
 
 ## DOCUMENT VERSION
 
-**Instructions Version:** V3.0.0  
+**Instructions Version:** V3.1.0  
 **Last Updated:** November 2025  
-**Next Update:** When V3.1.0 development begins
+**Next Update:** When V3.2.0 development begins
 
 **For Claude AI Development in OMS Shader Baker Project**
 

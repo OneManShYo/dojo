@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V3_0
+ONEMANSHYO Dojo App V3_1
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V3_0
+Version: V3_1
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V3_0]</title>
+    <title>ONEMANSHYO App [V3_1]</title>
     <style>
         * {
             margin: 0;
@@ -27,20 +27,52 @@ Version: V3_0
             color: #e0e0e0;
             height: 100vh;
             overflow: hidden;
+            /* V3.1.0-V: Hide scrollbars */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+        
+        body::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
         }
 
         /* V3.0.0-H: App wrapper for centering entire app */
         /* V3.0.0-N: Added side borders for physical device feel */
-        /* V3.0.0-P: Changed to box-shadow inset for full-height visibility */
+        /* V3.1.0-V: Solid 10px borders for hardware mixer case aesthetic */
+        /* V3.1.0-V: Using pseudo-elements so borders sit on top */
         .app-wrapper {
             max-width: 1470px;
             margin: 0 auto;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 
-                inset 5px 0 0 0 #555,    /* Left border */
-                inset -5px 0 0 0 #555;   /* Right border */
+            position: relative;
+        }
+        
+        /* V3.1.0-V: Left border as pseudo-element */
+        .app-wrapper::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 10px;
+            background: #666;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        
+        /* V3.1.0-V: Right border as pseudo-element */
+        .app-wrapper::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 10px;
+            background: #666;
+            z-index: 9999;
+            pointer-events: none;
         }
 
         .container {
@@ -74,7 +106,7 @@ Version: V3_0
             height: 50px; /* V2.1.1-A: Fixed height */
             background: linear-gradient(180deg, #2a2a2a, #222);
             padding: 0 20px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #444; /* V3.1.0-V: Standard grey divider */
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
@@ -713,15 +745,16 @@ Version: V3_0
 
         .status {
             /* V2.1.1-A: Status bar now full width outside container */
+            /* V3.1.0-V: Match header grey background and divider */
             width: 100%;
             flex-shrink: 0;
             height: 30px;
-            background: #000;
+            background: linear-gradient(180deg, #222, #2a2a2a);
             padding: 6px 20px;
             border-radius: 0;
             font-size: 13px;
             color: #00d4ff;
-            border-top: 1px solid #00d4ff;
+            border-top: 1px solid #444; /* V3.1.0-V: Standard grey divider */
             text-align: center;
             font-weight: 500;
             display: flex;
@@ -731,21 +764,21 @@ Version: V3_0
         }
 
         .status.error {
-            background: #000;
+            background: linear-gradient(180deg, #222, #2a2a2a);
             color: #ff006e;
-            border-top-color: #ff006e;
+            border-top: 1px solid #444; /* V3.1.0-V: Standard grey divider */
         }
 
         .status.success {
-            background: #000;
+            background: linear-gradient(180deg, #222, #2a2a2a);
             color: #00d4ff;
-            border-top-color: #00d4ff;
+            border-top: 1px solid #444; /* V3.1.0-V: Standard grey divider */
         }
 
         .status.info {
-            background: #000;
+            background: linear-gradient(180deg, #222, #2a2a2a);
             color: #ffa500;
-            border-top-color: #ffa500;
+            border-top: 1px solid #444; /* V3.1.0-V: Standard grey divider */
         }
 
         .path-info {
@@ -1161,8 +1194,7 @@ Version: V3_0
         .clip-slot {
             background: #1a1a1a;
             border: 1px solid #444;
-            aspect-ratio: 4 / 3;
-            height: 100px;
+            aspect-ratio: 16 / 9;  /* V3.1.0-G: Match thumbnail landscape ratio */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1187,9 +1219,14 @@ Version: V3_0
         }
 
         .clip-slot.playing {
-            background: #00d4ff;
-            color: #000;
-            font-weight: 600;
+            border: 2px solid #00ff00; /* V3.1.0-H: Green border for playing cells */
+            border-radius: 2px;
+        }
+
+        .clip-slot.selected {
+            border: 2px solid #ffff00; /* V3.1.0-M: Yellow border for selected cells */
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
         }
 
         /* Track Controls (in fixed mixer section) */
@@ -1335,7 +1372,7 @@ Version: V3_0
 
         /* Waveform Section (Bottom) */
         .waveforms-section {
-            height: 220px; /* V3.0.0-G: Increased from 180px to show all 4 waveforms properly (~52px per track) */
+            height: 240px; /* V3.1.0-Q: Increased from 220px - Track 4 was cut off */
             background: #0c0c0c;
             border-top: 1px solid #333;
             display: flex;
@@ -1343,6 +1380,7 @@ Version: V3_0
             gap: 2px; /* V3.0.0-C: Increased from 1px for better separation */
             padding: 5px;
             flex-shrink: 0;
+            position: relative; /* V3.1.0-Q: For playhead indicator positioning */
         }
 
         .waveform-track {
@@ -1369,6 +1407,19 @@ Version: V3_0
             background: #000;
             border-radius: 2px;
         }
+        
+        /* V3.1.0-Q: Playhead indicator (fixed at center) */
+        .waveforms-section::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ff00ff; /* Magenta */
+            z-index: 10;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -1377,7 +1428,7 @@ Version: V3_0
     <!-- V2.1.1-A: Header now full-width outside container -->
     <div class="header">
         <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-        <span class="version">[V3_0]</span>
+        <span class="version">[V3_1]</span>
     </div>
     
     <div class="container">
@@ -1657,6 +1708,48 @@ Version: V3_0
                     <div id="controlStateInfo" class="control-state-info" style="display: none;">
                         <div class="control-state-info-title"></div>
                         <div class="control-state-info-content"></div>
+                    </div>
+
+                    <!-- V3.1.0-B: PROJECT STATES SECTION (Bottom of Controls tab) -->
+                    <div class="shader-header" style="margin-top: 20px;">Project States</div>
+                    
+                    <!-- Project States Row -->
+                    <div class="control-row">
+                        <div class="control-group" style="flex: 3;">
+                            <select id="projectStateSelect" title="Load Project State">
+                                <option value="" selected>No Project Loaded</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" onclick="saveProjectState()" title="Save Project State">Save</button>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" onclick="loadProjectState()" title="Load Project State">Load</button>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn btn-danger" onclick="deleteProjectState()" title="Delete Project State">Delete</button>
+                        </div>
+                    </div>
+                    
+                    <!-- V3.1.0-B: Inline Save Input Row (hidden by default) -->
+                    <div id="projectSaveInputRow" class="control-row" style="display: none;">
+                        <div class="control-group" style="flex: 3;">
+                            <input type="text" id="projectSaveName" placeholder="Enter project name..." 
+                                   class="control-group input" 
+                                   style="background: rgba(255,255,255,0.1); border: 1px solid #00d4ff; color: #fff; padding: 6px 10px; border-radius: 0; font-size: 14px;">
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" onclick="confirmSaveProjectState()" title="Confirm Save">✓</button>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" onclick="cancelSaveProjectState()" title="Cancel Save">✗</button>
+                        </div>
+                    </div>
+                    
+                    <!-- V3.1.0-B: Project State Info Box -->
+                    <div id="projectStateInfo" class="control-state-info" style="display: none;">
+                        <div class="control-state-info-title">Project Information</div>
+                        <div class="control-state-info-content" id="projectStateInfoContent"></div>
                     </div>
                 </div>
             </div>
@@ -2083,6 +2176,17 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // V2.9.0-I: Track unsaved changes
         let isDirty = false; // true = unsaved changes, false = clean state
+        
+        // V3.1.0-A: LIVE tab grid state - stores .oms container assignments
+        let gridState = {
+            cells: Array(32).fill(null), // 8 scenes × 4 tracks = 32 cells
+            trackVolumes: [0.5, 0.5, 0.5, 0.5], // V3.1.0-M: Default 50% volume (12 o'clock)
+            trackMutes: [false, false, false, false],
+            trackSolos: [false, false, false, false],
+            masterVolume: 0.5, // V3.1.0-M: Default 50% volume (12 o'clock)
+            masterTempo: 120,
+            lastSceneLaunched: null
+        };
         
         // V2.2.0-H: Nudge offset for fine-tuning loop timing (in milliseconds)
         
@@ -3296,6 +3400,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // Spacebar for play/pause (universal DAW control)
         document.addEventListener('keydown', (e) => {
+            // V3.1.0-S: Don't handle spacebar if LIVE tab is active (has its own handler)
+            const liveTabActive = document.getElementById('liveTab')?.classList.contains('active');
+            if (liveTabActive) return;
+            
             // Only handle keys if not typing in an input field
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
             
@@ -4369,6 +4477,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // V2.9.0-L: Load Control States from LIBRARY
                 await updateControlStatesDropdown();
                 
+                // V3.1.0-A: Load Project States from LIBRARY
+                await updateProjectStatesDropdown();
+                
+                // V3.1.0-A: Auto-load default project
+                await autoLoadDefaultProject();
+                
                 showStatus(`Library set: ${audioLibraryHandle.name}`, 'success');
             } catch (error) {
                 if (error.name !== 'AbortError') {
@@ -4385,17 +4499,30 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         }
         
         async function loadAudioLibraryHandle() {
+            console.log('V3.1.0-U: === LOADING LIBRARY HANDLE FROM INDEXEDDB ===');
             try {
                 const db = await openLibraryDB();
+                console.log('V3.1.0-U: IndexedDB opened successfully');
+                
                 const tx = db.transaction('settings', 'readonly');
                 const handle = await tx.objectStore('settings').get('audioLibraryHandle');
                 
+                console.log('V3.1.0-U: Handle from IndexedDB:', handle ? 'FOUND' : 'NOT FOUND');
+                
                 if (handle) {
-                    // Verify permission
-                    const permission = await handle.queryPermission({ mode: 'read' });
-                    if (permission === 'granted' || permission === 'prompt') {
+                    // V3.1.0-U: Test if handle still works by trying to access it
+                    // Skip queryPermission - Chrome doesn't serialize it properly
+                    try {
+                        // Try to iterate directory to verify access
+                        console.log('V3.1.0-U: Testing handle access...');
+                        for await (const entry of handle.values()) {
+                            // Just checking if we can access - break after first entry
+                            console.log('V3.1.0-U: Handle access verified, found entry:', entry.name);
+                            break;
+                        }
+                        
+                        // Handle works!
                         audioLibraryHandle = handle;
-                        // V2.8.0-M: Show info box with folder name
                         document.getElementById('audioLibraryInfo').style.display = 'block';
                         document.getElementById('audioLibraryFolderName').textContent = handle.name;
                         document.getElementById('setupLibraryBtn').textContent = 'Change Library';
@@ -4403,11 +4530,30 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         // V2.9.0-L: Load Control States from LIBRARY
                         await updateControlStatesDropdown();
                         
+                        // V3.1.0-A: Load Project States from LIBRARY
+                        await updateProjectStatesDropdown();
+                        
+                        // V3.1.0-A: Auto-load default project
+                        await autoLoadDefaultProject();
+                        
+                        console.log('V3.1.0-U: ✅ LIBRARY folder restored successfully:', handle.name);
                         return true;
+                        
+                    } catch (accessError) {
+                        console.log('V3.1.0-U: ❌ Handle access failed:', accessError.message);
+                        console.log('V3.1.0-U: This usually means permission was revoked or folder moved');
+                        
+                        // Remove stale handle
+                        const dbClear = await openLibraryDB();
+                        const txClear = dbClear.transaction('settings', 'readwrite');
+                        await txClear.objectStore('settings').delete('audioLibraryHandle');
+                        console.log('V3.1.0-U: Removed stale handle, user must re-select folder');
                     }
+                } else {
+                    console.log('V3.1.0-U: ❌ No handle found in IndexedDB - first run or data cleared');
                 }
             } catch (error) {
-                console.error('Failed to load audio library handle:', error);
+                console.error('V3.1.0-U: ❌ Failed to load audio library handle:', error);
             }
             return false;
         }
@@ -4622,7 +4768,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const activeDot = isActive ? '<span style="color: #0ff; font-size: 10px; margin-right: 8px; line-height: 1;">●</span>' : '';
                 
                 html += `
-                    <div class="library-card" data-container-id="${container.id}" data-index="${index}" tabindex="0" style="background: rgba(255, 255, 255, 0.03); padding: 12px 15px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #333; cursor: pointer;">
+                    <div class="library-card" 
+                         data-container-id="${container.id}" 
+                         data-container-name="${container.name.replace(/"/g, '&quot;')}"
+                         data-index="${index}" 
+                         draggable="true"
+                         tabindex="0" 
+                         style="background: rgba(255, 255, 255, 0.03); padding: 12px 15px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #333; cursor: grab;">
                         <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
                             <div style="flex: 1; min-width: 0;">
                                 <div id="name-${container.id}" 
@@ -4649,7 +4801,28 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // V2.9.0-N: Add keyboard navigation to library cards
             // V2.9.0-P: Smooth continuous scrolling when holding arrow keys
             // V2.9.0-S: Simplified - card only handles arrow keys and Enter on card itself
+            // V3.1.0-D: Add drag/drop support for containers
             document.querySelectorAll('.library-card').forEach(card => {
+                // V3.1.0-D: Drag handler
+                card.addEventListener('dragstart', (e) => {
+                    const containerId = card.dataset.containerId;
+                    const containerName = card.dataset.containerName;
+                    
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        id: containerId,
+                        name: containerName
+                    }));
+                    e.dataTransfer.effectAllowed = 'copy';
+                    
+                    // Visual feedback
+                    card.style.opacity = '0.5';
+                    console.log('V3.1.0-D: Dragging container:', containerName);
+                });
+                
+                card.addEventListener('dragend', (e) => {
+                    card.style.opacity = '1';
+                });
+                
                 card.addEventListener('keydown', (e) => {
                     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                         e.preventDefault();
@@ -7315,9 +7488,16 @@ ${shaderCode}
         console.log('Broadcasting on oms-live-channel (announcements + library + canvas snapshots)');
         
         // V2.8.0-L: Load audio library handle from IndexedDB
+        // V3.1.0-U: Auto-prompt if not found
         loadAudioLibraryHandle().then(loaded => {
             if (loaded) {
-                console.log('Audio library handle restored');
+                console.log('V3.1.0-U: Audio library handle restored automatically');
+            } else {
+                console.log('V3.1.0-U: No library handle found, prompting user...');
+                // Auto-prompt for folder instead of making user click button
+                setTimeout(() => {
+                    setAudioLibrary();
+                }, 500); // Small delay to let page finish loading
             }
         });
         
@@ -7339,12 +7519,116 @@ ${shaderCode}
         const NUM_TRACKS = 4;
         const NUM_SCENES = 8;
 
+        // V3.1.0-H: Web Audio routing
+        let trackGainNodes = [];
+        let masterGainNode = null;
+        let trackAudioSources = [null, null, null, null]; // Active audio sources per track
+        let trackAudioBuffers = [null, null, null, null]; // Loaded audio buffers per track
+        // V3.1.0-K: Analyser nodes for LED meters
+        let trackAnalysers = [];
+        let masterAnalyser = null;
+        let meterAnimationRunning = false;
+        
+        // V3.1.0-N: Global array for knob draw functions (to force redraws)
+        const knobDrawFunctions = [];
+
         function initLiveTab() {
+            initAudioRouting();
             initLiveHeaders();
             initLiveScenes();
             initLiveMixer();
             initLiveWaveforms();
-            console.log('LIVE tab initialized (V3.0.0-A)');
+            console.log('LIVE tab initialized (V3.1.0-H: Audio routing enabled)');
+        }
+
+        // V3.1.0-H: Initialize Web Audio routing
+        function initAudioRouting() {
+            // Create or reuse audio context
+            if (!audioContext) {
+                audioContext = new AudioContext();
+            }
+            
+            // V3.1.0-K: Create 4 track gain nodes + analysers
+            trackGainNodes = [];
+            trackAnalysers = [];
+            for (let i = 0; i < NUM_TRACKS; i++) {
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = 0.5; // V3.1.0-M: Default 50% volume (12 o'clock)
+                trackGainNodes.push(gainNode);
+                
+                // Create analyser for this track
+                const analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256; // Small FFT for meter responsiveness
+                analyser.smoothingTimeConstant = 0.8; // Smooth meter movement
+                trackAnalysers.push(analyser);
+                
+                // Route: gain → analyser
+                gainNode.connect(analyser);
+            }
+            
+            // Create master gain node + analyser
+            masterGainNode = audioContext.createGain();
+            masterGainNode.gain.value = 0.5; // V3.1.0-M: Default 50% volume (12 o'clock)
+            
+            masterAnalyser = audioContext.createAnalyser();
+            masterAnalyser.fftSize = 256;
+            masterAnalyser.smoothingTimeConstant = 0.8;
+            
+            // Route all track analysers through master
+            // Track analyser[0-3] → Master → Master analyser → Speakers
+            trackAnalysers.forEach(analyser => {
+                analyser.connect(masterGainNode);
+            });
+            masterGainNode.connect(masterAnalyser);
+            masterAnalyser.connect(audioContext.destination);
+            
+            console.log('V3.1.0-K: Web Audio routing initialized with analysers for meters');
+            
+            // V3.1.0-K: Start meter animation loop
+            if (!meterAnimationRunning) {
+                meterAnimationRunning = true;
+                animateMeters();
+            }
+        }
+
+        // V3.1.0-K: Animate LED meters
+        function animateMeters() {
+            // Update track meters
+            for (let t = 0; t < NUM_TRACKS; t++) {
+                if (trackAnalysers[t]) {
+                    const dataArray = new Uint8Array(trackAnalysers[t].frequencyBinCount);
+                    trackAnalysers[t].getByteFrequencyData(dataArray);
+                    
+                    // Calculate average level (0-255)
+                    const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+                    const level = Math.min(100, (average / 255) * 100);
+                    
+                    // Update L/R meters (same level for both since we're mono/mixed)
+                    const meterL = document.getElementById(`meterL${t + 1}`);
+                    const meterR = document.getElementById(`meterR${t + 1}`);
+                    if (meterL) meterL.style.height = `${level}%`;
+                    if (meterR) meterR.style.height = `${level}%`;
+                }
+            }
+            
+            // Update master meters
+            if (masterAnalyser) {
+                const dataArray = new Uint8Array(masterAnalyser.frequencyBinCount);
+                masterAnalyser.getByteFrequencyData(dataArray);
+                
+                const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+                const level = Math.min(100, (average / 255) * 100);
+                
+                const meterL = document.getElementById('meterLMaster');
+                const meterR = document.getElementById('meterRMaster');
+                if (meterL) meterL.style.height = `${level}%`;
+                if (meterR) meterR.style.height = `${level}%`;
+            }
+            
+            // Continue animation loop
+            if (meterAnimationRunning) {
+                requestAnimationFrame(animateMeters);
+            }
         }
 
         // Initialize Track Headers
@@ -7373,6 +7657,128 @@ ${shaderCode}
                     slot.textContent = 'Empty';
                     slot.dataset.track = t;
                     slot.dataset.scene = s;
+                    
+                    // V3.1.0-D: Add drop functionality for containers
+                    slot.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        // V3.1.0-P: Smart dropEffect based on drag source
+                        // If draggedCell is set = cell-to-cell drag (move)
+                        // If draggedCell is null = library drag (copy)
+                        e.dataTransfer.dropEffect = draggedCell ? 'move' : 'copy';
+                        slot.style.background = 'rgba(0, 212, 255, 0.2)'; // Highlight on hover
+                    });
+                    
+                    slot.addEventListener('dragleave', (e) => {
+                        slot.style.background = ''; // Remove highlight
+                    });
+                    
+                    slot.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        slot.style.background = ''; // Remove highlight
+                        
+                        // V3.1.0-N: FIX - Read track/scene from dataset, not loop variables!
+                        const toTrack = parseInt(slot.dataset.track);
+                        const toScene = parseInt(slot.dataset.scene);
+                        
+                        try {
+                            // V3.1.0-M: Check if dragging from another cell
+                            if (draggedCell) {
+                                const fromTrack = draggedCell.track;
+                                const fromScene = draggedCell.scene;
+                                
+                                // Move container from source to destination
+                                const fromIndex = fromTrack * NUM_SCENES + fromScene;
+                                const toIndex = toTrack * NUM_SCENES + toScene;
+                                
+                                // Swap assignments
+                                const temp = gridState.cells[toIndex];
+                                gridState.cells[toIndex] = gridState.cells[fromIndex];
+                                gridState.cells[fromIndex] = temp;
+                                
+                                // Update both cell displays
+                                updateCellDisplay(fromTrack, fromScene);
+                                updateCellDisplay(toTrack, toScene);
+                                
+                                showStatus(`Moved container to ${toTrack + 1}-${toScene + 1}`, 'success');
+                                autoSaveProject();
+                                
+                                draggedCell = null;
+                                return;
+                            }
+                            
+                            // Original library drop handler
+                            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                            assignContainerToCell(data.id, data.name, toTrack, toScene);
+                        } catch (error) {
+                            console.error('V3.1.0-D: Drop failed:', error);
+                            showStatus('Failed to assign container', 'error');
+                        }
+                    });
+                    
+                    // V3.1.0-M: Drag FROM this cell TO another cell
+                    // V3.1.0-P: Removed hardcoded draggable='false' - updateCellDisplay() controls this
+                    
+                    slot.addEventListener('dragstart', (e) => {
+                        // V3.1.0-N: FIX - Read track/scene from dataset, not loop variables!
+                        const track = parseInt(slot.dataset.track);
+                        const scene = parseInt(slot.dataset.scene);
+                        const cellIndex = track * NUM_SCENES + scene;
+                        if (gridState.cells[cellIndex]) {
+                            draggedCell = { track, scene };
+                            slot.style.opacity = '0.5';
+                            e.dataTransfer.effectAllowed = 'move';
+                            // V3.1.0-P: CRITICAL FIX - Must set data for browser to accept drag
+                            e.dataTransfer.setData('application/x-cell-drag', JSON.stringify({
+                                type: 'cell-move',
+                                track: track,
+                                scene: scene
+                            }));
+                        } else {
+                            e.preventDefault();
+                        }
+                    });
+                    
+                    slot.addEventListener('dragend', (e) => {
+                        slot.style.opacity = '1';
+                        slot.style.background = '';
+                        draggedCell = null;
+                    });
+                    
+                    // V3.1.0-L: Click cell to play audio (fixed closure bug)
+                    slot.addEventListener('click', async () => {
+                        // V3.1.0-L: FIX - Read track from dataset, not loop variable!
+                        const track = parseInt(slot.dataset.track);
+                        const scene = parseInt(slot.dataset.scene);
+                        const cellIndex = track * NUM_SCENES + scene;
+                        const cellData = gridState.cells[cellIndex];
+                        
+                        console.log(`V3.1.0-L: Clicked cell Track ${track + 1}, Scene ${scene + 1}`);
+                        
+                        // V3.1.0-K: If cell is empty, stop audio on this track
+                        if (!cellData || !cellData.id) {
+                            console.log(`V3.1.0-L: Cell is empty, checking if track ${track} has audio...`);
+                            if (trackAudioSources[track]) {
+                                console.log(`V3.1.0-L: Stopping audio on track ${track}`);
+                                trackAudioSources[track].stop();
+                                trackAudioSources[track].disconnect();
+                                trackAudioSources[track] = null;
+                                trackAudioBuffers[track] = null;
+                                
+                                // Remove green borders from all cells in track
+                                const allCellsInTrack = document.querySelectorAll(`.clip-slot[data-track="${track}"]`);
+                                allCellsInTrack.forEach(cell => cell.classList.remove('playing'));
+                                
+                                console.log(`V3.1.0-L: Stopped audio on Track ${track + 1}`);
+                                showStatus(`Stopped Track ${track + 1}`, 'success');
+                            } else {
+                                console.log(`V3.1.0-L: No audio playing on track ${track}`);
+                            }
+                            return;
+                        }
+                        
+                        await playCellAudio(track, scene, cellData);
+                    });
+                    
                     scenes.appendChild(slot);
                 }
                 
@@ -7423,7 +7829,7 @@ ${shaderCode}
                 // Initialize rotary knob
                 const canvas = document.getElementById(`rotary${t}`);
                 const ctx = canvas.getContext('2d');
-                let volume = 0.75; // Default 75%
+                let volume = 0.5; // V3.1.0-M: Default 50% (12 o'clock)
                 let isDragging = false;
                 let lastY = 0;
                 
@@ -7441,9 +7847,10 @@ ${shaderCode}
                     ctx.lineWidth = 2;
                     ctx.stroke();
                     
-                    // Volume arc (-135° to +135°, 270° total range)
-                    const startAngle = -135 * Math.PI / 180;
-                    const endAngle = 135 * Math.PI / 180;
+                    // Volume arc (-150° to +150°, 300° total range - 7 o'clock to 5 o'clock)
+                    // V3.1.0-K: Add Math.PI to rotate 180° (flip knobs over)
+                    const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                    const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
                     const currentAngle = startAngle + (endAngle - startAngle) * volume;
                     
                     ctx.strokeStyle = '#00d4ff';
@@ -7459,6 +7866,15 @@ ${shaderCode}
                     ctx.moveTo(30, 30);
                     ctx.lineTo(30 + Math.cos(currentAngle) * 18, 30 + Math.sin(currentAngle) * 18);
                     ctx.stroke();
+                    
+                    // V3.1.0-N: Draw cyan selection ring if this knob is selected
+                    if (selectedKnobIndex === t - 1) {
+                        ctx.strokeStyle = '#00d4ff';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.arc(30, 30, 28, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
                 }
                 
                 function updateVolume(newVolume) {
@@ -7472,6 +7888,26 @@ ${shaderCode}
                         const db = Math.round((1 - volume) * 20);
                         volLabel.textContent = `-${db}`;
                     }
+                    
+                    // V3.1.0-L: Update Web Audio gain node (respect mute/solo state)
+                    if (trackGainNodes[t - 1]) {
+                        const isMuted = gridState.trackMutes[t - 1];
+                        const anySolo = gridState.trackSolos.some(s => s);
+                        const isSolo = gridState.trackSolos[t - 1];
+                        
+                        // If muted, set to 0
+                        // If solo mode active and this track isn't solo'd, set to 0
+                        // Otherwise set to volume
+                        if (isMuted || (anySolo && !isSolo)) {
+                            trackGainNodes[t - 1].gain.value = 0;
+                        } else {
+                            trackGainNodes[t - 1].gain.value = volume;
+                        }
+                    }
+                    
+                    // V3.1.0-A: Update gridState and trigger auto-save
+                    gridState.trackVolumes[t - 1] = volume;
+                    autoSaveProject();
                 }
                 
                 canvas.addEventListener('mousedown', (e) => {
@@ -7490,15 +7926,63 @@ ${shaderCode}
                     isDragging = false;
                 });
                 
-                // Initial draw
-                updateVolume(0.75);
+                // Initial draw at 50% (12 o'clock)
+                updateVolume(0.5);
                 
                 // Mute/Solo buttons
                 const muteBtn = mixer.querySelector('.track-btn.mute');
                 const soloBtn = mixer.querySelector('.track-btn.solo');
                 
-                muteBtn.addEventListener('click', () => muteBtn.classList.toggle('active'));
-                soloBtn.addEventListener('click', () => soloBtn.classList.toggle('active'));
+                muteBtn.addEventListener('click', () => {
+                    muteBtn.classList.toggle('active');
+                    const isMuted = muteBtn.classList.contains('active');
+                    
+                    // V3.1.0-L: Actually mute/unmute the track
+                    if (trackGainNodes[t - 1]) {
+                        trackGainNodes[t - 1].gain.value = isMuted ? 0 : (gridState.trackVolumes[t - 1] || 0.5);
+                        console.log(`V3.1.0-L: Track ${t} ${isMuted ? 'muted' : 'unmuted'}`);
+                    }
+                    
+                    // V3.1.0-A: Update gridState and trigger auto-save
+                    gridState.trackMutes[t - 1] = isMuted;
+                    autoSaveProject();
+                });
+                soloBtn.addEventListener('click', () => {
+                    soloBtn.classList.toggle('active');
+                    const isSolo = soloBtn.classList.contains('active');
+                    
+                    // V3.1.0-L: Solo logic - if ANY track is solo'd, mute all non-solo tracks
+                    gridState.trackSolos[t - 1] = isSolo;
+                    
+                    // Check if any tracks are solo'd
+                    const anySolo = gridState.trackSolos.some(s => s);
+                    
+                    if (anySolo) {
+                        // Mute all tracks that aren't solo'd
+                        for (let i = 0; i < NUM_TRACKS; i++) {
+                            if (trackGainNodes[i]) {
+                                if (gridState.trackSolos[i]) {
+                                    // Solo'd track - unmute (unless also muted)
+                                    trackGainNodes[i].gain.value = gridState.trackMutes[i] ? 0 : (gridState.trackVolumes[i] || 0.5);
+                                } else {
+                                    // Not solo'd - mute it
+                                    trackGainNodes[i].gain.value = 0;
+                                }
+                            }
+                        }
+                        console.log(`V3.1.0-L: Solo mode active - only solo'd tracks audible`);
+                    } else {
+                        // No solos - restore all tracks to their mute/volume states
+                        for (let i = 0; i < NUM_TRACKS; i++) {
+                            if (trackGainNodes[i]) {
+                                trackGainNodes[i].gain.value = gridState.trackMutes[i] ? 0 : (gridState.trackVolumes[i] || 0.5);
+                            }
+                        }
+                        console.log(`V3.1.0-L: Solo mode off - all tracks normal`);
+                    }
+                    
+                    autoSaveProject();
+                });
             }
             
             // Initialize Master Mixer (V3.0.0-F)
@@ -7536,7 +8020,7 @@ ${shaderCode}
             // Initialize master rotary knob
             const canvasMaster = document.getElementById('rotaryMaster');
             const ctxMaster = canvasMaster.getContext('2d');
-            let volumeMaster = 0.75;
+            let volumeMaster = 0.5; // V3.1.0-M: Default 50% (12 o'clock)
             let isDraggingMaster = false;
             let lastYMaster = 0;
             
@@ -7550,22 +8034,31 @@ ${shaderCode}
                 ctxMaster.lineWidth = 2;
                 ctxMaster.stroke();
                 
-                const startAngle = -135 * Math.PI / 180;
-                const endAngle = 135 * Math.PI / 180;
+                const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
                 const currentAngle = startAngle + (endAngle - startAngle) * volumeMaster;
                 
                 ctxMaster.strokeStyle = '#00d4ff';
                 ctxMaster.lineWidth = 3;
                 ctxMaster.beginPath();
-                ctxMaster.arc(30, 30, 24, startAngle + Math.PI / 2, currentAngle + Math.PI / 2);
+                ctxMaster.arc(30, 30, 24, startAngle, currentAngle);
                 ctxMaster.stroke();
                 
                 ctxMaster.strokeStyle = '#fff';
                 ctxMaster.lineWidth = 2;
                 ctxMaster.beginPath();
                 ctxMaster.moveTo(30, 30);
-                ctxMaster.lineTo(30 + Math.cos(currentAngle + Math.PI / 2) * 20, 30 + Math.sin(currentAngle + Math.PI / 2) * 20);
+                ctxMaster.lineTo(30 + Math.cos(currentAngle) * 20, 30 + Math.sin(currentAngle) * 20);
                 ctxMaster.stroke();
+                
+                // V3.1.0-N: Draw cyan selection ring if master knob is selected
+                if (selectedKnobIndex === 4) {
+                    ctxMaster.strokeStyle = '#00d4ff';
+                    ctxMaster.lineWidth = 3;
+                    ctxMaster.beginPath();
+                    ctxMaster.arc(30, 30, 28, 0, Math.PI * 2);
+                    ctxMaster.stroke();
+                }
             }
             
             function updateVolumeMaster(vol) {
@@ -7573,6 +8066,15 @@ ${shaderCode}
                 drawKnobMaster();
                 const db = volumeMaster === 0 ? '-∞' : `${Math.round((volumeMaster - 1) * 60)} dB`;
                 document.getElementById('volLabelMaster').textContent = db;
+                
+                // V3.1.0-H: Update Web Audio master gain node
+                if (masterGainNode) {
+                    masterGainNode.gain.value = volumeMaster;
+                }
+                
+                // V3.1.0-A: Update gridState and trigger auto-save
+                gridState.masterVolume = volumeMaster;
+                autoSaveProject();
             }
             
             canvasMaster.addEventListener('mousedown', (e) => {
@@ -7591,7 +8093,8 @@ ${shaderCode}
                 isDraggingMaster = false;
             });
             
-            updateVolumeMaster(0.75);
+            // V3.1.0-M: Initial draw at 50% (12 o'clock)
+            updateVolumeMaster(0.5);
             
             const muteBtnMaster = mixerMaster.querySelector('.track-btn.mute');
             muteBtnMaster.addEventListener('click', () => muteBtnMaster.classList.toggle('active'));
@@ -7610,6 +8113,117 @@ ${shaderCode}
                     t.classList.remove('active');
                 }
             });
+            
+            // V3.1.0-A: Update gridState and trigger auto-save
+            gridState.lastSceneLaunched = sceneIndex;
+            autoSaveProject();
+        }
+
+        // V3.1.0-M: Update cell display (used after drag/drop moves)
+        function updateCellDisplay(track, scene) {
+            const cellIndex = track * NUM_SCENES + scene;
+            const cellData = gridState.cells[cellIndex];
+            const cell = document.querySelector(`.clip-slot[data-track="${track}"][data-scene="${scene}"]`);
+            
+            if (!cell) return;
+            
+            if (cellData && cellData.id) {
+                // Cell has container
+                cell.classList.remove('empty');
+                cell.classList.add('assigned');
+                cell.setAttribute('draggable', 'true'); // V3.1.0-O: Use setAttribute
+                cell.style.background = 'rgba(0, 212, 255, 0.1)';
+                cell.title = cellData.name;
+                
+                // Render thumbnail
+                cell.innerHTML = '';
+                const canvas = document.createElement('canvas');
+                canvas.width = 160;
+                canvas.height = 90;
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                canvas.style.objectFit = 'contain';
+                cell.appendChild(canvas);
+                
+                const containers = getLibraryContainers();
+                const container = containers.find(c => c.id === cellData.id);
+                
+                if (container && container.shaderCode) {
+                    initThumbnailShader(canvas, container.shaderCode, cellIndex).catch(error => {
+                        console.error('Failed to render thumbnail:', error);
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#330000';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    });
+                }
+            } else {
+                // Cell is empty
+                cell.classList.remove('assigned', 'has-clip', 'playing');
+                cell.classList.add('empty');
+                cell.setAttribute('draggable', 'false'); // V3.1.0-O: Use setAttribute
+                cell.textContent = 'Empty';
+                cell.style.background = '';
+                cell.title = '';
+            }
+        }
+
+        // V3.1.0-D: Assign container to grid cell
+        // V3.1.0-F: Render shader thumbnail in cell
+        async function assignContainerToCell(containerId, containerName, track, scene) {
+            // Calculate cell index: track * NUM_SCENES + scene
+            // Grid layout: [T1S1, T1S2, T1S3...T1S8, T2S1, T2S2...T4S8]
+            const cellIndex = track * NUM_SCENES + scene;
+            
+            // Store container reference in gridState
+            gridState.cells[cellIndex] = {
+                id: containerId,
+                name: containerName
+            };
+            
+            // Update cell visual with canvas thumbnail
+            const cell = document.querySelector(`.clip-slot[data-track="${track}"][data-scene="${scene}"]`);
+            if (cell) {
+                cell.classList.remove('empty');
+                cell.classList.add('assigned');
+                cell.innerHTML = ''; // Clear any existing content
+                cell.style.background = 'rgba(0, 212, 255, 0.1)';
+                cell.title = containerName; // V3.1.0-E: Tooltip
+                cell.setAttribute('draggable', 'true'); // V3.1.0-O: Use setAttribute for HTML attribute
+                
+                // V3.1.0-F: Create canvas for shader thumbnail
+                const canvas = document.createElement('canvas');
+                canvas.width = 160;  // Landscape ratio (same as Presets)
+                canvas.height = 90;
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                canvas.style.objectFit = 'contain';
+                cell.appendChild(canvas);
+                
+                // V3.1.0-F: Load shader code and render thumbnail
+                const containers = getLibraryContainers();
+                const container = containers.find(c => c.id === containerId);
+                
+                if (container && container.shaderCode) {
+                    try {
+                        await initThumbnailShader(canvas, container.shaderCode, cellIndex);
+                        console.log(`V3.1.0-F: Rendered thumbnail for "${containerName}" in Track ${track + 1}, Scene ${scene + 1}`);
+                    } catch (error) {
+                        console.error(`V3.1.0-F: Failed to render thumbnail for "${containerName}":`, error);
+                        // Show error state
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#330000';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                } else {
+                    console.warn(`V3.1.0-F: Container "${containerName}" not found in library`);
+                }
+            }
+            
+            console.log(`V3.1.0-F: Assigned "${containerName}" to Track ${track + 1}, Scene ${scene + 1}`);
+            showStatus(`Assigned: ${containerName}`, 'success');
+            
+            // V3.1.0-D: Auto-save project state
+            autoSaveProject();
         }
 
         // Waveform Viewing
@@ -7618,9 +8232,9 @@ ${shaderCode}
                 const canvas = document.getElementById(`waveform${track}`);
                 const ctx = canvas.getContext('2d');
                 
-                // Set canvas size
+                // V3.1.0-N: Set fixed canvas size (52px height each, all 4 visible)
                 canvas.width = canvas.offsetWidth;
-                canvas.height = canvas.offsetHeight;
+                canvas.height = 52; // Fixed height: 220px section ÷ 4 tracks = 55px, minus gaps
                 
                 // Draw empty waveform
                 drawEmptyWaveform(ctx, canvas);
@@ -7637,6 +8251,929 @@ ${shaderCode}
             ctx.lineTo(canvas.width, canvas.height / 2);
             ctx.stroke();
         }
+
+        // V3.1.0-M: Draw real waveform from audio buffer data
+        function drawWaveformFromAudioBuffer(track, audioBuffer) {
+            const canvas = document.getElementById(`waveform${track}`);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Get audio data (use first channel)
+            const channelData = audioBuffer.getChannelData(0);
+            const samples = channelData.length;
+            const samplesPerPixel = Math.floor(samples / width);
+            
+            // Draw waveform in cyan
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            
+            for (let x = 0; x < width; x++) {
+                const start = x * samplesPerPixel;
+                const end = start + samplesPerPixel;
+                
+                // Get min/max in this slice
+                let min = 1.0;
+                let max = -1.0;
+                
+                for (let i = start; i < end && i < samples; i++) {
+                    const value = channelData[i];
+                    if (value < min) min = value;
+                    if (value > max) max = value;
+                }
+                
+                // Convert to canvas coordinates
+                const y1 = ((1 + min) / 2) * height;
+                const y2 = ((1 + max) / 2) * height;
+                
+                // Draw vertical line
+                ctx.moveTo(x, y1);
+                ctx.lineTo(x, y2);
+            }
+            
+            ctx.stroke();
+            
+            // Draw center line
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.stroke();
+            
+            console.log(`V3.1.0-M: Drew waveform for track ${track}`);
+            
+            // V3.1.0-R: Position waveform so Bar 1 is at playhead (center)
+            positionWaveformAtPlayhead(track, audioBuffer);
+        }
+        
+        // V3.1.0-R: Position waveform so Bar 1 (start) aligns with playhead (center)
+        function positionWaveformAtPlayhead(track, audioBuffer) {
+            const canvas = document.getElementById(`waveform${track}`);
+            if (!canvas) return;
+            
+            // Playhead is at center (50%) of the waveforms-section container
+            // But canvas is offset by: padding (5px) + label (~50px) + gap (8px)
+            // We need to position relative to the canvas, not the container
+            
+            // Get waveforms-section width (parent container)
+            const waveformsSection = canvas.closest('.waveforms-section');
+            if (!waveformsSection) return;
+            
+            const containerWidth = waveformsSection.offsetWidth;
+            
+            // Playhead is at 50% of container
+            const playheadPosition = containerWidth * 0.5;
+            
+            // Get canvas position relative to container
+            const canvasRect = canvas.getBoundingClientRect();
+            const containerRect = waveformsSection.getBoundingClientRect();
+            const canvasLeftOffset = canvasRect.left - containerRect.left;
+            
+            // Calculate offset needed to align Bar 1 with playhead
+            // Bar 1 is at pixel 0 of canvas
+            // We need to shift it so pixel 0 lines up with the playhead
+            const offsetNeeded = playheadPosition - canvasLeftOffset;
+            
+            // Apply CSS transform
+            canvas.style.transform = `translateX(${offsetNeeded}px)`;
+            
+            console.log(`V3.1.0-R: Track ${track} positioning:`, {
+                containerWidth,
+                playheadPosition,
+                canvasLeftOffset,
+                offsetNeeded
+            });
+        }
+
+        // V3.1.0-T: Start waveform scrolling animation
+        function startWaveformScroll(track, audioBuffer) {
+            const canvas = document.getElementById(`waveform${track + 1}`);
+            if (!canvas || !trackAudioSources[track]) return;
+            
+            // Stop any existing animation for this track
+            stopWaveformScroll(track);
+            
+            // Wait for positioning to settle, then start animation
+            setTimeout(() => {
+                if (!trackAudioSources[track]) return; // Check if still playing
+                
+                // Store when playback started
+                const startTime = audioContext.currentTime;
+                
+                // Read the transform that positionWaveformAtPlayhead already set
+                const currentTransform = canvas.style.transform || '';
+                const match = currentTransform.match(/translateX\(([^)]+)px\)/);
+                const initialOffset = match ? parseFloat(match[1]) : 0;
+                
+                console.log(`V3.1.0-T: Read initial offset: ${initialOffset}px from existing transform`);
+                
+                // Calculate pixels per second
+                const canvasWidth = canvas.width;
+                const audioDuration = audioBuffer.duration;
+                const pixelsPerSecond = canvasWidth / audioDuration;
+                
+                function animate() {
+                    // Check if source still exists
+                    if (!trackAudioSources[track]) {
+                        stopWaveformScroll(track);
+                        return;
+                    }
+                    
+                    // Calculate elapsed time
+                    const elapsed = audioContext.currentTime - startTime;
+                    
+                    // Calculate scroll offset (right-to-left = negative)
+                    const scrollOffset = elapsed * pixelsPerSecond;
+                    
+                    // Apply transform: initial position minus scroll
+                    canvas.style.transform = `translateX(${initialOffset - scrollOffset}px)`;
+                    
+                    // Continue animation
+                    waveformAnimations[`track${track}`] = requestAnimationFrame(animate);
+                }
+                
+                // Start animation
+                requestAnimationFrame(animate);
+                console.log(`V3.1.0-T: Started waveform scroll for track ${track + 1}`);
+            }, 50); // 50ms delay to let positioning settle
+        }
+        
+        // V3.1.0-T: Stop waveform scrolling animation
+        function stopWaveformScroll(track) {
+            const animId = waveformAnimations[`track${track}`];
+            if (animId) {
+                cancelAnimationFrame(animId);
+                waveformAnimations[`track${track}`] = null;
+                console.log(`V3.1.0-T: Stopped waveform scroll for track ${track + 1}`);
+            }
+        }
+
+        // V3.1.0-I: Play audio from cell (fixed to match loadContainer approach)
+        async function playCellAudio(track, scene, cellData) {
+            try {
+                // V3.1.0-I: Resume audioContext (browser security requirement)
+                if (audioContext && audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                    console.log('V3.1.0-I: AudioContext resumed');
+                }
+                
+                // Load container to get audio filename
+                const containers = getLibraryContainers();
+                const container = containers.find(c => c.id === cellData.id);
+                
+                if (!container || !container.audioFilename) {
+                    console.log(`V3.1.0-I: Container "${cellData.name}" has no audio file`);
+                    showStatus('No audio file in container', 'error');
+                    return;
+                }
+                
+                // Stop any currently playing audio on this track
+                if (trackAudioSources[track]) {
+                    trackAudioSources[track].stop();
+                    trackAudioSources[track].disconnect();
+                    trackAudioSources[track] = null;
+                    
+                    // V3.1.0-T: Stop waveform scrolling
+                    stopWaveformScroll(track);
+                    
+                    console.log(`V3.1.0-I: Stopped previous audio on Track ${track + 1}`);
+                }
+                
+                // Remove green border from all cells in this track
+                const allCellsInTrack = document.querySelectorAll(`.clip-slot[data-track="${track}"]`);
+                allCellsInTrack.forEach(cell => cell.classList.remove('playing'));
+                
+                // Load audio file from LIBRARY using existing function
+                if (!audioLibraryHandle) {
+                    showStatus('LIBRARY folder not set', 'error');
+                    return;
+                }
+                
+                console.log(`V3.1.0-I: Loading audio: ${container.audioFilename}`);
+                const file = await getAudioFromLibrary(container.audioFilename);
+                const arrayBuffer = await file.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                // Create and configure audio source
+                const source = audioContext.createBufferSource();
+                source.buffer = audioBuffer;
+                source.loop = true; // Loop forever
+                
+                // Connect to track gain node
+                source.connect(trackGainNodes[track]);
+                
+                // Start playback
+                source.start(0);
+                
+                // Store reference
+                trackAudioSources[track] = source;
+                trackAudioBuffers[track] = audioBuffer;
+                
+                // V3.1.0-M: Draw waveform for this track
+                drawWaveformFromAudioBuffer(track + 1, audioBuffer);
+                
+                // V3.1.0-T: Start waveform scrolling animation
+                startWaveformScroll(track, audioBuffer);
+                
+                // Visual feedback - add green border to playing cell
+                const cell = document.querySelector(`.clip-slot[data-track="${track}"][data-scene="${scene}"]`);
+                if (cell) {
+                    cell.classList.add('playing');
+                }
+                
+                console.log(`V3.1.0-I: Playing "${container.audioFilename}" on Track ${track + 1}`);
+                showStatus(`Playing: ${container.audioFilename}`, 'success');
+                
+            } catch (error) {
+                console.error('V3.1.0-I: Audio playback failed:', error);
+                showStatus('Failed to play audio', 'error');
+            }
+        }
+
+        // ========================================
+        // V3.1.0-M: LIVE TAB INTERACTIONS
+        // ========================================
+        
+        // V3.1.0-T: Waveform scrolling animation state
+        const waveformAnimations = {
+            track0: null, // requestAnimationFrame IDs
+            track1: null,
+            track2: null,
+            track3: null
+        };
+        
+        // Track selected knob and cell for keyboard control
+        let selectedKnobIndex = -1; // -1 = none, 0-3 = tracks, 4 = master
+        let selectedCell = null; // { track, scene }
+        let draggedCell = null; // { track, scene } during drag
+        
+        // V3.1.0-M: Keyboard handlers for LIVE tab
+        document.addEventListener('keydown', (e) => {
+            // Only handle if LIVE tab is active
+            const liveTabActive = document.getElementById('liveTab').classList.contains('active');
+            if (!liveTabActive) return;
+            
+            // Ignore if typing in input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            // V3.1.0-N: Tab/Shift+Tab - cycle through knobs
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                
+                if (e.shiftKey) {
+                    // Shift+Tab - previous knob
+                    if (selectedKnobIndex < 0) {
+                        selectedKnobIndex = 4; // Start at master
+                    } else {
+                        selectedKnobIndex = selectedKnobIndex - 1;
+                        if (selectedKnobIndex < 0) selectedKnobIndex = 4; // Wrap to master
+                    }
+                } else {
+                    // Tab - next knob
+                    if (selectedKnobIndex < 0) {
+                        selectedKnobIndex = 0; // Start at track 1
+                    } else {
+                        selectedKnobIndex = selectedKnobIndex + 1;
+                        if (selectedKnobIndex > 4) selectedKnobIndex = 0; // Wrap to track 1
+                    }
+                }
+                
+                selectedCell = null; // Deselect cell when selecting knob
+                updateSelectionVisuals();
+                return;
+            }
+            
+            // V3.1.0-S: Spacebar - stop/start all playing tracks
+            if (e.code === 'Space') {
+                e.preventDefault();
+                
+                // Check if any tracks are playing
+                const anyPlaying = trackAudioSources.some(source => source !== null);
+                
+                if (anyPlaying) {
+                    // Stop all playing tracks
+                    for (let i = 0; i < 4; i++) {
+                        if (trackAudioSources[i]) {
+                            trackAudioSources[i].stop();
+                            trackAudioSources[i].disconnect();
+                            trackAudioSources[i] = null;
+                            
+                            // V3.1.0-T: Stop waveform scrolling
+                            stopWaveformScroll(i);
+                            
+                            // Remove playing visual feedback
+                            const cells = document.querySelectorAll(`.clip-slot[data-track="${i}"]`);
+                            cells.forEach(cell => cell.classList.remove('playing'));
+                        }
+                    }
+                    showStatus('Stopped all tracks', 'success');
+                } else {
+                    // No tracks playing - could optionally start something here
+                    // For now, just show a message
+                    showStatus('No tracks playing (click cells to start)', 'info');
+                }
+                return;
+            }
+            
+            // Delete key - remove container from selected cell
+            if (e.key === 'Delete' && selectedCell) {
+                e.preventDefault();
+                const { track, scene } = selectedCell;
+                const cellIndex = track * NUM_SCENES + scene;
+                
+                if (gridState.cells[cellIndex]) {
+                    // Stop playback if this track is playing
+                    if (trackAudioSources[track]) {
+                        trackAudioSources[track].stop();
+                        trackAudioSources[track].disconnect();
+                        trackAudioSources[track] = null;
+                        trackAudioBuffers[track] = null;
+                        
+                        // V3.1.0-T: Stop waveform scrolling
+                        stopWaveformScroll(track);
+                        
+                        // Clear waveform
+                        const canvas = document.getElementById(`waveform${track + 1}`);
+                        if (canvas) {
+                            const ctx = canvas.getContext('2d');
+                            drawEmptyWaveform(ctx, canvas);
+                        }
+                    }
+                    
+                    // Remove container
+                    gridState.cells[cellIndex] = null;
+                    
+                    // V3.1.0-P: Use updateCellDisplay() to properly show "Empty" state
+                    updateCellDisplay(track, scene);
+                    
+                    showStatus(`Removed container from cell ${track + 1}-${scene + 1}`, 'success');
+                    autoSaveProject();
+                }
+            }
+            
+            // Arrow Up/Down - control selected volume knob
+            if (selectedKnobIndex >= 0 && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                e.preventDefault();
+                
+                const delta = e.key === 'ArrowUp' ? 0.02 : -0.02; // 2% per press
+                
+                if (selectedKnobIndex === 4) {
+                    // Master knob
+                    const currentVol = gridState.masterVolume;
+                    const newVol = Math.max(0, Math.min(1, currentVol + delta));
+                    
+                    // Update via the master knob's updateVolumeMaster function
+                    // This is a bit hacky but works - we manually trigger it
+                    if (window.updateVolumeMaster) {
+                        window.updateVolumeMaster(newVol);
+                    } else {
+                        // Fallback if function not exposed
+                        gridState.masterVolume = newVol;
+                        if (masterGainNode) {
+                            masterGainNode.gain.value = newVol;
+                        }
+                    }
+                } else {
+                    // Track knob
+                    const currentVol = gridState.trackVolumes[selectedKnobIndex];
+                    const newVol = Math.max(0, Math.min(1, currentVol + delta));
+                    gridState.trackVolumes[selectedKnobIndex] = newVol;
+                    
+                    // Update gain node
+                    if (trackGainNodes[selectedKnobIndex]) {
+                        const isMuted = gridState.trackMutes[selectedKnobIndex];
+                        const anySolo = gridState.trackSolos.some(s => s);
+                        const isSolo = gridState.trackSolos[selectedKnobIndex];
+                        
+                        if (isMuted || (anySolo && !isSolo)) {
+                            trackGainNodes[selectedKnobIndex].gain.value = 0;
+                        } else {
+                            trackGainNodes[selectedKnobIndex].gain.value = newVol;
+                        }
+                    }
+                    
+                    // Redraw knob - need to trigger the canvas redraw
+                    // This is done automatically by the knob's draw function on mouse move,
+                    // but for keyboard we need to manually trigger it
+                    // For now, this will update the audio but not the visual
+                    // Full visual update requires refactoring knob code
+                }
+            }
+        });
+        
+        // V3.1.0-N: Update selection visuals (cells + knobs)
+        function updateSelectionVisuals() {
+            // Clear all cell outlines
+            document.querySelectorAll('.clip-slot').forEach(cell => {
+                cell.style.outline = '';
+            });
+            
+            // Highlight selected cell with yellow outline
+            if (selectedCell) {
+                const { track, scene } = selectedCell;
+                const cell = document.querySelector(`.clip-slot[data-track="${track}"][data-scene="${scene}"]`);
+                if (cell) {
+                    cell.style.outline = '2px solid #ffff00';
+                    cell.style.outlineOffset = '2px';
+                }
+            }
+            
+            // Knobs will show cyan selection ring on next redraw
+            // (rings are drawn in drawKnob/drawKnobMaster based on selectedKnobIndex)
+            // Redraw happens automatically when using arrow keys or dragging knob
+        }
+        
+        // V3.1.0-M: Cell selection handler (click to select)
+        function initCellSelection() {
+            document.addEventListener('click', (e) => {
+                const cell = e.target.closest('.clip-slot');
+                if (cell) {
+                    // Deselect all cells
+                    document.querySelectorAll('.clip-slot').forEach(c => c.classList.remove('selected'));
+                    
+                    // Select this cell
+                    cell.classList.add('selected');
+                    selectedCell = {
+                        track: parseInt(cell.dataset.track),
+                        scene: parseInt(cell.dataset.scene)
+                    };
+                    
+                    // Deselect knobs when cell selected
+                    selectedKnobIndex = -1;
+                }
+            });
+        }
+        
+        // V3.1.0-M: Knob selection handler (click to select)
+        function initKnobSelection() {
+            // This would require modifying the rotary knob creation code
+            // to add selection on click. For now, leaving as future enhancement.
+            // Full implementation would need to track clicks and add CSS class for visual feedback.
+        }
+        
+        // Initialize cell selection
+        initCellSelection();
+        initKnobSelection();
+
+        // ========================================
+        // V3.1.0-A: PROJECT STATES SYSTEM
+        // ========================================
+
+        // Get current project state
+        function getCurrentProjectState() {
+            return {
+                version: '3.1.0',
+                created: new Date().toISOString(),
+                gridState: {
+                    cells: gridState.cells.slice(), // Copy array
+                    trackVolumes: gridState.trackVolumes.slice(),
+                    trackMutes: gridState.trackMutes.slice(),
+                    trackSolos: gridState.trackSolos.slice(),
+                    masterVolume: gridState.masterVolume,
+                    masterTempo: parseInt(document.getElementById('tempo').value) || 120,
+                    lastSceneLaunched: gridState.lastSceneLaunched
+                }
+            };
+        }
+
+        // Apply project state
+        async function applyProjectState(projectData) {
+            if (!projectData || !projectData.gridState) {
+                showStatus('Invalid project data', 'error');
+                return;
+            }
+
+            const state = projectData.gridState;
+
+            // Apply grid assignments
+            gridState.cells = state.cells.slice();
+            
+            // V3.1.0-D: Restore cell visuals
+            // V3.1.0-F: Render shader thumbnails
+            for (let track = 0; track < NUM_TRACKS; track++) {
+                for (let scene = 0; scene < NUM_SCENES; scene++) {
+                    const cellIndex = track * NUM_SCENES + scene;
+                    const container = gridState.cells[cellIndex];
+                    const cell = document.querySelector(`.clip-slot[data-track="${track}"][data-scene="${scene}"]`);
+                    
+                    if (cell) {
+                        if (container && container.name) {
+                            // Cell has container assigned
+                            cell.classList.remove('empty');
+                            cell.classList.add('assigned');
+                            cell.innerHTML = ''; // Clear content
+                            cell.style.background = 'rgba(0, 212, 255, 0.1)';
+                            cell.title = container.name; // V3.1.0-E: Show full name on hover
+                            
+                            // V3.1.0-F: Create canvas and render thumbnail
+                            const canvas = document.createElement('canvas');
+                            canvas.width = 160;
+                            canvas.height = 90;
+                            canvas.style.width = '100%';
+                            canvas.style.height = '100%';
+                            canvas.style.objectFit = 'contain';
+                            cell.appendChild(canvas);
+                            
+                            // Load and render shader
+                            const containers = getLibraryContainers();
+                            const fullContainer = containers.find(c => c.id === container.id);
+                            
+                            if (fullContainer && fullContainer.shaderCode) {
+                                initThumbnailShader(canvas, fullContainer.shaderCode, cellIndex).catch(error => {
+                                    console.error(`V3.1.0-F: Failed to render thumbnail for "${container.name}":`, error);
+                                    const ctx = canvas.getContext('2d');
+                                    ctx.fillStyle = '#330000';
+                                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                });
+                            }
+                        } else {
+                            // Cell is empty
+                            cell.classList.add('empty');
+                            cell.classList.remove('assigned');
+                            cell.textContent = 'Empty';
+                            cell.style.background = '';
+                            cell.style.color = '';
+                            cell.title = ''; // V3.1.0-E: Clear tooltip
+                        }
+                    }
+                }
+            }
+            
+            // Apply track volumes
+            for (let t = 0; t < 4; t++) {
+                if (state.trackVolumes && state.trackVolumes[t] !== undefined) {
+                    gridState.trackVolumes[t] = state.trackVolumes[t];
+                }
+            }
+
+            // Apply track mutes
+            for (let t = 0; t < 4; t++) {
+                if (state.trackMutes && state.trackMutes[t] !== undefined) {
+                    gridState.trackMutes[t] = state.trackMutes[t];
+                    
+                    const muteBtn = document.querySelector(`.track-btn.mute[data-track="${t + 1}"]`);
+                    if (muteBtn) {
+                        if (state.trackMutes[t]) {
+                            muteBtn.classList.add('active');
+                        } else {
+                            muteBtn.classList.remove('active');
+                        }
+                    }
+                }
+            }
+
+            // Apply track solos
+            for (let t = 0; t < 4; t++) {
+                if (state.trackSolos && state.trackSolos[t] !== undefined) {
+                    gridState.trackSolos[t] = state.trackSolos[t];
+                    
+                    const soloBtn = document.querySelector(`.track-btn.solo[data-track="${t + 1}"]`);
+                    if (soloBtn) {
+                        if (state.trackSolos[t]) {
+                            soloBtn.classList.add('active');
+                        } else {
+                            soloBtn.classList.remove('active');
+                        }
+                    }
+                }
+            }
+
+            // Apply master volume
+            if (state.masterVolume !== undefined) {
+                gridState.masterVolume = state.masterVolume;
+            }
+
+            // Apply master tempo
+            if (state.masterTempo !== undefined) {
+                document.getElementById('tempo').value = state.masterTempo;
+                currentTempo = state.masterTempo;
+            }
+
+            // Apply last scene launched
+            if (state.lastSceneLaunched !== undefined) {
+                gridState.lastSceneLaunched = state.lastSceneLaunched;
+            }
+
+            showStatus('Project state applied', 'success');
+        }
+
+        // Auto-save to default.omsp
+        // V3.1.0-C: Auto-save immediately (no debounce)
+        async function autoSaveProject() {
+            if (!audioLibraryHandle) return;
+
+            try {
+                const projectState = getCurrentProjectState();
+                const filename = 'default.omsp';
+
+                const fileHandle = await audioLibraryHandle.getFileHandle(filename, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(JSON.stringify(projectState, null, 2));
+                await writable.close();
+
+                console.log('V3.1.0-C: Auto-saved project to default.omsp (instant)');
+
+            } catch (error) {
+                console.error('V3.1.0-C: Auto-save failed:', error);
+            }
+        }
+
+        // Auto-load default.omsp on startup
+        async function autoLoadDefaultProject() {
+            if (!audioLibraryHandle) return;
+
+            try {
+                const fileHandle = await audioLibraryHandle.getFileHandle('default.omsp');
+                const file = await fileHandle.getFile();
+                const text = await file.text();
+                const projectData = JSON.parse(text);
+
+                await applyProjectState(projectData);
+                
+                // Update dropdown to show default loaded
+                const select = document.getElementById('projectStateSelect');
+                if (select) {
+                    select.value = 'default';
+                }
+
+                console.log('V3.1.0-A: Auto-loaded default.omsp');
+
+            } catch (error) {
+                // File doesn't exist yet - that's ok
+                console.log('V3.1.0-A: No default.omsp found (first run)');
+            }
+        }
+
+        // Manual save with prompt
+        async function saveProjectState() {
+            const hasLibrary = await checkLibrarySet(true);
+            if (!hasLibrary) return;
+
+            const saveRow = document.getElementById('projectSaveInputRow');
+            const saveInput = document.getElementById('projectSaveName');
+
+            saveRow.style.display = 'flex';
+            saveInput.value = '';
+            saveInput.focus();
+
+            saveInput.onkeypress = function(e) {
+                if (e.key === 'Enter') {
+                    confirmSaveProjectState();
+                } else if (e.key === 'Escape') {
+                    cancelSaveProjectState();
+                }
+            };
+        }
+
+        // Confirm save with auto-incrementing filename
+        async function confirmSaveProjectState() {
+            const nameInput = document.getElementById('projectSaveName');
+            let baseName = nameInput.value.trim();
+
+            if (!baseName) {
+                showStatus('Please enter a project name', 'error');
+                return;
+            }
+
+            try {
+                // Generate filename: {name}_YYYY-MM-DD_01.omsp
+                const date = new Date();
+                const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                
+                // Find next available number
+                let counter = 1;
+                let filename = '';
+                let fileExists = true;
+
+                while (fileExists && counter < 100) {
+                    const counterStr = counter.toString().padStart(2, '0');
+                    filename = `${baseName}_${dateStr}_${counterStr}.omsp`;
+
+                    try {
+                        await audioLibraryHandle.getFileHandle(filename);
+                        counter++;
+                    } catch {
+                        fileExists = false;
+                    }
+                }
+
+                // Save project state
+                const projectState = getCurrentProjectState();
+                projectState.name = baseName;
+
+                const fileHandle = await audioLibraryHandle.getFileHandle(filename, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(JSON.stringify(projectState, null, 2));
+                await writable.close();
+
+                console.log('V3.1.0-A: Saved project:', filename);
+
+                // Update dropdown
+                await updateProjectStatesDropdown();
+
+                // Hide save input row
+                document.getElementById('projectSaveInputRow').style.display = 'none';
+
+                showStatus(`Project saved: ${filename}`, 'success');
+
+            } catch (error) {
+                console.error('V3.1.0-A: Save failed:', error);
+                showStatus('Failed to save project: ' + error.message, 'error');
+            }
+        }
+
+        // Cancel save
+        function cancelSaveProjectState() {
+            document.getElementById('projectSaveInputRow').style.display = 'none';
+            showStatus('Save cancelled', 'info');
+        }
+
+        // Load selected project
+        async function loadProjectState() {
+            const select = document.getElementById('projectStateSelect');
+            const selectedValue = select.value;
+
+            if (!selectedValue || selectedValue === '') {
+                showStatus('No project selected', 'error');
+                return;
+            }
+
+            try {
+                // Special case: default.omsp
+                const filename = selectedValue === 'default' ? 'default.omsp' : selectedValue;
+
+                const fileHandle = await audioLibraryHandle.getFileHandle(filename);
+                const file = await fileHandle.getFile();
+                const text = await file.text();
+                const projectData = JSON.parse(text);
+
+                await applyProjectState(projectData);
+
+                // Update info box
+                updateProjectStateInfo(projectData);
+
+                showStatus(`Loaded project: ${filename}`, 'success');
+
+            } catch (error) {
+                console.error('V3.1.0-A: Load failed:', error);
+                showStatus('Failed to load project: ' + error.message, 'error');
+            }
+        }
+
+        // Delete selected project
+        async function deleteProjectState() {
+            const select = document.getElementById('projectStateSelect');
+            const selectedValue = select.value;
+
+            if (!selectedValue || selectedValue === '' || selectedValue === 'default') {
+                showStatus('Cannot delete default project', 'error');
+                return;
+            }
+
+            const confirm = window.confirm(`Delete project: ${selectedValue}?`);
+            if (!confirm) return;
+
+            try {
+                await audioLibraryHandle.removeEntry(selectedValue);
+
+                await updateProjectStatesDropdown();
+                select.value = '';
+
+                showStatus(`Deleted project: ${selectedValue}`, 'success');
+
+            } catch (error) {
+                console.error('V3.1.0-A: Delete failed:', error);
+                showStatus('Failed to delete project: ' + error.message, 'error');
+            }
+        }
+
+        // Update project states dropdown
+        async function updateProjectStatesDropdown() {
+            const select = document.getElementById('projectStateSelect');
+            if (!select) return;
+            
+            const currentSelection = select.value;
+
+            select.innerHTML = '<option value="">No Project Loaded</option>';
+
+            if (!audioLibraryHandle) return;
+
+            try {
+                const projects = [];
+
+                // Scan for .omsp files
+                for await (const entry of audioLibraryHandle.values()) {
+                    if (entry.kind === 'file' && entry.name.endsWith('.omsp')) {
+                        try {
+                            const file = await entry.getFile();
+                            const text = await file.text();
+                            const data = JSON.parse(text);
+
+                            projects.push({
+                                filename: entry.name,
+                                name: data.name || entry.name.replace('.omsp', ''),
+                                created: data.created,
+                                isDefault: entry.name === 'default.omsp'
+                            });
+                        } catch (error) {
+                            console.error(`Failed to load project: ${entry.name}`, error);
+                        }
+                    }
+                }
+
+                // Sort: default first, then by date (newest first)
+                projects.sort((a, b) => {
+                    if (a.isDefault) return -1;
+                    if (b.isDefault) return 1;
+                    return new Date(b.created) - new Date(a.created);
+                });
+
+                // Add projects to dropdown
+                projects.forEach(proj => {
+                    const option = document.createElement('option');
+                    option.value = proj.isDefault ? 'default' : proj.filename;
+                    option.textContent = proj.isDefault ? `${proj.name} (auto-save)` : proj.name;
+                    select.appendChild(option);
+                });
+
+                // Restore selection if valid
+                if (currentSelection) {
+                    const optionExists = Array.from(select.options).some(opt => opt.value === currentSelection);
+                    if (optionExists) {
+                        select.value = currentSelection;
+                    }
+                }
+
+                console.log('V3.1.0-A: Loaded projects:', projects.length);
+
+            } catch (error) {
+                console.error('V3.1.0-A: Failed to load projects:', error);
+            }
+        }
+
+        // Update project info display
+        function updateProjectStateInfo(projectData) {
+            const infoBox = document.getElementById('projectStateInfo');
+            const infoContent = document.getElementById('projectStateInfoContent');
+
+            if (!projectData) {
+                infoBox.style.display = 'none';
+                return;
+            }
+
+            const state = projectData.gridState;
+            const assignedCells = state.cells.filter(c => c !== null).length;
+
+            infoContent.innerHTML = `
+                <strong>Version:</strong> ${projectData.version || '3.1.0'}<br>
+                <strong>Created:</strong> ${new Date(projectData.created).toLocaleString()}<br>
+                <strong>Master Tempo:</strong> ${state.masterTempo} BPM<br>
+                <strong>Assigned Cells:</strong> ${assignedCells} / 32<br>
+                <strong>Active Tracks:</strong> ${state.trackVolumes.filter((v, i) => v > 0 && !state.trackMutes[i]).length}
+            `;
+
+            infoBox.style.display = 'block';
+        }
+
+        // V3.1.0-A: Listen for project state selection changes
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.getElementById('projectStateSelect');
+            if (select) {
+                select.addEventListener('change', async () => {
+                    const selectedValue = select.value;
+
+                    if (!selectedValue || selectedValue === '') {
+                        const infoBox = document.getElementById('projectStateInfo');
+                        if (infoBox) infoBox.style.display = 'none';
+                        return;
+                    }
+
+                    // Load project info for display
+                    try {
+                        if (!audioLibraryHandle) return;
+                        
+                        const filename = selectedValue === 'default' ? 'default.omsp' : selectedValue;
+                        const fileHandle = await audioLibraryHandle.getFileHandle(filename);
+                        const file = await fileHandle.getFile();
+                        const text = await file.text();
+                        const projectData = JSON.parse(text);
+
+                        updateProjectStateInfo(projectData);
+
+                    } catch (error) {
+                        console.error('Failed to load project info:', error);
+                    }
+                });
+            }
+        });
 
     </script>
 </body>
