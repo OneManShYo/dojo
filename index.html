@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V4_5
+ONEMANSHYO Dojo App V4_6
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V4_5
+Version: V4_6
 -->
 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V4_5]</title>
+    <title>ONEMANSHYO App [V4_6]</title>
     <!-- V4_3_0_sub6: JSZip for container export (loaded from CDN when needed) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -1440,6 +1440,37 @@ Version: V4_5
             font-style: italic;
         }
         
+        /* V4_6_01: Editable name styling */
+        .info-drawer-value.editable {
+            cursor: text;
+        }
+        
+        .info-drawer-value.editable:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+        
+        .editable-name-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #0ff;
+            color: #fff;
+            padding: 2px 6px;
+            font-size: inherit;
+            font-family: inherit;
+            width: 100%;
+            outline: none;
+            border-radius: 3px;
+        }
+        
+        .container-name.editable {
+            cursor: text;
+        }
+        
+        .container-name.editable:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
         .info-drawer-nav {
             display: flex;
             justify-content: flex-end;
@@ -2295,7 +2326,7 @@ Version: V4_5
     <div class="header">
         <div class="header-left">
             <div class="header-brand">ONEMANSHYO</div>
-            <div class="header-app">[Beta V4_5_0]</div>
+            <div class="header-app">[Beta V4_6_0]</div>
         </div>
         <div class="header-greeting" id="headerGreeting">Hi Friend, I'm Wes!</div>
     </div>
@@ -2324,15 +2355,41 @@ Version: V4_5
                     <!-- V4_5_0: SHADER CONTROLS header - matches content width, proper spacing -->
                     <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 4px; margin-top: 5px; margin-bottom: 15px;">
                         <div class="shader-header" style="margin: 0; padding: 0;">SHADER CONTROLS</div>
-                        <button class="info-drawer-swap-btn" onclick="toggleCodeView()">Code</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="info-drawer-swap-btn" onclick="toggleCodeView()">Code</button>
+                            <button class="info-drawer-swap-btn" onclick="saveToLibrary()">Save</button>
+                        </div>
                     </div>
                     
                     <!-- V4_5_0: Controls content wrapper -->
                     <div id="shaderControlsContent">
+                    
+                    <!-- V4_6_19: Name as single select (click to swap from presets) -->
+                    <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px;">Name</label>
+                    <div class="control-row">
+                        <div class="control-group" style="flex: 1;">
+                            <select id="shaderNameSelect" style="width: 100%;" onchange="onShaderNameSelect()" onfocus="populateShaderNameSelect()" title="Current shader - click to swap from presets">
+                                <option value="_current" selected>Untitled</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- V4_6_0: Orientation moved up - fundamental shader setting -->
+                    <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px;">Orientation</label>
+                    <div class="control-row">
+                        <div class="control-group" style="flex: 1;">
+                            <select id="orientation" style="width: 100%;" title="Video Aspect Ratio" onchange="updateCanvasSize(); autoSaveProject();">
+                                <option value="landscape">Landscape</option>
+                                <option value="portrait" selected>Portrait</option>
+                                <option value="square">Square</option>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <!-- V4_5_0: Timing sub-section -->
                     <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px;">Timing</label>
                     
-                    <!-- V2.1.1-G: Orientation moved to Output section (Row 5) -->
+                    <!-- V4_6_0: Orientation moved above Timing -->
                     
                     <!-- Row 1: Shader Timing Controls (NO IN/OUT) -->
                     <div class="control-row">
@@ -2514,25 +2571,18 @@ Version: V4_5
                     <!-- V2.1.1-G: Output Section -->
                     <div class="output-header">Output</div>
 
-                    <!-- Row 5: Orientation, Resolution, FPS -->
+                    <!-- V4_6_0: Resolution, FPS only (Orientation moved above Timing) -->
                     <div class="control-row">
-                        <div class="control-group">
-                            <select id="orientation" title="Video Aspect Ratio">
-                                <option value="landscape">Landscape</option>
-                                <option value="portrait" selected>Portrait</option>
-                                <option value="square">Square</option>
-                            </select>
-                        </div>
-                        <div class="control-group">
-                            <select id="resolution" title="Video Resolution">
+                        <div class="control-group" style="flex: 1;">
+                            <select id="resolution" style="width: 100%;" title="Video Resolution">
                                 <option value="720">720p</option>
                                 <option value="1080" selected>1080p</option>
                                 <option value="1440">1440p</option>
                                 <option value="2160">2160p</option>
                             </select>
                         </div>
-                        <div class="control-group">
-                            <select id="fps" title="Video Frame Rate">
+                        <div class="control-group" style="flex: 1;">
+                            <select id="fps" style="width: 100%;" title="Video Frame Rate">
                                 <option value="24">24 FPS</option>
                                 <option value="30" selected>30 FPS</option>
                                 <option value="60">60 FPS</option>
@@ -2557,7 +2607,6 @@ Version: V4_5
                 <div class="code-header">
                     <button class="btn" onclick="compileShader(true)" title="Compile Shader">Compile</button>
                     <button class="btn" onclick="copyShaderCode()" title="Copy Shader to Clipboard">Copy</button>
-                    <button class="btn" onclick="addToLibrary()" title="Save to Library">Save</button>
                     <button class="btn" onclick="exportShaderTxt()" title="Export Shader as .wgsl File">Export</button>
                 </div>
                 <textarea class="editor" id="shaderCode" placeholder="Paste your shader code here...">
@@ -2639,8 +2688,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             <div class="shader-header" style="margin: 0; padding: 0;">SET</div>
                         </div>
                         <select id="liveSetSelector" onchange="onLiveSetChange()" style="background: rgba(255,255,255,0.1); border: 1px solid #555; color: #fff; padding: 8px 12px; font-size: 12px; margin-bottom: 12px;">
-                            <option value="presets" selected>Presets</option>
                             <option value="all">All</option>
+                            <option value="audio">All Audio</option>
+                            <option value="presets" selected>Presets</option>
                             <!-- Additional sets populated dynamically -->
                         </select>
                         
@@ -2649,8 +2699,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             <div id="sortByName" onclick="toggleLibrarySort('name')" style="cursor: pointer; user-select: none;">
                                 Name <span id="sortNameArrow">▼</span>
                             </div>
-                            <div id="sortByBPM" onclick="toggleLibrarySort('bpm')" style="cursor: pointer; user-select: none;">
-                                BPM <span id="sortBPMArrow"></span>
+                            <div id="sortByTempo" onclick="toggleLibrarySort('tempo')" style="cursor: pointer; user-select: none;">
+                                Tempo <span id="sortTempoArrow"></span>
                             </div>
                         </div>
                         
@@ -2683,6 +2733,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                  onclick="selectLibrarySet('all')"
                                  style="background: rgba(255, 255, 255, 0.03); padding: 8px 12px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #333; cursor: pointer; font-size: 12px; color: #fff;">
                                 All
+                            </div>
+                            <!-- V4_6_02: All Audio set - containers with audio -->
+                            <div class="library-set-card" data-set-id="audio" 
+                                 onclick="selectLibrarySet('audio')"
+                                 style="background: rgba(255, 255, 255, 0.03); padding: 8px 12px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #333; cursor: pointer; font-size: 12px; color: #fff;">
+                                All Audio
                             </div>
                             <!-- Presets set - shows embedded system presets -->
                             <div class="library-set-card selected" data-set-id="presets" 
@@ -3056,25 +3112,24 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     
                     <!-- V4_5_19: Library toolbar with search, CRUD, organization buttons -->
                     <div class="library-toolbar">
-                        <input type="text" class="search-input" id="librarySearchInput" placeholder="Search..." title="Search containers (name, BPM, tags)">
+                        <input type="text" class="search-input" id="librarySearchInput" placeholder="Search..." title="Search containers (name, tempo, tags)">
                         
                         <div class="toolbar-group">
-                            <button class="toolbar-btn" id="libraryLoadBtn2" onclick="loadSelectedContainer()" title="Load selected container [L]">L</button>
-                            <button class="toolbar-btn" id="libraryUpdateBtn2" onclick="updateSelectedContainer()" title="Update selected with current state [U]">U</button>
-                            <button class="toolbar-btn" id="libraryExportBtn2" onclick="exportSelectedContainer()" title="Export container + audio as .oms.zip [E]">E</button>
-                            <button class="toolbar-btn" id="libraryAddBtn2" onclick="addToLibrary()" title="Add current to library [+]">+</button>
+                            <button class="toolbar-btn" id="libraryLoadBtn2" onclick="loadSelectedContainer()" title="Load selected container [Cmd+L]">L</button>
+                            <button class="toolbar-btn" id="libraryUpdateBtn2" onclick="updateSelectedContainer()" title="Update selected with current state [Cmd+U]">U</button>
+                            <button class="toolbar-btn" id="libraryExportBtn2" onclick="exportSelectedContainer()" title="Export container + audio as .oms.zip [Cmd+E]">E</button>
+                            <button class="toolbar-btn" id="libraryAddBtn2" onclick="addToLibrary()" title="Add current to library">+</button>
                         </div>
                         
                         <div class="toolbar-group">
-                            <button class="toolbar-btn" id="libraryMakeSetBtn" onclick="showStatus('Make Set: Coming soon', '')" title="Create set from selection [+Set]">+Set</button>
-                            <button class="toolbar-btn active" id="libraryListViewBtn" onclick="setLibraryView('list')" title="List view">≡</button>
-                            <button class="toolbar-btn" id="libraryGridViewBtn" onclick="setLibraryView('grid')" title="Grid view">▦</button>
-                            <button class="toolbar-btn" id="libraryInfoBtn" onclick="toggleInfoDrawer()" title="Info drawer [I]">ℹ</button>
+                            <button class="toolbar-btn" id="libraryMakeSetBtn" onclick="showStatus('Make Set: Coming soon', '')" title="Create set from selection (coming soon)">+Set</button>
+                            <button class="toolbar-btn" id="libraryViewToggleBtn" onclick="toggleLibraryView()" title="Toggle list/grid view">≡</button>
+                            <button class="toolbar-btn" id="libraryInfoBtn" onclick="toggleInfoDrawer()" title="Info drawer [Cmd+I]">ℹ</button>
                         </div>
                         
                         <div class="toolbar-spacer"></div>
                         
-                        <button class="toolbar-btn danger" id="libraryDeleteBtn2" onclick="removeSelectedContainer()" title="Delete selected container [X]">X</button>
+                        <button class="toolbar-btn danger" id="libraryDeleteBtn2" onclick="removeSelectedContainer()" title="Delete selected container">X</button>
                     </div>
                     
                     <!-- V4_4_0: Inline input row for container name (hidden by default) -->
@@ -3099,8 +3154,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         <div id="sortByAudio2" onclick="toggleLibrarySort('audio')" style="cursor: pointer; user-select: none; width: 55px; text-align: center;">
                             Audio <span id="sortAudioArrow2"></span>
                         </div>
-                        <div id="sortByBPM2" onclick="toggleLibrarySort('bpm')" style="cursor: pointer; user-select: none; width: 50px; text-align: right;">
-                            BPM <span id="sortBPMArrow2"></span>
+                        <div id="sortByTempo2" onclick="toggleLibrarySort('tempo')" style="cursor: pointer; user-select: none; width: 50px; text-align: right;">
+                            Tempo <span id="sortTempoArrow2"></span>
                         </div>
                     </div>
                     
@@ -3121,12 +3176,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     <div class="info-drawer-content">
                         <div class="info-drawer-field">
                             <div class="info-drawer-label">Name</div>
-                            <div class="info-drawer-value" id="infoDrawerName">—</div>
+                            <div class="info-drawer-value editable" id="infoDrawerName" onclick="startInfoDrawerNameEdit()">—</div>
                         </div>
                         
                         <div class="info-drawer-field">
-                            <div class="info-drawer-label">BPM</div>
-                            <div class="info-drawer-value" id="infoDrawerBPM">—</div>
+                            <div class="info-drawer-label">TEMPO</div>
+                            <div class="info-drawer-value" id="infoDrawerTempo">—</div>
                         </div>
                         
                         <div class="info-drawer-field">
@@ -3177,11 +3232,25 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             <!-- V4_4_0: Audio Controls Section - wraps audio waveform + controls strip -->
             <div class="audio-controls-section">
             
-            <!-- V4_5_20: Audio Controls section header -->
-            <div class="shader-header" id="audioControlsHeader">Audio Controls</div>
+            <!-- V4_6_0: Audio Controls section header with Swap/X buttons -->
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 4px; margin-top: 5px; margin-bottom: 0; position: relative;">
+                <div class="shader-header" style="margin: 0; padding: 0;" id="audioControlsHeader">AUDIO CONTROLS</div>
+                <!-- V4_6_0: Audio swap dropdown (absolute positioned, hidden until Swap clicked) -->
+                <select id="createAudioSwapSelect" style="display: none; position: absolute; right: 100px; top: 50%; transform: translateY(-50%); max-width: 250px; background: #333; border: 1px solid #555; color: #fff; padding: 6px; font-size: 12px; z-index: 10;" onchange="onCreateAudioSwapSelect()">
+                </select>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="info-drawer-swap-btn" id="waveformSwapBtn" onclick="showCreateAudioSwapDropdown()" title="Pick audio from Library">Swap</button>
+                    <button class="info-drawer-swap-btn danger inactive" id="waveformRemoveBtn" onclick="removeAudio()" title="Remove Audio" disabled>X</button>
+                </div>
+            </div>
             
             <!-- Audio Waveform (120px Fixed Height) -->
             <div class="audio-waveform">
+                <!-- V4_6_0: Drag/Drop placeholder (shown when no audio) -->
+                <div id="waveformPlaceholder" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); color: #666; font-size: 14px; pointer-events: none;">
+                    Drag/Drop Audio
+                </div>
+                
                 <!-- Waveform canvas (shown when audio loaded) -->
                 <canvas id="waveformCanvas" style="display: none;"></canvas>
                 
@@ -3220,10 +3289,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 </div>
                 
                 <!-- V4_5_0: CELL 3: Tempo/Pitch (smaller fields) -->
+                <!-- V4_6_17: Fixed label widths to match input fields -->
                 <div class="controls-cell audio-props">
                     <div class="cell-label-row">
-                        <div class="label-item">Tempo</div>
-                        <div class="label-item">Pitch</div>
+                        <div class="label-item" style="width: 70px; flex: 0 0 70px;">Tempo</div>
+                        <div class="label-item" style="width: 50px; flex: 0 0 50px;">Pitch</div>
                     </div>
                     <div class="cell-controls-row">
                         <input type="text" id="audioTempoField" value="120.00" 
@@ -3244,8 +3314,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         <div class="label-item"></div>
                     </div>
                     <div class="cell-controls-row">
-                        <input type="text" id="audioLoopInField" value="17.1" title="Loop In (Bar.Beat format: 1.1, 17.1, etc.)" style="width: 50px; flex: 0 0 50px;">
-                        <input type="text" id="audioLoopOutField" value="33.1" title="Loop Out (Bar.Beat format: 1.1, 33.1, etc.)" style="width: 50px; flex: 0 0 50px;">
+                        <input type="text" id="audioLoopInField" value="1.1" title="Loop In (Bar.Beat format: 1.1, 17.1, etc.)" style="width: 50px; flex: 0 0 50px;">
+                        <input type="text" id="audioLoopOutField" value="17.1" title="Loop Out (Bar.Beat format: 1.1, 33.1, etc.)" style="width: 50px; flex: 0 0 50px;">
                         <button class="btn" id="audioLoopBtn" onclick="toggleAudioLoop()" title="Loop: Audio repeats IN to OUT" disabled style="width: 50px; flex: 0 0 50px;">Loop</button>
                     </div>
                 </div>
@@ -3255,14 +3325,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     <div class="cell-label-row">
                         <div class="label-item" style="width: 64px;">Beat Grid</div>
                         <div class="label-item" style="flex: 1;"></div>
-                        <div class="label-item" style="width: 32px;"></div>
                     </div>
                     <div class="cell-controls-row">
                         <button class="btn btn-square inactive" id="audioGridBtn" onclick="toggleAudioGrid()" title="Grid: OFF (hidden) - Click to show">G</button>
                         <button class="btn btn-square inactive" onclick="snapAudioEndToBar()" id="audioSnapBtn" disabled title="Calculate last complete bar">S</button>
                         <input type="text" id="audioSnapLastBarField" value="" readonly style="flex: 1; text-align: center;" title="Last complete bar from Audio Start">
-                        <span style="border-left: 1px solid #444; height: 24px; margin: 0 4px;"></span>
-                        <button class="btn btn-square inactive" onclick="removeAudio()" id="audioRemoveBtn" disabled title="Remove loaded audio">X</button>
                     </div>
                 </div>
                 
@@ -3572,8 +3639,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             headerGreeting: 'Hi Friend, I\'m Wes!' // Custom header greeting text (max 50 chars)
         };
         
+        // V4_6_0: Default loop points for fresh audio (stored in .omsp)
+        let projectLoopDefaults = {
+            loopIn: '1.1',
+            loopOut: '17.1'
+        };
+        
         // V3.2.0-Q: Track container data for beat grid & sync
-        // Stores audio timing data per track: { audioBPM, audioStartTime, audioEndTime, name }
+        // Stores audio timing data per track: { audioTempo, audioStartTime, audioEndTime, name }
         const trackContainerData = [null, null, null, null]; // 4 tracks
         
         // V2.2.0-H: Nudge offset for fine-tuning loop timing (in milliseconds)
@@ -3819,12 +3892,20 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const file = event.target.files[0];
             if (!file) return;
             
+            // V4_6_0: Set loop defaults from project (containers will override after)
+            document.getElementById('audioLoopInField').value = projectLoopDefaults.loopIn;
+            document.getElementById('audioLoopOutField').value = projectLoopDefaults.loopOut;
+            
             // V4_5_0: Update UI - show waveform, enable buttons (no hide/show shift)
             document.getElementById('waveformCanvas').style.display = 'block';
+            document.getElementById('waveformPlaceholder').style.display = 'none'; // V4_6_0
             document.getElementById('audioSnapBtn').disabled = false;
             document.getElementById('audioSnapBtn').classList.remove('inactive');
-            document.getElementById('audioRemoveBtn').disabled = false;
-            document.getElementById('audioRemoveBtn').classList.remove('inactive');
+            // V4_6_0: Enable waveform remove button
+            document.getElementById('waveformRemoveBtn').disabled = false;
+            document.getElementById('waveformRemoveBtn').classList.remove('inactive');
+            // V4_6_0: Hide swap dropdown if open
+            document.getElementById('createAudioSwapSelect').style.display = 'none';
             
             // Show loading state
             audioBufferData = null;
@@ -3877,6 +3958,19 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 audioExplicitlyRemoved = false;  // V4_5_19: Clear removal flag
                 currentAudioFile = file;  // V2.8.0-L: Store File object for filename
                 showStatus(`Audio loaded: ${file.name} (${detectedBPM.toFixed(2)} Tempo)`, 'success');
+                
+                // V4_6_0: Prepend cleaned audio name to filename field
+                const filenameField = document.getElementById('filename');
+                if (filenameField) {
+                    const cleanedAudioName = cleanAudioName(file.name);
+                    const currentFilename = filenameField.value.trim();
+                    if (currentFilename) {
+                        filenameField.value = cleanedAudioName + ' ' + currentFilename;
+                    } else {
+                        // No shader name yet, just use audio name
+                        filenameField.value = cleanedAudioName;
+                    }
+                }
                 
                 // V2.8.0-D: Enable pitch control
                 const audioPitchField = document.getElementById('audioPitchField');
@@ -4386,10 +4480,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             // V4_5_0: Reset UI - hide waveform, disable buttons (no hide/show shift)
             document.getElementById('waveformCanvas').style.display = 'none';
+            document.getElementById('waveformPlaceholder').style.display = 'flex'; // V4_6_0: Show placeholder
             document.getElementById('audioSnapBtn').disabled = true;
             document.getElementById('audioSnapBtn').classList.add('inactive');
-            document.getElementById('audioRemoveBtn').disabled = true;
-            document.getElementById('audioRemoveBtn').classList.add('inactive');
+            // V4_6_0: Disable waveform remove button
+            document.getElementById('waveformRemoveBtn').disabled = true;
+            document.getElementById('waveformRemoveBtn').classList.add('inactive');
             document.getElementById('audioFile').value = '';
             
             // V4.0.0_D_sub21: Clear Last Bar field
@@ -4843,6 +4939,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             }
             
             showLoopDuration();
+            
+            // V4_6_0: Save as new default for fresh audio
+            autoSaveProject();
         });
         
         // Add focus handler to show duration
@@ -4921,6 +5020,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             e.target.value = beatsToBarBeat(finalBeat);
             showLoopDuration();
+            
+            // V4_6_0: Save as new default for fresh audio
+            autoSaveProject();
         });
         
         // Add focus handler to show duration
@@ -5179,6 +5281,26 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 }
                 
                 showStatus('Shader compiled - Tempo: ' + currentTempo + ' BPM | Mods: A/B/C Active', 'success');
+                
+                // V4_6_19: Update shader name in select dropdown
+                const nameSelect = document.getElementById('shaderNameSelect');
+                if (nameSelect && nameSelect.options.length > 0) {
+                    const shaderName = parseShaderNameFromCode(shaderCode) || 'Untitled';
+                    nameSelect.options[0].textContent = shaderName;
+                    nameSelect.options[0].value = '_current';
+                    nameSelect.selectedIndex = 0;
+                    
+                    // V4_6_0: Update filename field with shader name (prepend audio name if loaded)
+                    const filenameField = document.getElementById('filename');
+                    if (filenameField) {
+                        if (audioLoaded && currentAudioFile) {
+                            const cleanedAudioName = cleanAudioName(currentAudioFile.name);
+                            filenameField.value = cleanedAudioName + ' ' + shaderName;
+                        } else {
+                            filenameField.value = shaderName;
+                        }
+                    }
+                }
                 
                 if (!animationId) {
                     render();
@@ -6295,7 +6417,18 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         // V4_4_0: Scan Presets folder and cache results
         // V4_4_0: Scan Presets folder for .oms files
+        // V4_6_22: Use shaderCode property (consistent with containers)
+        // V4_6_0: Try to get presetsFolderHandle if not set
         async function refreshUserPresets() {
+            // Try to get Presets folder if we have app folder but no presets handle
+            if (!presetsFolderHandle && applicationFolderHandle) {
+                try {
+                    presetsFolderHandle = await applicationFolderHandle.getDirectoryHandle('Presets', { create: false });
+                } catch (e) {
+                    // Presets folder doesn't exist yet - that's ok
+                }
+            }
+            
             if (!presetsFolderHandle) {
                 userPresetsCache = [];
                 return [];
@@ -6314,7 +6447,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             name: data.name || name,
                             filename: entry.name,
                             orientation: data.controlStates?.orientation || 'portrait',
-                            code: data.shaderCode,
+                            shaderCode: data.shaderCode,
                             controlStates: data.controlStates
                         });
                     }
@@ -6383,7 +6516,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 controlStates: getCurrentControlState(),
                 // No audio fields - this is a preset
                 audioFilename: null,
-                audioBPM: null,
+                audioTempo: null,
                 audioStartTime: null,
                 audioEndTime: null
             };
@@ -6456,6 +6589,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         let applicationFolderHandle = null;
         let libraryFolderHandle = null;  // V4_3_0_sub8: Library subfolder handle
         let presetsFolderHandle = null;  // V4_4_0: Presets subfolder handle
+        let pendingSaveAfterFolderSetup = false;  // V4_6_12: Resume save after folder setup
+        let pendingAudioSwapAfterFolderSetup = false;  // V4_6_0: Resume audio swap after folder setup
         
         // V3_8_0_E: Project management
         let activeProjectName = null;  // Current project subfolder name
@@ -6608,6 +6743,18 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 await refreshLibraryListRight();
                 
                 showStatus(`Library set: ${applicationFolderHandle.name}/Library`, 'success');
+                
+                // V4_6_12: Resume pending save if flag was set
+                if (pendingSaveAfterFolderSetup) {
+                    pendingSaveAfterFolderSetup = false;
+                    await saveToLibrary();
+                }
+                
+                // V4_6_0: Resume pending audio swap if flag was set
+                if (pendingAudioSwapAfterFolderSetup) {
+                    pendingAudioSwapAfterFolderSetup = false;
+                    await showCreateAudioSwapDropdown();
+                }
             } catch (error) {
                 if (error.name !== 'AbortError') {
                     console.error('Failed to setup application folder:', error);
@@ -6638,12 +6785,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // Create .oms container
                 const container = {
                     name: preset.name,
-                    shaderCode: preset.code,
+                    shaderCode: preset.shaderCode,
                     controlStates: {
                         orientation: preset.orientation || 'portrait'
                     },
                     audioFilename: null,
-                    audioBPM: null,
+                    audioTempo: null,
                     audioStartTime: null,
                     audioEndTime: null,
                     version: 'V4_4_0',
@@ -6798,7 +6945,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         let libraryContainersCache = [];
         
         // V4_3_0: Library sort state
-        let librarySortBy = 'name';  // 'name' or 'bpm'
+        let librarySortBy = 'name';  // 'name' or 'tempo'
         let librarySearchTerm = '';  // V4_5_19: Search filter term
         let librarySortDir = 'asc';  // 'asc' or 'desc'
         let libraryViewMode = 'list';  // V4_5_19: 'list' or 'grid'
@@ -6821,14 +6968,14 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         // V4_3_0: Update sort arrow indicators
         function updateSortArrows() {
             const nameArrow = document.getElementById('sortNameArrow');
-            const bpmArrow = document.getElementById('sortBPMArrow');
+            const tempoArrow = document.getElementById('sortTempoArrow');
             const audioArrow = document.getElementById('sortAudioArrow');
             
             if (nameArrow) {
                 nameArrow.textContent = librarySortBy === 'name' ? (librarySortDir === 'asc' ? '▼' : '▲') : '';
             }
-            if (bpmArrow) {
-                bpmArrow.textContent = librarySortBy === 'bpm' ? (librarySortDir === 'asc' ? '▼' : '▲') : '';
+            if (tempoArrow) {
+                tempoArrow.textContent = librarySortBy === 'tempo' ? (librarySortDir === 'asc' ? '▼' : '▲') : '';
             }
             if (audioArrow) {
                 audioArrow.textContent = librarySortBy === 'audio' ? (librarySortDir === 'asc' ? '▼' : '▲') : '';
@@ -6846,6 +6993,144 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // This function kept for compatibility but does nothing
             console.warn('V4_3_0: saveLibraryContainers() deprecated - use folder operations');
             broadcastLibrary();
+        }
+        
+        // V4_6_08: Unified container object builder - all container creation paths use this
+        // V4_6_11: Standardized on audioTempo (not audioBPM), fixed loop math (0=1.1, 64=17.1)
+        // V4_6_13: Read tempo from UI field (single source of truth)
+        // V4_6_14: Fallback to filename parsing if UI field empty
+        function buildContainerObject(containerName, audioFilenameOverride = null) {
+            const shaderCode = document.getElementById('shaderCode').value;
+            const states = getCurrentControlState();
+            
+            // Audio filename: use override if provided, else from currentAudioFile
+            let audioFilename = audioFilenameOverride;
+            if (!audioFilename && audioLoaded && currentAudioFile) {
+                audioFilename = currentAudioFile.name;
+            }
+            
+            // Audio tempo: UI field is source of truth, filename is fallback
+            let containerAudioTempo = null;
+            if (audioFilename) {
+                // Try UI field first (user-editable)
+                const tempoFieldValue = parseFloat(document.getElementById('audioTempoField').value);
+                if (!isNaN(tempoFieldValue) && tempoFieldValue > 0) {
+                    containerAudioTempo = tempoFieldValue;
+                }
+                // Fallback: parse from filename
+                if (!containerAudioTempo) {
+                    containerAudioTempo = parseBPMFromFilename(audioFilename);
+                }
+            }
+            
+            // Loop points: defaults are 1.1 → 17.1 (0 beats to 64 beats)
+            // bar.beat math: 1.1 = (1-1)*4 + (1-1) = 0, 17.1 = (17-1)*4 + (1-1) = 64
+            let loopIn = 0;   // 1.1 in bar.beat = 0 beats
+            let loopOut = 64; // 17.1 in bar.beat = 64 beats (16 bars)
+            let loopEnabled = false;
+            
+            if (audioLoaded) {
+                const uiLoopIn = barBeatToBeats(document.getElementById('audioLoopInField').value);
+                const uiLoopOut = barBeatToBeats(document.getElementById('audioLoopOutField').value);
+                
+                // Only use UI values if they form a valid range
+                if (uiLoopOut > uiLoopIn) {
+                    loopIn = uiLoopIn;
+                    loopOut = uiLoopOut;
+                    loopEnabled = audioLoopEnabled;
+                }
+                // else: keep defaults (1.1 → 17.1)
+            }
+            
+            return {
+                id: Date.now().toString(),
+                name: containerName,
+                shaderCode: shaderCode,
+                controlStates: states,
+                audioFilename: audioFilename,
+                audioTempo: containerAudioTempo,
+                audioPitch: audioPitch,
+                audioStartTime: audioStartTime,
+                audioEndTime: audioEndTime,
+                audioSnapLastBar: audioSnapLastBar,
+                audioLoopIn: loopIn,
+                audioLoopOut: loopOut,
+                audioLoopEnabled: loopEnabled,
+                hasAudio: !!audioFilename,
+                shaderModATimeline: null,
+                shaderModBTimeline: null,
+                shaderModCTimeline: null,
+                created: new Date().toISOString()
+            };
+        }
+        
+        // V4_6_06: Save current CREATE state to library, switch to ORGANIZE, open drawer
+        async function saveToLibrary() {
+            // Check if folder is set - if not, show overlay (don't auto-open picker)
+            if (!applicationFolderHandle) {
+                // V4_6_12: Set flag to resume save after folder setup
+                pendingSaveAfterFolderSetup = true;
+                // Switch to ORGANIZE tab and show the folder overlay
+                switchTab('library');
+                document.getElementById('appFolderOverlay').classList.add('active');
+                showStatus('Set Application folder first to save', 'error');
+                return;
+            }
+            
+            // V4_6_0: Use filename field as container name (already has audio_shader format)
+            const filenameField = document.getElementById('filename');
+            let containerName = filenameField?.value.trim() || '';
+            
+            // Fallback if empty: get shader name from code
+            if (!containerName) {
+                const shaderCode = document.getElementById('shaderCode').value;
+                containerName = parseShaderNameFromCode(shaderCode) || 'Untitled';
+            }
+            
+            // Sanitize for filesystem
+            containerName = sanitizeFilename(containerName);
+            
+            // V4_6_08: Use unified container builder
+            const container = buildContainerObject(containerName);
+            
+            // Analyze audio timeline if loaded
+            if (audioLoaded && audioElement) {
+                await analyzeAudioTimeline(container);
+            }
+            
+            // Save to filesystem
+            await saveContainerToOMS(container);
+            
+            // Update cache
+            const containers = getLibraryContainers();
+            containers.push(container);
+            saveLibraryContainers(containers);
+            
+            isDirty = false;
+            
+            // Switch to ORGANIZE tab
+            switchTab('library');
+            
+            // Refresh lists
+            await refreshLibraryList();
+            await refreshLibraryListRight();
+            
+            // Select the new container
+            window.selectedLibraryContainerId = containerName;
+            
+            // Focus the card
+            const card = document.querySelector(`#libraryListRight .library-card[data-container-id="${containerName}"]`);
+            if (card) {
+                card.focus();
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Open info drawer for editing
+            window.infoDrawerViewingContainerId = containerName;
+            openInfoDrawer();
+            populateInfoDrawer(containerName);
+            
+            showStatus(`Saved: ${containerName}`, 'success');
         }
         
         async function addToLibrary() {
@@ -6992,52 +7277,16 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 return;
             }
             
-            const shaderCode = document.getElementById('shaderCode').value;
-            const states = getCurrentControlState();
-            let audioFilename = null;
-            let audioBPM = null;
-            
-            // V2.8.0-L: Store filename only, not blob
-            if (audioLoaded && currentAudioFile) {
-                audioFilename = currentAudioFile.name;
-                audioBPM = audioTempo;
-            }
-            
-            const container = {
-                id: Date.now().toString(),
-                name: containerName,
-                shaderCode: shaderCode,
-                controlStates: states,
-                audioFilename: audioFilename,  // Changed from audioData
-                audioBPM: audioBPM,
-                audioPitch: audioPitch,        // V3.2.0-P: Save pitch adjustment
-                audioStartTime: audioStartTime,  // V3.2.0-P: Save song start time
-                audioEndTime: audioEndTime,      // V3.2.0-P: Save song end time
-                audioSnapLastBar: audioSnapLastBar,  // V4.0.0_D_sub18: Last bar number audio end was snapped to
-                audioLoopIn: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopInField').value) : null,   // V3.2.0-P: Save loop in (beats)
-                audioLoopOut: audioLoaded ? barBeatToBeats(document.getElementById('audioLoopOutField').value) : null, // V3.2.0-P: Save loop out (beats)
-                audioLoopEnabled: audioLoopEnabled,  // V4_4_0: Save loop on/off state
-                hasAudio: !!audioFilename,
-                shaderModATimeline: null,  // V3_9_0_L_sub1: Audio analysis timeline for shader mod A
-                shaderModBTimeline: null,  // V3_9_0_L_sub1: Audio analysis timeline for shader mod B
-                shaderModCTimeline: null,  // V3_9_0_L_sub1: Audio analysis timeline for shader mod C
-                created: new Date().toISOString()
-            };
+            // V4_6_08: Use unified container builder
+            const container = buildContainerObject(containerName);
             
             const containers = getLibraryContainers();
             containers.push(container);
             saveLibraryContainers(containers);
             
-            // V3.9.0_L_sub13: Debug logging to diagnose analysis check
-            console.log('V3.9.0_L_sub13: Add to Library clicked');
-            console.log('V3.9.0_L_sub13: audioLoaded =', audioLoaded);
-            console.log('V3.9.0_L_sub13: audioElement =', audioElement);
-            console.log('V3.9.0_L_sub13: container.hasAudio =', container.hasAudio);
-            console.log('V3.9.0_L_sub13: container.audioFilename =', container.audioFilename);
-            
             // V3_9_0_L_sub1: Analyze audio timeline if loaded (populate shader mod timelines)
             if (audioLoaded && audioElement) {
-                console.log('V3.9.0_L_sub13: Starting audio timeline analysis (Add to Library)...');
+                console.log('V4_6_08: Starting audio timeline analysis (Add to Library)...');
                 await analyzeAudioTimeline(container);
                 
                 // Re-save with timeline data included
@@ -7046,10 +7295,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 if (containerIndex >= 0) {
                     updatedContainers[containerIndex] = container;
                     saveLibraryContainers(updatedContainers);
-                    console.log('V3.9.0_L_sub13: Timeline data saved to container (Add to Library)');
                 }
-            } else {
-                console.warn('V3.9.0_L_sub13: Skipping analysis - audioLoaded:', audioLoaded, 'audioElement:', audioElement);
             }
             
             // V2.9.0-K: Auto-save .oms file to Audio Library folder
@@ -7081,9 +7327,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     id: `preset_${index}`,
                     name: preset.name,
                     system: true,
-                    shaderCode: preset.code,
+                    shaderCode: preset.shaderCode,
                     controlStates: { orientation: preset.orientation },
-                    audioBPM: null,
+                    audioTempo: null,
                     audioFilename: null,
                     hasAudio: false
                 }));
@@ -7093,8 +7339,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     let comparison = 0;
                     if (librarySortBy === 'name') {
                         comparison = a.name.localeCompare(b.name);
-                    } else if (librarySortBy === 'bpm') {
-                        comparison = 0; // All presets have no BPM
+                    } else if (librarySortBy === 'tempo') {
+                        comparison = 0; // All presets have no tempo
                     } else if (librarySortBy === 'audio') {
                         comparison = 0; // All presets have no audio
                     }
@@ -7177,7 +7423,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                 ...data,
                                 id: fileBaseName,  // Use filename, NOT internal data.id
                                 name: displayName,
-                                audioBPM: data.controlStates?.audioTempo || data.audioBPM || null,
+                                audioTempo: data.controlStates?.audioTempo || data.audioTempo || null,
                                 audioFilename: data.audioFilename || null,
                                 hasAudio: !!(data.audioFilename || data.controlStates?.audioFilename),
                                 filename: entry.name
@@ -7194,10 +7440,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     let comparison = 0;
                     if (librarySortBy === 'name') {
                         comparison = a.name.localeCompare(b.name);
-                    } else if (librarySortBy === 'bpm') {
-                        const bpmA = a.audioBPM || 0;
-                        const bpmB = b.audioBPM || 0;
-                        comparison = bpmA - bpmB;
+                    } else if (librarySortBy === 'tempo') {
+                        const tempoA = a.audioTempo || 0;
+                        const tempoB = b.audioTempo || 0;
+                        comparison = tempoA - tempoB;
                     } else if (librarySortBy === 'audio') {
                         // V4_4_0: Sort by audio presence (Y before N)
                         const audioA = (a.hasAudio || a.audioFilename) ? 1 : 0;
@@ -7218,7 +7464,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 let html = '';
                 containers.forEach((container, index) => {
-                    const bpmText = container.audioBPM ? `${parseFloat(container.audioBPM).toFixed(1)} BPM` : 'No audio';
+                    const tempoText = container.audioTempo ? `${parseFloat(container.audioTempo).toFixed(1)} BPM` : 'No audio';
                     const isActive = currentLoadedContainerId === container.id;
                     const activeStyle = isActive ? 'border: 1px solid #ffff00 !important; background: rgba(255, 255, 0, 0.1) !important;' : '';
                     
@@ -7235,7 +7481,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                 <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
                                     <span class="container-name" data-original-name="${container.name.replace(/"/g, '&quot;')}" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${container.name}">${container.name}</span>
                                 </div>
-                                <div style="color: #666; font-size: 11px; margin-left: 12px; flex-shrink: 0;">${bpmText}</div>
+                                <div style="color: #fff; font-size: 11px; margin-left: 12px; flex-shrink: 0;">${tempoText}</div>
                             </div>
                         </div>
                     `;
@@ -7353,6 +7599,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const selectedSet = window.selectedLiveSetId || 'presets';
             
             // V4_4_0: Presets section works without folder
+            // V4_6_02: Audio set also requires folder
             if (selectedSet !== 'presets' && !libraryFolderHandle) {
                 listDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px;">Set Application Folder to access your library.</div>';
                 return;
@@ -7363,6 +7610,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             let containers = libraryContainersCache;
             
+            // V4_6_02: Filter for audio-only containers
+            if (selectedSet === 'audio') {
+                containers = containers.filter(c => c.hasAudio || c.audioFilename);
+            }
+            
             // V4_5_19: Apply search filter
             if (librarySearchTerm) {
                 const searchLower = librarySearchTerm.toLowerCase();
@@ -7371,28 +7623,35 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     const name = (c.name || '').toLowerCase();
                     const id = (c.id || '').toLowerCase();
                     const audioFilename = (c.audioFilename || '').toLowerCase();
-                    const bpm = c.audioBPM ? c.audioBPM.toString() : '';
+                    const tempo = c.audioTempo ? c.audioTempo.toString() : '';
                     const shaderCode = (c.shaderCode || '').toLowerCase();
                     
                     return name.includes(searchLower) ||
                            id.includes(searchLower) ||
                            audioFilename.includes(searchLower) ||
-                           bpm.includes(searchLower) ||
+                           tempo.includes(searchLower) ||
                            shaderCode.includes(searchLower);
                 });
             }
             
             if (containers.length === 0) {
-                listDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px;">No containers in Library folder. Click [+] to save your first container.</div>';
+                // V4_6_02: Set-specific empty messages
+                let emptyMsg = 'No containers in Library folder. Click [+] to save your first container.';
+                if (selectedSet === 'audio') {
+                    emptyMsg = 'No containers with audio. Add audio to a container or create a new one with audio.';
+                } else if (librarySearchTerm) {
+                    emptyMsg = 'No containers match your search.';
+                }
+                listDiv.innerHTML = `<div style="color: #666; text-align: center; padding: 40px 20px;">${emptyMsg}</div>`;
                 return;
             }
             
             // Update sort arrows in right panel
             const sortNameArrow2 = document.getElementById('sortNameArrow2');
-            const sortBPMArrow2 = document.getElementById('sortBPMArrow2');
+            const sortTempoArrow2 = document.getElementById('sortTempoArrow2');
             const sortAudioArrow2 = document.getElementById('sortAudioArrow2');
             if (sortNameArrow2) sortNameArrow2.textContent = librarySortBy === 'name' ? (librarySortDir === 'asc' ? '▲' : '▼') : '';
-            if (sortBPMArrow2) sortBPMArrow2.textContent = librarySortBy === 'bpm' ? (librarySortDir === 'asc' ? '▲' : '▼') : '';
+            if (sortTempoArrow2) sortTempoArrow2.textContent = librarySortBy === 'tempo' ? (librarySortDir === 'asc' ? '▲' : '▼') : '';
             if (sortAudioArrow2) sortAudioArrow2.textContent = librarySortBy === 'audio' ? (librarySortDir === 'asc' ? '▲' : '▼') : '';
             
             let html = '';
@@ -7401,7 +7660,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 const hasAudio = container.hasAudio || container.audioFilename;
                 const audioText = hasAudio ? 'Y' : 'N';
                 const audioColor = hasAudio ? '#0f0' : '#666';
-                const bpmText = isPreset ? '—' : (container.audioBPM ? `${parseFloat(container.audioBPM).toFixed(0)}` : '—');
+                const tempoText = isPreset ? '—' : (container.audioTempo ? `${parseFloat(container.audioTempo).toFixed(0)}` : '—');
                 const isActive = currentLoadedContainerId === container.id;
                 const activeStyle = isActive ? 'border: 1px solid #ffff00 !important; background: rgba(255, 255, 0, 0.1) !important;' : '';
                 
@@ -7417,10 +7676,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         <canvas class="library-thumb" data-container-id="${container.id}" width="80" height="45" style="width: 32px; height: 18px; margin-right: 8px; border: 1px solid #333; flex-shrink: 0;"></canvas>
                         <div class="card-list-content" style="display: flex; justify-content: space-between; align-items: center; flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
-                                <span class="container-name" data-original-name="${container.name.replace(/"/g, '&quot;')}" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${container.name}">${container.name}</span>
+                                <span class="container-name editable" data-container-id="${container.id}" data-original-name="${container.name.replace(/"/g, '&quot;')}" style="color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 2px 4px;" title="${container.name}">${container.name}</span>
                             </div>
                             <div style="color: ${audioColor}; font-size: 11px; width: 55px; text-align: center; flex-shrink: 0;">${audioText}</div>
-                            <div style="color: #666; font-size: 11px; width: 50px; text-align: right; flex-shrink: 0;">${bpmText}</div>
+                            <div style="color: #fff; font-size: 11px; width: 50px; text-align: right; flex-shrink: 0;">${tempoText}</div>
                         </div>
                     </div>
                 `;
@@ -7480,6 +7739,15 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     }));
                     e.dataTransfer.effectAllowed = 'copy';
                 });
+                
+                // V4_6_01: Click on name span to edit inline
+                const nameSpan = card.querySelector('.container-name');
+                if (nameSpan) {
+                    nameSpan.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Don't trigger card selection
+                        startCardNameEdit(nameSpan);
+                    });
+                }
             });
             
             // V4_4_0: Refocus loaded card for arrow nav (centralized)
@@ -7567,21 +7835,26 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         }
         
         // V4_5_19: Set library view mode (list or grid)
+        // V4_6_05: Toggle library view between list and grid
+        function toggleLibraryView() {
+            const newMode = libraryViewMode === 'list' ? 'grid' : 'list';
+            setLibraryView(newMode);
+        }
+        
         function setLibraryView(mode) {
             libraryViewMode = mode;
             
             const listDiv = document.getElementById('libraryListRight');
-            const listBtn = document.getElementById('libraryListViewBtn');
-            const gridBtn = document.getElementById('libraryGridViewBtn');
+            const toggleBtn = document.getElementById('libraryViewToggleBtn');
             
             if (mode === 'grid') {
                 listDiv.classList.add('grid-view');
-                listBtn.classList.remove('active');
-                gridBtn.classList.add('active');
+                toggleBtn.textContent = '▦';
+                toggleBtn.title = 'Switch to list view';
             } else {
                 listDiv.classList.remove('grid-view');
-                listBtn.classList.add('active');
-                gridBtn.classList.remove('active');
+                toggleBtn.textContent = '≡';
+                toggleBtn.title = 'Switch to grid view';
             }
             
             // Re-render thumbnails at appropriate size for grid
@@ -7605,9 +7878,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             let changed = false;
             
             // V4_5_19: Apply pending audio swap
+            // V4_6_15: Also parse tempo from new audio filename
             if (window.infoDrawerPendingAudioSwap) {
                 container.audioFilename = window.infoDrawerPendingAudioSwap;
                 container.hasAudio = true;
+                container.audioTempo = parseBPMFromFilename(window.infoDrawerPendingAudioSwap);
                 changed = true;
             }
             
@@ -7615,7 +7890,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             if (window.infoDrawerPendingAudioRemove) {
                 container.audioFilename = null;
                 container.hasAudio = false;
-                container.audioBPM = null;
+                container.audioTempo = null;
                 container.audioStartTime = null;
                 container.audioEndTime = null;
                 container.audioLoopIn = null;
@@ -7697,7 +7972,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             if (!container) {
                 // Clear fields
                 document.getElementById('infoDrawerName').textContent = '—';
-                document.getElementById('infoDrawerBPM').textContent = '—';
+                document.getElementById('infoDrawerTempo').textContent = '—';
                 document.getElementById('infoDrawerAudio').textContent = '—';
                 document.getElementById('infoDrawerDuration').textContent = '—';
                 document.getElementById('infoDrawerLoop').textContent = '—';
@@ -7709,10 +7984,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             // Name
             document.getElementById('infoDrawerName').textContent = container.name || '—';
             
-            // BPM
-            const bpm = container.audioBPM;
-            document.getElementById('infoDrawerBPM').textContent = bpm ? `${parseFloat(bpm).toFixed(1)} BPM` : '—';
-            document.getElementById('infoDrawerBPM').classList.toggle('muted', !bpm);
+            // Tempo
+            const tempo = container.audioTempo;
+            document.getElementById('infoDrawerTempo').textContent = tempo ? `${parseFloat(tempo).toFixed(1)} BPM` : '—';
+            document.getElementById('infoDrawerTempo').classList.toggle('muted', !tempo);
             
             // Audio
             const hasAudio = container.hasAudio || container.audioFilename;
@@ -7775,6 +8050,112 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 createdField.classList.add('muted');
             }
             
+        }
+        
+        // V4_6_01: Start editing name in info drawer - click to edit, saves directly
+        function startInfoDrawerNameEdit() {
+            const nameDiv = document.getElementById('infoDrawerName');
+            const containerId = window.infoDrawerViewingContainerId;
+            if (!nameDiv || !containerId) return;
+            
+            const container = libraryContainersCache.find(c => c.id === containerId);
+            if (!container) return;
+            
+            const originalName = container.name;
+            
+            // Replace with input
+            nameDiv.innerHTML = `<input type="text" class="editable-name-input" value="${originalName.replace(/"/g, '&quot;')}" />`;
+            const input = nameDiv.querySelector('input');
+            input.focus();
+            input.select();
+            
+            // Save on Enter
+            input.addEventListener('keydown', async (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    await finishInfoDrawerNameEdit(input, containerId, originalName);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    nameDiv.textContent = originalName;
+                }
+            });
+            
+            // Save on blur
+            input.addEventListener('blur', async () => {
+                await finishInfoDrawerNameEdit(input, containerId, originalName);
+            });
+            
+            // Prevent click from bubbling
+            input.addEventListener('click', (e) => e.stopPropagation());
+        }
+        
+        // V4_6_01: Finish editing and save directly to filesystem
+        async function finishInfoDrawerNameEdit(input, containerId, originalName) {
+            const newName = input.value.trim();
+            const nameDiv = document.getElementById('infoDrawerName');
+            
+            if (!newName || newName === originalName) {
+                // No change - restore original
+                nameDiv.textContent = originalName;
+                return;
+            }
+            
+            // Save directly via renameContainer
+            await renameContainer(containerId, newName);
+            
+            // Update the viewing container ID since it changed
+            const sanitizedName = sanitizeFilename(newName);
+            window.infoDrawerViewingContainerId = sanitizedName;
+            
+            // Update display
+            nameDiv.textContent = sanitizedName;
+        }
+        
+        // V4_6_01: Start inline editing for container name in library card
+        function startCardNameEdit(nameSpan) {
+            const containerId = nameSpan.dataset.containerId;
+            const originalName = nameSpan.dataset.originalName;
+            if (!containerId || !originalName) return;
+            
+            // Replace span content with input
+            const currentWidth = nameSpan.offsetWidth;
+            nameSpan.innerHTML = `<input type="text" class="editable-name-input" value="${originalName.replace(/"/g, '&quot;')}" style="width: ${Math.max(currentWidth, 100)}px;" />`;
+            const input = nameSpan.querySelector('input');
+            input.focus();
+            input.select();
+            
+            // Save on Enter
+            input.addEventListener('keydown', async (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    await finishCardNameEdit(input, nameSpan, containerId, originalName);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    nameSpan.textContent = originalName;
+                }
+            });
+            
+            // Save on blur
+            input.addEventListener('blur', async () => {
+                await finishCardNameEdit(input, nameSpan, containerId, originalName);
+            });
+            
+            // Prevent clicks from bubbling
+            input.addEventListener('click', (e) => e.stopPropagation());
+        }
+        
+        // V4_6_01: Finish inline card name edit and save to filesystem
+        async function finishCardNameEdit(input, nameSpan, containerId, originalName) {
+            const newName = input.value.trim();
+            
+            if (!newName || newName === originalName) {
+                // No change - restore original
+                nameSpan.textContent = originalName;
+                return;
+            }
+            
+            // Save directly via renameContainer (this also refreshes the library list)
+            await renameContainer(containerId, newName);
         }
         
         // V4_5_19: Show dropdown with orphan audio files
@@ -7860,6 +8241,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         }
         
         // V4_5_19: Handle audio swap selection
+        // V4_6_16: Update tempo immediately in slideout and audio controls
         async function onAudioSwapSelect() {
             const select = document.getElementById('infoDrawerAudioSelect');
             const filename = select.value;
@@ -7869,14 +8251,377 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 return;
             }
             
-            // Update the display
+            // Update the audio display
             document.getElementById('infoDrawerAudio').textContent = filename;
+            
+            // V4_6_16: Parse and update tempo immediately
+            const tempo = parseBPMFromFilename(filename);
+            document.getElementById('infoDrawerTempo').textContent = tempo ? `${tempo.toFixed(1)} BPM` : '—';
+            document.getElementById('infoDrawerTempo').classList.toggle('muted', !tempo);
+            document.getElementById('audioTempoField').value = tempo.toFixed(2);
+            audioTempo = tempo;
             
             // Store the pending audio swap (will be applied on OK)
             window.infoDrawerPendingAudioSwap = filename;
             
             select.style.display = 'none';
-            showStatus(`Audio will change to: ${filename}`, '');
+            showStatus(`Audio will change to: ${filename} (${tempo} BPM)`, '');
+        }
+        
+        // V4_6_0: Show audio swap dropdown in CREATE tab
+        async function showCreateAudioSwapDropdown() {
+            // Check if folder is set
+            if (!libraryFolderHandle) {
+                pendingAudioSwapAfterFolderSetup = true;  // V4_6_0
+                document.getElementById('appFolderOverlay').classList.add('active');
+                showStatus('Set Application folder first', 'error');
+                return;
+            }
+            
+            const select = document.getElementById('createAudioSwapSelect');
+            if (!select) return;
+            
+            // Toggle visibility
+            if (select.style.display !== 'none') {
+                select.style.display = 'none';
+                return;
+            }
+            
+            // Get all audio files in Library folder
+            const audioFiles = [];
+            const referencedAudio = new Set();
+            
+            // Collect all referenced audio filenames
+            for (const container of libraryContainersCache) {
+                if (container.audioFilename) {
+                    referencedAudio.add(container.audioFilename);
+                }
+            }
+            
+            // Scan Library folder for audio files
+            try {
+                for await (const entry of libraryFolderHandle.values()) {
+                    if (entry.kind === 'file') {
+                        const name = entry.name.toLowerCase();
+                        if (name.endsWith('.mp3') || name.endsWith('.wav') || name.endsWith('.aiff') || 
+                            name.endsWith('.flac') || name.endsWith('.ogg') || name.endsWith('.m4a')) {
+                            audioFiles.push({
+                                filename: entry.name,
+                                orphan: !referencedAudio.has(entry.name)
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('V4_6_0: Failed to scan audio files:', error);
+                showStatus('Failed to scan Library folder', 'error');
+                return;
+            }
+            
+            // Sort: orphans first, then alphabetically
+            audioFiles.sort((a, b) => {
+                if (a.orphan !== b.orphan) return a.orphan ? -1 : 1;
+                return a.filename.localeCompare(b.filename);
+            });
+            
+            // Populate dropdown
+            select.innerHTML = '<option value="">— Select audio file —</option>';
+            
+            if (audioFiles.filter(f => f.orphan).length > 0) {
+                const orphanGroup = document.createElement('optgroup');
+                orphanGroup.label = 'Unused';
+                audioFiles.filter(f => f.orphan).forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f.filename;
+                    opt.textContent = f.filename;
+                    orphanGroup.appendChild(opt);
+                });
+                select.appendChild(orphanGroup);
+            }
+            
+            if (audioFiles.filter(f => !f.orphan).length > 0) {
+                const usedGroup = document.createElement('optgroup');
+                usedGroup.label = 'In Use';
+                audioFiles.filter(f => !f.orphan).forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f.filename;
+                    opt.textContent = f.filename;
+                    usedGroup.appendChild(opt);
+                });
+                select.appendChild(usedGroup);
+            }
+            
+            if (audioFiles.length === 0) {
+                select.innerHTML = '<option value="">— No audio files in Library —</option>';
+            }
+            
+            select.style.display = 'block';
+        }
+        
+        // V4_6_0: Handle CREATE tab audio swap selection - actually load the audio
+        async function onCreateAudioSwapSelect() {
+            const select = document.getElementById('createAudioSwapSelect');
+            const filename = select.value;
+            
+            if (!filename) {
+                select.style.display = 'none';
+                return;
+            }
+            
+            select.style.display = 'none';
+            
+            try {
+                // Get file from Library folder
+                const fileHandle = await libraryFolderHandle.getFileHandle(filename);
+                const file = await fileHandle.getFile();
+                
+                // Create a synthetic event with the file
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                
+                // Trigger the audio file input with this file
+                document.getElementById('audioFile').files = dataTransfer.files;
+                
+                // Call loadAudioFile with the event
+                await loadAudioFile({ target: { files: [file] } });
+                
+                showStatus(`Loaded: ${filename}`, 'success');
+            } catch (error) {
+                console.error('V4_6_0: Failed to load audio:', error);
+                showStatus('Failed to load audio file', 'error');
+            }
+        }
+        
+        // V4_6_19: Show shader swap dropdown (for INFO drawer only)
+        async function showShaderSwapDropdown(selectId) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            
+            // Toggle visibility
+            if (select.style.display !== 'none') {
+                select.style.display = 'none';
+                return;
+            }
+            
+            // Get presets from cache
+            const presets = await getUserPresets();
+            
+            // Populate dropdown
+            select.innerHTML = '<option value="">— Select shader preset —</option>';
+            
+            if (presets.length > 0) {
+                presets.forEach(preset => {
+                    const opt = document.createElement('option');
+                    opt.value = preset.id || preset.name;
+                    opt.textContent = preset.name;
+                    select.appendChild(opt);
+                });
+            } else {
+                select.innerHTML = '<option value="">— No presets available —</option>';
+            }
+            
+            select.style.display = 'block';
+        }
+        
+        // V4_6_19: Handle shader swap selection (for INFO drawer only)
+        async function onShaderSwapSelect(selectId) {
+            const select = document.getElementById(selectId);
+            const presetId = select.value;
+            
+            if (!presetId) {
+                select.style.display = 'none';
+                return;
+            }
+            
+            // Find the preset
+            const presets = await getUserPresets();
+            const preset = presets.find(p => (p.id || p.name) === presetId);
+            
+            if (!preset) {
+                showStatus('Preset not found', 'error');
+                select.style.display = 'none';
+                return;
+            }
+            
+            // V4_6_19: INFO drawer only (CREATE tab uses onShaderNameSelect)
+            // Store pending swap (apply on OK)
+            window.infoDrawerPendingShaderSwap = {
+                code: preset.shaderCode,
+                name: preset.name
+            };
+            
+            // Update display
+            const shaderDisplay = document.getElementById('infoDrawerShader');
+            if (shaderDisplay) {
+                shaderDisplay.textContent = preset.name || 'Shader';
+                shaderDisplay.classList.remove('muted');
+            }
+            
+            showStatus(`Shader will change to: ${preset.name}`, '');
+            
+            select.style.display = 'none';
+        }
+        
+        // V4_6_21: Populate shader name select with Presets and Library sections
+        // V4_6_0: Call refreshUserPresets to ensure cache is populated
+        async function populateShaderNameSelect() {
+            const select = document.getElementById('shaderNameSelect');
+            if (!select) return;
+            
+            // Get current shader name from first option
+            const currentName = select.options[0]?.textContent || 'Untitled';
+            
+            // Refresh and get user presets
+            await refreshUserPresets();
+            const userPresets = getUserPresets();
+            
+            // Rebuild options
+            select.innerHTML = '';
+            
+            // First option: current shader (not selectable for swap)
+            const currentOpt = document.createElement('option');
+            currentOpt.value = '_current';
+            currentOpt.textContent = currentName;
+            select.appendChild(currentOpt);
+            
+            // Presets section - combine system (omsPresets) + user presets
+            const allPresets = [];
+            
+            // Add system presets
+            omsPresets.forEach((preset, index) => {
+                allPresets.push({
+                    name: preset.name,
+                    value: 'sysPreset:' + index,
+                    source: 'system'
+                });
+            });
+            
+            // Add user presets
+            userPresets.forEach(preset => {
+                allPresets.push({
+                    name: preset.name,
+                    value: 'userPreset:' + (preset.id || preset.name),
+                    source: 'user'
+                });
+            });
+            
+            // Sort all presets alphabetically
+            allPresets.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            
+            if (allPresets.length > 0) {
+                const presetSep = document.createElement('option');
+                presetSep.disabled = true;
+                presetSep.textContent = '── Presets ──';
+                select.appendChild(presetSep);
+                
+                allPresets.forEach(preset => {
+                    const opt = document.createElement('option');
+                    opt.value = preset.value;
+                    opt.textContent = preset.name;
+                    select.appendChild(opt);
+                });
+            }
+            
+            // Library section
+            const librarySep = document.createElement('option');
+            librarySep.disabled = true;
+            librarySep.textContent = '── Library ──';
+            select.appendChild(librarySep);
+            
+            if (!applicationFolderHandle) {
+                // No folder - show option to set one
+                const setFolderOpt = document.createElement('option');
+                setFolderOpt.value = '_setfolder';
+                setFolderOpt.textContent = 'Select Folder...';
+                select.appendChild(setFolderOpt);
+            } else {
+                // Folder set - show library containers
+                const containers = libraryContainersCache
+                    .filter(c => c.shaderCode)
+                    .sort((a, b) => (a.name || a.id).localeCompare(b.name || b.id));
+                
+                if (containers.length > 0) {
+                    containers.forEach(container => {
+                        const opt = document.createElement('option');
+                        opt.value = 'library:' + container.id;
+                        opt.textContent = container.name || container.id;
+                        select.appendChild(opt);
+                    });
+                } else {
+                    const emptyOpt = document.createElement('option');
+                    emptyOpt.disabled = true;
+                    emptyOpt.textContent = '(empty)';
+                    select.appendChild(emptyOpt);
+                }
+            }
+            
+            // Keep current selected
+            select.selectedIndex = 0;
+        }
+        
+        // V4_6_21: Handle shader name select change
+        async function onShaderNameSelect() {
+            const select = document.getElementById('shaderNameSelect');
+            const selectedValue = select.value;
+            
+            // If "_current" selected, do nothing
+            if (selectedValue === '_current') {
+                return;
+            }
+            
+            // If "_setfolder" selected, trigger folder setup (overlay is global, stays on CREATE)
+            if (selectedValue === '_setfolder') {
+                select.selectedIndex = 0;
+                document.getElementById('appFolderOverlay').classList.add('active');
+                return;
+            }
+            
+            let shaderCode = null;
+            let shaderName = null;
+            
+            // Check type by prefix
+            if (selectedValue.startsWith('sysPreset:')) {
+                // System preset (omsPresets array)
+                const index = parseInt(selectedValue.substring(10));
+                if (omsPresets[index]) {
+                    shaderCode = omsPresets[index].code;
+                    shaderName = omsPresets[index].name;
+                }
+            } else if (selectedValue.startsWith('userPreset:')) {
+                // User preset (userPresetsCache)
+                const presetId = selectedValue.substring(11);
+                const presets = getUserPresets();
+                const preset = presets.find(p => (p.id || p.name) === presetId);
+                if (preset) {
+                    shaderCode = preset.shaderCode;
+                    shaderName = preset.name;
+                }
+            } else if (selectedValue.startsWith('library:')) {
+                // Library container
+                const containerId = selectedValue.substring(8);
+                const container = libraryContainersCache.find(c => c.id === containerId);
+                if (container) {
+                    shaderCode = container.shaderCode;
+                    shaderName = container.name || container.id;
+                }
+            }
+            
+            if (!shaderCode) {
+                showStatus('Shader not found', 'error');
+                select.selectedIndex = 0;
+                return;
+            }
+            
+            // Load shader code
+            const shaderCodeEl = document.getElementById('shaderCode');
+            if (shaderCodeEl) {
+                shaderCodeEl.value = shaderCode;
+                
+                // Compile shader (this will also update the select's first option)
+                compileShader(false);
+                
+                showStatus(`Loaded shader: ${shaderName}`, 'success');
+            }
         }
         
         // V4_5_19: Remove audio from container
@@ -8081,8 +8826,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 await loadAudioFile(fakeEvent);
                 
                 // Apply timing data from source container
-                if (container.audioBPM) {
-                    document.getElementById('audioTempoField').value = container.audioBPM;
+                if (container.audioTempo) {
+                    document.getElementById('audioTempoField').value = container.audioTempo;
                 }
                 if (container.audioStartTime !== undefined) {
                     audioStartTime = container.audioStartTime;
@@ -8442,7 +9187,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     showStatus('Preset not found', 'error');
                     return;
                 }
-                shaderCode = preset.code;
+                shaderCode = preset.shaderCode;
                 presetName = preset.name;
             } else {
                 // Load from file
@@ -8491,7 +9236,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 currentAudioFile = null;
                 
                 // Load shader code
-                document.getElementById('shaderCode').value = preset.code;
+                document.getElementById('shaderCode').value = preset.shaderCode;
                 
                 // Set orientation
                 document.getElementById('orientation').value = preset.orientation || 'portrait';
@@ -8725,7 +9470,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             } else if (existingContainer.audioFilename) {
                 // No audio in editor, but container has audio → keep existing
                 audioFilename = existingContainer.audioFilename;
-                audioBPM = existingContainer.audioBPM;
+                audioBPM = existingContainer.audioTempo;
             }
             // else: No audio in editor AND no audio in container → stays null
             
@@ -8736,7 +9481,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 shaderCode: shaderCode,
                 controlStates: states,
                 audioFilename: audioFilename,
-                audioBPM: audioBPM,
+                audioTempo: audioBPM,
                 audioPitch: audioExplicitlyRemoved ? null : (audioLoaded ? audioPitch : (existingContainer.audioPitch || 0)),  // V4_5_19
                 audioStartTime: audioExplicitlyRemoved ? null : (audioLoaded ? audioStartTime : (existingContainer.audioStartTime || 0)),
                 audioEndTime: audioExplicitlyRemoved ? null : (audioLoaded ? audioEndTime : (existingContainer.audioEndTime || 0)),
@@ -9176,7 +9921,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 // Initialize WebGPU and render single frame for this thumbnail
                 try {
-                    await initThumbnailShader(canvas, preset.code, index);
+                    await initThumbnailShader(canvas, preset.shaderCode, index);
                 } catch (error) {
                     console.error(`Failed to init user thumbnail ${index}:`, error);
                     canvas.style.background = 'rgba(255,0,0,0.2)';
@@ -9195,7 +9940,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             const preset = userPresets[index];
             
             // Load code into editor
-            document.getElementById('shaderCode').value = preset.code;
+            document.getElementById('shaderCode').value = preset.shaderCode;
             
             // Set orientation in Controls tab to match preset's default
             document.getElementById('orientation').value = preset.orientation;
@@ -9761,7 +10506,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 // Initialize WebGPU and render single frame for this thumbnail
                 try {
-                    await initThumbnailShader(canvas, preset.code, index);
+                    await initThumbnailShader(canvas, preset.shaderCode, index);
                 } catch (error) {
                     console.error(`Failed to init thumbnail ${index}:`, error);
                     canvas.style.background = 'rgba(255,0,0,0.2)';
@@ -9961,7 +10706,7 @@ ${shaderCode}
             const preset = omsPresets[index];
             
             // Load code into editor
-            document.getElementById('shaderCode').value = preset.code;
+            document.getElementById('shaderCode').value = preset.shaderCode;
             
             // Set orientation in Controls tab to match preset's default
             document.getElementById('orientation').value = preset.orientation;
@@ -10103,52 +10848,44 @@ ${shaderCode}
                     const audioWritable = await audioFileHandle.createWritable();
                     await audioWritable.write(audioArrayBuffer);
                     await audioWritable.close();
-                    console.log('V4_4_0: Copied audio to Library/:', filename);
+                    console.log('V4_6_08: Copied audio to Library/:', filename);
                     
-                    // 3. Load waveform (reuse loadAudioFile logic)
+                    // 3. Load audio (sets currentAudioFile, audioTempo from filename)
                     const fakeEvent = { target: { files: [file] } };
                     await loadAudioFile(fakeEvent);
                     
-                    // 4. Set audio tempo if parsed from filename
-                    if (parsedBPM) {
+                    // 4. Override audio tempo if parsed BPM differs from loadAudioFile default
+                    if (parsedBPM && parsedBPM !== 120) {
                         document.getElementById('audioTempoField').value = parsedBPM;
                         audioTempo = parsedBPM;
                     }
                     
-                    // 5. Create container with current shader and control states
-                    const containerData = {
-                        name: safeContainerName,
-                        id: Date.now().toString(),
-                        created: new Date().toISOString(),
-                        version: '4.4.13',
-                        shaderCode: document.getElementById('shaderCode').value,
-                        audioFilename: filename,
-                        controlStates: getCurrentControlState()
-                    };
+                    // 5. V4_6_08: Use unified container builder
+                    const containerData = buildContainerObject(safeContainerName, filename);
                     
-                    // 6. Save .oms file
-                    const omsFilename = safeContainerName + '.oms';
-                    const omsFileHandle = await libraryFolderHandle.getFileHandle(omsFilename, { create: true });
-                    const omsWritable = await omsFileHandle.createWritable();
-                    await omsWritable.write(JSON.stringify(containerData, null, 2));
-                    await omsWritable.close();
-                    console.log('V4_4_0: Created container:', omsFilename);
+                    // 6. Analyze audio timeline
+                    if (audioLoaded && audioElement) {
+                        await analyzeAudioTimeline(containerData);
+                    }
                     
-                    // 7. Refresh lists and select the new container
+                    // 7. Save .oms file using shared function
+                    await saveContainerToOMS(containerData);
+                    
+                    // 8. Refresh lists and select the new container
                     await refreshLibraryList();
                     await refreshLibraryListRight();
                     
-                    // 8. Set as current loaded container for active dot
+                    // 9. Set as current loaded container for active dot
                     currentLoadedContainerId = safeContainerName;
                     window.selectedLibraryContainerId = safeContainerName;
                     
-                    // 9. Refresh again to show active dot
+                    // 10. Refresh again to show active dot
                     await refreshLibraryListRight();
                     
                     showStatus(`Created: ${safeContainerName}` + (parsedBPM ? ` (${parsedBPM} BPM)` : ''), 'success');
                     
                 } catch (error) {
-                    console.error('V4_4_0: Failed to create container:', error);
+                    console.error('V4_6_08: Failed to create container:', error);
                     showStatus('Failed to create container: ' + error.message, 'error');
                 }
             }
@@ -10181,6 +10918,18 @@ ${shaderCode}
             return name
                 .replace(/[<>:"/\\|?*]/g, '')         // Remove invalid filename chars only
                 .replace(/\s+/g, ' ')                  // Collapse spaces
+                .trim();
+        }
+        
+        // V4_6_0: Clean audio filename for display (strip BPM, underscores, etc.)
+        function cleanAudioName(filename) {
+            return filename
+                .replace(/\.(mp3|wav|ogg|m4a|aac|flac)$/i, '')  // extension
+                .replace(/[-_]?\d{2,3}[-_]?bpm/gi, '')          // "128BPM", "_128_bpm"
+                .replace(/[-_]\d{2,3}$/g, '')                   // trailing "_128"
+                .replace(/[-_](master|final|v\d+|mix)$/gi, '')  // "_Master", "_Final_v2"
+                .replace(/[_-]+/g, ' ')                          // underscores/dashes → spaces
+                .replace(/\s+/g, ' ')                            // collapse spaces
                 .trim();
         }
 
@@ -12297,10 +13046,10 @@ ${shaderCode}
                 
                 // V3_9_0_C_sub13: Update playback rates for all currently playing tracks
                 for (let track = 0; track < 4; track++) {
-                    if (trackAudioSources[track] && trackContainerData[track] && trackContainerData[track].audioBPM) {
-                        const playbackRate = gridState.masterTempo / trackContainerData[track].audioBPM;
+                    if (trackAudioSources[track] && trackContainerData[track] && trackContainerData[track].audioTempo) {
+                        const playbackRate = gridState.masterTempo / trackContainerData[track].audioTempo;
                         trackAudioSources[track].playbackRate.value = playbackRate;
-                        console.log(`V3_9_0_C_sub13: Track ${track + 1} playback rate updated: ${playbackRate.toFixed(4)} (${trackContainerData[track].audioBPM} → ${masterTempo} BPM)`);
+                        console.log(`V3_9_0_C_sub13: Track ${track + 1} playback rate updated: ${playbackRate.toFixed(4)} (${trackContainerData[track].audioTempo} → ${masterTempo} BPM)`);
                     }
                 }
                 
@@ -13159,7 +13908,7 @@ ${shaderCode}
                     console.log(`  STORING: A=${timelineA ? timelineA.length : 'NULL'}, B=${timelineB ? timelineB.length : 'NULL'}, C=${timelineC ? timelineC.length : 'NULL'}`);
                     
                     trackContainerData[track] = {
-                        audioBPM: container.audioBPM || 120,
+                        audioTempo: container.audioTempo || 120,
                         audioStartTime: container.audioStartTime || 0,
                         audioEndTime: container.audioEndTime || 0,
                         audioLoopIn: container.audioLoopIn || 0,
@@ -13350,10 +14099,10 @@ ${shaderCode}
                 for (let track = 0; track < NUM_TRACKS; track++) {
                     if (trackAudioSources[track] && trackContainerData[track]) {
                         const containerData = trackContainerData[track];
-                        if (containerData.audioBPM) {
-                            const playbackRate = gridState.masterTempo / containerData.audioBPM;
+                        if (containerData.audioTempo) {
+                            const playbackRate = gridState.masterTempo / containerData.audioTempo;
                             trackAudioSources[track].playbackRate.value = playbackRate;
-                            console.log(`V3.2.0-V: Track ${track + 1} playback rate updated: ${playbackRate.toFixed(4)} (${containerData.audioBPM} → ${gridState.masterTempo} BPM)`);
+                            console.log(`V3.2.0-V: Track ${track + 1} playback rate updated: ${playbackRate.toFixed(4)} (${containerData.audioTempo} → ${gridState.masterTempo} BPM)`);
                         }
                     }
                 }
@@ -13591,7 +14340,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V4_5]</title>
+    <title>ONEMANSHYO App [V4_6]</title>
     <style>
         body {
             margin: 0;
@@ -14064,7 +14813,7 @@ ${providedShaderCode}
             const elapsedBeats = currentBeat - launchBeat;
             
             // Layer 3: DAW time → Audio buffer position (seconds at original tempo)
-            const originalBPM = containerData.audioBPM || 120;
+            const originalBPM = containerData.audioTempo || 120;
             const elapsedBars = elapsedBeats / 4.0;  // 4 beats per bar
             const audioBufferSeconds = elapsedBars * (60.0 / originalBPM);  // Bars to seconds at original tempo
             
@@ -14300,7 +15049,7 @@ ${providedShaderCode}
             
             // V3.3.0_X: Get container data for tempo scaling (MOVED UP for canvas sizing)
             const containerData = trackContainerData[track - 1];
-            const audioBPM = containerData ? containerData.audioBPM : gridState.masterTempo;
+            const audioBPM = containerData ? containerData.audioTempo : gridState.masterTempo;
             const audioStartTime = containerData ? (containerData.audioStartTime || 0) : 0;
             const audioEndTime = containerData ? (containerData.audioEndTime || audioBuffer.duration) : audioBuffer.duration;
             const masterTempo = gridState.masterTempo || 128;
@@ -14408,7 +15157,7 @@ ${providedShaderCode}
             
             // V3.2.0-Z: Draw beat grid with correct audioStartTime offset
             // V3.3.0_X: containerData already fetched earlier
-            if (containerData && containerData.audioBPM) {
+            if (containerData && containerData.audioTempo) {
                 drawBeatGridOnWaveform(ctx, containerData, audioBuffer, width, height);
                 drawInfoOverlay(ctx, containerData, height);
             }
@@ -14535,7 +15284,7 @@ ${providedShaderCode}
         // V3.2.0-Z: Fixed to respect audioStartTime/audioEndTime + add visual markers
         // V3_9_0_F_sub14: NO TEMPO SCALING - audioStartTime is absolute position, beat grid draws at master tempo spacing
         function drawBeatGridOnWaveform(ctx, containerData, audioBuffer, canvasWidth, canvasHeight) {
-            const audioBPM = containerData.audioBPM;
+            const audioBPM = containerData.audioTempo;
             const audioStartTime = containerData.audioStartTime || 0;
             const audioEndTime = containerData.audioEndTime || audioBuffer.duration;
             const duration = audioBuffer.duration;
@@ -14636,7 +15385,7 @@ ${providedShaderCode}
         // V3.2.0-W: Moved to bottom to avoid blocking bar count numbers
         // V3.2.0-AA: Show master tempo (actual playback speed)
         function drawInfoOverlay(ctx, containerData, canvasHeight) {
-            const text = `${containerData.name} | ${containerData.audioBPM} → ${gridState.masterTempo} BPM`;
+            const text = `${containerData.name} | ${containerData.audioTempo} → ${gridState.masterTempo} BPM`;
             
             // Measure text
             ctx.font = '11px sans-serif';
@@ -15146,11 +15895,11 @@ ${providedShaderCode}
                     
                     // V3.2.0-Q: Apply master tempo sync (time-stretch to match session BPM)
                     const containerData = trackContainerData[track];
-                    if (containerData && containerData.audioBPM) {
+                    if (containerData && containerData.audioTempo) {
                         // Calculate playback rate: masterTempo / originalBPM
-                        const playbackRate = gridState.masterTempo / containerData.audioBPM;
+                        const playbackRate = gridState.masterTempo / containerData.audioTempo;
                         source.playbackRate.value = playbackRate;
-                        console.log(`V3.2.0-Q: Track ${track + 1} playback rate: ${playbackRate.toFixed(4)} (${containerData.audioBPM} → ${gridState.masterTempo} BPM)`);
+                        console.log(`V3.2.0-Q: Track ${track + 1} playback rate: ${playbackRate.toFixed(4)} (${containerData.audioTempo} → ${gridState.masterTempo} BPM)`);
                     } else {
                         console.log(`V3.2.0-Q: Track ${track + 1} no tempo sync (no container data)`);
                     }
@@ -16061,7 +16810,12 @@ ${providedShaderCode}
                     sortDir: librarySortDir
                 },
                 // V4_4_0: Selected set in LIVE tab
-                selectedSetId: window.selectedLiveSetId || 'presets'
+                selectedSetId: window.selectedLiveSetId || 'presets',
+                // V4_6_0: Orientation setting
+                orientation: document.getElementById('orientation')?.value || 'portrait',
+                // V4_6_0: Default loop points for fresh audio
+                defaultLoopIn: document.getElementById('audioLoopInField')?.value || '1.1',
+                defaultLoopOut: document.getElementById('audioLoopOutField')?.value || '17.1'
             };
         }
 
@@ -16276,6 +17030,24 @@ ${providedShaderCode}
             // V4_4_0: Apply selected set
             if (projectData.selectedSetId) {
                 await selectLibrarySet(projectData.selectedSetId);
+            }
+            
+            // V4_6_0: Apply orientation
+            if (projectData.orientation) {
+                const orientationSelect = document.getElementById('orientation');
+                if (orientationSelect) {
+                    orientationSelect.value = projectData.orientation;
+                    // Trigger canvas resize if needed
+                    updateCanvasSize();
+                }
+            }
+            
+            // V4_6_0: Store loop defaults (don't apply to UI - only used for fresh audio)
+            if (projectData.defaultLoopIn) {
+                projectLoopDefaults.loopIn = projectData.defaultLoopIn;
+            }
+            if (projectData.defaultLoopOut) {
+                projectLoopDefaults.loopOut = projectData.defaultLoopOut;
             }
 
             showStatus('Project state applied', 'success');

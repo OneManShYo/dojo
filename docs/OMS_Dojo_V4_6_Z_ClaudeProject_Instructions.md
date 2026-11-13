@@ -1,6 +1,6 @@
-# ONEMANSHYO Beta V4_5_0 - CLAUDE PROJECT INSTRUCTIONS
+# ONEMANSHYO Beta V4_6_0 - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** Beta V4_5_0  
+**Version:** Beta V4_6_0  
 **Date:** December 10, 2025  
 **Purpose:** Working protocols and project context for Claude AI development
 
@@ -288,20 +288,20 @@ Shader Baker (Controls/Library/Code tabs) + LIVE tab → Performance
 
 ### 1. Version Numbering
 
-**Format:** `V4_5_00` (underscores everywhere, two-digit patch)
-- Major_Minor_Patch (e.g., V4_5_00, V4_5_01, V4_6_00)
+**Format:** `V4_6_00` (underscores everywhere, two-digit patch)
+- Major_Minor_Patch (e.g., V4_6_00, V4_6_01, V4_7_00)
 - Patch increments for iterations within a minor version
 - Minor increments for feature milestones
 - **No alphabetical suffixes, no sub-iterations**
 
 **Examples:**
-- V4_5_00 → V4_5_01 → V4_5_02 → ... → V4_6_00
+- V4_6_00 → V4_6_01 → V4_6_02 → ... → V4_7_00
 - Patch resets to 00 on minor version bump
 
 **Display Format:**
-- Filename: `OMS_Beta_V4_5_00.html`
-- Title tag: `Beta V4_5_00` (uppercase V)
-- Header: `[Beta V4_5_00]` (brackets, uppercase V)
+- Filename: `OMS_Beta_V4_6_00.html`
+- Title tag: `Beta V4_6_00` (uppercase V)
+- Header: `[Beta V4_6_00]` (brackets, uppercase V)
 
 ### 2. Build Protocol (CRITICAL)
 
@@ -342,40 +342,43 @@ Chats titled "Shader Baker Road Map Planning" (or similar) are for **brainstormi
 ### 5. File Naming Conventions
 
 **Development Builds:**
-- HTML: `OMS_Beta_V4_5_00.html`
-- MD Notes: `OMS_Beta_V4_5_00_DescriptionOfWork.md`
+- HTML: `OMS_Beta_V4_6_00.html`
+- MD Notes: `OMS_Beta_V4_6_00_DescriptionOfWork.md`
 
 **Production Release:**
-- Filename: `OMS_Beta_V4_5_00.html`
-- Title: `Beta V4_5_00` (uppercase V)
-- Header: `[Beta V4_5_00]` (brackets, uppercase V)
+- Filename: `OMS_Beta_V4_6_00.html`
+- Title: `Beta V4_6_00` (uppercase V)
+- Header: `[Beta V4_6_00]` (brackets, uppercase V)
 
-**Format:** Use underscores everywhere: `V4_5_00` (Major_Minor_Patch)
+**Format:** Use underscores everywhere: `V4_6_00` (Major_Minor_Patch)
 
 ### 6. Deliverables Protocol
 
 **Deliverables Folder Structure:**
 ```
-OMS_Beta_V4_5_0_Deliverables/
-  ├── OMS_Beta_V4_5_0.html
-  ├── OMS_Beta_V4_5_0_A_Deliverables.txt
-  ├── OMS_Beta_V4_5_0_B_Complete_Changelog.md
-  ├── OMS_Beta_V4_5_0_C_Developer_Documentation.md
-  ├── OMS_Beta_V4_5_0_D_System_Reference.md
-  ├── OMS_Beta_V4_5_0_E_Release_Notes.md
-  └── OMS_Beta_V4_5_0_F_UserGuide_All.md
+OMS_Beta_V4_6_0_Deliverables/
+  ├── OMS_Beta_V4_6_0.html
+  ├── OMS_Beta_V4_6_0_A_Deliverables.txt
+  ├── OMS_Beta_V4_6_0_B_Complete_Changelog.md
+  ├── OMS_Beta_V4_6_0_C_Developer_Documentation.md
+  ├── OMS_Beta_V4_6_0_D_Release_Notes.md
+  ├── OMS_Beta_V4_6_0_E_UserGuide_All.md
+  ├── OMS_Beta_V4_6_0_Y_ClaudeProject_SystemReference.md
+  └── OMS_Beta_V4_6_0_Z_ClaudeProject_Instructions.md
 ```
 
-**ZIP File Naming:** `OMS_Beta_V4_5_0_Deliverables.zip`
+**ZIP File Naming:** `OMS_Beta_V4_6_0_Deliverables.zip`
 
 **Builds vs Deliverables:**
-- **Iterations folder:** Contains development builds with a single consolidated notes file named `_OMS_Beta_V4_5_0_Consolidated_Notes.md` (leading underscore for sort order)
-- **Deliverables folder:** Final release package produced from the consolidated notes + prior version deliverables
+- **Iterations folder:** Contains development builds with a single consolidated notes file named `_OMS_Beta_V4_6_0_Consolidated_Notes.md` (leading underscore for sort order)
+- **Deliverables folder:** Final release package produced from consolidated notes + prior version deliverables
 
-**Workflow:**
-1. During development: Build iterations go in Iterations folder with consolidated notes
-2. At release: Consolidated notes + prior deliverables → produce current deliverables
-3. Package deliverables folder as ZIP with matching name
+**Release Workflow (in order):**
+1. **Consolidate iteration notes** - Gather all iteration .md files into single consolidated notes
+2. **Deliverables files** - Produce A-E docs (manifest, changelog, dev docs, release notes, user guide)
+3. **System Reference** - Update Y_ClaudeProject_SystemReference with architectural changes, new functions, data structures
+4. **Claude Instructions** - Update Z_ClaudeProject_Instructions (version refs, terminology, protocols)
+5. **Package** - ZIP all deliverables files
 
 **ALWAYS ISSUE BOTH the HTML and deliverables files.**
 
@@ -511,7 +514,7 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 ### Tempo Terms
 
 **Shader Tempo:** Visual timing (independent from audio)
-**Audio BPM:** Track tempo for beatgrid alignment
+**Audio Tempo:** Track tempo for beatgrid alignment (V4_6_0: standardized from "Audio BPM")
 **Master Tempo:** LIVE tab global tempo (all tracks time-stretched to match)
 
 ### Master Clock vs Session Start
@@ -535,12 +538,12 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 #### Always Loaded (Baseline)
 
-**OMS_00_ClaudeProject_Instructions.md** - This Document
+**OMS_Beta_V4_6_0_Z_ClaudeProject_Instructions.md** - This Document
 - Development protocols, communication guidelines
 - Architectural principles, terminology
 - What never to suggest
 
-**OMS_10_System_Reference_V4_4_0.md** (or current version) - Technical Reference
+**OMS_Beta_V4_6_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
 - Leaf Node hierarchy (Cortex/Nodes/Leafs)
 - Complete function reference (182+ functions)
 - Data structures (.oms, .omsp, gridState)
@@ -551,7 +554,7 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 #### On-Demand (Wes Provides When Relevant)
 
-**OMS_Beta_V4_5_0_F_UserGuide_All.md** - Comprehensive User & Reference Guide
+**OMS_Beta_V4_6_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
 - Application usage (tabs, features, workflows)
 - **INDEX A:** DJ 101 Foundation (industry context, equipment, techniques)
 - **INDEX B:** Claude Shader Creation (prompts, workflows, examples)
@@ -614,7 +617,7 @@ When Claude needs information:
 **Core Principles:**
 1. Ask before building
 2. Wait for full context ("yes go")
-3. Use underscore-separated version numbers (Beta V4_5_00, two-digit patch)
+3. Use underscore-separated version numbers (Beta V4_6_00, two-digit patch)
 4. Never use VJ terminology
 5. Surgical changes only
 6. Single-file philosophy is sacred

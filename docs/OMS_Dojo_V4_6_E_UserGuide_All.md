@@ -1,6 +1,6 @@
-# OMS BETA V4_5_0 - USER GUIDE
+# OMS BETA V4_6_0 - USER GUIDE
 
-**Version:** Beta V4_5_0  
+**Version:** Beta V4_6_0  
 **Date:** December 10, 2025  
 **License:** GPL-3.0
 
@@ -32,7 +32,7 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 **Browser:** Chrome (WebGPU support required)  
 **Screen:** 1352×761 effective viewport (14" MacBook Pro)
 
-**File:** `OMS_Beta_V4_5_0.html`
+**File:** `OMS_Beta_V4_6_0.html`
 
 ---
 
@@ -43,14 +43,14 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 If you want to create visuals based on music timing without setting up a library:
 
 **Audio-Reactive Visuals (reacts to your music):**
-1. Open `OMS_Beta_V4_5_0.html`
+1. Open `OMS_Beta_V4_6_0.html`
 2. Drag your audio file (.mp3, .wav) onto the waveform
 3. Visuals automatically react to bass, mids, treble
 4. Click [Render Video]
 5. Get SILENT video with pre-baked reactivity
 
 **Tempo-Synced Visuals (animated to BPM, no audio needed):**
-1. Open `OMS_Beta_V4_5_0.html`
+1. Open `OMS_Beta_V4_6_0.html`
 2. Set tempo (e.g., 128 BPM)
 3. Set duration (e.g., 03:30.000)
 4. Click [Render Video]
@@ -221,16 +221,39 @@ modulator = waveform × audioLevel × gain
 **From top to bottom:**
 
 1. **Preview Canvas** - Large shader display (1352×761 on MacBook Pro 14")
-2. **[Code] Toggle Button** - Switch between Controls and Code views
-3. **Controls View** OR **Code View** (same space)
-4. **Audio Section** - Waveform, audio controls
-5. **[Add to Library] Button** - Save as container
+2. **SHADER CONTROLS Header** - [Code] and [Save] buttons on right
+3. **Controls View** OR **Code View** (same space, toggled)
+4. **AUDIO CONTROLS Header** - [Swap] and [X] buttons on right
+5. **Audio Section** - Waveform, transport, timing controls
 
 ---
 
 #### 3.2.4 Controls View
 
-##### 3.2.4.1 Timing Section
+##### 3.2.4.1 Name Section (V4_6_0)
+
+**Shader Name** (dropdown)
+- Shows current shader name
+- Click to see available shaders
+- Options include: System presets, User presets, Library containers
+- Select to load shader code immediately
+
+---
+
+##### 3.2.4.2 Orientation Section (V4_6_0)
+
+**Orientation** (dropdown)
+- Options: Landscape, Portrait, Square
+- Landscape = 16:9 (1920×1080)
+- Portrait = 9:16 (1080×1920)
+- Square = 1:1 (1080×1080)
+- Auto-saves to project file
+
+**Note:** Moved from OUTPUT section - orientation is fundamental to shader design.
+
+---
+
+##### 3.2.4.3 Timing Section
 
 **Shader Tempo** (dropdown: 60-200 BPM)
 - Controls visual animation speed
@@ -244,7 +267,7 @@ modulator = waveform × audioLevel × gain
 
 ---
 
-##### 3.2.4.2 Reactivity Section
+##### 3.2.4.4 Reactivity Section
 
 **Modulator Controls** (5 columns × 3 rows)
 
@@ -276,11 +299,12 @@ Each modulator (A, B, C) has:
 
 ---
 
-##### 3.2.4.3 OUTPUT Section
+##### 3.2.4.5 OUTPUT Section
 
 **Filename** (text field)
-- Output file prefix
+- Auto-populated with shader name + audio name (V4_6_0)
 - Result: `OMS_[filename]_[resolution]_[fps]fps.webm`
+- Edit anytime, used for both render and save
 
 **Resolution** (dropdown)
 - Options: 720p, 1080p, 1440p, 2160p
@@ -289,10 +313,6 @@ Each modulator (A, B, C) has:
 **FPS** (dropdown)
 - Options: 24, 30, 60
 - 60 = smooth, 30 = smaller files
-
-**Orientation** (dropdown)
-- Options: Landscape, Portrait, Square
-- Landscape = 16:9, Portrait = 9:16, Square = 1:1
 
 **[Render Video] Button**
 - Start recording
@@ -304,20 +324,36 @@ Each modulator (A, B, C) has:
 
 #### 3.2.5 Audio Section
 
+##### 3.2.5.0 Audio Controls Header (V4_6_0)
+
+**Header Controls:**
+- **[Swap]** - Open Library audio picker dropdown
+- **[X]** - Remove loaded audio (disabled when no audio)
+
+**Swap Dropdown:**
+- Shows audio files from your Library folder
+- Grouped: "Unused" files first, then "In Use"
+- Select to load audio immediately
+- Requires folder to be set
+
+---
+
 ##### 3.2.5.1 Loading Audio
 
 **Drag & Drop**
 - Drag .mp3 or .wav onto waveform area
 - Loads automatically
 
-**[Browse] Button**
-- Opens file picker
-- Select audio file
+**Swap Button (V4_6_0)**
+- Click Swap in header
+- Select from Library audio files
+- Loads immediately
 
 **What happens:**
 - Waveform displays (blue bars)
 - Audio controls appear
 - Beatgrid calculates
+- Filename field updates with audio name
 
 ---
 
@@ -327,6 +363,9 @@ Each modulator (A, B, C) has:
 - Blue bars = amplitude
 - Cyan/magenta lines = beat markers
 - Magenta vertical line = playhead
+
+**When empty:**
+- Shows "Drag/Drop Audio" placeholder
 
 **Interaction:**
 - Click waveform = jump playhead
@@ -342,16 +381,19 @@ Each modulator (A, B, C) has:
 | [Play] | Play/pause (Spacebar also works) |
 | Audio Start | Beatgrid start (Click: reset, Shift+Click: pin to playhead) |
 | Audio End | Container end (Click: reset, Shift+Click: pin to playhead) |
-| Audio BPM | Track tempo for beatgrid |
+| Tempo | Track tempo (was "Audio BPM") |
 | Pitch | (future feature - not functional) |
 | Loop In | Loop start (bar.beat format, e.g., "1.1") |
 | Loop Out | Loop end (bar.beat format, e.g., "65.1") |
-| Loop Length | Calculated duration (read-only) |
 | [Loop] | Enable/disable looping |
 | [G] | Toggle beatgrid visibility |
 | [S] | Snap Audio End to last bar |
 | Last Bar | Total bars (read-only) |
-| [X] | Remove audio |
+
+**Loop Defaults (V4_6_0):**
+- Change Loop In/Out → saves to project file
+- Fresh audio uses your defaults
+- Existing containers keep their own values
 
 **In/Out Labels:**
 - Click "In" label = jump playhead to In point
@@ -520,6 +562,10 @@ A **collection** bundles multiple containers for distribution.
 - Containers from /Library/ folder
 - Everything you've created
 
+**[All Audio]** (V4_6_0)
+- Containers that have audio attached
+- Quick filter for audio-enabled content
+
 **[Presets]**
 - Built-in system presets
 - User presets from /Presets/ folder
@@ -560,7 +606,7 @@ A **collection** bundles multiple containers for distribution.
 | Column | Content | Sort |
 |--------|---------|------|
 | NAME | Container name | A→Z or Z→A |
-| BPM | Audio tempo | Low→High or High→Low |
+| TEMPO | Audio tempo (was "BPM") | Low→High or High→Low |
 | AUDIO | Y/N indicator | Y first or N first |
 
 **Sort arrows:**
@@ -571,9 +617,15 @@ A **collection** bundles multiple containers for distribution.
 
 Each shows:
 - Shader thumbnail (32×18 preview)
-- Container name
-- BPM value
+- Container name (click to edit - V4_6_0)
+- Tempo value (white text)
 - Audio indicator (Y/N)
+
+**Click-to-Edit Names (V4_6_0):**
+- Click container name in list
+- Edit inline
+- Press Enter to save
+- Changes saved immediately to disk
 
 **Visual states:**
 - Yellow border + tint = Loaded in CREATE
@@ -1016,7 +1068,7 @@ Social / YouTube
 ## 5. Credits
 
 **Created by:** Wes Smith / ONEMANSHYO  
-**Version:** Beta V4_5_0  
+**Version:** Beta V4_6_0  
 **Date:** December 10, 2025
 
 **Technology:**
@@ -1311,7 +1363,7 @@ Using a DAW for visuals leverages precise timing, MIDI mapping, and audio proces
 ## INDEX B: Claude Shader Creation
 
 **Purpose:** Guide for creating WGSL shaders using Claude AI  
-**Updated for:** V4_5_0  
+**Updated for:** V4_6_0  
 **Date:** December 10, 2025
 
 ---
@@ -2672,6 +2724,6 @@ length(fract(uv * 8.0) - 0.5)
 
 **END OF USER GUIDE**
 
-Version: Beta V4_5_0  
+Version: Beta V4_6_0  
 Date: December 10, 2025  
 License: GPL-3.0
