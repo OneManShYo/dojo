@@ -1,8 +1,8 @@
-# CLAUDE SHADER CREATION GUIDE - OMS SHADER BAKER V3.5.0
+# CLAUDE SHADER CREATION GUIDE - OMS SHADER BAKER V3.6.0
 
 **Purpose:** Guide for creating WGSL shaders using Claude AI  
-**Version:** V3.5.0  
-**Date:** November 15, 2025
+**Version:** V3.6.0  
+**Date:** November 16, 2025
 
 ---
 
@@ -545,7 +545,7 @@ Now go create something amazing! 🎨✨
 
 **END OF CLAUDE SHADER CREATION GUIDE**
 
-Version: V3.5.0  
-Date: November 15, 2025  
+Version: V3.6.0  
+Date: November 16, 2025  
 Website: https://onemanshyo.com  
 License: GPL-3.0

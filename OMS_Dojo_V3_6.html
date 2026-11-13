@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V3_5
+ONEMANSHYO Dojo App V3_6
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V3_5
+Version: V3_6
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V3_5]</title>
+    <title>ONEMANSHYO App [V3_6]</title>
     <style>
         * {
             margin: 0;
@@ -1240,6 +1240,12 @@ Version: V3_5
             border: 2px solid #00d4ff;
             border-color: #00d4ff !important;
         }
+        
+        /* V3_6_0_Q: Yellow background when scene is playing */
+        .scene-trigger.playing {
+            background: rgba(255, 255, 0, 0.4) !important;
+            border-color: #ffff00 !important;
+        }
 
         .scene-number {
             font-size: 12px;
@@ -1274,15 +1280,12 @@ Version: V3_5
         }
 
         .clip-slot.playing {
-            border: 2px solid #00ff00; /* V3.1.0-H: Green border for playing cells */
-            border-radius: 2px;
+            /* V3_6_0_U: Reduced from 3px to 2px (50% thinner, priority #2) */
+            border: 2px solid #ffff00 !important;
+            background: rgba(255, 255, 0, 0.15) !important;
         }
 
-        .clip-slot.selected {
-            border: 2px solid #ffff00; /* V3.1.0-M: Yellow border for selected cells */
-            border-radius: 2px;
-            box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
-        }
+        /* V3_6_0_P: Removed .clip-slot.selected - WASD cursor uses box-shadow instead */
 
         /* Track Controls (in fixed mixer section) */
         .track-controls {
@@ -1515,6 +1518,75 @@ Version: V3_5
             display: flex;
             align-items: center;
             padding: 2px;
+            position: relative; /* V3_6_0_W: For overlay positioning */
+            overflow: hidden; /* V3_6_0_Y: Clip scrolling waveform, prevent layout issues */
+        }
+
+        /* V3_6_0_W: Waveform overlay - shader thumbnail + container name */
+        /* V3_6_0_AF: Marquee scrolling animation for long container names */
+        @keyframes marquee-scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .waveform-overlay {
+            position: absolute !important;
+            left: 0 !important; /* V3_6_0_AC: Position on left side (was right) */
+            right: auto !important;
+            top: 0; /* V3_6_0_AC: Full height - start at top */
+            bottom: 0; /* V3_6_0_AC: Full height - extend to bottom */
+            transform: none; /* V3_6_0_AC: No transform needed for full height */
+            display: none; /* Hidden by default, shown when playing */
+            z-index: 10;
+            pointer-events: none; /* Don't block waveform interaction */
+        }
+
+        .waveform-overlay.visible {
+            display: flex;
+            flex-direction: row; /* V3_6_0_AC: Shader on left, text on right */
+            gap: 4px; /* V3_6_0_AC: Small gap between shader and text */
+            align-items: stretch; /* V3_6_0_AC: Both children fill height */
+        }
+
+        .waveform-overlay-name {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 2px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            font-weight: 400;
+            width: 150px; /* V3_6_0_AF: Fixed width for marquee box */
+            overflow: hidden; /* V3_6_0_AF: Hide overflow for marquee */
+            white-space: nowrap;
+            text-align: left;
+            position: relative; /* V3_6_0_AF: For absolute positioning of scrolling text */
+        }
+
+        /* V3_6_0_AF: Inner wrapper for scrolling text */
+        .waveform-overlay-name-text {
+            display: inline-block;
+            padding-right: 50px; /* V3_6_0_AF: Gap between repeats */
+        }
+
+        /* V3_6_0_AF: Scrolling animation when text overflows */
+        .waveform-overlay-name.scrolling .waveform-overlay-name-text {
+            animation: marquee-scroll 10s linear infinite;
+        }
+
+        .waveform-overlay-thumbnail {
+            width: 90px; /* V3_6_0_AC: Fixed width */
+            height: 100%; /* V3_6_0_AC: Full height of waveform track */
+            border: 1px solid #333;
+            border-radius: 2px;
+            background: #000;
         }
 
         .waveform-canvas {
@@ -1546,7 +1618,7 @@ Version: V3_5
     <!-- V2.1.1-A: Header now full-width outside container -->
     <div class="header">
         <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-        <span class="version">[V3_5]</span>
+        <span class="version">[V3_6]</span>
     </div>
     
     <div class="container">
@@ -2061,6 +2133,33 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- V3_6_0_N: Pop-Out Window Settings -->
+                    <div style="margin-top: 30px;">
+                        <div class="shader-header" style="font-size: 14px; margin-bottom: 15px;">POP-OUT WINDOW</div>
+                        
+                        <div class="control-row" style="margin-bottom: 12px;">
+                            <div class="control-group">
+                                <label style="display: block; margin-bottom: 5px; color: #aaa; font-size: 13px;">Window Size</label>
+                                <select id="popOutSizeSelect" style="width: 100%; padding: 8px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; font-size: 13px;">
+                                    <option value="640x360">Small (640×360)</option>
+                                    <option value="1280x720">Large (1280×720)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="control-row">
+                            <div class="control-group">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                                    <input type="checkbox" id="popOutAlwaysOnTopCheckbox" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                    <span style="color: #aaa; font-size: 13px;">Always On Top</span>
+                                </label>
+                                <div style="margin-top: 5px; color: #666; font-size: 11px; margin-left: 26px;">
+                                    Keep pop-out window visible over other apps (browser support varies)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div><!-- End Settings Tab Content -->
             
@@ -2068,9 +2167,22 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             <!-- V3.4.0_O: Removed label for more canvas space on MacBook Pro 14" -->
             <!-- V3.4.0_Q: Moved outside .controls to fix at bottom (no scrolling) -->
             <!-- V3_4_0_AC: Moved outside tab-content - direct child of left-panel for fixed bottom positioning -->
+            <!-- V3_6_0_B: 4 shader canvases (one per track) with volume-based opacity -->
+            <!-- V3_6_0_F: Added pop-out button and label, changed border to grey -->
             <div id="liveShaderOutputContainer" style="padding: 20px; border-top: 1px solid #333; display: none; flex: 0 0 auto;">
-                <div style="position: relative; width: 100%; padding-bottom: 56.25%; background: #000; border: 2px solid #00d4ff;">
-                    <canvas id="liveShaderCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="color: #00d4ff; font-weight: bold; font-size: 11px;">Shader Output</div>
+                    <button id="popOutShaderButton" style="background: #333; color: #fff; border: 1px solid #555; padding: 4px 8px; font-size: 11px; cursor: pointer; border-radius: 3px;">Pop Out ↗</button>
+                </div>
+                <div style="position: relative; width: 100%; padding-bottom: 56.25%; background: #000; border: 2px solid #333;">
+                    <!-- V3_6_0_K: Track 1 shader (TOP layer, z-index 4) - LEFT has precedence -->
+                    <canvas id="liveShaderCanvas0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated; z-index: 4;"></canvas>
+                    <!-- V3_6_0_K: Track 2 shader (layer 3, z-index 3) -->
+                    <canvas id="liveShaderCanvas1" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated; z-index: 3;"></canvas>
+                    <!-- V3_6_0_K: Track 3 shader (layer 2, z-index 2) -->
+                    <canvas id="liveShaderCanvas2" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated; z-index: 2;"></canvas>
+                    <!-- V3_6_0_K: Track 4 shader (BOTTOM layer, z-index 1) - RIGHT underneath -->
+                    <canvas id="liveShaderCanvas3" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated; z-index: 1;"></canvas>
                 </div>
             </div>
         </div>
@@ -2264,6 +2376,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                 </div>
                                 <div class="waveform-canvas-container">
                                     <canvas class="waveform-canvas" id="waveform1"></canvas>
+                                    <!-- V3_6_0_X: Overlay with container name + shader thumbnail (fixed canvas sizing) -->
+                                    <div class="waveform-overlay" id="waveformOverlay1">
+                                        <canvas class="waveform-overlay-thumbnail" id="waveformOverlayThumb1" width="90" height="120"></canvas>
+                                        <div class="waveform-overlay-name" id="waveformOverlayName1">
+                                            <span class="waveform-overlay-name-text" id="waveformOverlayText1"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="waveform-track">
@@ -2279,6 +2398,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                 </div>
                                 <div class="waveform-canvas-container">
                                     <canvas class="waveform-canvas" id="waveform2"></canvas>
+                                    <!-- V3_6_0_X: Overlay with container name + shader thumbnail (fixed canvas sizing) -->
+                                    <div class="waveform-overlay" id="waveformOverlay2">
+                                        <canvas class="waveform-overlay-thumbnail" id="waveformOverlayThumb2" width="90" height="120"></canvas>
+                                        <div class="waveform-overlay-name" id="waveformOverlayName2">
+                                            <span class="waveform-overlay-name-text" id="waveformOverlayText2"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="waveform-track">
@@ -2294,6 +2420,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                 </div>
                                 <div class="waveform-canvas-container">
                                     <canvas class="waveform-canvas" id="waveform3"></canvas>
+                                    <!-- V3_6_0_X: Overlay with container name + shader thumbnail (fixed canvas sizing) -->
+                                    <div class="waveform-overlay" id="waveformOverlay3">
+                                        <canvas class="waveform-overlay-thumbnail" id="waveformOverlayThumb3" width="90" height="120"></canvas>
+                                        <div class="waveform-overlay-name" id="waveformOverlayName3">
+                                            <span class="waveform-overlay-name-text" id="waveformOverlayText3"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="waveform-track">
@@ -2309,6 +2442,13 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                 </div>
                                 <div class="waveform-canvas-container">
                                     <canvas class="waveform-canvas" id="waveform4"></canvas>
+                                    <!-- V3_6_0_X: Overlay with container name + shader thumbnail (fixed canvas sizing) -->
+                                    <div class="waveform-overlay" id="waveformOverlay4">
+                                        <canvas class="waveform-overlay-thumbnail" id="waveformOverlayThumb4" width="90" height="120"></canvas>
+                                        <div class="waveform-overlay-name" id="waveformOverlayName4">
+                                            <span class="waveform-overlay-name-text" id="waveformOverlayText4"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2386,6 +2526,12 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             minZoom: 10,   // V3.3.0_S: Dynamic minimum (full zoom out = entire longest track)
             maxZoom: 200,  // V3.3.0_S: Fixed maximum (full zoom in)
             lastSceneLaunched: null
+        };
+        
+        // V3_6_0_N: Application settings (persisted in .omsp files)
+        let appSettings = {
+            popOutWindowSize: '640x360', // '640x360' or '1280x720'
+            popOutAlwaysOnTop: true      // true = alwaysRaised, false = normal window
         };
         
         // V3.2.0-Q: Track container data for beat grid & sync
@@ -4545,17 +4691,18 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 liveMixerContainer.style.display = 'block';
                 liveShaderOutputContainer.style.display = 'block'; // V3_4_0_M: Show ONLY on LIVE tab
                 
+                // V3_6_0_U: Remove focus from library cards (no selection highlighting on LIVE tab)
+                const focusedCard = document.querySelector('.library-card:focus');
+                if (focusedCard) focusedCard.blur();
+                
                 // Initialize LIVE tab if not already initialized
                 if (!window.liveInitialized) {
                     initLiveTab();
                     window.liveInitialized = true;
                 }
                 
-                // Auto-focus first card for keyboard navigation
-                setTimeout(() => {
-                    const firstCard = document.querySelector('.library-card');
-                    if (firstCard) firstCard.focus();
-                }, 50);
+                // V3_6_0_U: Do NOT auto-focus library cards on LIVE tab
+                // (library selection highlighting interferes with scene/cell launcher navigation)
             }
         }
 
@@ -7819,6 +7966,19 @@ ${shaderCode}
             initLiveWaveforms();
             initLiveTempo(); // V3.2.0-S: Initialize master tempo control
             initLiveShader(); // V3.4.0_BETA_A: Initialize shader preview
+            
+            // V3_6_0_F: Pop-out button handler
+            const popOutButton = document.getElementById('popOutShaderButton');
+            if (popOutButton) {
+                popOutButton.addEventListener('click', () => {
+                    if (popOutWindow && !popOutWindow.closed) {
+                        closePopOutWindow();
+                    } else {
+                        openPopOutWindow();
+                    }
+                });
+            }
+            
             updateSceneSelectionVisuals(); // V3_5_0_H: Show initial scene cursor
             console.log('LIVE tab initialized (V3.1.0-H: Audio routing enabled)');
         }
@@ -8092,9 +8252,20 @@ ${shaderCode}
                                 // V3.3.0_S: Recalculate zoom range when track stops
                                 recalculateZoomRange();
                                 
+                                // V3_6_0_M: Stop waveform scrolling and clear waveform
+                                stopAudioWaveformScroll(track);
+                                const canvas = document.getElementById(`waveform${track + 1}`);
+                                if (canvas) {
+                                    const ctx = canvas.getContext('2d');
+                                    drawEmptyWaveform(ctx, canvas);
+                                }
+                                
                                 // Remove green borders from all cells in track
                                 const allCellsInTrack = document.querySelectorAll(`.clip-slot[data-track="${track}"]`);
                                 allCellsInTrack.forEach(cell => cell.classList.remove('playing'));
+                                
+                                // V3_6_0_W: Hide waveform overlay
+                                hideWaveformOverlay(track);
                                 
                                 console.log(`V3.2.0-F: Stopped audio on Track ${track + 1}`);
                                 showStatus(`Stopped Track ${track + 1}`, 'success');
@@ -8105,6 +8276,13 @@ ${shaderCode}
                         }
                         
                         await playCellAudio(track, scene, cellData);
+                        
+                        // V3_6_0_M: Update shader for double-click launch (same as keyboard)
+                        try {
+                            updateCellShader(track, scene);
+                        } catch (error) {
+                            console.error('V3_6_0_M: Shader update failed (audio unaffected):', error);
+                        }
                     });
                     
                     scenes.appendChild(slot);
@@ -8458,46 +8636,8 @@ ${shaderCode}
             let isDraggingZoom = false;
             let lastYZoom = 0;
             
-            function drawZoomKnob() {
-                ctxZoom.clearRect(0, 0, 60, 60);
-                
-                // Background circle
-                ctxZoom.fillStyle = '#1a1a1a';
-                ctxZoom.beginPath();
-                ctxZoom.arc(30, 30, 28, 0, Math.PI * 2);
-                ctxZoom.fill();
-                
-                // Border
-                ctxZoom.strokeStyle = '#444';
-                ctxZoom.lineWidth = 2;
-                ctxZoom.stroke();
-                
-                // V3.4.0_P: Match volume knob style exactly
-                // Normalize zoom value to 0-1 range
-                const range = gridState.maxZoom - gridState.minZoom;
-                const normalizedValue = (gridState.zoomValue - gridState.minZoom) / range;
-                
-                // Arc range (-150° to +150°, 300° total range - same as volume knobs)
-                // Add Math.PI to rotate 180° (flip knobs over - same as volume knobs)
-                const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
-                const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
-                const currentAngle = startAngle + (endAngle - startAngle) * normalizedValue;
-                
-                // Cyan arc (same as volume knobs)
-                ctxZoom.strokeStyle = '#00d4ff';
-                ctxZoom.lineWidth = 3;
-                ctxZoom.beginPath();
-                ctxZoom.arc(30, 30, 22, startAngle, currentAngle);
-                ctxZoom.stroke();
-                
-                // Center indicator line (same as volume knobs)
-                ctxZoom.strokeStyle = '#fff';
-                ctxZoom.lineWidth = 2;
-                ctxZoom.beginPath();
-                ctxZoom.moveTo(30, 30);
-                ctxZoom.lineTo(30 + Math.cos(currentAngle) * 18, 30 + Math.sin(currentAngle) * 18);
-                ctxZoom.stroke();
-            }
+            // V3_6_0_H: Removed local drawZoomKnob and recalculateZoomRange functions
+            // These are now global functions (defined below initLiveMixer)
             
             function updateZoom(newValue) {
                 // V3.3.0_S: Clamp to dynamic range (prevents jumping when range changes)
@@ -8513,51 +8653,6 @@ ${shaderCode}
                         drawWaveformFromAudioBuffer(t, trackAudioBuffers[t - 1]);
                     }
                 }
-            }
-            
-            // V3.3.0_S: Recalculate zoom range based on longest loaded track
-            // V3.3.0_T: Check BOTH playing buffers AND pre-loaded cell buffers
-            function recalculateZoomRange() {
-                // Find longest track duration from playing buffers
-                let longestDuration = 0;
-                for (let i = 0; i < NUM_TRACKS; i++) {
-                    if (trackAudioBuffers[i]) {
-                        longestDuration = Math.max(longestDuration, trackAudioBuffers[i].duration);
-                    }
-                }
-                
-                // Also check pre-loaded buffers in cells
-                for (let i = 0; i < gridState.cells.length; i++) {
-                    if (gridState.cells[i] && gridState.cells[i].audioBuffer) {
-                        longestDuration = Math.max(longestDuration, gridState.cells[i].audioBuffer.duration);
-                    }
-                }
-                
-                if (longestDuration > 0) {
-                    // Get waveforms container width
-                    const waveformsSection = document.querySelector('.waveforms-section');
-                    const containerWidth = waveformsSection ? waveformsSection.offsetWidth : 1200;
-                    
-                    // Min zoom = show entire longest track
-                    const calculatedMin = Math.max(1, Math.floor(containerWidth / longestDuration));
-                    gridState.minZoom = calculatedMin;
-                    
-                    console.log(`V3.3.0_T: Zoom range recalculated - longest track: ${longestDuration.toFixed(1)}s, min zoom: ${gridState.minZoom} px/sec`);
-                } else {
-                    // No tracks loaded, use default
-                    gridState.minZoom = 10;
-                }
-                
-                // Clamp current zoom to new range (no visual jumping)
-                if (gridState.zoomValue < gridState.minZoom) {
-                    gridState.zoomValue = gridState.minZoom;
-                } else if (gridState.zoomValue > gridState.maxZoom) {
-                    gridState.zoomValue = gridState.maxZoom;
-                }
-                
-                // Redraw knob
-                // V3_4_0_R: Removed zoomValue display (no longer in UI)
-                drawZoomKnob();
             }
             
             canvasZoom.addEventListener('mousedown', (e) => {
@@ -8585,6 +8680,95 @@ ${shaderCode}
             drawZoomKnob();
         }
 
+        // V3_6_0_G: Global drawZoomKnob function (moved from inside initLiveMixer)
+        function drawZoomKnob() {
+            const canvasZoom = document.getElementById('rotaryZoom');
+            if (!canvasZoom) return;
+            
+            const ctxZoom = canvasZoom.getContext('2d');
+            ctxZoom.clearRect(0, 0, 60, 60);
+            
+            // Background circle
+            ctxZoom.fillStyle = '#1a1a1a';
+            ctxZoom.beginPath();
+            ctxZoom.arc(30, 30, 28, 0, Math.PI * 2);
+            ctxZoom.fill();
+            
+            // Border
+            ctxZoom.strokeStyle = '#444';
+            ctxZoom.lineWidth = 2;
+            ctxZoom.stroke();
+            
+            // V3.4.0_P: Match volume knob style exactly
+            // Normalize zoom value to 0-1 range
+            const range = gridState.maxZoom - gridState.minZoom;
+            const normalizedValue = (gridState.zoomValue - gridState.minZoom) / range;
+            
+            // Arc range (-150° to +150°, 300° total range - same as volume knobs)
+            // Add Math.PI to rotate 180° (flip knobs over - same as volume knobs)
+            const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+            const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+            const currentAngle = startAngle + (endAngle - startAngle) * normalizedValue;
+            
+            // Cyan arc (same as volume knobs)
+            ctxZoom.strokeStyle = '#00d4ff';
+            ctxZoom.lineWidth = 3;
+            ctxZoom.beginPath();
+            ctxZoom.arc(30, 30, 22, startAngle, currentAngle);
+            ctxZoom.stroke();
+            
+            // White indicator dot (same as volume knobs)
+            const dotX = 30 + 22 * Math.cos(currentAngle);
+            const dotY = 30 + 22 * Math.sin(currentAngle);
+            ctxZoom.fillStyle = '#fff';
+            ctxZoom.beginPath();
+            ctxZoom.arc(dotX, dotY, 3, 0, Math.PI * 2);
+            ctxZoom.fill();
+        }
+
+        // V3_6_0_G: Global recalculateZoomRange function (moved from inside initLiveMixer)
+        function recalculateZoomRange() {
+            // Find longest track duration from playing buffers
+            let longestDuration = 0;
+            for (let i = 0; i < NUM_TRACKS; i++) {
+                if (trackAudioBuffers[i]) {
+                    longestDuration = Math.max(longestDuration, trackAudioBuffers[i].duration);
+                }
+            }
+            
+            // Also check pre-loaded buffers in cells
+            for (let i = 0; i < gridState.cells.length; i++) {
+                if (gridState.cells[i] && gridState.cells[i].audioBuffer) {
+                    longestDuration = Math.max(longestDuration, gridState.cells[i].audioBuffer.duration);
+                }
+            }
+            
+            if (longestDuration > 0) {
+                // Get waveforms container width
+                const waveformsSection = document.querySelector('.waveforms-section');
+                const containerWidth = waveformsSection ? waveformsSection.offsetWidth : 1200;
+                
+                // Min zoom = show entire longest track
+                const calculatedMin = Math.max(1, Math.floor(containerWidth / longestDuration));
+                gridState.minZoom = calculatedMin;
+                
+                console.log(`V3.3.0_T: Zoom range recalculated - longest track: ${longestDuration.toFixed(1)}s, min zoom: ${gridState.minZoom} px/sec`);
+            } else {
+                // No tracks loaded, use default
+                gridState.minZoom = 10;
+            }
+            
+            // Clamp current zoom to new range (no visual jumping)
+            if (gridState.zoomValue < gridState.minZoom) {
+                gridState.zoomValue = gridState.minZoom;
+            } else if (gridState.zoomValue > gridState.maxZoom) {
+                gridState.zoomValue = gridState.maxZoom;
+            }
+            
+            // Redraw knob
+            drawZoomKnob();
+        }
+
         // Scene launching
         function launchScene(sceneIndex) {
             console.log(`Launching Scene ${sceneIndex + 1}`);
@@ -8608,28 +8792,210 @@ ${shaderCode}
             }
             
             // V3.2.0-A: Launch all tracks in this scene
+            // V3_6_0_M: Stop tracks that have empty cells (Ableton-style)
             for (let track = 0; track < NUM_TRACKS; track++) {
                 const cellIndex = track * NUM_SCENES + sceneIndex;
                 const cellData = gridState.cells[cellIndex];
                 
                 if (cellData) {
                     playCellAudio(track, sceneIndex, cellData, startTime);
+                } else {
+                    // Empty cell - stop this track
+                    if (trackAudioSources[track]) {
+                        trackAudioSources[track].stop();
+                        trackAudioSources[track].disconnect();
+                        trackAudioSources[track] = null;
+                        trackAudioBuffers[track] = null;
+                        
+                        // Stop waveform scrolling
+                        stopAudioWaveformScroll(track);
+                        
+                        // Clear waveform
+                        const canvas = document.getElementById(`waveform${track + 1}`);
+                        if (canvas) {
+                            const ctx = canvas.getContext('2d');
+                            drawEmptyWaveform(ctx, canvas);
+                        }
+                        
+                        // V3_6_0_V: Remove .playing class from all cells in this track
+                        document.querySelectorAll(`.clip-slot[data-track="${track}"]`).forEach(cell => {
+                            cell.classList.remove('playing');
+                        });
+                        
+                        // V3_6_0_W: Hide waveform overlay
+                        hideWaveformOverlay(track);
+                        
+                        console.log(`V3_6_0_M: Scene ${sceneIndex + 1} - empty cell stopped Track ${track + 1}`);
+                    }
                 }
             }
             
-            // Visual feedback
+            // V3_6_0_Q: Visual feedback - mark scene as playing (yellow)
             const triggers = document.querySelectorAll('.scene-trigger');
             triggers.forEach((t, i) => {
                 if (i === sceneIndex) {
-                    t.classList.add('active');
+                    t.classList.add('playing');
                 } else {
-                    t.classList.remove('active');
+                    t.classList.remove('playing');
                 }
             });
             
             // V3.1.0-A: Update gridState and trigger auto-save
             gridState.lastSceneLaunched = sceneIndex;
+            
+            // V3_6_0_A: Update live shader output (AFTER audio starts, wrapped - CANNOT break audio)
+            try {
+                updateLiveShaderOutput(sceneIndex);
+            } catch (error) {
+                console.error('V3_6_0_A: Shader update failed (audio unaffected):', error);
+            }
+            
             autoSaveProject();
+        }
+
+        // V3_6_0_A: Update shader for individual cell launch (simpler than scene logic)
+        // V3_6_0_B: Update specific track's shader when cell is launched
+        function updateCellShader(track, scene) {
+            const cellIndex = track * NUM_SCENES + scene;
+            const cellData = gridState.cells[cellIndex];
+            
+            if (!cellData || !cellData.id) {
+                console.log(`V3_6_0_B: No container in cell Track ${track + 1}, Scene ${scene + 1}`);
+                return;
+            }
+            
+            const containers = getLibraryContainers();
+            const container = containers.find(c => c.id === cellData.id);
+            
+            if (!container || !container.shaderCode) {
+                console.log(`V3_6_0_B: No shader code in container`);
+                return;
+            }
+            
+            // V3_6_0_P: Removed inline border styling - WASD cursor handles all visuals
+            
+            // V3_6_0_B: Update this track's shader specifically
+            console.log(`V3_6_0_B: Loading shader for Track ${track + 1} from "${container.name}"`);
+            updateLiveShader(track, container.shaderCode);
+        }
+
+        // V3_6_0_W: Update waveform overlay (container name + shader thumbnail)
+        async function updateWaveformOverlay(track, container) {
+            const overlayDiv = document.getElementById(`waveformOverlay${track + 1}`);
+            const nameDiv = document.getElementById(`waveformOverlayName${track + 1}`);
+            const nameTextSpan = document.getElementById(`waveformOverlayText${track + 1}`);
+            const thumbCanvas = document.getElementById(`waveformOverlayThumb${track + 1}`);
+            
+            if (!overlayDiv || !nameDiv || !nameTextSpan || !thumbCanvas) return;
+            
+            // V3_6_0_AF: Set container name in text span (for marquee scrolling)
+            // Duplicate text for seamless loop
+            nameTextSpan.textContent = container.name + ' ' + container.name;
+            
+            // V3_6_0_AF: Detect if text overflows and needs scrolling
+            // Wait for next frame to ensure layout is calculated
+            requestAnimationFrame(() => {
+                const textWidth = nameTextSpan.scrollWidth / 2; // Divide by 2 (text is duplicated)
+                const containerWidth = nameDiv.offsetWidth - 24; // Minus padding (12px × 2)
+                
+                if (textWidth > containerWidth) {
+                    // Text overflows - enable scrolling
+                    nameDiv.classList.add('scrolling');
+                    console.log(`V3_6_0_AF: Enabling marquee scroll for Track ${track + 1} (text: ${textWidth}px, container: ${containerWidth}px)`);
+                } else {
+                    // Text fits - disable scrolling
+                    nameDiv.classList.remove('scrolling');
+                    // Show single copy when not scrolling
+                    nameTextSpan.textContent = container.name;
+                }
+            });
+            
+            // Render shader thumbnail if available
+            if (container.shaderCode) {
+                try {
+                    // Use existing thumbnail shader renderer
+                    await initThumbnailShader(thumbCanvas, container.shaderCode, `waveform-${track}`);
+                } catch (error) {
+                    console.error(`V3_6_0_W: Failed to render waveform overlay thumbnail for Track ${track + 1}:`, error);
+                    // Fallback: solid color
+                    const ctx = thumbCanvas.getContext('2d');
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, thumbCanvas.width, thumbCanvas.height);
+                }
+            }
+            
+            // Show overlay
+            overlayDiv.classList.add('visible');
+            console.log(`V3_6_0_W: Showing waveform overlay for Track ${track + 1}: "${container.name}"`);
+        }
+
+        // V3_6_0_W: Hide waveform overlay
+        function hideWaveformOverlay(track) {
+            const overlayDiv = document.getElementById(`waveformOverlay${track + 1}`);
+            if (overlayDiv) {
+                overlayDiv.classList.remove('visible');
+                console.log(`V3_6_0_W: Hiding waveform overlay for Track ${track + 1}`);
+            }
+        }
+
+        // V3_6_0_A: Get active shader track from scene
+        // Priority: solo → left-to-right → skip muted
+        function getActiveShaderTrack(sceneIndex) {
+            // Check for solo tracks first
+            for (let track = 0; track < NUM_TRACKS; track++) {
+                const cellIndex = track * NUM_SCENES + sceneIndex;
+                const cellData = gridState.cells[cellIndex];
+                const trackState = trackStates[track];
+                
+                if (cellData && trackState && trackState.solo) {
+                    console.log(`V3_6_0_A: Track ${track + 1} is solo - using its shader`);
+                    return track;
+                }
+            }
+            
+            // No solo tracks - go left-to-right, skip muted
+            for (let track = 0; track < NUM_TRACKS; track++) {
+                const cellIndex = track * NUM_SCENES + sceneIndex;
+                const cellData = gridState.cells[cellIndex];
+                const trackState = trackStates[track];
+                
+                if (cellData && trackState && !trackState.mute) {
+                    console.log(`V3_6_0_A: Using shader from Track ${track + 1}`);
+                    return track;
+                }
+            }
+            
+            console.log(`V3_6_0_A: No active shader track found`);
+            return null;
+        }
+
+        // V3_6_0_A: Update live shader output with shader from active track
+        // V3_6_0_B: Update all tracks' shaders when scene is launched
+        function updateLiveShaderOutput(sceneIndex) {
+            // Update shader for each track in this scene
+            for (let track = 0; track < NUM_TRACKS; track++) {
+                const cellIndex = track * NUM_SCENES + sceneIndex;
+                const cellData = gridState.cells[cellIndex];
+                
+                if (!cellData || !cellData.id) {
+                    // No container in this cell - skip
+                    continue;
+                }
+                
+                const containers = getLibraryContainers();
+                const container = containers.find(c => c.id === cellData.id);
+                
+                if (!container || !container.shaderCode) {
+                    console.log(`V3_6_0_B: No shader code for Track ${track + 1}`);
+                    continue;
+                }
+                
+                // Update this track's shader
+                console.log(`V3_6_0_B: Loading shader for Track ${track + 1} from "${container.name}"`);
+                updateLiveShader(track, container.shaderCode);
+            }
+            
+            // V3_6_0_P: Removed inline border styling - WASD cursor handles all visuals
         }
 
         // V3.1.0-M: Update cell display (used after drag/drop moves)
@@ -8939,104 +9305,132 @@ ${shaderCode}
         }
 
         // V3.4.0_BETA_A: Initialize LIVE shader preview
-        let liveShaderDevice = null;
-        let liveShaderPipeline = null;
-        let liveShaderUniformBuffer = null;
-        let liveShaderBindGroup = null;
-        let liveShaderAnimationId = null;
+        // V3_6_0_B: Multi-shader system (4 tracks)
+        let liveShaderDevices = [null, null, null, null];
+        let liveShaderPipelines = [null, null, null, null];
+        let liveShaderUniformBuffers = [null, null, null, null];
+        let liveShaderBindGroups = [null, null, null, null];
+        let liveShaderCanvases = [null, null, null, null];
+        let liveShaderContexts = [null, null, null, null];
+        let liveShaderAnimationId = null; // Single render loop for all tracks
         let liveShaderStartTime = 0;
         
+        // V3_6_0_F: Pop-out window system
+        let popOutWindow = null;
+        let popOutDevices = [null, null, null, null];
+        let popOutPipelines = [null, null, null, null];
+        let popOutUniformBuffers = [null, null, null, null];
+        let popOutBindGroups = [null, null, null, null];
+        let popOutCanvases = [null, null, null, null];
+        let popOutContexts = [null, null, null, null];
+        
+        // V3_6_0_B: Initialize 4-track shader system
         async function initLiveShader() {
-            const canvas = document.getElementById('liveShaderCanvas');
-            if (!canvas) {
-                console.log('V3.4.0_BETA_A: Live shader canvas not found');
-                return;
-            }
-            
-            // Set canvas size (16:9 ratio, scaled for display)
-            canvas.width = 640;
-            canvas.height = 360;
-            
-            // Initialize WebGPU
             if (!navigator.gpu) {
-                canvas.getContext('2d').fillText('WebGPU not supported', 10, 180);
+                console.log('V3_6_0_B: WebGPU not supported');
                 return;
             }
             
             try {
-                const adapter = await navigator.gpu.requestAdapter();
-                liveShaderDevice = await adapter.requestDevice();
-                
-                const context = canvas.getContext('webgpu');
-                context.configure({
-                    device: liveShaderDevice,
-                    format: navigator.gpu.getPreferredCanvasFormat()
-                });
-                
-                // Create simple default shader or use current shader from Controls tab
-                const shaderCode = getShaderCodeForLive();
-                
-                const shaderModule = liveShaderDevice.createShaderModule({
-                    code: shaderCode
-                });
-                
-                // Create uniform buffer
-                liveShaderUniformBuffer = liveShaderDevice.createBuffer({
-                    size: 64, // iTime (f32) + iResolution (vec2) + padding
-                    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-                });
-                
-                // Create bind group layout and bind group
-                const bindGroupLayout = liveShaderDevice.createBindGroupLayout({
-                    entries: [{
-                        binding: 0,
-                        visibility: GPUShaderStage.FRAGMENT,
-                        buffer: { type: 'uniform' }
-                    }]
-                });
-                
-                liveShaderBindGroup = liveShaderDevice.createBindGroup({
-                    layout: bindGroupLayout,
-                    entries: [{
-                        binding: 0,
-                        resource: { buffer: liveShaderUniformBuffer }
-                    }]
-                });
-                
-                // Create render pipeline
-                liveShaderPipeline = liveShaderDevice.createRenderPipeline({
-                    layout: liveShaderDevice.createPipelineLayout({
-                        bindGroupLayouts: [bindGroupLayout]
-                    }),
-                    vertex: {
-                        module: shaderModule,
-                        entryPoint: 'vs_main'
-                    },
-                    fragment: {
-                        module: shaderModule,
-                        entryPoint: 'fs_main',
-                        targets: [{
-                            format: navigator.gpu.getPreferredCanvasFormat()
-                        }]
-                    },
-                    primitive: {
-                        topology: 'triangle-list'
+                // Initialize each track's shader system
+                for (let track = 0; track < 4; track++) {
+                    const canvas = document.getElementById(`liveShaderCanvas${track}`);
+                    if (!canvas) {
+                        console.log(`V3_6_0_B: Canvas ${track} not found`);
+                        continue;
                     }
-                });
+                    
+                    // Set canvas size (16:9 ratio, scaled for display)
+                    canvas.width = 640;
+                    canvas.height = 360;
+                    
+                    // Get WebGPU adapter and device
+                    const adapter = await navigator.gpu.requestAdapter();
+                    const device = await adapter.requestDevice();
+                    liveShaderDevices[track] = device;
+                    
+                    // Configure WebGPU context
+                    const context = canvas.getContext('webgpu');
+                    context.configure({
+                        device: device,
+                        format: navigator.gpu.getPreferredCanvasFormat()
+                    });
+                    liveShaderContexts[track] = context;
+                    liveShaderCanvases[track] = canvas;
+                    
+                    // Get default shader code
+                    const shaderCode = getShaderCodeForLive();
+                    
+                    const shaderModule = device.createShaderModule({
+                        code: shaderCode
+                    });
+                    
+                    // Create uniform buffer (48 bytes = 12 floats for container shaders)
+                    liveShaderUniformBuffers[track] = device.createBuffer({
+                        size: 48,
+                        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+                    });
+                    
+                    // Create bind group layout and bind group
+                    const bindGroupLayout = device.createBindGroupLayout({
+                        entries: [{
+                            binding: 0,
+                            visibility: GPUShaderStage.FRAGMENT,
+                            buffer: { type: 'uniform' }
+                        }]
+                    });
+                    
+                    liveShaderBindGroups[track] = device.createBindGroup({
+                        layout: bindGroupLayout,
+                        entries: [{
+                            binding: 0,
+                            resource: { buffer: liveShaderUniformBuffers[track] }
+                        }]
+                    });
+                    
+                    // Create render pipeline
+                    liveShaderPipelines[track] = device.createRenderPipeline({
+                        layout: device.createPipelineLayout({
+                            bindGroupLayouts: [bindGroupLayout]
+                        }),
+                        vertex: {
+                            module: shaderModule,
+                            entryPoint: 'vs_main'
+                        },
+                        fragment: {
+                            module: shaderModule,
+                            entryPoint: 'fs_main',
+                            targets: [{
+                                format: navigator.gpu.getPreferredCanvasFormat(),
+                                blend: {
+                                    color: {
+                                        srcFactor: 'src-alpha',
+                                        dstFactor: 'one-minus-src-alpha',
+                                        operation: 'add'
+                                    },
+                                    alpha: {
+                                        srcFactor: 'one',
+                                        dstFactor: 'one-minus-src-alpha',
+                                        operation: 'add'
+                                    }
+                                }
+                            }]
+                        },
+                        primitive: {
+                            topology: 'triangle-list'
+                        }
+                    });
+                    
+                    console.log(`V3_6_0_B: Track ${track + 1} shader initialized`);
+                }
                 
+                // Start single render loop for all tracks
                 liveShaderStartTime = Date.now();
-                renderLiveShader(canvas, context);
+                renderLiveShader();
                 
-                console.log('V3.4.0_BETA_A: Live shader preview initialized');
+                console.log('V3_6_0_B: 4-track shader system initialized');
             } catch (error) {
-                console.error('V3.4.0_BETA_A: Shader init failed:', error);
-                // V3_5_0_A: Can't use 2D context on WebGPU canvas - just log error
-                // const ctx = canvas.getContext('2d');
-                // ctx.fillStyle = '#000';
-                // ctx.fillRect(0, 0, canvas.width, canvas.height);
-                // ctx.fillStyle = '#ff0066';
-                // ctx.font = '14px monospace';
-                // ctx.fillText('Shader Error', 10, 180);
+                console.error('V3_6_0_B: Shader init failed:', error);
             }
         }
         
@@ -9048,7 +9442,7 @@ ${shaderCode}
                 return controlsShader;
             }
             
-            // Default simple shader (colorful gradient based on time)
+            // V3_6_0_C: Simple black screen (no gradient) until container is loaded
             return `
 struct Uniforms {
     iTime: f32,
@@ -9074,47 +9468,519 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
 
 @fragment
 fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
-    let t = uniforms.iTime;
-    let col = 0.5 + 0.5 * cos(t + uv.xyx + vec3<f32>(0.0, 2.0, 4.0));
-    return vec4<f32>(col, 1.0);
+    return vec4<f32>(0.0, 0.0, 0.0, 1.0); // Solid black
 }
             `;
         }
         
-        function renderLiveShader(canvas, context) {
-            if (!liveShaderDevice || !liveShaderPipeline) return;
+        // V3_6_0_F: Open pop-out window for second monitor
+        async function openPopOutWindow() {
+            if (popOutWindow && !popOutWindow.closed) {
+                popOutWindow.focus();
+                return;
+            }
             
-            const currentTime = (Date.now() - liveShaderStartTime) / 1000.0;
+            // V3_6_0_N: Use settings from appSettings object
+            const [width, height] = appSettings.popOutWindowSize.split('x').map(Number);
+            const alwaysOnTop = appSettings.popOutAlwaysOnTop ? ',alwaysRaised=yes' : '';
+            const windowFeatures = `width=${width},height=${height},resizable=yes${alwaysOnTop}`;
             
-            // Update uniforms
-            const uniformData = new Float32Array([
-                currentTime,
-                0, 0, 0, // padding
-                canvas.width,
-                canvas.height,
-                0, 0 // padding
-            ]);
-            liveShaderDevice.queue.writeBuffer(liveShaderUniformBuffer, 0, uniformData);
+            popOutWindow = window.open('', 'Shader Output', windowFeatures);
             
-            // Render
-            const commandEncoder = liveShaderDevice.createCommandEncoder();
-            const renderPass = commandEncoder.beginRenderPass({
-                colorAttachments: [{
-                    view: context.getCurrentTexture().createView(),
-                    clearValue: { r: 0, g: 0, b: 0, a: 1 },
-                    loadOp: 'clear',
-                    storeOp: 'store'
-                }]
-            });
+            if (!popOutWindow) {
+                alert('Pop-out blocked! Please allow popups for this site.');
+                return;
+            }
             
-            renderPass.setPipeline(liveShaderPipeline);
-            renderPass.setBindGroup(0, liveShaderBindGroup);
-            renderPass.draw(3, 1, 0, 0);
-            renderPass.end();
+            // Set up pop-out window HTML
+            popOutWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ONEMANSHYO App [V3_6]</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+        }
+        #shaderContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+    </style>
+</head>
+<body>
+    <div id="shaderContainer">
+        <canvas id="popOutCanvas0" style="z-index: 4;"></canvas>
+        <canvas id="popOutCanvas1" style="z-index: 3;"></canvas>
+        <canvas id="popOutCanvas2" style="z-index: 2;"></canvas>
+        <canvas id="popOutCanvas3" style="z-index: 1;"></canvas>
+    </div>
+</body>
+</html>
+            `);
             
-            liveShaderDevice.queue.submit([commandEncoder.finish()]);
+            popOutWindow.document.close();
             
-            liveShaderAnimationId = requestAnimationFrame(() => renderLiveShader(canvas, context));
+            // Initialize WebGPU for pop-out canvases
+            try {
+                for (let track = 0; track < 4; track++) {
+                    const canvas = popOutWindow.document.getElementById(`popOutCanvas${track}`);
+                    if (!canvas) {
+                        console.error(`V3_6_0_F: Pop-out canvas ${track} not found`);
+                        continue;
+                    }
+                    
+                    // V3_6_0_N: Set canvas resolution from settings
+                    const [canvasWidth, canvasHeight] = appSettings.popOutWindowSize.split('x').map(Number);
+                    canvas.width = canvasWidth;
+                    canvas.height = canvasHeight;
+                    
+                    // Get WebGPU adapter and device
+                    const adapter = await navigator.gpu.requestAdapter();
+                    const device = await adapter.requestDevice();
+                    popOutDevices[track] = device;
+                    
+                    // Configure WebGPU context
+                    const context = canvas.getContext('webgpu');
+                    context.configure({
+                        device: device,
+                        format: navigator.gpu.getPreferredCanvasFormat()
+                    });
+                    popOutContexts[track] = context;
+                    popOutCanvases[track] = canvas;
+                    
+                    // Get current shader code (default black)
+                    const shaderCode = getShaderCodeForLive();
+                    const shaderModule = device.createShaderModule({
+                        code: shaderCode
+                    });
+                    
+                    // Create uniform buffer
+                    popOutUniformBuffers[track] = device.createBuffer({
+                        size: 48,
+                        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+                    });
+                    
+                    // Create bind group layout
+                    const bindGroupLayout = device.createBindGroupLayout({
+                        entries: [{
+                            binding: 0,
+                            visibility: GPUShaderStage.FRAGMENT,
+                            buffer: { type: 'uniform' }
+                        }]
+                    });
+                    
+                    popOutBindGroups[track] = device.createBindGroup({
+                        layout: bindGroupLayout,
+                        entries: [{
+                            binding: 0,
+                            resource: { buffer: popOutUniformBuffers[track] }
+                        }]
+                    });
+                    
+                    // Create render pipeline
+                    popOutPipelines[track] = device.createRenderPipeline({
+                        layout: device.createPipelineLayout({
+                            bindGroupLayouts: [bindGroupLayout]
+                        }),
+                        vertex: {
+                            module: shaderModule,
+                            entryPoint: 'vs_main'
+                        },
+                        fragment: {
+                            module: shaderModule,
+                            entryPoint: 'fs_main',
+                            targets: [{
+                                format: navigator.gpu.getPreferredCanvasFormat(),
+                                blend: {
+                                    color: {
+                                        srcFactor: 'src-alpha',
+                                        dstFactor: 'one-minus-src-alpha',
+                                        operation: 'add'
+                                    },
+                                    alpha: {
+                                        srcFactor: 'one',
+                                        dstFactor: 'one-minus-src-alpha',
+                                        operation: 'add'
+                                    }
+                                }
+                            }]
+                        },
+                        primitive: {
+                            topology: 'triangle-list'
+                        }
+                    });
+                    
+                    console.log(`V3_6_0_F: Pop-out track ${track + 1} initialized`);
+                }
+                
+                // Update button text
+                const button = document.getElementById('popOutShaderButton');
+                if (button) button.textContent = 'Close Pop-Out ✕';
+                
+                // Handle window close
+                popOutWindow.addEventListener('beforeunload', () => {
+                    closePopOutWindow();
+                });
+                
+                console.log('V3_6_0_F: Pop-out window initialized');
+            } catch (error) {
+                console.error('V3_6_0_F: Pop-out init failed:', error);
+            }
+        }
+        
+        // V3_6_0_F: Close pop-out window and clean up resources
+        function closePopOutWindow() {
+            if (popOutWindow && !popOutWindow.closed) {
+                popOutWindow.close();
+            }
+            
+            // Clean up WebGPU resources
+            popOutWindow = null;
+            popOutDevices = [null, null, null, null];
+            popOutPipelines = [null, null, null, null];
+            popOutUniformBuffers = [null, null, null, null];
+            popOutBindGroups = [null, null, null, null];
+            popOutCanvases = [null, null, null, null];
+            popOutContexts = [null, null, null, null];
+            
+            // Update button text
+            const button = document.getElementById('popOutShaderButton');
+            if (button) button.textContent = 'Pop Out ↗';
+            
+            console.log('V3_6_0_F: Pop-out window closed');
+        }
+        
+        // V3_6_0_B: Update specific track's shader without reinitializing device
+        async function updateLiveShader(trackIndex, providedShaderCode) {
+            if (!liveShaderDevices[trackIndex]) {
+                console.log(`V3_6_0_B: Track ${trackIndex} not initialized, skipping shader update`);
+                return;
+            }
+            
+            const canvas = liveShaderCanvases[trackIndex];
+            const context = liveShaderContexts[trackIndex];
+            const device = liveShaderDevices[trackIndex];
+            
+            if (!canvas || !context || !device) return;
+            
+            try {
+                // Wrap container shader code
+                const wrappedShader = `
+// V3_6_0_B: Container shader uniform structure (12 floats = 48 bytes)
+struct Uniforms {
+    time: f32,
+    tempo: f32,
+    modA: f32,
+    modB: f32,
+    modC: f32,
+    resolutionX: f32,
+    resolutionY: f32,
+    padding1: f32,
+    padding2: f32,
+    padding3: f32,
+    padding4: f32,
+    padding5: f32,
+}
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+
+struct VertexOutput {
+    @builtin(position) position: vec4<f32>,
+}
+
+@vertex
+fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
+    var output: VertexOutput;
+    let x = f32((vertexIndex & 1u) << 2u);
+    let y = f32((vertexIndex & 2u) << 1u);
+    output.position = vec4<f32>(x - 1.0, 1.0 - y, 0.0, 1.0);
+    return output;
+}
+
+${providedShaderCode}
+                `;
+                
+                // Create new shader module
+                const shaderModule = device.createShaderModule({
+                    code: wrappedShader
+                });
+                
+                // Recreate bind group layout
+                const bindGroupLayout = device.createBindGroupLayout({
+                    entries: [{
+                        binding: 0,
+                        visibility: GPUShaderStage.FRAGMENT,
+                        buffer: { type: 'uniform' }
+                    }]
+                });
+                
+                // Recreate pipeline with new shader
+                liveShaderPipelines[trackIndex] = device.createRenderPipeline({
+                    layout: device.createPipelineLayout({
+                        bindGroupLayouts: [bindGroupLayout]
+                    }),
+                    vertex: {
+                        module: shaderModule,
+                        entryPoint: 'vs_main'
+                    },
+                    fragment: {
+                        module: shaderModule,
+                        entryPoint: 'fs_main',
+                        targets: [{
+                            format: navigator.gpu.getPreferredCanvasFormat(),
+                            blend: {
+                                color: {
+                                    srcFactor: 'src-alpha',
+                                    dstFactor: 'one-minus-src-alpha',
+                                    operation: 'add'
+                                },
+                                alpha: {
+                                    srcFactor: 'one',
+                                    dstFactor: 'one-minus-src-alpha',
+                                    operation: 'add'
+                                }
+                            }
+                        }]
+                    },
+                    primitive: {
+                        topology: 'triangle-list'
+                    }
+                });
+                
+                // Recreate bind group with existing uniform buffer
+                liveShaderBindGroups[trackIndex] = device.createBindGroup({
+                    layout: bindGroupLayout,
+                    entries: [{
+                        binding: 0,
+                        resource: { buffer: liveShaderUniformBuffers[trackIndex] }
+                    }]
+                });
+                
+                // V3_6_0_F: Update pop-out shader if window is open
+                if (popOutWindow && !popOutWindow.closed && popOutDevices[trackIndex]) {
+                    try {
+                        const popDevice = popOutDevices[trackIndex];
+                        
+                        // Create shader module for pop-out
+                        const popShaderModule = popDevice.createShaderModule({
+                            code: wrappedShader
+                        });
+                        
+                        // Recreate bind group layout for pop-out
+                        const popBindGroupLayout = popDevice.createBindGroupLayout({
+                            entries: [{
+                                binding: 0,
+                                visibility: GPUShaderStage.FRAGMENT,
+                                buffer: { type: 'uniform' }
+                            }]
+                        });
+                        
+                        // Recreate pipeline for pop-out
+                        popOutPipelines[trackIndex] = popDevice.createRenderPipeline({
+                            layout: popDevice.createPipelineLayout({
+                                bindGroupLayouts: [popBindGroupLayout]
+                            }),
+                            vertex: {
+                                module: popShaderModule,
+                                entryPoint: 'vs_main'
+                            },
+                            fragment: {
+                                module: popShaderModule,
+                                entryPoint: 'fs_main',
+                                targets: [{
+                                    format: navigator.gpu.getPreferredCanvasFormat(),
+                                    blend: {
+                                        color: {
+                                            srcFactor: 'src-alpha',
+                                            dstFactor: 'one-minus-src-alpha',
+                                            operation: 'add'
+                                        },
+                                        alpha: {
+                                            srcFactor: 'one',
+                                            dstFactor: 'one-minus-src-alpha',
+                                            operation: 'add'
+                                        }
+                                    }
+                                }]
+                            },
+                            primitive: {
+                                topology: 'triangle-list'
+                            }
+                        });
+                        
+                        // Recreate bind group for pop-out
+                        popOutBindGroups[trackIndex] = popDevice.createBindGroup({
+                            layout: popBindGroupLayout,
+                            entries: [{
+                                binding: 0,
+                                resource: { buffer: popOutUniformBuffers[trackIndex] }
+                            }]
+                        });
+                        
+                        console.log(`V3_6_0_F: Pop-out track ${trackIndex + 1} shader updated`);
+                    } catch (error) {
+                        console.error(`V3_6_0_F: Pop-out track ${trackIndex} shader update failed:`, error);
+                    }
+                }
+                
+                console.log(`V3_6_0_B: Track ${trackIndex + 1} shader updated`);
+            } catch (error) {
+                console.error(`V3_6_0_B: Track ${trackIndex} shader update failed:`, error);
+            }
+        }
+        
+        // V3_6_0_B: Render all 4 tracks with volume-based opacity
+        function renderLiveShader() {
+            // Calculate master tempo-synced time (READ ONLY - doesn't modify sessionStartTime)
+            let currentTime = 0;
+            if (sessionStartTime !== null && audioContext) {
+                const elapsed = audioContext.currentTime - sessionStartTime;
+                const tempoScale = gridState.masterTempo / 120.0;
+                currentTime = elapsed * tempoScale;
+            } else {
+                // Fallback if no audio session started yet
+                currentTime = (Date.now() - liveShaderStartTime) / 1000.0;
+            }
+            
+            // Render each track
+            for (let track = 0; track < 4; track++) {
+                const device = liveShaderDevices[track];
+                const pipeline = liveShaderPipelines[track];
+                const uniformBuffer = liveShaderUniformBuffers[track];
+                const bindGroup = liveShaderBindGroups[track];
+                const context = liveShaderContexts[track];
+                const canvas = liveShaderCanvases[track];
+                
+                if (!device || !pipeline || !context || !canvas) continue;
+                
+                // V3_6_0_J: Shader intensity based on volume with ×2 curve (peak at 50%)
+                const isPlaying = trackAudioSources[track] !== null;
+                let intensity = 0;
+                
+                if (isPlaying && trackGainNodes[track]) {
+                    const volume = trackGainNodes[track].gain.value; // 0-1 range
+                    intensity = Math.min(1.0, volume * 2.0); // ×2, clamp at 1.0
+                    // Result: 0% vol→0%, 25% vol→50%, 50% vol→100% (maxed), 100% vol→100%
+                }
+                
+                canvas.style.opacity = intensity;
+                
+                // Update uniforms (12 floats = 48 bytes for container shaders)
+                // time, tempo, modA, modB, modC, resolutionX, resolutionY, padding×5
+                const uniformData = new Float32Array([
+                    currentTime,
+                    gridState.masterTempo,
+                    0, // modA (TODO: connect to FFT)
+                    0, // modB (TODO: connect to FFT)
+                    0, // modC (TODO: connect to FFT)
+                    canvas.width,
+                    canvas.height,
+                    0, 0, 0, 0, 0 // padding
+                ]);
+                device.queue.writeBuffer(uniformBuffer, 0, uniformData);
+                
+                // Render this track's shader
+                try {
+                    const commandEncoder = device.createCommandEncoder();
+                    const renderPass = commandEncoder.beginRenderPass({
+                        colorAttachments: [{
+                            view: context.getCurrentTexture().createView(),
+                            clearValue: { r: 0, g: 0, b: 0, a: 0 }, // Transparent clear
+                            loadOp: 'clear',
+                            storeOp: 'store'
+                        }]
+                    });
+                    
+                    renderPass.setPipeline(pipeline);
+                    renderPass.setBindGroup(0, bindGroup);
+                    renderPass.draw(3, 1, 0, 0);
+                    renderPass.end();
+                    
+                    device.queue.submit([commandEncoder.finish()]);
+                } catch (error) {
+                    // Shader errors shouldn't break render loop
+                    console.error(`V3_6_0_B: Track ${track} render error:`, error);
+                }
+            }
+            
+            // V3_6_0_F: Render to pop-out window if open
+            if (popOutWindow && !popOutWindow.closed) {
+                for (let track = 0; track < 4; track++) {
+                    const device = popOutDevices[track];
+                    const pipeline = popOutPipelines[track];
+                    const uniformBuffer = popOutUniformBuffers[track];
+                    const bindGroup = popOutBindGroups[track];
+                    const context = popOutContexts[track];
+                    const canvas = popOutCanvases[track];
+                    
+                    if (!device || !pipeline || !context || !canvas) continue;
+                    
+                    // V3_6_0_J: Shader intensity based on volume (same curve as inset)
+                    const isPlaying = trackAudioSources[track] !== null;
+                    let intensity = 0;
+                    
+                    if (isPlaying && trackGainNodes[track]) {
+                        const volume = trackGainNodes[track].gain.value;
+                        intensity = Math.min(1.0, volume * 2.0);
+                    }
+                    
+                    canvas.style.opacity = intensity;
+                    
+                    // Update uniforms (same as inset)
+                    const uniformData = new Float32Array([
+                        currentTime,
+                        gridState.masterTempo,
+                        0, // modA
+                        0, // modB
+                        0, // modC
+                        canvas.width,
+                        canvas.height,
+                        0, 0, 0, 0, 0
+                    ]);
+                    device.queue.writeBuffer(uniformBuffer, 0, uniformData);
+                    
+                    // Render this track's shader to pop-out
+                    try {
+                        const commandEncoder = device.createCommandEncoder();
+                        const renderPass = commandEncoder.beginRenderPass({
+                            colorAttachments: [{
+                                view: context.getCurrentTexture().createView(),
+                                clearValue: { r: 0, g: 0, b: 0, a: 0 },
+                                loadOp: 'clear',
+                                storeOp: 'store'
+                            }]
+                        });
+                        
+                        renderPass.setPipeline(pipeline);
+                        renderPass.setBindGroup(0, bindGroup);
+                        renderPass.draw(3, 1, 0, 0);
+                        renderPass.end();
+                        
+                        device.queue.submit([commandEncoder.finish()]);
+                    } catch (error) {
+                        console.error(`V3_6_0_F: Pop-out track ${track} render error:`, error);
+                    }
+                }
+            }
+            
+            // Continue render loop
+            liveShaderAnimationId = requestAnimationFrame(() => renderLiveShader());
         }
 
         function drawEmptyWaveform(ctx, canvas) {
@@ -9291,8 +10157,13 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
             // Playhead is at 50% of container
             const playheadPosition = containerWidth * 0.5;
             
-            // Get canvas position using offsetLeft
-            const canvasLeftOffset = canvas.offsetLeft;
+            // V3_6_0_AE: FIX - Get canvas position accounting for position: relative on container
+            // The waveform-canvas-container now has position: relative (for overlay positioning)
+            // This changed canvas.offsetLeft to be relative to container, not section
+            // We need the total offset from section: container offset + canvas offset within container
+            const canvasContainer = canvas.closest('.waveform-canvas-container');
+            const containerLeftOffset = canvasContainer ? canvasContainer.offsetLeft : 0;
+            const canvasLeftOffset = containerLeftOffset + canvas.offsetLeft;
             
             // V3.3.0_K: Simple translation - move Bar 1 to playhead
             // Bar 1 is at bar1PositionPx on canvas, needs to be at playhead
@@ -9304,11 +10175,14 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
             canvas.style.transformOrigin = 'left center'; // Not used since no scaling
             canvas.style.transform = `translateX(${offsetNeeded}px)`;
             
-            console.log(`V3.3.0_W: Track ${track} positioning:`, {
+            console.log(`V3_6_0_AE: Track ${track} positioning (FIXED):`, {
                 audioStartTime: audioStartTime.toFixed(3),
                 scaledStartTime: scaledStartTime.toFixed(3),
                 tempoRatio: tempoRatio.toFixed(4),
                 bar1PositionPx: bar1PositionPx.toFixed(2),
+                containerLeftOffset: containerLeftOffset.toFixed(2),
+                canvasOffsetInContainer: canvas.offsetLeft.toFixed(2),
+                totalCanvasOffset: canvasLeftOffset.toFixed(2),
                 playheadInCanvasSpace: playheadInCanvasSpace.toFixed(2),
                 offsetNeeded: offsetNeeded.toFixed(2)
             });
@@ -9409,6 +10283,8 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
             const metrics = ctx.measureText(text);
             const textWidth = metrics.width;
             
+            // V3_6_0_Z: DISABLED - Pink moving title at bottom removed
+            /*
             // V3.2.0-W: Draw background box at bottom (was top-left)
             ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Dark, 60% opacity
             ctx.fillRect(4, canvasHeight - 22, textWidth + 8, 18);
@@ -9416,6 +10292,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
             // Draw text in magenta (OMS brand color)
             ctx.fillStyle = '#ff00ff'; // Magenta
             ctx.fillText(text, 8, canvasHeight - 8);
+            */
         }
 
         // V3.1.0-T: Start waveform scrolling animation
@@ -9590,6 +10467,9 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                     cell.classList.add('playing');
                 }
                 
+                // V3_6_0_W: Update waveform overlay (container name + shader thumbnail)
+                updateWaveformOverlay(track, container);
+                
                 console.log(`V3.1.0-I: Playing "${container.audioFilename}" on Track ${track + 1}`);
                 showStatus(`Playing: ${container.audioFilename}`, 'success');
                 
@@ -9722,8 +10602,10 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                 return;
             }
             
-            // Delete key - remove container from selected cell
-            if (e.key === 'Delete' && selectedCell) {
+            // V3_6_0_O: Delete/Backspace key - remove container from selected cell
+            // Mac: Delete key = 'Backspace', Fn+Delete = 'Delete'
+            // Windows: Delete key = 'Delete', Backspace = 'Backspace'
+            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedCell) {
                 e.preventDefault();
                 const { track, scene } = selectedCell;
                 const cellIndex = track * NUM_SCENES + scene;
@@ -9750,8 +10632,35 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                         }
                     }
                     
+                    // V3_6_0_O: Clear shader from live output
+                    const shaderCanvas = document.getElementById(`liveShaderCanvas${track}`);
+                    if (shaderCanvas) {
+                        const ctx = shaderCanvas.getContext('2d');
+                        if (ctx) {
+                            ctx.clearRect(0, 0, shaderCanvas.width, shaderCanvas.height);
+                        }
+                    }
+                    
+                    // V3_6_0_O: Clear shader from pop-out if open
+                    if (popOutWindow && !popOutWindow.closed) {
+                        try {
+                            const popCanvas = popOutWindow.document.getElementById(`popOutCanvas${track}`);
+                            if (popCanvas) {
+                                const ctx = popCanvas.getContext('2d');
+                                if (ctx) {
+                                    ctx.clearRect(0, 0, popCanvas.width, popCanvas.height);
+                                }
+                            }
+                        } catch (e) {
+                            console.log('V3_6_0_O: Could not clear pop-out shader (window may be closed)');
+                        }
+                    }
+                    
                     // Remove container
                     gridState.cells[cellIndex] = null;
+                    
+                    // V3_6_0_W: Hide waveform overlay
+                    hideWaveformOverlay(track);
                     
                     // V3.1.0-P: Use updateCellDisplay() to properly show "Empty" state
                     updateCellDisplay(track, scene);
@@ -9886,7 +10795,8 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                 if (selectedCell) {
                     selectedCell = null;
                     updateSelectionVisuals();
-                    console.log(`V3_5_0_I: Exited cell mode, returned to scene mode (Esc key)`);
+                    updateSceneSelectionVisuals(); // V3_6_0_L: Show scene column selection
+                    console.log(`V3_6_0_L: Returned to scene column (Esc key)`);
                     showStatus('Scene mode', 'info');
                     return;
                 }
@@ -9915,6 +10825,9 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                         const cells = document.querySelectorAll(`.clip-slot[data-track="${i}"]`);
                         cells.forEach(cell => cell.classList.remove('playing'));
                         
+                        // V3_6_0_W: Hide waveform overlay
+                        hideWaveformOverlay(i);
+                        
                         stoppedCount++;
                     }
                 }
@@ -9922,6 +10835,10 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                 if (stoppedCount > 0) {
                     // V3_5_0_L: Reset master clock when all tracks stopped
                     sessionStartTime = null;
+                    
+                    // V3_6_0_Q: Remove playing indicator from all scene triggers
+                    document.querySelectorAll('.scene-trigger').forEach(t => t.classList.remove('playing'));
+                    
                     console.log(`V3_5_0_D: Emergency stop - ${stoppedCount} tracks stopped (Esc key)`);
                     console.log(`V3_5_0_L: Master clock reset`);
                     showStatus(`Emergency stop - ${stoppedCount} tracks stopped`, 'success');
@@ -9985,7 +10902,8 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                 return;
             }
             
-            // V3_5_0_I: A key - Move left in cell grid (select cell if none selected)
+            // V3_5_0_I: A key - Move left in cell grid OR exit to scene column
+            // V3_6_0_L: From Track 1, pressing A returns to scene column (Ableton-style)
             if (e.key === 'a' || e.key === 'A') {
                 e.preventDefault();
                 
@@ -9997,13 +10915,16 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                         selectedKnobIndex = -1; // Deselect knob when navigating cells
                         updateSelectionVisuals();
                         console.log(`V3_5_0_I: Cell cursor moved left to Track ${track}, Scene ${scene + 1} (A key)`);
+                    } else {
+                        // V3_6_0_L: Already at Track 1 - exit to scene column
+                        selectedCell = null;
+                        updateSelectionVisuals();
+                        updateSceneSelectionVisuals();
+                        console.log(`V3_6_0_L: Exited to scene column - Scene ${scene + 1} (A key from Track 1)`);
                     }
                 } else {
-                    // No cell selected - select first cell (Track 1, current scene cursor position)
-                    selectedCell = { track: 0, scene: selectedSceneIndex };
-                    selectedKnobIndex = -1; // Deselect knob
-                    updateSelectionVisuals();
-                    console.log(`V3_5_0_I: Entered cell mode - Track 1, Scene ${selectedSceneIndex + 1} (A key)`);
+                    // V3_6_0_L: Already in scene column - do nothing (leftmost position)
+                    console.log(`V3_6_0_L: Already in scene column (A key)`);
                 }
                 
                 return;
@@ -10023,11 +10944,11 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                         console.log(`V3_5_0_I: Cell cursor moved right to Track ${track + 2}, Scene ${scene + 1} (D key)`);
                     }
                 } else {
-                    // No cell selected - select first cell (Track 1, current scene cursor position)
+                    // V3_6_0_L: In scene column - enter Track 1 (Ableton-style)
                     selectedCell = { track: 0, scene: selectedSceneIndex };
                     selectedKnobIndex = -1; // Deselect knob
                     updateSelectionVisuals();
-                    console.log(`V3_5_0_I: Entered cell mode - Track 1, Scene ${selectedSceneIndex + 1} (D key)`);
+                    console.log(`V3_6_0_L: Entered Track 1 from scene column - Scene ${selectedSceneIndex + 1} (D key)`);
                 }
                 
                 return;
@@ -10063,11 +10984,51 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                         }
                         
                         playCellAudio(track, scene, cellData, startTime);
+                        
+                        // V3_6_0_A: Update shader for this cell (wrapped in try/catch - CANNOT break audio)
+                        try {
+                            updateCellShader(track, scene);
+                        } catch (error) {
+                            console.error('V3_6_0_A: Shader update failed (audio unaffected):', error);
+                        }
+                        
                         console.log(`V3_5_0_I: Launched cell Track ${track + 1}, Scene ${scene + 1} (Enter key)`);
                         showStatus(`Launched Track ${track + 1}, Scene ${scene + 1}`, 'success');
                     } else {
-                        console.log(`V3_5_0_I: Cell empty - Track ${track + 1}, Scene ${scene + 1}`);
-                        showStatus(`Cell empty`, 'info');
+                        // V3_6_0_M: Empty cell - stop this track (Ableton-style clip stop)
+                        if (trackAudioSources[track]) {
+                            trackAudioSources[track].stop();
+                            trackAudioSources[track].disconnect();
+                            trackAudioSources[track] = null;
+                            trackAudioBuffers[track] = null;
+                            
+                            // Recalculate zoom range when track stops
+                            recalculateZoomRange();
+                            
+                            // Stop waveform scrolling
+                            stopAudioWaveformScroll(track);
+                            
+                            // Clear waveform
+                            const canvas = document.getElementById(`waveform${track + 1}`);
+                            if (canvas) {
+                                const ctx = canvas.getContext('2d');
+                                drawEmptyWaveform(ctx, canvas);
+                            }
+                            
+                            // V3_6_0_V: Remove .playing class from all cells in this track
+                            document.querySelectorAll(`.clip-slot[data-track="${track}"]`).forEach(cell => {
+                                cell.classList.remove('playing');
+                            });
+                            
+                            // V3_6_0_W: Hide waveform overlay
+                            hideWaveformOverlay(track);
+                            
+                            console.log(`V3_6_0_M: Empty cell - stopped Track ${track + 1} (Enter key)`);
+                            showStatus(`Stopped Track ${track + 1}`, 'success');
+                        } else {
+                            console.log(`V3_6_0_M: Empty cell, no audio playing on Track ${track + 1}`);
+                            showStatus(`Empty cell`, 'info');
+                        }
                     }
                 } else {
                     // V3_5_0_H: Scene mode - launch full scene (all 4 tracks)
@@ -10082,20 +11043,19 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
         
         // V3.1.0-N: Update selection visuals (cells + knobs)
         function updateSelectionVisuals() {
-            // Clear all cell outlines
+            // V3_6_0_T: Clear all cell cursor outlines
             document.querySelectorAll('.clip-slot').forEach(cell => {
                 cell.style.outline = '';
-                cell.style.boxShadow = ''; // V3_5_0_K: Also clear box-shadow
             });
             
-            // Highlight selected cell with yellow box-shadow (inset)
+            // V3_6_0_U: Highlight WASD cursor with CYAN OUTLINE (priority #1, reduced from 2px to 1px)
             if (selectedCell) {
                 const { track, scene } = selectedCell;
                 const cell = document.querySelector(`.clip-slot[data-track="${track}"][data-scene="${scene}"]`);
                 if (cell) {
-                    // V3_5_0_K: Use inset box-shadow instead of outline
-                    // Inset draws INSIDE the element, not outside like outline
-                    cell.style.boxShadow = 'inset 0 0 0 3px #ffff00';
+                    // 1px cyan outline (50% thinner) - sits outside/on top of all content
+                    cell.style.outline = '1px solid #00d4ff';
+                    cell.style.outlineOffset = '-1px'; // Pull inside cell bounds
                 }
             }
             
@@ -10117,15 +11077,11 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
         }
         
         // V3.1.0-M: Cell selection handler (click to select)
+        // V3_6_0_P: Simplified - no .selected class, just update selectedCell state
         function initCellSelection() {
             document.addEventListener('click', (e) => {
                 const cell = e.target.closest('.clip-slot');
                 if (cell) {
-                    // Deselect all cells
-                    document.querySelectorAll('.clip-slot').forEach(c => c.classList.remove('selected'));
-                    
-                    // Select this cell
-                    cell.classList.add('selected');
                     selectedCell = {
                         track: parseInt(cell.dataset.track),
                         scene: parseInt(cell.dataset.scene)
@@ -10133,6 +11089,9 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                     
                     // Deselect knobs when cell selected
                     selectedKnobIndex = -1;
+                    
+                    // Update visuals (box-shadow only)
+                    updateSelectionVisuals();
                 }
             });
         }
@@ -10165,6 +11124,11 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                     masterVolume: gridState.masterVolume,
                     masterTempo: parseInt(document.getElementById('tempo').value) || 120,
                     lastSceneLaunched: gridState.lastSceneLaunched
+                },
+                // V3_6_0_N: Include application settings
+                settings: {
+                    popOutWindowSize: appSettings.popOutWindowSize,
+                    popOutAlwaysOnTop: appSettings.popOutAlwaysOnTop
                 }
             };
         }
@@ -10285,6 +11249,21 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
             // Apply last scene launched
             if (state.lastSceneLaunched !== undefined) {
                 gridState.lastSceneLaunched = state.lastSceneLaunched;
+            }
+            
+            // V3_6_0_N: Apply application settings
+            if (projectData.settings) {
+                if (projectData.settings.popOutWindowSize !== undefined) {
+                    appSettings.popOutWindowSize = projectData.settings.popOutWindowSize;
+                    const sizeSelect = document.getElementById('popOutSizeSelect');
+                    if (sizeSelect) sizeSelect.value = appSettings.popOutWindowSize;
+                }
+                
+                if (projectData.settings.popOutAlwaysOnTop !== undefined) {
+                    appSettings.popOutAlwaysOnTop = projectData.settings.popOutAlwaysOnTop;
+                    const checkbox = document.getElementById('popOutAlwaysOnTopCheckbox');
+                    if (checkbox) checkbox.checked = appSettings.popOutAlwaysOnTop;
+                }
             }
 
             showStatus('Project state applied', 'success');
@@ -10596,6 +11575,25 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                     } catch (error) {
                         console.error('Failed to load project info:', error);
                     }
+                });
+            }
+            
+            // V3_6_0_N: Settings control event listeners
+            const popOutSizeSelect = document.getElementById('popOutSizeSelect');
+            if (popOutSizeSelect) {
+                popOutSizeSelect.addEventListener('change', (e) => {
+                    appSettings.popOutWindowSize = e.target.value;
+                    autoSaveProject(); // Save settings to default.omsp
+                    console.log('V3_6_0_N: Pop-out window size changed to', appSettings.popOutWindowSize);
+                });
+            }
+            
+            const popOutAlwaysOnTopCheckbox = document.getElementById('popOutAlwaysOnTopCheckbox');
+            if (popOutAlwaysOnTopCheckbox) {
+                popOutAlwaysOnTopCheckbox.addEventListener('change', (e) => {
+                    appSettings.popOutAlwaysOnTop = e.target.checked;
+                    autoSaveProject(); // Save settings to default.omsp
+                    console.log('V3_6_0_N: Pop-out always on top:', appSettings.popOutAlwaysOnTop);
                 });
             }
         });
