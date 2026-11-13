@@ -1,9 +1,9 @@
-# ONEMANSHYO App [Beta V5_7_0] - USER GUIDE
+# ONEMANSHYO App [Beta V5_8_0] - USER GUIDE
 
-**Version:** Beta V5_7_0  
-**Date:** January 16, 2026  
+**Version:** Beta V5_8_0  
+**Date:** January 22, 2026  
 **License:** GPL-3.0  
-**Line Count:** 4,144 (V5_6_0) → 4,411 (V5_7_0)  
+**Line Count:** 4,411 (V5_7_0) → 4,863 (V5_8_0)  
 **Document Purpose:** Comprehensive user and reference guide for all application features
 
 ---
@@ -36,7 +36,7 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 **Browser:** Chrome (WebGPU support required)  
 **Screen:** 1352×761 effective viewport (14" MacBook Pro)
 
-**File:** `OMS_App_Beta_V5_7_0.html`
+**File:** `OMS_App_Beta_V5_8_0.html`
 
 ---
 
@@ -719,9 +719,11 @@ Audio Focus uses a two-step pattern:
 |-----|-------|----------|
 | V | Volume | Audio volume knob with kill |
 | M | Mic | Mic input knob with mute (V5_7_0) |
+| I | Input | External audio input knob with mute (V5_8_0) |
 | C | Cue | 5 cue points |
 | E | EQ | 3-band EQ (H/M/L) |
 | F | FX | 3 DJ FX (Washout/Dubby/Break) |
+| G | Automation | Transform automation overlay (V5_8_0) |
 
 **JKL Transport (V5_7_0):**
 Video editor-style transport controls, active in Audio Focus:
@@ -749,10 +751,14 @@ Video editor-style transport controls, active in Audio Focus:
 | A | Enter/exit Audio Focus (V5_7_0: bare key) |
 | V | Open Volume panel |
 | M | Open Mic panel (V5_7_0) |
+| I | Open Input panel (V5_8_0) |
 | C | Open Cue panel |
 | E | Open EQ panel |
 | F | Open FX panel |
+| G | Toggle automation overlay (V5_8_0) |
 | J/K/L | Transport (see above) |
+| Fn+← | Jump to Bar 1.1 (V5_8_0) |
+| Fn+→ | Jump to audio end (V5_8_0) |
 | ↑/↓ | Navigate rows in panel |
 | ←/→ | Adjust values |
 | Enter | Activate (jump/kill) |
@@ -933,6 +939,122 @@ AUDIO | [Mic 18×18] | [Vol 18×18] | [Container Name] | [Time] | [SWAP] [X]
 - Testing audio reactivity with voice/claps before selecting music
 - Live microphone input during performance
 - Previewing shader response to transient sounds
+
+---
+
+##### 3.2.5.10 Transform Automation (V5_8_0)
+
+Visual automation editor for recording and editing transform parameter changes over time.
+
+**What It Does:**
+- Draw automation curves for any transform control
+- Curves play back during audio playback
+- Values interpolate smoothly between nodes
+- Saved in .oms containers
+
+**Opening the Automation Overlay:**
+1. Enter Audio Focus: `A`
+2. Toggle automation overlay: `G`
+3. Semi-transparent canvas (20% black) appears over waveform
+4. Waveform grid remains visible through overlay
+
+**Transform Domain:**
+- Press `T` to activate Transform editing
+- Colored selector tiles appear on left edge
+- Auto-selects Rotation on first entry
+
+**Control Selection:**
+
+| Key | Control | Color |
+|-----|---------|-------|
+| 1 | Rotation | Red (#ff6b6b) |
+| 2 | Scale | Teal (#4ecdc4) |
+| 3 | Tile | Yellow (#ffe66d) |
+| 4 | Position | Mint (#95e1d3) |
+| 5 | Pivot | Plum (#dda0dd) |
+
+**Visual Feedback:**
+- Selected control: 3px thick line, full opacity, nodes visible
+- Unselected controls: 1.5px line, 40% opacity
+- Horizontal center line at 0.5 = neutral (no effect)
+
+**Node Interaction:**
+
+| Action | Result |
+|--------|--------|
+| Click empty canvas | Create new node at position |
+| Click existing node | Delete node |
+| Drag node | Move freely |
+| Shift+drag node | Snap to beat (X) and 0.1 increments (Y) |
+| Click on line segment | Add node at that position |
+| Drag line segment | Move both endpoint nodes together |
+
+**Curve Types:**
+Right-click on a line segment to change its curve type:
+
+| Curve | Description |
+|-------|-------------|
+| Linear | Straight line interpolation (default) |
+| Sine | S-curve, smooth ease in and out |
+| Ease In | Slow start, accelerates to end |
+| Ease Out | Fast start, decelerates to end |
+| Hold | Stays at start value until end point |
+
+**Default Breakpoints:**
+When first entering Transform domain, default nodes are created:
+- Positions at bars 1.1, 5.1, 9.1, and end (if within range)
+- All values default to 0.5 (center = no effect)
+
+**Value Mapping:**
+The Y-axis (0.0 to 1.0) maps to each control's range:
+
+| Control | 0.0 | 0.5 (center) | 1.0 |
+|---------|-----|--------------|-----|
+| Rotation | 0° | 180° | 360° |
+| Scale | 0× | 1× (unity) | 2× |
+| Tile | 1 | 4 | 8 |
+| Position X/Y | -1 | 0 (center) | +1 |
+| Pivot X/Y | -1 | 0 (center) | +1 |
+
+**Click Pass-Through:**
+- When G overlay is visible but T is not pressed, clicks pass through to waveform
+- Allows cue point editing with automation visible
+- Press T to capture clicks for node editing
+
+**Playback:**
+- During audio playback, automation values update in real-time
+- Transform knobs reflect automated values
+- Smooth interpolation between nodes using selected curve types
+
+**Persistence:**
+- Automation data saved in .oms containers
+- 7 parameter arrays: rotation, scale, tile, translateX, translateY, pivotX, pivotY
+- Each node stores: beat position, value (0-1), curve type
+- Persists through Save, Update, Load operations
+
+**Keyboard Reference:**
+
+| Key | Action |
+|-----|--------|
+| A | Enter Audio Focus (required first) |
+| G | Toggle automation overlay |
+| T | Enter/exit Transform editing mode |
+| 1-5 | Select control (Rotation/Scale/Tile/Position/Pivot) |
+| Escape | Exit Transform mode (overlay stays) |
+| Escape | Exit Audio Focus (closes overlay) |
+
+**Workflow Example:**
+1. Load container with audio
+2. `A` to enter Audio Focus
+3. `G` to show automation overlay
+4. `T` to enter Transform editing
+5. `1` to select Rotation
+6. Click at bar 1 to add node at 0.5
+7. Click at bar 9 to add node at 1.0 (full rotation)
+8. Right-click the line, select "Ease In"
+9. Play audio to preview rotation accelerating into bar 9
+10. `Escape` twice to exit
+11. Save container to preserve automation
 
 ---
 
@@ -1273,13 +1395,13 @@ Each shows:
 
 ---
 
-#### 3.3.7 Info Drawer (V5_5_0: Auto-Save)
+#### 3.3.7 Info Drawer (V5_5_0: Auto-Save, V5_8_0)
 
 **Access:** Click [ℹ] or press Cmd+I
 
 **Apple Music-Style Auto-Save (V5_5_0):**
 
-No more OK/Cancel buttons. Changes save automatically when you navigate away.
+No OK/Cancel buttons. Changes save automatically when you navigate away.
 
 | Action | Result |
 |--------|--------|
@@ -1288,16 +1410,27 @@ No more OK/Cancel buttons. Changes save automatically when you navigate away.
 | Press Escape | Saves, closes drawer |
 | Press ↑/↓ | Saves, navigates to prev/next container |
 
-**Fields:**
+**Fields (V5_8_0):**
 
 | Field | Type | Content |
 |-------|------|---------|
-| NAME | Text (editable) | Container name |
-| BPM | Read-only | Audio tempo |
-| AUDIO | Dropdown | Audio file selection |
+| NAME | Editable | Container name |
+| BPM | Editable | Audio tempo |
+| AUDIO | Editable (V5_8_0) | Audio filename - click to rename |
 | DURATION | Read-only | Total length |
-| LOOP | Read-only | In → Out points |
 | CREATED | Read-only | Creation date |
+
+**Audio Filename Rename (V5_8_0):**
+- Click audio filename to edit inline
+- Renames actual file in /Library/ folder
+- Scans ALL containers referencing old filename
+- Updates all references to new filename
+- Shows confirmation: "Renamed audio, updated N containers"
+
+**Loop Field Removed (V5_8_0):**
+- Loop In/Out editing moved to CREATE tab only
+- Loop points require waveform context for proper editing
+- Edit loops in CREATE → Audio Timing section
 
 **Audio Management:**
 - Dropdown shows /Library/ audio files
@@ -1305,15 +1438,9 @@ No more OK/Cancel buttons. Changes save automatically when you navigate away.
 - [Swap] button = change audio
 - [Remove] button = delete reference
 
-**Buttons:**
-
-| Button | Action |
-|--------|--------|
-| [OK] | Apply changes |
-| [Cancel] | Discard changes |
-| [X] | Close drawer |
-
-**Pending changes:** Edits don't apply until OK clicked
+**Close:**
+- [X] button closes drawer (changes auto-saved)
+- Escape key closes drawer (changes auto-saved)
 
 ---
 
@@ -1632,11 +1759,73 @@ Click the split-cube button (purple/cyan gradient) above the grid to show expand
 
 ---
 
-#### 3.4.6 MAIN Column (V5_4_0)
+#### 3.4.5.1 Unified Rotary Controls (V5_8_0)
+
+All rotary knobs in PERFORM tab (track and MAIN) use consistent interaction patterns.
+
+**Mouse Interaction:**
+
+| Action | Result |
+|--------|--------|
+| Hover | Shows detailed help in message bar |
+| Drag up/down | Coarse adjustment (0.01 per pixel) |
+| Shift+Drag | Fine adjustment (0.002 per pixel) |
+| Single-click | Enter keyboard mode (cyan ring appears) |
+| Double-click | Toggle kill state (magenta fill) |
+
+**Keyboard Mode:**
+After clicking a knob (cyan ring visible):
+
+| Key | Action |
+|-----|--------|
+| ←/→ | Coarse adjustment ±5% |
+| ↑/↓ | Fine adjustment ±1% |
+| Enter×2 | Toggle kill (double-tap) |
+| Escape | Exit keyboard mode |
+
+**Arrow Keys (with track/MAIN selected):**
+
+| Keys | No Modifier (Audio) | Cmd+ (Visual) |
+|------|---------------------|---------------|
+| ←/→ | Volume ±5% (coarse) | Opacity ±5% (coarse) |
+| ↑/↓ | Volume ±1% (fine) | Opacity ±1% (fine) |
+| Enter×2 | Volume kill toggle | Opacity kill toggle |
+
+**Kill States:**
+- Audio kill: Mutes track/MAIN audio output
+- Visual kill: Sets opacity to 0%
+- Both shown as magenta-filled knob
+- Double-click or Enter×2 to toggle
+
+---
+
+#### 3.4.6 MAIN Column (V5_4_0, V5_8_0)
 
 **Note:** Renamed from "Master Module" in V5_4_0. "Master" now refers only to timing/grid systems. "MAIN" refers to output bus.
 
-**Visual Section (V):**
+##### MAIN Header (V5_8_0)
+
+The MAIN column header supports customization:
+
+**Hold to Rename:**
+- Long-press (500ms) on "MAIN" text
+- Inline text field appears with cyan underline
+- Type new name (up to 128 characters)
+- Enter saves, Escape cancels
+- Syncs with ADMIN → Application Labels
+
+**Right-Click Color:**
+- Right-click MAIN header for color picker
+- Same 8 color presets as scene labels
+- Color persists to project file
+
+**Selection Highlight:**
+- Press `5` to select MAIN
+- Orange border appears around MAIN column
+- Arrow keys control MAIN volume/opacity
+- Press `0` to deselect
+
+##### Visual Section (V):
 - Purple opacity meter
 - Opacity readout (%)
 - [M] Master shader mute
@@ -1815,24 +2004,26 @@ Go to ADMIN → Application Labels to edit all scene labels and colors.
 
 ---
 
-#### 3.4.12 PERFORM Keyboard Shortcuts (V5_4_0, V5_5_0, V5_6_0)
+#### 3.4.12 PERFORM Keyboard Shortcuts (V5_4_0, V5_5_0, V5_8_0)
 
-**Track Selection (V5_5_0):**
+**Track Selection (V5_8_0):**
 
 | Shortcut | Action |
 |----------|--------|
-| 1 | Select track 1 (no modifier!) |
+| 1 | Select track 1 |
 | 2 | Select track 2 |
 | 3 | Select track 3 |
 | 4 | Select track 4 |
-| 0 | Deselect track |
-| Shift+5 | Select MAIN |
+| 5 | Select MAIN (V5_8_0: bare key, was Shift+5) |
+| 0 | Deselect all |
 | Tab | Next track |
 | Shift+Tab | Previous track |
 
-**Visual Feedback (V5_5_0):**
+**Visual Feedback (V5_8_0):**
 - Track header highlights yellow when selected
+- MAIN header highlights orange when selected (key 5)
 - Press 1-4: Yellow ring on track header
+- Press 5: Orange ring on MAIN header
 
 **Overlay Toggles (V5_6_0):**
 
@@ -1855,12 +2046,14 @@ Go to ADMIN → Application Labels to edit all scene labels and colors.
 **Quick-Load Scan Order:**
 Scene 1: T1→T2→T3→T4, Scene 2: T1→T2→T3→T4, ... (horizontal through all 8 scenes)
 
-**Safety (V5_4_0):**
+**Safety (V5_8_0):**
 
-| Shortcut | Action |
-|----------|--------|
-| ESC | Warning message (first press) |
-| ESC ESC | Stop All (double-tap within 500ms) |
+| Method | First Action | Second Action |
+|--------|--------------|---------------|
+| ESC key | Warning message | Stop All (within 500ms) |
+| Stop button (■) | Button primes (visual feedback) | Stop All (within 500ms) |
+
+Both use double-action pattern to prevent accidental stops.
 
 **Cue Jump (V5_5_0):**
 
@@ -2141,6 +2334,92 @@ Configure separate Master and Cue outputs for headphone cueing.
 
 **Requirements:** Chrome/Edge 110+ with multi-channel audio interface (Behringer UMC204HD/404HD recommended).
 
+##### Audio Input Routing (V5_8_0)
+
+Route external audio sources into OMS for real-time reactivity without loading audio files.
+
+**Use Cases:**
+- React to live DAW output (Ableton, Logic, etc.)
+- React to system audio via Loopback/BlackHole
+- Live microphone input for installations
+- Real-time audio from external sources
+
+**INPUT DEVICES Section:**
+- Click "Scan Devices" to populate input device list
+- Shows all available audio inputs:
+  - Built-in microphones
+  - USB audio interfaces
+  - Virtual audio devices (Loopback, BlackHole, etc.)
+
+**INPUT ROUTING Section:**
+
+| Control | Function |
+|---------|----------|
+| Input dropdown | Select source: None, System Default, or specific device |
+| Input Level meter | 80×12 horizontal meter showing incoming signal |
+| Status helper | Shows connection state |
+
+**Status Messages:**
+- "Select an input device" - No device selected
+- "✓ Input active → Modulators" - Connected and routing to reactivity
+- "⚠ No signal detected" - Device selected but no audio
+
+**CREATE Tab Input Knob (V5_8_0):**
+
+Green Input knob (I) appears in the audio header, right of Volume (V) and Mic (M):
+
+| Element | Description |
+|---------|-------------|
+| Knob | 24×24 green rotary encoder |
+| Meter | 4×24 vertical level indicator |
+| State | Magenta fill when muted |
+
+**Interaction:**
+- Drag: Adjust input gain
+- Shift+drag: Fine adjustment
+- Tap/click: Toggle mute
+- Hover: Shows "Input (I)" in message bar
+
+**Keyboard (I Panel in Audio Focus):**
+
+| Key | Action |
+|-----|--------|
+| A | Enter Audio Focus |
+| I | Select Input panel |
+| ←/→ | Adjust input volume |
+| Enter | Toggle mute |
+| Escape | Exit panel |
+
+**Signal Flow:**
+```
+External Audio Source (DAW, System Audio)
+    ↓
+Virtual Audio Device (Loopback/BlackHole)
+    ↓
+Browser captures via getUserMedia
+    ↓
+Input Gain Node (controlled by I knob)
+    ↓
+Input Analyser (for meters)
+    ↓
+Modulator Bandpass Filters (parallel A/B/C)
+    ↓
+Shader Reactivity
+```
+
+**DAW Integration Example (Ableton + Loopback):**
+1. Install Loopback (or BlackHole)
+2. In Loopback: Create virtual device "OMS Input"
+3. In Ableton: Set audio output to "OMS Input"
+4. In OMS ADMIN → Audio Card: Select "OMS Input" as Input
+5. Play audio in Ableton → shaders react in real-time
+6. No audio file needed in OMS
+
+**Priority:**
+- If audio file is loaded AND input is active, file audio takes precedence
+- Input routing is for "no file loaded" workflows
+- Mic and Input can be active simultaneously (summed)
+
 ---
 
 #### 3.5.5 Application Labels (V5_4_0)
@@ -2210,6 +2489,54 @@ Each PIP (1, 2, 3) has three independent dropdowns:
 **Copy Diagnostic Report:**
 - Copies device info to clipboard
 - Useful for troubleshooting
+
+##### Chroma Key (V5_8_0)
+
+WebGPU-based green screen removal for PIP3 camera feed.
+
+**What It Does:**
+- Removes solid color background from PIP3 camera
+- Real-time processing via GPU
+- Included in video renders (WYSIWYG)
+
+**ADMIN → Video Sources → PIP3 Settings:**
+
+| Control | Description | Default |
+|---------|-------------|---------|
+| Chroma toggle | ON/OFF button | OFF |
+| Color picker | Key color to remove | Green (#00ff00) |
+| Tolerance | Color match threshold | 0.3 |
+| Softness | Edge feathering amount | 0.1 |
+| Spill | Color spill correction | 0.5 |
+
+**Parameter Guide:**
+
+**Tolerance (0.0 - 1.0):**
+- Low (0.1-0.2): Very strict, only exact color removed
+- Medium (0.3-0.4): Good for even lighting
+- High (0.5+): Aggressive, may eat into subject
+
+**Softness (0.0 - 1.0):**
+- Low (0.0-0.1): Hard edges, can look cutout
+- Medium (0.1-0.2): Natural edges
+- High (0.3+): Very soft, may show fringing
+
+**Spill (0.0 - 1.0):**
+- Removes green color cast from subject edges
+- Higher values = more aggressive spill removal
+- Start at 0.5, adjust if green tint visible on subject
+
+**Setup Tips:**
+1. Use even lighting on green screen
+2. Keep subject away from screen (reduces spill)
+3. Start with defaults, adjust tolerance first
+4. Increase softness if edges look harsh
+5. Adjust spill if green tint on subject
+
+**Render Export:**
+- Chroma key processing included in renders
+- What you see in preview = what you get in export
+- PIP3 with chroma composites over shader output
 
 ---
 
@@ -2309,12 +2636,13 @@ Each of the 10 slots has 4 independent dropdowns:
 | 5s | Cut after 5 seconds |
 | 10s | Cut after 10 seconds |
 
-##### 3.5.8.4 Keyboard Mode (Shift+B)
+##### 3.5.8.4 B Panel Mode (V5_8_0)
 
 **Entering Mode:**
-- Press `Shift+B` to enter BumpR mode
-- Slideout panel appears showing all 10 slots
-- Message bar shows "BumpR Mode: ↑/↓ nav, Enter/1-0 trigger, Esc exit"
+- Press `B` to enter BumpR mode (V5_8_0: bare key, was Shift+B)
+- B panel slides in from right edge of canvas
+- B key also directly fires currently selected slot
+- Works in CREATE and PERFORM tabs
 
 **Triggering Videos:**
 
@@ -2323,22 +2651,133 @@ Each of the 10 slots has 4 independent dropdowns:
 | 1-9 | Trigger slots 1-9 |
 | 0 | Trigger slot 10 |
 | Enter | Trigger selected slot |
+| B | Trigger selected slot (same as Enter) |
 
 **Navigation:**
 
 | Key | Action |
 |-----|--------|
-| ↑ | Move selection up |
-| ↓ | Move selection down |
+| ↑ | Move selection up (no fire) |
+| ↓ | Move selection down (no fire) |
+
+**A/D Sequential Firing (V5_8_0):**
+WASD-style navigation for rapid slide cycling:
+
+| Key | Action |
+|-----|--------|
+| D | Advance to next slot AND fire (wraps 10→1) |
+| A | Go to previous slot AND fire (wraps 1→10) |
+
+Use case: Rapidly cycle through slides or graphics during presentation.
 
 **Exiting:**
 
 | Key | Action |
 |-----|--------|
 | Escape | Exit BumpR mode |
-| Shift+B | Toggle mode off |
+| B | Toggle mode off (when already in mode) |
 
-##### 3.5.8.5 CDJ Cue Behavior
+---
+
+##### 3.5.8.5 N Settings Panel (V5_8_0)
+
+Press `N` while in BumpR mode to open settings slideout for selected slot.
+
+**Panel Controls:**
+
+| Control | Options |
+|---------|---------|
+| Scale | 25%, 50%, 75%, 100% |
+| Timing | Instant, Beat, Bar |
+| Animate | 16 animation types |
+| Duration | Original, Loop, bar values, timed |
+| Drop zone | Drag WebM files directly onto panel |
+| Remove | Clear slot button |
+
+**Panel Behavior:**
+- Opens to the left of B panel
+- Shows settings for currently selected slot
+- Changes apply immediately
+- Press `N` again or `Escape` to close
+
+**Drag-Drop to N Panel:**
+- Drag WebM file directly onto the drop zone
+- File copies to /BumpRStickRs/ folder
+- Thumbnail generates automatically
+- Faster than using ADMIN tab slots
+
+---
+
+##### 3.5.8.6 JKL Transport Controls (V5_8_0)
+
+Standard video editor transport controls while in BumpR mode:
+
+| Key | Single Tap | Double Tap |
+|-----|------------|------------|
+| J | Back 1 second | Back 5 seconds |
+| K | Play/Pause video | Toggle PIP z-index (see below) |
+| L | Forward 1 second | Forward 5 seconds |
+
+**Scrubbing:**
+- Use J/L to navigate within the current BumpR video
+- Useful for finding the right moment in longer clips
+- Double-tap for larger jumps
+
+---
+
+##### 3.5.8.7 Layer Control (V5_8_0)
+
+Z-index hierarchy enables "news desk" style presenter workflows.
+
+**Layer Stack:**
+
+| Layer | Z-Index | Purpose |
+|-------|---------|---------|
+| B slideout panel | 260 | Always on top |
+| N settings panel | 259 | Below B panel |
+| BumpR video (playing) | 250 | Above PIP when active |
+| PIP2/PIP3 | 200 | Host camera feeds |
+| BumpR video (stopped) | 100 | Behind PIP |
+
+**K Double-Tap (PIP Cut):**
+- Double-tap `K` to toggle BumpR clip between front (250) and back (100)
+- Use for "cut to presenter" timing
+- BumpR continues playing but drops behind PIP camera
+
+**News Desk Workflow:**
+1. Set up PIP3 with your camera (presenter view)
+2. Load graphics/slides into BumpR slots
+3. Fire BumpR slot → graphic appears over presenter
+4. Double-tap `K` → cut back to presenter (graphic still playing behind)
+5. Fire next slot → new graphic over presenter
+
+---
+
+##### 3.5.8.8 Drag-Drop Slot Reordering (V5_8_0)
+
+Rearrange BumpR slots by dragging:
+
+**How to Reorder:**
+1. Enter BumpR mode (`B`)
+2. Drag a filled slot thumbnail
+3. Drop onto another slot position
+4. Slots swap positions (all settings included)
+
+**Visual Feedback:**
+- Drag source: 40% opacity
+- Drop target: Cyan dashed border
+
+**What Swaps:**
+- Video file reference
+- Thumbnail
+- Scale setting
+- Timing setting
+- Animate setting
+- Duration setting
+
+---
+
+##### 3.5.8.9 CDJ Cue Behavior
 
 BumpR triggers work like CDJ hot cues:
 - **Always fires** - Keys trigger immediately (no toggle)
@@ -2347,16 +2786,29 @@ BumpR triggers work like CDJ hot cues:
 
 This matches professional DJ equipment behavior.
 
-##### 3.5.8.6 Slideout Panel
+---
 
-When BumpR mode is active:
-- Panel slides in from right edge of canvas
-- Shows all 10 slots with thumbnails
-- Empty slots dimmed (not clickable)
-- Selected slot has cyan border
-- Hover shows slot info in message bar
+##### 3.5.8.10 Keyboard Reference (V5_8_0)
 
-##### 3.5.8.7 Use Cases
+Complete keyboard reference for BumpR mode:
+
+| Key | Action |
+|-----|--------|
+| B | Enter/exit BumpR mode, fire selected |
+| 1-9, 0 | Fire slots 1-10 directly |
+| D | Next slot + fire (sequential) |
+| A | Previous slot + fire (sequential) |
+| ↑/↓ | Navigate slots (no fire) |
+| Enter | Fire selected slot |
+| N | Toggle settings panel |
+| J | Jump back 1s (JJ = 5s) |
+| K | Play/pause (KK = toggle PIP z-index) |
+| L | Jump forward 1s (LL = 5s) |
+| Escape | Exit BumpR mode |
+
+---
+
+##### 3.5.8.11 Use Cases
 
 **Logo Hits:**
 - Short logo animation on drops

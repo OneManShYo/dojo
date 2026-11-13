@@ -1,9 +1,9 @@
-# ONEMANSHYO App [Beta V5_7_0] - SYSTEM REFERENCE
+# ONEMANSHYO App [Beta V5_8_0] - SYSTEM REFERENCE
 
-**Version:** Beta V5_7_0  
-**Date:** January 16, 2026  
+**Version:** Beta V5_8_0  
+**Date:** January 22, 2026  
 **License:** GPL-3.0  
-**Line Count:** 5,542 (V5_6_0) → 5,594 (V5_7_0)  
+**Line Count:** 5,594 (V5_7_0) → 5,984 (V5_8_0)  
 **Document Purpose:** Complete technical implementation reference for Claude AI development
 
 ---
@@ -379,6 +379,38 @@ modCThreshold: 5,
 - `cueMixGainNode` - Cue mix blend control
 - `cueDestination` - MediaStreamAudioDestinationNode for cue output
 
+**Audio Input Routing System (V5_8_0):**
+- `audioInputDeviceId` - Selected input device ID (from INPUT DEVICES dropdown)
+- `audioInputRoutingMode` - 'none', 'file', or device ID (from INPUT ROUTING dropdown)
+- `audioInputStream` - MediaStream from getUserMedia
+- `audioInputGainNode` - Input gain node (controlled by I knob)
+- `audioInputAnalyser` - AnalyserNode for input metering
+- `audioInputMuted` - Mute state (I knob kill)
+
+**Input Signal Chain (V5_8_0):**
+```
+INPUT DEVICES scan → enumerates all audio inputs
+                     ↓
+INPUT ROUTING dropdown → selects source for reactivity analysis
+                         ↓
+If 'none': No external input (file audio only)
+If 'file': Loaded audio file (default when audio loaded)
+If device ID: External input (Loopback, BlackHole, etc.)
+                         ↓
+I Knob (24×24, green) → Input gain (0-100%)
+                        ↓
+Vertical meter → Real-time input level
+                 ↓
+Modulator analysis → Bass/Mid/Treble reactivity
+```
+
+**DAW Integration Pattern:**
+```
+DAW (Ableton, Logic) → Loopback/BlackHole → OMS App INPUT ROUTING
+                                                    ↓
+                                             Shader reactivity
+```
+
 **Signal Chain (V5_4_0):**
 ```
 Track Source
@@ -448,7 +480,34 @@ MAIN Bus → DSP Compressor → MAIN Gain → Master Output (Speakers)
 - Camera continues while ANY PIP is visible
 - Camera stops only when ALL PIPs close
 
-**Transform Animation System (V5_5_0):**
+**Chroma Key System (V5_8_0):**
+- `chromaKeyEnabled` - Chroma key on/off state (PIP3 only)
+- `chromaKeyColor` - Target color (#00ff00 green default)
+- `chromaKeyTolerance` - Color match range (0-100, default 40)
+- `chromaKeySoftness` - Edge blend amount (0-100, default 20)
+- `chromaKeySpill` - Spill suppression (0-100, default 30)
+
+**Chroma Key Implementation:**
+- WebGPU shader processes PIP3 video feed
+- Replaces green pixels with transparency
+- Composites PIP3 over shader output
+- Captured in render output (WYSIWYG)
+
+**Chroma Key Parameters:**
+
+| Parameter | Range | Default | Effect |
+|-----------|-------|---------|--------|
+| Tolerance | 0-100 | 40 | How much color variation to key |
+| Softness | 0-100 | 20 | Edge blend/feather amount |
+| Spill | 0-100 | 30 | Green tint removal from edges |
+
+**Setup Tips:**
+- Use consistent green backdrop lighting
+- Avoid green in subject clothing/props
+- Adjust tolerance first, then softness
+- Spill helps with green reflection on skin
+
+**Transform Animation System (V5_5_0, V5_8_0 Automation):**
 - `transformRotationMode` - 'stop', 'cw', 'ccw', 'pingpong'
 - `transformRotationSpeed` - 0.03 to 256 (exponential scale)
 - `transformScaleMode` - 'stop', 'cw', 'ccw', 'pingpong'
@@ -465,6 +524,54 @@ MAIN Bus → DSP Compressor → MAIN Gain → Master Output (Speakers)
 | PingPong | 3 | Oscillate | Oscillate | Oscillate |
 
 **Speed Control:** Trackpad scroll adjusts speed exponentially (0.03× to 256×)
+
+**Transform Automation System (V5_8_0):**
+- `transformAutomationOverlayVisible` - G key overlay state
+- `transformAutomationData` - Per-control automation curves
+- `transformAutomationSelectedControl` - Current control being edited
+- `transformAutomationNodes[control]` - Array of {beat, value} nodes per control
+
+**G Key Overlay:**
+- Toggled via G key while in Transform Focus (T mode)
+- Shows canvas overlay with curve editor (z-index 150)
+- Navigate controls with 1-5 keys (Rotation/Scale/Tile/Position/Pivot)
+- Curve nodes color-coded by control (see Design System)
+
+**Automation Curve Controls:**
+
+| Control | Color | Index |
+|---------|-------|-------|
+| Rotation | Red #ff6b6b | 1 |
+| Scale | Teal #4ecdc4 | 2 |
+| Tile | Yellow #ffe66d | 3 |
+| Position | Mint #95e1d3 | 4 |
+| Pivot | Plum #dda0dd | 5 |
+
+**Node Interaction:**
+- Click curve to add node
+- Drag node to reposition
+- Double-click node to delete
+- Shift+drag for fine adjustment
+
+**Curve Types:**
+- Linear (default)
+- Smooth (bezier interpolation)
+- Step (instant value change)
+
+**Value Mapping:**
+
+| Control | 0.0 | 0.5 | 1.0 |
+|---------|-----|-----|-----|
+| Rotation | 0° | 180° | 360° |
+| Scale | 0× | 2× | 4× |
+| Tile | 1 | 4 | 8 |
+| Position X/Y | -1 | 0 | +1 |
+| Pivot X/Y | -1 | 0 | +1 |
+
+**Persistence:**
+- Automation data saved to .oms container
+- Restored when container loaded
+- Plays back synchronized to beat position
 
 **FX Overlay System (V5_5_0, V5_6_0 Per-Track):**
 - `fxOverlayVisible` - Panel visibility state
@@ -675,20 +782,22 @@ V5_2_0 introduced a centralized focus mode system using Object.defineProperty fo
 - `createMusicTimingFocus` - Music Timing mode
 - `createAudioFocus` - Audio Focus mode (NEW V5_2_0)
 
-**Audio Focus Sub-Panels (V5_2_0, V5_7_0 Updates):**
+**Audio Focus Sub-Panels (V5_2_0, V5_7_0, V5_8_0 Updates):**
 - V panel: Volume control
+- M panel: Mic control (V5_7_0) - DEPRECATED, merged into I panel
+- I panel: Input routing (V5_8_0) - external audio input
 - C panel: Cue points (1-5)
 - E panel: EQ3 (H/M/L)
 - F panel: FX (Washout/Dubby/Break)
-- M panel: Mic control (V5_7_0)
+- G panel: Automation (V5_8_0) - transform curves
 
-**Gate + Panel Pattern (V5_7_0 - Bare Keys):**
+**Gate + Panel Pattern (V5_8_0 - Bare Keys):**
 ```javascript
 // Enter Audio Focus (gate)
 A → activeFocusMode = 'audio'  // V5_7_0: bare key, was Shift+A
 
 // Open sub-panel
-V/C/E/F/M → activeAudioPanel = 'volume'/'cue'/'eq'/'fx'/'mic'
+V/I/C/E/F/G → activeAudioPanel = 'volume'/'input'/'cue'/'eq'/'fx'/'automation'
 
 // JKL Transport (in Audio Focus)
 J/K/L → jump back / play-pause / jump forward
@@ -713,10 +822,15 @@ N → toggle Mod Tuning panel (stays open when exiting mode)
 ↑/↓ → row A/B/C (also updates modTuningSelectedMod)
 ```
 
-**Transform Focus (V5_7_0 - Bare Key):**
+**Transform Focus (V5_8_0 - Bare Key + G Automation):**
 ```javascript
 // Enter Transform Focus
 T → activeFocusMode = 'transform'  // V5_7_0: bare key, was Shift+T
+
+// G Key (V5_8_0) - Automation overlay
+G → toggle automation overlay (while in Transform Focus)
+// Shows curve editor for selected transform control
+// Navigate curves with ↑/↓, adjust nodes with ←/→
 ```
 
 **Tab Isolation (V5_2_0):**
@@ -2162,7 +2276,7 @@ function saveLibraryContainers() {
 
 ---
 
-### 7. BumpR StickRs System (V5_1_0)
+### 7. BumpR StickRs System (V5_1_0, V5_8_0 Major Update)
 
 **Purpose:** Video overlays triggered during live performance
 
@@ -2175,12 +2289,26 @@ let bumprTimingModes = ['instant' × 10];  // instant, beat, bar
 let bumprScaleModes = [100 × 10];         // 25, 50, 75, 100
 let bumprAnimateModes = ['none' × 10];    // 16 animation types
 let bumprDurationModes = ['original' × 10]; // original, loop, musical, timed
-let bumprModeActive = false;               // Keyboard mode
+let bumprModeActive = false;               // Keyboard mode (B key)
 let bumprSelectedSlot = 0;                 // Currently selected
 let bumprPlaying = false;                  // Video playing
 let bumprQueuedTimeout = null;             // Pending quantized trigger
 let bumprActiveVideoEl = null;             // Current video element
+let bumprZIndexFront = true;               // V5_8_0: Layer position (true=250, false=100)
+let bumprSettingsPanelOpen = false;        // V5_8_0: N panel state
 ```
+
+**V5_8_0 Architectural Changes:**
+
+| Change | V5_7_0 | V5_8_0 |
+|--------|--------|--------|
+| Mode Entry | Shift+B | B (bare key) |
+| Entry Action | Opens panel only | Fires selected slot + opens panel |
+| Settings Panel | Part of B panel | Separate N panel |
+| Transport | None | JKL (J/L scrub, K play/pause) |
+| Layer Control | None | K×2 toggles z-index |
+| Sequential Fire | None | A/D fire prev/next |
+| Slot Reorder | None | Drag-drop in N panel |
 
 **Specifications:**
 | Aspect | Value |
@@ -2217,6 +2345,34 @@ const BUMPR_DURATIONS = [
 | PERFORM | Stopped | Message: "Start playback for quantized timing" |
 | CREATE | Playing | `(audioElement.currentTime - audioStartTime) * beatsPerSecond` |
 | CREATE | Stopped | Message: "Start audio for quantized timing" |
+
+**V5_8_0 Panel Architecture:**
+
+| Panel | Key | Z-Index | Purpose |
+|-------|-----|---------|---------|
+| B Panel | B | 260 | Slot grid, playback controls |
+| N Panel | N | 259 | Per-slot settings, drag-drop reorder |
+
+**V5_8_0 Layer Control:**
+- Default: BumpR at z-index 250 (front of PIP)
+- K×2 toggles to z-index 100 (behind PIP at 200)
+- Enables "news desk" workflow: presenter (PIP) ↔ graphics (BumpR)
+- State persists until next K×2 or mode exit
+
+**V5_8_0 Keyboard Reference:**
+
+| Key | Action |
+|-----|--------|
+| B | Enter mode + fire selected slot |
+| Escape | Exit BumpR mode |
+| W/S | Navigate slots up/down |
+| A/D | Fire previous/next slot sequentially |
+| 1-9, 0 | Fire slots 1-10 directly |
+| N | Toggle settings panel |
+| J | Scrub video backward |
+| L | Scrub video forward |
+| K | Play/pause video |
+| K×2 | Toggle z-index (front/back) |
 
 **CDJ Cue Behavior:**
 - Keys always fire (no toggle)
@@ -2552,17 +2708,18 @@ saveSmartSetBtn               // [Save] Save current search as smart set (appear
 'allaudio'                // V4_6_0: Containers with audio (hasAudio || audioFilename)
 ```
 
-**Info Drawer:**
+**Info Drawer (V5_8_0 Updates):**
 ```javascript
 infoDrawer                // Slide-out panel (280px)
 infoNameField             // Container name (V4_6_0: click-to-edit)
 infoTempoField            // V4_6_0: Tempo value (was infoBpmField)
+infoAudioFilenameField    // V5_8_0: Editable audio filename (renames file + updates all containers)
 infoAudioDropdown         // Audio file dropdown
 infoSwapBtn               // Swap audio button
 infoRemoveBtn             // Remove audio button
 infoDurationField         // Duration display
-infoLoopInField           // Loop In (bar.beat)
-infoLoopOutField          // Loop Out (bar.beat)
+// infoLoopInField        // V5_8_0: REMOVED - loop managed in CREATE tab
+// infoLoopOutField       // V5_8_0: REMOVED
 infoCreatedField          // Created date
 
 // V5_3_0: Tags section
@@ -2574,6 +2731,12 @@ infoOkBtn                 // Apply changes
 infoCancelBtn             // Discard changes
 infoCloseBtn              // Close drawer (X)
 ```
+
+**V5_8_0 Audio Filename Edit:**
+- Editing audio filename in Info Drawer:
+  1. Renames actual file in Library folder
+  2. Updates all containers referencing that audio file
+  3. Propagates change across entire library
 
 **Container Cards (V4_6_0):**
 ```javascript
@@ -2624,13 +2787,17 @@ trackPeakMeterCanvas[track]      // 4px wide vertical meter
 // Colors: Green (-48 to -18dB), Yellow (-18 to -6dB), Red (-6 to 0dB)
 ```
 
-**MAIN Column (V5_4_0 - renamed from Master Module):**
+**MAIN Column (V5_4_0, V5_8_0 Header Customization):**
 ```javascript
 // Scene Launch Buttons (8 total)
 sceneLaunchBtn[scene]           // Launch all tracks in scene
 // V5_4_0: Customizable labels and colors
 sceneLabels[scene]              // Text labels (up to 128 chars)
 sceneColors[scene]              // Color preset or null
+
+// V5_8_0: MAIN Header Customization
+mainHeaderLabel                 // Editable "MAIN" text
+mainHeaderColor                 // Header background color
 
 // MAIN Visual Section
 trackMainShaderOpacityKnob      // Opacity knob
@@ -2661,6 +2828,12 @@ stopAllBtn                      // ■ button (16×16)
 meterToggleBtn                  // Split-cube button (purple/cyan gradient)
 meterOverlay                    // Per-track meter overlay container
 ```
+
+**V5_8_0 Header Customization:**
+- **Hold-to-rename (500ms):** Long-press header to edit label text
+- **Right-click color:** Opens color picker popup for header background
+- **Selection highlight:** Key 5 selects MAIN, shows orange border
+- Persists to project state (.omsp)
 
 **DSP Slideout (V5_4_0):**
 ```javascript
@@ -2789,23 +2962,24 @@ micLevelMeterCanvas             // Real-time mic level display
 
 ---
 
-### Keyboard Shortcuts (CREATE Tab) (V5_7_0 Updates)
+### Keyboard Shortcuts (CREATE Tab) (V5_8_0 Updates)
 
-**Global (V5_7_0):**
+**Global (V5_8_0):**
 | Shortcut | Action |
 |----------|--------|
 | R | Start render (bare key, V5_6_0+) |
 | X | Cancel render (during render only, V5_7_0) |
 
-**Audio Focus Mode (V5_7_0 - Bare Key Entry):**
+**Audio Focus Mode (V5_8_0 - Bare Key Entry):**
 | Shortcut | Action |
 |----------|--------|
 | A | Enter/exit Audio Focus mode (V5_7_0: bare key, was Shift+A) |
 | V | Open Volume panel |
+| I | Open Input panel (V5_8_0) - external audio routing |
 | C | Open Cue panel (5 cues) |
 | E | Open EQ panel (H/M/L) |
 | F | Open FX panel (W/D/B) |
-| M | Open Mic panel (V5_7_0) |
+| G | Open Automation panel (V5_8_0) - transform curves |
 | ↑/↓ | Navigate rows in panel |
 | ←/→ | Adjust values |
 | Enter | Activate (jump/kill) |
@@ -2834,7 +3008,7 @@ micLevelMeterCanvas             // Real-time mic level display
 | N | Toggle Mod Tuning panel (Blender-style: stays open when exiting mode) |
 | Escape | Exit mode |
 
-**Transform Focus Mode (V5_7_0 - Bare Key Entry):**
+**Transform Focus Mode (V5_8_0 - Bare Key Entry + G Automation):**
 | Shortcut | Action |
 |----------|--------|
 | T | Enter/exit transform focus mode (V5_7_0: bare key, was Shift+T) |
@@ -2843,6 +3017,7 @@ micLevelMeterCanvas             // Real-time mic level display
 | 1 | CW/Grow/Increase mode (when control selected) |
 | 2 | CCW/Shrink/Decrease mode |
 | 3 | PingPong mode |
+| G | Toggle automation overlay (V5_8_0) - curve editor |
 | Enter | Freeze/Resume animation |
 | Enter×2 | Reset to default (double-tap) |
 | Trackpad scroll | Adjust animation speed (0.03×-256×) |
@@ -2857,11 +3032,19 @@ micLevelMeterCanvas             // Real-time mic level display
 | Shift+→ | Increase value |
 | Escape | Exit mode |
 
-**BumpR StickRs Mode:**
+**BumpR StickRs Mode (V5_8_0 - Major Update):**
 | Shortcut | Action |
 |----------|--------|
-| Shift+B | Enter/exit BumpR mode |
-| 1-9, 0 | Trigger slots 1-10 |
+| B | Enter mode + fire selected slot (V5_8_0: bare key, was Shift+B) |
+| Escape | Exit BumpR mode |
+| W/S | Navigate slots up/down |
+| A/D | Fire previous/next slot sequentially |
+| 1-9, 0 | Fire slots 1-10 directly |
+| N | Toggle settings panel (N panel) |
+| J | Scrub video backward |
+| L | Scrub video forward |
+| K | Play/pause video |
+| K×2 | Toggle z-index (front/back PIP) |
 | ↑/↓ | Navigate slots |
 | Enter | Trigger selected slot |
 | Escape | Exit mode |
@@ -2880,29 +3063,32 @@ micLevelMeterCanvas             // Real-time mic level display
 
 ---
 
-### Keyboard Shortcuts (PERFORM Tab) - V5_4_0, V5_5_0, V5_6_0 Updates
+### Keyboard Shortcuts (PERFORM Tab) - V5_4_0, V5_5_0, V5_6_0, V5_8_0 Updates
 
 **Note:** In V4_5_0, this tab is labeled "PERFORM" but internal references remain "live" for code continuity.
 
 **Pattern:** All keyboard actions trigger `showMessage()` with state feedback.
 
-**Safety (V5_4_0):**
+**Safety (V5_4_0, V5_8_0):**
 | Key | Action |
 |-----|--------|
 | Esc | First press: Warning message "Press ESC again to stop all" |
 | Esc Esc | Double-tap within 500ms: Stop All |
+| Stop button | First click: Prime (pulsing border) |
+| Stop button×2 | Double-click within 500ms: Stop All (V5_8_0) |
 
-**Track Selection (V5_5_0, V5_6_0 - Bare Keys):**
+**Track Selection (V5_5_0, V5_8_0 - Bare Keys):**
 | Key | Action |
 |-----|--------|
 | 1 | Select track 1 (no modifier!) |
 | 2 | Select track 2 |
 | 3 | Select track 3 |
 | 4 | Select track 4 |
+| 5 | Select MAIN (V5_8_0: bare key, was Shift+5) |
 | 0 | Deselect track |
-| Shift+5 | Select MAIN |
 
 **V5_5_0 Change:** Bare 1-4 keys now select tracks (was Shift+1-4). Cue jumping moved to C panel workflow.
+**V5_8_0 Change:** Bare 5 selects MAIN (was Shift+5).
 
 **Quick-Load Workflow (V5_5_0):**
 | Key | Action |
@@ -2934,8 +3120,8 @@ micLevelMeterCanvas             // Real-time mic level display
 | P+4 | Toggle camera overlay |
 
 **Categories:**
-- Safety: `Esc` (double-tap) (V5_4_0)
-- Track Selection: `1-4`, `0` (V5_5_0: bare keys)
+- Safety: `Esc` (double-tap), Stop button (double-click) (V5_4_0, V5_8_0)
+- Track Selection: `1-5`, `0` (V5_8_0: 5 for MAIN)
 - Quick-Load: `SHIFT+Right/Left` (V5_5_0)
 - Overlay Toggles: `E/F/V/A` (V5_6_0)
 - Panel Access: `C` (V5_2_0)
@@ -2945,7 +3131,7 @@ micLevelMeterCanvas             // Real-time mic level display
 - Mixer: Arrow keys, `,` `.` `<` `>`
 - Visibility: `Shift+M/T/W`
 - Zoom: `[ ]`
-- BumpR: `Shift+B`, then `1-0`, `↑/↓`, `Enter`
+- BumpR: `B` (bare key), `WASD`, `N`, `JKL` (V5_8_0)
 
 **Complete list:** See User Guide section 3.4.12
 
@@ -5060,10 +5246,10 @@ drawTransformPad(canvas, x, y)
   // Args: canvas, x value, y value
 ```
 
-**Transform Focus Mode (V5_1_0 Renames):**
+**Transform Focus Mode (V5_1_0 Renames, V5_8_0 Bare Key):**
 ```javascript
 enterTransformFocus()     // Was enterTransformMode()
-  // Enter keyboard mode (Shift+T)
+  // Enter keyboard mode (T bare key, V5_8_0)
   // Shows cyan selection ring
   // Message bar shows "Transform Focus"
 
@@ -5135,20 +5321,195 @@ document.addEventListener('wheel', (e) => {
 
 ---
 
-### V5_0_0 OMS DESIGN SYSTEM
+### OMS DESIGN SYSTEM (CORTEX)
 
-**Purpose:** Universal CSS components for consistent UI.
+**Purpose:** Universal UI/UX specifications. Change any of these = audit entire application.
 
-**Design Tokens:**
+**Why Design System is CORTEX:**
+- Visual consistency across all tabs and contexts
+- Interaction patterns users learn once, apply everywhere
+- Color semantics communicate state without labels
+- Size hierarchy creates visual importance
+- Z-index layering prevents visual conflicts
+- Deviation = amateur slop, inconsistency, user confusion
+
+---
+
+#### Design Tokens (CSS Variables)
+
 ```css
+/* Surface Colors */
 --oms-surface-bg: rgba(255, 255, 255, 0.05);
 --oms-surface-hover: rgba(255, 255, 255, 0.08);
+--oms-surface-active: rgba(255, 255, 255, 0.12);
+
+/* Control Dimensions */
 --oms-control-height: 34px;
---oms-border-radius: 0;
---oms-focus-color: #00d4ff;
+--oms-border-radius: 0;              /* Sharp corners throughout */
+
+/* Semantic Colors */
+--oms-focus-color: #00d4ff;          /* Cyan - selection/focus */
+--oms-error-color: #ff006e;          /* Magenta - errors/kill state */
+--oms-state-color: #ffa500;          /* Orange - state feedback */
+--oms-success-color: #00ff88;        /* Green - success/active */
 ```
 
-**Universal Components:**
+---
+
+#### Color Domain System (V5_8_0)
+
+Semantic color coding by functional domain. Not arbitrary - each color has meaning.
+
+**Tab Colors:**
+
+| Tab | Color | Hex | Meaning |
+|-----|-------|-----|---------|
+| CREATE | Cyan | #00d4ff | Creation, authoring |
+| ORGANIZE | Yellow | #ffa500 | Organization, metadata |
+| PERFORM | Magenta | #ff00ff | Performance, playback |
+| ADMIN | Grey | #888888 | Configuration, settings |
+
+**Control Domain Colors:**
+
+| Domain | Color | Hex | Used For |
+|--------|-------|-----|----------|
+| Audio | Orange | #ffa500 | Volume, audio FX, cue points |
+| Visual | Purple | #9966ff | Opacity, visual FX |
+| Input | Green | #00ff88 | External audio input (V5_8_0) |
+| Selection | Cyan | #00d4ff | Selected items, focus rings |
+| Kill/Mute | Magenta fill | #ff006e | Muted/killed state indicator |
+
+**Message Bar Colors:**
+
+| Type | Color | Hex | Usage |
+|------|-------|-----|-------|
+| info | Cyan | #00d4ff | Help text, hover hints |
+| state | Orange | #ffa500 | Action confirmations, values |
+| error | Magenta | #ff006e | Failures, problems |
+
+**Automation Curve Colors (V5_8_0):**
+
+| Control | Color | Hex |
+|---------|-------|-----|
+| Rotation | Red | #ff6b6b |
+| Scale | Teal | #4ecdc4 |
+| Tile | Yellow | #ffe66d |
+| Position | Mint | #95e1d3 |
+| Pivot | Plum | #dda0dd |
+
+---
+
+#### Knob Size Hierarchy
+
+Deliberate sizes create visual importance hierarchy. Not random.
+
+| Size | Context | Examples |
+|------|---------|----------|
+| 18×18 | Compact header controls | Mic knob, header volume (V5_6_0) |
+| 20×20 | Overlay/panel controls | FX knobs, EQ knobs in overlays |
+| 24×24 | Primary header controls | Volume (V), Input (I) in CREATE header (V5_8_0) |
+| 30×30 | Main controls | Gain knobs, Transform encoders, PERFORM mixer |
+
+**Knob Visual Specifications:**
+
+| Element | Spec |
+|---------|------|
+| Arc start | 135° (7 o'clock) |
+| Arc end | 405° (5 o'clock) |
+| Arc width | 3px (main), 2px (compact) |
+| Background | rgba(255,255,255,0.1) |
+| Value arc | Domain color (see above) |
+| Center dot | 4px radius, white |
+
+---
+
+#### Interaction Pattern Matrix (V5_8_0 - CORTEX)
+
+Universal gesture meanings. Same gesture = same result everywhere.
+
+**Rotary Knobs (All Sizes):**
+
+| Gesture | Result | Feedback |
+|---------|--------|----------|
+| Hover | Show help in message bar | Cursor: pointer |
+| Drag vertical | Coarse adjust (0.01/px) | Value updates, message bar shows value |
+| Shift+Drag | Fine adjust (0.002/px) | Value updates, message bar shows value |
+| Click | Enter keyboard mode | Cyan ring appears |
+| Double-click | Toggle kill state | Magenta fill |
+| Scroll (Shift held) | Adjust value | Same as drag |
+
+**Keyboard Mode (after click on knob):**
+
+| Key | Result |
+|-----|--------|
+| ←/→ | Coarse adjust ±5% |
+| ↑/↓ | Fine adjust ±1% |
+| Enter×2 | Toggle kill |
+| Escape | Exit keyboard mode |
+
+**Buttons:**
+
+| Gesture | Result |
+|---------|--------|
+| Hover | Show help in message bar |
+| Click | Toggle state |
+| Double-click | Destructive action (if applicable) |
+
+**Double-Action Pattern (Safety):**
+Used for destructive/significant actions:
+
+| Action | First | Second (within 500ms) |
+|--------|-------|----------------------|
+| ESC | Warning message | Stop All |
+| Stop button | Prime (visual) | Stop All |
+| Enter×2 on knob | - | Toggle kill |
+
+---
+
+#### State Visual Indicators
+
+| State | Visual | Applied To |
+|-------|--------|------------|
+| Selected | Cyan border/ring | Tracks, cells, knobs |
+| Focus (keyboard) | Cyan ring (2px) | Active keyboard target |
+| Kill/Mute | Magenta fill | Knobs, buttons |
+| Playing | Pulsing/animated | Cells, transport |
+| Loaded | Yellow tint | Library cards, cells |
+| Hover | Brightness increase | All interactive elements |
+| Disabled | 40% opacity | Inactive controls |
+| Primed | Pulsing border | Stop button (first click) |
+
+---
+
+#### Z-Index Hierarchy (V5_8_0)
+
+Layering contract for overlapping elements. Higher = closer to user.
+
+| Z-Index | Element | Context |
+|---------|---------|---------|
+| 300 | Modal dialogs | Confirmations, alerts |
+| 260 | B slideout panel | BumpR mode |
+| 259 | N settings panel | BumpR settings |
+| 250 | BumpR video (front) | Active overlay |
+| 200 | PIP overlays | Camera feeds |
+| 150 | Automation overlay | Transform curves (G key) |
+| 100 | BumpR video (back) | Behind PIP (after K×2) |
+| 50 | Dropdown menus | OmsDropdown open state |
+| 10 | Playhead | Timeline marker |
+| 5 | Master Grid | Bar overlay |
+| 1 | Track content | Waveforms, grids |
+| 0 | Canvas/background | Shader output |
+
+**Layer Control (V5_8_0):**
+- K double-tap toggles BumpR between z-index 250 (front) and 100 (back)
+- Enables "news desk" workflow: presenter (PIP) ↔ graphics (BumpR)
+
+---
+
+#### CSS Components
+
+**Universal Classes:**
+
 ```css
 .oms-header-bar       /* Section headers - sharp corners, 34px height */
 .oms-field            /* Input fields - borderless, 34px height */
@@ -5157,7 +5518,8 @@ document.addEventListener('wheel', (e) => {
 .mod-knob-box         /* Modulator knob containers */
 ```
 
-**CSS Component Examples:**
+**CSS Implementation:**
+
 ```css
 .oms-header-bar {
     background: rgba(255, 255, 255, 0.05);
@@ -5187,10 +5549,38 @@ document.addEventListener('wheel', (e) => {
 
 ---
 
+#### Keyboard Convention Patterns
+
+Universal keyboard behavior patterns. Consistency = learnability.
+
+**Modifier Meanings:**
+
+| Modifier | Meaning | Examples |
+|----------|---------|----------|
+| Bare key | Primary action in mode | B (fire BumpR), 1-4 (select track) |
+| Shift+ | Secondary/alternative | Shift+drag (fine adjust) |
+| Cmd+ | System-level action | Cmd+L (load), Cmd+I (info) |
+| Double-tap | Destructive/toggle | ESC×2 (stop all), Enter×2 (kill) |
+
+**Focus Mode Pattern:**
+1. Enter mode with bare key (A, R, T, B)
+2. Sub-actions available while in mode
+3. Escape exits mode
+4. Modes are mutually exclusive
+
+**Panel Pattern (Audio Focus):**
+1. Enter gate mode: `A`
+2. Open sub-panel: `V/M/I/C/E/F/G`
+3. Navigate: `↑/↓` rows, `←/→` values
+4. Escape: close panel → exit mode
+
+---
+
 ### V5_1_0 BUMPR STICKRS CSS
 
-**Animation Keyframes (15 types):**
+**Animation Keyframes (16 types):**
 ```css
+@keyframes bumpr-none { /* No animation */ }
 @keyframes bumpr-bounce { /* Vertical bounce */ }
 @keyframes bumpr-breathe { /* Scale in/out slowly */ }
 @keyframes bumpr-crazy { /* Chaotic movement */ }

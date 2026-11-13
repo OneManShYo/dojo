@@ -1,9 +1,9 @@
-# ONEMANSHYO App [Beta V5_7_0] - CLAUDE PROJECT INSTRUCTIONS
+# ONEMANSHYO App [Beta V5_8_0] - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** Beta V5_7_0  
-**Date:** January 16, 2026  
+**Version:** Beta V5_8_0  
+**Date:** January 22, 2026  
 **License:** GPL-3.0  
-**Line Count:** 797 → 840 (added iteration vs deliverables section)  
+**Line Count:** 840 → 909 (expanded documentation methodology)  
 **Document Purpose:** Working protocols and project context for Claude AI development
 
 ---
@@ -456,12 +456,80 @@ OMS_App_Beta_V5_5_0_Deliverables/
 4. **Claude Instructions** - Update Z_ClaudeProject_Instructions (version refs, terminology, protocols)
 5. **Package** - ZIP all deliverables files
 
-**Large Document Processing (V5_7_0):**
-- For docs over ~3,000 lines, output token limits may truncate responses mid-generation
-- **Solution:** Use file tools (create_file, str_replace, bash) to build documents incrementally
-- Copy source doc to working directory → apply changes via str_replace → copy to outputs
-- This bypasses response length limits by writing directly to filesystem
-- **Critical:** Always review proposed changes with Wes BEFORE applying to docs - describe what will change, show prior vs. new content for significant sections, get confirmation
+**Large Document Processing - Surgical Methodology (V5_8_0):**
+
+For documents over ~3,000 lines, there are TWO possible approaches:
+
+**Method A: REGENERATE (Risky - Avoid)**
+- Rewrite entire document from scratch based on changes needed
+- Problems:
+  - Accidental rewording of unchanged content
+  - Potential truncation mid-generation (output limits)
+  - "Drift" from original phrasing/structure
+  - May produce incomplete/abridged version
+  - Introduces new errors while fixing old ones
+
+**Method B: SURGICAL STR_REPLACE (Safe - Use This)**
+- Review existing document, identify specific changes needed
+- Apply changes via str_replace operations
+- Result: COMPLETE document with changes applied, unchanged content preserved VERBATIM
+- Benefits:
+  - No accidental modifications
+  - No truncation (writes directly to filesystem)
+  - Unchanged sections remain identical
+  - Precise control over what changes
+  - Can review each change before applying
+
+**The Surgical Workflow:**
+```
+1. Copy source doc to working directory
+2. Review and identify what needs to change:
+   - Additions (new sections)
+   - Modifications (updated content)
+   - Deletions (removed content)
+   - Single-word fixes (version numbers, typos)
+3. Show Wes: "Here's what I'm changing and why"
+4. Apply changes via str_replace (one at a time for major changes)
+5. Copy final result to outputs
+6. Present COMPLETE document (not a diff, not abridged)
+```
+
+**What "Full vs Changes" Question ACTUALLY Means:**
+- "Full regeneration" = Method A (risky, avoid)
+- "Surgical changes" = Method B (safe, use this)
+- BOTH result in a complete document - the question is HOW to produce it
+- Surgical does NOT mean "give you a partial version"
+- Surgical MEANS "precisely update the existing complete version"
+
+**TERMINOLOGY CLARIFICATION (V5_8_0):**
+
+| When Claude says... | Claude means... | NOT this... |
+|---------------------|-----------------|-------------|
+| "Apply surgical changes" | Update specific sections, output COMPLETE doc | Give you an abridged/partial doc |
+| "Update the changes" | Identify deltas, apply them, output COMPLETE doc | Give you just the deltas |
+| "Full regeneration" | Rewrite from scratch (risky) | More complete (it's not) |
+
+**Concrete Example:**
+
+User Guide is 4,400 lines. BumpR updated from Shift+B to B bare key.
+
+**WRONG approach (Regeneration):**
+- Claude rewrites all 4,400 lines from memory
+- Result: 3,800 lines (truncated), some sections accidentally reworded, new typos
+
+**RIGHT approach (Surgical):**
+- Claude identifies: "Lines 1847, 2012, 3456 mention BumpR keyboard - need update"
+- Claude runs: `str_replace "Shift+B" → "B"` on those specific lines
+- Result: 4,400 lines, 3 changes applied, 4,397 lines UNCHANGED
+
+**The OUTPUT is always the full document.** The question is only whether to regenerate it (bad) or surgically update it (good).
+
+**When Claude Asks About Update Method:**
+- Claude is asking: "Should I rewrite from scratch or apply surgical changes?"
+- Correct answer is almost always: "Surgical changes"
+- Exception: Document is fundamentally restructured (rare)
+
+**CRITICAL:** Always review proposed changes with Wes BEFORE applying to docs. Describe what will change, show prior vs. new content for significant sections, get confirmation.
 
 **ALWAYS ISSUE BOTH the HTML and deliverables files.**
 
@@ -706,13 +774,14 @@ let bass = uniforms.shaderModAAudio;
 
 #### Always Loaded (Baseline)
 
-**OMS_App_Beta_V5_6_0_Z_ClaudeProject_Instructions.md** - This Document
+**OMS_App_Beta_V5_8_0_Z_ClaudeProject_Instructions.md** - This Document
 - Development protocols, communication guidelines
 - Architectural principles, terminology
 - What never to suggest
 
-**OMS_App_Beta_V5_6_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
+**OMS_App_Beta_V5_8_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
 - Leaf Node hierarchy (Cortex/Nodes/Leafs)
+- Design System - knob sizes, color domains, interaction patterns, z-index hierarchy
 - Complete function reference (~310 functions)
 - Data structures (.oms, .omsp, gridState)
 - File format specifications
@@ -722,7 +791,7 @@ let bass = uniforms.shaderModAAudio;
 
 #### On-Demand (Wes Provides When Relevant)
 
-**OMS_App_Beta_V5_6_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
+**OMS_App_Beta_V5_8_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
 - Application usage (tabs, features, workflows)
 - **APPENDIX A:** DJ 101 Foundation (industry context, equipment, techniques)
 - **APPENDIX B:** What ONEMANSHYO Is (project philosophy)
@@ -756,7 +825,7 @@ let bass = uniforms.shaderModAAudio;
 ### Document Priority Order
 
 When Claude needs information:
-1. **Check System Reference** → Technical implementation, function signatures
+1. **Check System Reference** → Technical implementation, function signatures, specs
 2. **Request User Guide** → Shader patterns, DJ context, user features, **shader recipes**
 3. **Still unclear?** → Ask Wes, who will point to correct doc or provide it
 
