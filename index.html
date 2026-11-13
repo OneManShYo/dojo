@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V3_6
+ONEMANSHYO Dojo App V3_7
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V3_6
+Version: V3_7
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V3_6]</title>
+    <title>ONEMANSHYO App [V3_7]</title>
     <style>
         * {
             margin: 0;
@@ -1044,16 +1044,30 @@ Version: V3_6
             background: linear-gradient(180deg, #1e1e1e, #252525);
             display: flex;
             flex-direction: column;
+            gap: 0; /* V3_7_0_F: No gap - sections directly adjacent */
+            padding: 0; /* V3_7_0_D: No padding, let sections have borders */
+            overflow: hidden;
+        }
+
+        /* V3_7_0_D: Grid Section - wraps headers + scrollable grid */
+        .grid-section {
+            flex: 1; /* Take remaining space */
+            display: flex;
+            flex-direction: column;
+            background: #0c0c0c;
+            border: 2px solid #444; /* Complete modular border */
+            border-radius: 3px; /* V3_7_0_I: Rounded corners to match other modules */
             overflow: hidden;
         }
 
         /* Fixed Headers Section */
         .grid-headers {
             display: grid;
-            grid-template-columns: 153px 153px 153px 153px 153px 153px; /* V3_4_0_AA: Equal columns (920px ÷ 6 = 153px, total 918px + 2px buffer) */
+            grid-template-columns: 151px 151px 151px 151px 151px 151px; /* V3_7_0_F: Restored to 151px (6×151=906px + 4px borders = 910px) */
             gap: 0;
-            background: #0c0c0c;
+            background: #2a2a2a; /* V3_7_0_ZD: Changed from #0c0c0c (black) to grey */
             padding: 0;
+            height: 43px; /* V3_7_0_ZE: Match header heights - no extra grey bar */
             flex-shrink: 0;
         }
 
@@ -1063,15 +1077,22 @@ Version: V3_6
             overflow-y: auto;
             overflow-x: hidden;
             background: #0c0c0c;
+            scrollbar-width: none; /* V3_7_0_ZD: Hide scrollbar (Firefox) */
+            -ms-overflow-style: none; /* V3_7_0_ZD: Hide scrollbar (IE/Edge) */
+        }
+        
+        /* V3_7_0_ZD: Hide scrollbar (Chrome/Safari/Opera) */
+        .scenes-scroll-container::-webkit-scrollbar {
+            display: none;
         }
 
         .scenes-grid {
             display: grid;
-            grid-template-columns: 153px 153px 153px 153px 153px 153px; /* V3_4_0_AA: Equal columns */
+            grid-template-columns: 151px 151px 151px 151px 151px 151px; /* V3_7_0_F: Restored to 151px */
             gap: 0;
             padding: 0;
             min-height: 100%;
-            border-right: 1px solid #444; /* V3_5_0_N: Right border for Master column definition */
+            border-right: 0.5px solid #444; /* V3_7_0_G: Reduced from 1px (secondary guideline) */
         }
 
         /* V3.2.0-S: LIVE Master Tempo Control */
@@ -1114,17 +1135,17 @@ Version: V3_6
         .mixer-section {
             height: 140px;
             background: #1a1a1a;
-            border-top: 2px solid #444;
+            border: 2px solid #444; /* V3_7_0_C: Complete border for modular look */
+            border-radius: 3px; /* V3_7_0_I: Rounded corners to match other modules */
             display: grid;
-            grid-template-columns: 153px 153px 153px 153px 153px 153px; /* V3_4_0_AA: Equal columns */
+            grid-template-columns: 151px 151px 151px 151px 151px 151px; /* V3_7_0_F: Restored to 151px */
             gap: 0;
-            padding: 10px 0;
             flex-shrink: 0;
         }
 
         .mixer-spacer {
             background: #2a2a2a;
-            border: 1px solid #444;
+            border: 0.5px solid #444; /* V3_7_0_G: Reduced from 1px (secondary guideline) */
             border-radius: 3px;
             padding: 10px;
             display: flex;
@@ -1159,20 +1180,25 @@ Version: V3_6
 
         .grid-corner {
             background: #2a2a2a;
-            border: 1px solid #444;
+            border: 0.5px solid #444; /* V3_7_0_G: Reduced from 1px (secondary guideline) */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
-            color: #666;
-            text-transform: uppercase;
+            font-size: 13px; /* V3_7_0_T: Match track-title (was 11px) */
+            font-weight: 600; /* V3_7_0_T: Match track-title */
+            color: #00d4ff; /* V3_7_0_T: Cyan like track headers (was #666) */
+            padding: 7px 10px; /* V3_7_0_ZC: Reduced to fit in 43px height */
+            height: 43px; /* V3_7_0_ZC: Force exact height (was min-height) */
+            box-sizing: border-box; /* V3_7_0_Y: Include padding in height */
         }
 
         .track-header {
             background: #2a2a2a;
-            border: 1px solid #444;
+            border: 0.5px solid #444; /* V3_7_0_G: Reduced from 1px (secondary guideline) */
             padding: 15px 10px;
             text-align: center;
+            height: 43px; /* V3_7_0_ZC: Force exact height (was min-height) */
+            box-sizing: border-box; /* V3_7_0_Y: Include padding in height */
         }
 
         .track-title {
@@ -1194,7 +1220,7 @@ Version: V3_6
         .instance-selector {
             width: 100%;
             background: #1a1a1a;
-            border: 1px solid #444;
+            border: 0.5px solid #444; /* V3_7_0_G: Reduced from 1px (secondary guideline) */
             color: #00d4ff;
             padding: 5px;
             border-radius: 3px;
@@ -1215,7 +1241,7 @@ Version: V3_6
 
         .scene-trigger {
             background: #2a2a2a;
-            border: 1px solid #444;
+            border: 0.5px solid #444; /* V3_7_0_G: Reduced from 1px (secondary guideline) */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1254,7 +1280,7 @@ Version: V3_6
 
         .clip-slot {
             background: #1a1a1a;
-            border: 1px solid #444;
+            border: 0.5px solid #444; /* V3_7_0_G: Reduced from 1px (secondary guideline) */
             aspect-ratio: 16 / 9;  /* V3.1.0-G: Match thumbnail landscape ratio */
             display: flex;
             align-items: center;
@@ -1292,10 +1318,58 @@ Version: V3_6
             background: #2a2a2a;
             border: 1px solid #444;
             border-radius: 3px;
-            padding: 10px;
+            padding: 5px 10px 10px 10px; /* V3_7_0_N: Reduced bottom padding for ultra compact */
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }
+
+        .track-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #999;
+            border-bottom: 1px solid #333;
+            margin-bottom: 8px;
+        }
+
+        .mixer-dual {
+            display: flex;
+            gap: 3px;
+            flex: 1;
+        }
+
+        .mixer-shader,
+        .mixer-audio {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .mixer-shader {
+            border-right: 1px solid #333;
+            padding-right: 3px;
+        }
+
+        .shader-controls,
+        .audio-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .domain-label {
+            font-size: 9px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .track-control-row {
@@ -1333,8 +1407,8 @@ Version: V3_6
         }
 
         .rotary-knob {
-            width: 60px;
-            height: 60px;
+            width: 30px;
+            height: 30px;
             cursor: pointer;
         }
 
@@ -1387,11 +1461,38 @@ Version: V3_6
             color: #000;
         }
 
+        /* Shader-specific buttons */
+        .track-btn.shader-mute.active {
+            background: #9d4edd;
+            border-color: #9d4edd;
+            color: #fff;
+        }
+
+        .track-btn.shader-solo.active {
+            background: #00d4ff;
+            border-color: #00d4ff;
+            color: #000;
+        }
+
+        /* Override indicator */
+        .override-indicator {
+            font-size: 8px;
+            color: #ff006e;
+            text-align: center;
+            height: 10px;
+            visibility: hidden;
+        }
+
+        .override-indicator.active {
+            visibility: visible;
+        }
+
         /* Meter Styling */
         .meter-container {
             display: flex;
             gap: 4px;
-            flex: 1;
+            width: 100%;
+            justify-content: center;
         }
 
         .meter-wrapper {
@@ -1399,17 +1500,28 @@ Version: V3_6
             flex-direction: column;
             align-items: center;
             gap: 3px;
-            flex: 1;
+            width: 12px;
         }
 
         .meter-bar {
             width: 100%;
-            height: 80px;
+            height: 50px; /* V3_7_0_W: Reduced from 60px (-10px for bottom padding) */
             background: #0c0c0c;
             border: 1px solid #333;
             border-radius: 2px;
             position: relative;
             overflow: hidden;
+        }
+
+        /* V3_7_0_N: Master meters are larger */
+        .meter-bar-master {
+            height: 80px;
+        }
+
+        /* V3_7_0_N: Large knobs for master and zoom */
+        .rotary-knob-large {
+            width: 60px;
+            height: 60px;
         }
 
         .meter-fill-vertical {
@@ -1432,7 +1544,8 @@ Version: V3_6
         .waveforms-section {
             height: 240px; /* V3.1.0-Q: Increased from 220px - Track 4 was cut off */
             background: #0c0c0c;
-            border-top: 1px solid #333;
+            border: 2px solid #444; /* V3_7_0_C: Complete border for modular look */
+            border-radius: 3px; /* V3_7_0_I: Rounded corners to match other modules */
             display: flex; /* V3.2.0-K: Back to flex, each track is independent */
             flex-direction: column;
             gap: 2px;
@@ -1571,9 +1684,9 @@ Version: V3_6
         }
 
         /* V3_6_0_AF: Inner wrapper for scrolling text */
+        /* V3_7_0_A: Removed padding-right - gap now handled in duplicated text content */
         .waveform-overlay-name-text {
             display: inline-block;
-            padding-right: 50px; /* V3_6_0_AF: Gap between repeats */
         }
 
         /* V3_6_0_AF: Scrolling animation when text overflows */
@@ -1618,7 +1731,7 @@ Version: V3_6
     <!-- V2.1.1-A: Header now full-width outside container -->
     <div class="header">
         <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-        <span class="version">[V3_6]</span>
+        <span class="version">[V3_7]</span>
     </div>
     
     <div class="container">
@@ -2295,58 +2408,33 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 <div class="live-container">
                     <!-- Performance View -->
                     <div class="performance-view">
-                        <!-- Fixed Grid Headers -->
-                        <div class="grid-headers" id="gridHeaders">
-                            <div class="grid-corner">SCENES</div>
-                            <div class="track-header">
-                                <div class="track-title">Track 1</div>
-                                <div class="track-status">Not Connected</div>
-                                <select class="instance-selector">
-                                    <option value="">Not Connected</option>
-                                </select>
-                            </div>
-                            <div class="track-header">
-                                <div class="track-title">Track 2</div>
-                                <div class="track-status">Not Connected</div>
-                                <select class="instance-selector">
-                                    <option value="">Not Connected</option>
-                                </select>
-                            </div>
-                            <div class="track-header">
-                                <div class="track-title">Track 3</div>
-                                <div class="track-status">Not Connected</div>
-                                <select class="instance-selector">
-                                    <option value="">Not Connected</option>
-                                </select>
-                            </div>
-                            <div class="track-header">
-                                <div class="track-title">Track 4</div>
-                                <div class="track-status">Not Connected</div>
-                                <select class="instance-selector">
-                                    <option value="">Not Connected</option>
-                                </select>
-                            </div>
-                            <div class="track-header">
-                                <div class="track-title">Master</div>
-                                <div class="track-status">Master Channel</div>
-                                <!-- V3.2.0-U: Master Tempo Control (Clean) -->
-                                <div class="master-tempo-control">
-                                    <input type="number" 
-                                           id="liveTempoField" 
-                                           class="tempo-input" 
-                                           value="120" 
-                                           min="60" 
-                                           max="200" 
-                                           step="0.1"
-                                           title="Master Tempo (BPM)">
+                        <!-- V3_7_0_D: Grid Section - wraps headers + scrollable grid for modular framing -->
+                        <div class="grid-section">
+                            <!-- Fixed Grid Headers -->
+                            <div class="grid-headers" id="gridHeaders">
+                                <div class="grid-corner">Scenes</div>
+                                <div class="track-header">
+                                    <div class="track-title">Track 1</div>
+                                </div>
+                                <div class="track-header">
+                                    <div class="track-title">Track 2</div>
+                                </div>
+                                <div class="track-header">
+                                    <div class="track-title">Track 3</div>
+                                </div>
+                                <div class="track-header">
+                                    <div class="track-title">Track 4</div>
+                                </div>
+                                <div class="track-header">
+                                    <div class="track-title">Master</div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Scrollable Scenes Grid -->
-                        <div class="scenes-scroll-container">
-                            <div class="scenes-grid" id="scenesGrid">
-                                <!-- Grid populated by JavaScript -->
+                            <!-- Scrollable Scenes Grid -->
+                            <div class="scenes-scroll-container">
+                                <div class="scenes-grid" id="scenesGrid">
+                                    <!-- Grid populated by JavaScript -->
+                                </div>
                             </div>
                         </div>
 
@@ -2520,6 +2608,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             trackVolumes: [0.5, 0.5, 0.5, 0.5], // V3.1.0-M: Default 50% volume (12 o'clock)
             trackMutes: [false, false, false, false],
             trackSolos: [false, false, false, false],
+            // V3_7_0_J: Shader state per track
+            trackShaderOpacity: [1.0, 1.0, 1.0, 1.0], // Manual opacity (0-1)
+            trackShaderMute: [false, false, false, false], // Shader muted
+            trackShaderSolo: [false, false, false, false], // Shader soloed
+            trackShaderManual: [false, false, false, false], // Manual override active
             masterVolume: 0.5, // V3.1.0-M: Default 50% volume (12 o'clock)
             masterTempo: 120,
             zoomValue: 10, // V3.3.0_S: Default 10 px/sec = shows 64 bars @ 128 BPM (120 seconds)
@@ -7952,8 +8045,17 @@ ${shaderCode}
         let masterAnalyser = null;
         let meterAnimationRunning = false;
         
+        // V3_7_0_J: Shader state per track
+        let trackShaderOpacity = [1.0, 1.0, 1.0, 1.0]; // Manual opacity (0-1)
+        let trackShaderMute = [false, false, false, false]; // Shader muted
+        let trackShaderSolo = [false, false, false, false]; // Shader soloed
+        let trackShaderManual = [false, false, false, false]; // Manual override active
+        
         // V3.1.0-N: Global array for knob draw functions (to force redraws)
         const knobDrawFunctions = [];
+        
+        // V3_7_0_J: Global array for shader knob draw functions
+        const shaderKnobDrawFunctions = [];
 
         // V3_5_0_L: Master clock for quantized launching
         let sessionStartTime = null; // When first track launched (audioContext.currentTime)
@@ -8302,31 +8404,47 @@ ${shaderCode}
             for (let t = 1; t <= NUM_TRACKS; t++) {
                 const mixer = document.getElementById(`mixer${t}`);
                 mixer.innerHTML = `
-                    <div class="track-control-row">
-                        <div class="track-btn-group">
-                            <button class="track-btn mute" data-track="${t}">M</button>
-                            <button class="track-btn solo" data-track="${t}">S</button>
-                        </div>
-                        <div class="volume-label" id="volLabel${t}">-∞</div>
-                    </div>
-                    <div class="mixer-layout">
-                        <div class="mixer-left">
-                            <canvas class="rotary-knob" id="rotary${t}" width="60" height="60"></canvas>
-                        </div>
-                        <div class="mixer-right">
-                            <div class="meter-container">
-                                <div class="meter-wrapper">
-                                    <div class="meter-bar">
-                                        <div class="meter-fill-vertical" id="meterL${t}"></div>
-                                    </div>
-                                    <div class="meter-label">L</div>
+                    <div class="mixer-dual">
+                        <div class="mixer-shader">
+                            <div class="shader-controls">
+                                <div class="track-btn-group">
+                                    <button class="track-btn shader-mute" data-track="${t}" data-domain="shader">M</button>
+                                    <button class="track-btn shader-solo" data-track="${t}" data-domain="shader">S</button>
                                 </div>
-                                <div class="meter-wrapper">
-                                    <div class="meter-bar">
-                                        <div class="meter-fill-vertical" id="meterR${t}"></div>
+                                <div class="meter-container">
+                                    <div class="meter-wrapper">
+                                        <div class="meter-bar">
+                                            <div class="meter-fill-vertical" id="meterShaderL${t}"></div>
+                                        </div>
                                     </div>
-                                    <div class="meter-label">R</div>
+                                    <div class="meter-wrapper">
+                                        <div class="meter-bar">
+                                            <div class="meter-fill-vertical" id="meterShaderR${t}"></div>
+                                        </div>
+                                    </div>
                                 </div>
+                                <canvas class="rotary-knob" id="rotaryShader${t}" width="30" height="30"></canvas>
+                            </div>
+                        </div>
+                        <div class="mixer-audio">
+                            <div class="audio-controls">
+                                <div class="track-btn-group">
+                                    <button class="track-btn mute" data-track="${t}" data-domain="audio">M</button>
+                                    <button class="track-btn solo" data-track="${t}" data-domain="audio">S</button>
+                                </div>
+                                <div class="meter-container">
+                                    <div class="meter-wrapper">
+                                        <div class="meter-bar">
+                                            <div class="meter-fill-vertical" id="meterL${t}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="meter-wrapper">
+                                        <div class="meter-bar">
+                                            <div class="meter-fill-vertical" id="meterR${t}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <canvas class="rotary-knob" id="rotary${t}" width="30" height="30"></canvas>
                             </div>
                         </div>
                     </div>
@@ -8340,17 +8458,17 @@ ${shaderCode}
                 let lastY = 0;
                 
                 function drawKnob() {
-                    ctx.clearRect(0, 0, 60, 60);
+                    ctx.clearRect(0, 0, 30, 30);
                     
                     // Background circle
                     ctx.fillStyle = '#1a1a1a';
                     ctx.beginPath();
-                    ctx.arc(30, 30, 28, 0, Math.PI * 2);
+                    ctx.arc(15, 15, 14, 0, Math.PI * 2);
                     ctx.fill();
                     
                     // Border
                     ctx.strokeStyle = '#444';
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 1;
                     ctx.stroke();
                     
                     // Volume arc (-150° to +150°, 300° total range - 7 o'clock to 5 o'clock)
@@ -8360,25 +8478,25 @@ ${shaderCode}
                     const currentAngle = startAngle + (endAngle - startAngle) * volume;
                     
                     ctx.strokeStyle = '#00d4ff';
-                    ctx.lineWidth = 3;
+                    ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.arc(30, 30, 22, startAngle, currentAngle);
+                    ctx.arc(15, 15, 11, startAngle, currentAngle);
                     ctx.stroke();
                     
                     // Center indicator line
                     ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 1;
                     ctx.beginPath();
-                    ctx.moveTo(30, 30);
-                    ctx.lineTo(30 + Math.cos(currentAngle) * 18, 30 + Math.sin(currentAngle) * 18);
+                    ctx.moveTo(15, 15);
+                    ctx.lineTo(15 + Math.cos(currentAngle) * 9, 15 + Math.sin(currentAngle) * 9);
                     ctx.stroke();
                     
                     // V3.1.0-N: Draw cyan selection ring if this knob is selected
                     if (selectedKnobIndex === t - 1) {
                         ctx.strokeStyle = '#00d4ff';
-                        ctx.lineWidth = 3;
+                        ctx.lineWidth = 2;
                         ctx.beginPath();
-                        ctx.arc(30, 30, 28, 0, Math.PI * 2);
+                        ctx.arc(15, 15, 14, 0, Math.PI * 2);
                         ctx.stroke();
                     }
                 }
@@ -8386,14 +8504,6 @@ ${shaderCode}
                 function updateVolume(newVolume) {
                     volume = Math.max(0, Math.min(1, newVolume));
                     drawKnob();
-                    
-                    const volLabel = document.getElementById(`volLabel${t}`);
-                    if (volume === 0) {
-                        volLabel.textContent = '-∞';
-                    } else {
-                        const db = Math.round((1 - volume) * 20);
-                        volLabel.textContent = `-${db}`;
-                    }
                     
                     // V3.1.0-L: Update Web Audio gain node (respect mute/solo state)
                     if (trackGainNodes[t - 1]) {
@@ -8493,34 +8603,136 @@ ${shaderCode}
                     
                     autoSaveProject();
                 });
+                
+                // V3_7_0_J: Initialize shader opacity knob
+                const shaderCanvas = document.getElementById(`rotaryShader${t}`);
+                const shaderCtx = shaderCanvas.getContext('2d');
+                let shaderOpacity = 1.0; // Default 100%
+                let shaderDragging = false;
+                let shaderLastY = 0;
+                
+                function drawShaderKnob() {
+                    shaderCtx.clearRect(0, 0, 30, 30);
+                    
+                    // Background circle
+                    shaderCtx.fillStyle = '#1a1a1a';
+                    shaderCtx.beginPath();
+                    shaderCtx.arc(15, 15, 14, 0, Math.PI * 2);
+                    shaderCtx.fill();
+                    
+                    // Border
+                    shaderCtx.strokeStyle = '#444';
+                    shaderCtx.lineWidth = 1;
+                    shaderCtx.stroke();
+                    
+                    // Opacity arc (purple for shader)
+                    const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                    const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                    const currentAngle = startAngle + (endAngle - startAngle) * shaderOpacity;
+                    
+                    shaderCtx.strokeStyle = '#9d4edd'; // Purple for shader
+                    shaderCtx.lineWidth = 2;
+                    shaderCtx.beginPath();
+                    shaderCtx.arc(15, 15, 11, startAngle, currentAngle);
+                    shaderCtx.stroke();
+                    
+                    // Center indicator line
+                    shaderCtx.strokeStyle = '#fff';
+                    shaderCtx.lineWidth = 1;
+                    shaderCtx.beginPath();
+                    shaderCtx.moveTo(15, 15);
+                    shaderCtx.lineTo(15 + Math.cos(currentAngle) * 9, 15 + Math.sin(currentAngle) * 9);
+                    shaderCtx.stroke();
+                }
+                
+                function updateShaderOpacity(newOpacity) {
+                    shaderOpacity = Math.max(0, Math.min(1, newOpacity));
+                    drawShaderKnob();
+                    
+                    // V3_7_0_J: Update global shader state
+                    trackShaderOpacity[t - 1] = shaderOpacity;
+                    trackShaderManual[t - 1] = true; // Manual override engaged
+                    
+                    // Update shader canvas opacity
+                    updateTrackShaderOpacity(t - 1);
+                }
+                
+                shaderCanvas.addEventListener('mousedown', (e) => {
+                    shaderDragging = true;
+                    shaderLastY = e.clientY;
+                });
+                
+                window.addEventListener('mousemove', (e) => {
+                    if (!shaderDragging) return;
+                    const deltaY = shaderLastY - e.clientY;
+                    updateShaderOpacity(shaderOpacity + deltaY * 0.005);
+                    shaderLastY = e.clientY;
+                });
+                
+                window.addEventListener('mouseup', () => {
+                    shaderDragging = false;
+                });
+                
+                // Initial draw at 100%
+                drawShaderKnob();
+                
+                // V3_7_0_J: Store updateShaderOpacity function for keyboard/load control
+                shaderKnobDrawFunctions[t - 1] = updateShaderOpacity;
+                
+                // Shader Mute/Solo buttons
+                const shaderMuteBtn = mixer.querySelector('.track-btn.shader-mute');
+                const shaderSoloBtn = mixer.querySelector('.track-btn.shader-solo');
+                
+                shaderMuteBtn.addEventListener('click', () => {
+                    shaderMuteBtn.classList.toggle('active');
+                    trackShaderMute[t - 1] = shaderMuteBtn.classList.contains('active');
+                    updateTrackShaderOpacity(t - 1);
+                });
+                
+                shaderSoloBtn.addEventListener('click', () => {
+                    shaderSoloBtn.classList.toggle('active');
+                    trackShaderSolo[t - 1] = shaderSoloBtn.classList.contains('active');
+                    
+                    // Update all tracks based on solo state
+                    const anySolo = trackShaderSolo.some(s => s);
+                    for (let i = 0; i < NUM_TRACKS; i++) {
+                        updateTrackShaderOpacity(i);
+                    }
+                });
             }
             
             // Initialize Master Mixer (V3.0.0-F)
             const mixerMaster = document.getElementById('mixerMaster');
             mixerMaster.innerHTML = `
-                <div class="track-control-row">
-                    <div class="track-btn-group">
-                        <button class="track-btn mute" data-track="master">M</button>
-                    </div>
-                    <div class="volume-label" id="volLabelMaster">-∞</div>
-                </div>
                 <div class="mixer-layout">
-                    <div class="mixer-left">
-                        <canvas class="rotary-knob" id="rotaryMaster" width="60" height="60"></canvas>
+                    <div class="mixer-left" style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <div class="track-btn-group" style="justify-content: center;">
+                            <button class="track-btn mute" data-track="master">M</button>
+                            <button class="track-btn solo" data-track="master">S</button>
+                        </div>
+                        <div style="display: flex; justify-content: center;">
+                            <input type="number" 
+                                   id="liveTempoField" 
+                                   class="tempo-input" 
+                                   value="120" 
+                                   min="60" 
+                                   max="200" 
+                                   step="0.1"
+                                   title="Master Tempo (BPM)">
+                        </div>
+                        <canvas class="rotary-knob rotary-knob-large" id="rotaryMaster" width="60" height="60" style="margin-top: 10px;"></canvas>
                     </div>
                     <div class="mixer-right">
                         <div class="meter-container">
                             <div class="meter-wrapper">
-                                <div class="meter-bar">
+                                <div class="meter-bar meter-bar-master" style="height: 120px;">
                                     <div class="meter-fill-vertical" id="meterLMaster"></div>
                                 </div>
-                                <div class="meter-label">L</div>
                             </div>
                             <div class="meter-wrapper">
-                                <div class="meter-bar">
+                                <div class="meter-bar meter-bar-master" style="height: 120px;">
                                     <div class="meter-fill-vertical" id="meterRMaster"></div>
                                 </div>
-                                <div class="meter-label">R</div>
                             </div>
                         </div>
                     </div>
@@ -8551,14 +8763,14 @@ ${shaderCode}
                 ctxMaster.strokeStyle = '#00d4ff';
                 ctxMaster.lineWidth = 3;
                 ctxMaster.beginPath();
-                ctxMaster.arc(30, 30, 24, startAngle, currentAngle);
+                ctxMaster.arc(30, 30, 22, startAngle, currentAngle);
                 ctxMaster.stroke();
                 
                 ctxMaster.strokeStyle = '#fff';
                 ctxMaster.lineWidth = 2;
                 ctxMaster.beginPath();
                 ctxMaster.moveTo(30, 30);
-                ctxMaster.lineTo(30 + Math.cos(currentAngle) * 20, 30 + Math.sin(currentAngle) * 20);
+                ctxMaster.lineTo(30 + Math.cos(currentAngle) * 18, 30 + Math.sin(currentAngle) * 18);
                 ctxMaster.stroke();
                 
                 // V3.1.0-N: Draw cyan selection ring if master knob is selected
@@ -8574,8 +8786,6 @@ ${shaderCode}
             function updateVolumeMaster(vol) {
                 volumeMaster = Math.max(0, Math.min(1, vol));
                 drawKnobMaster();
-                const db = volumeMaster === 0 ? '-∞' : `${Math.round((volumeMaster - 1) * 60)} dB`;
-                document.getElementById('volLabelMaster').textContent = db;
                 
                 // V3.1.0-H: Update Web Audio master gain node
                 if (masterGainNode) {
@@ -8612,6 +8822,9 @@ ${shaderCode}
             const muteBtnMaster = mixerMaster.querySelector('.track-btn.mute');
             muteBtnMaster.addEventListener('click', () => muteBtnMaster.classList.toggle('active'));
             
+            const soloBtnMaster = mixerMaster.querySelector('.track-btn.solo');
+            soloBtnMaster.addEventListener('click', () => soloBtnMaster.classList.toggle('active'));
+            
             // V3.3.0_O: Initialize Zoom Control in mixer-spacer
             // V3_4_0_R: Use mixer-layout structure to align with volume knobs
             // V3_4_0_S: Two-row structure - label aligns with M/S, knob aligns with volume
@@ -8625,7 +8838,7 @@ ${shaderCode}
                 </div>
                 <div class="mixer-layout" style="gap: 0; justify-content: center;">
                     <div class="mixer-left">
-                        <canvas class="rotary-knob" id="rotaryZoom" width="60" height="60"></canvas>
+                        <canvas class="rotary-knob rotary-knob-large" id="rotaryZoom" width="60" height="60"></canvas>
                     </div>
                 </div>
             `;
@@ -8888,9 +9101,10 @@ ${shaderCode}
             
             if (!overlayDiv || !nameDiv || !nameTextSpan || !thumbCanvas) return;
             
-            // V3_6_0_AF: Set container name in text span (for marquee scrolling)
-            // Duplicate text for seamless loop
-            nameTextSpan.textContent = container.name + ' ' + container.name;
+            // V3_7_0_A: Set container name in text span (for marquee scrolling)
+            // Duplicate text with spacing for seamless loop
+            const separator = '   ·   '; // Visual separator with spacing
+            nameTextSpan.textContent = container.name + separator + container.name;
             
             // V3_6_0_AF: Detect if text overflows and needs scrolling
             // Wait for next frame to ensure layout is calculated
@@ -8901,7 +9115,7 @@ ${shaderCode}
                 if (textWidth > containerWidth) {
                     // Text overflows - enable scrolling
                     nameDiv.classList.add('scrolling');
-                    console.log(`V3_6_0_AF: Enabling marquee scroll for Track ${track + 1} (text: ${textWidth}px, container: ${containerWidth}px)`);
+                    console.log(`V3_7_0_A: Enabling marquee scroll for Track ${track + 1} (text: ${textWidth}px, container: ${containerWidth}px)`);
                 } else {
                     // Text fits - disable scrolling
                     nameDiv.classList.remove('scrolling');
@@ -9497,7 +9711,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V3_6]</title>
+    <title>ONEMANSHYO App [V3_7]</title>
     <style>
         body {
             margin: 0;
@@ -9846,6 +10060,51 @@ ${providedShaderCode}
         }
         
         // V3_6_0_B: Render all 4 tracks with volume-based opacity
+        // V3_7_0_J: Calculate final shader opacity for a track
+        // Considers: manual override, shader mute/solo, volume-based fallback
+        function calculateTrackShaderOpacity(track) {
+            const isPlaying = trackAudioSources[track] !== null;
+            
+            // Check shader mute
+            if (trackShaderMute[track]) {
+                return 0;
+            }
+            
+            // Check shader solo
+            const anySolo = trackShaderSolo.some(s => s);
+            if (anySolo && !trackShaderSolo[track]) {
+                return 0; // Solo mode active, this track not soloed
+            }
+            
+            // If manual override is active, use manual opacity
+            if (trackShaderManual[track]) {
+                return isPlaying ? trackShaderOpacity[track] : 0;
+            }
+            
+            // Otherwise use volume-based opacity (V3.6.0 auto behavior)
+            if (isPlaying && trackGainNodes[track]) {
+                const volume = trackGainNodes[track].gain.value;
+                return Math.min(1.0, volume * 2.0); // ×2 curve, peak at 50%
+            }
+            
+            return 0;
+        }
+        
+        // V3_7_0_J: Update shader canvas opacity for a track (both inset and pop-out)
+        function updateTrackShaderOpacity(track) {
+            const opacity = calculateTrackShaderOpacity(track);
+            
+            // Update inset canvas
+            if (liveShaderCanvases[track]) {
+                liveShaderCanvases[track].style.opacity = opacity;
+            }
+            
+            // Update pop-out canvas
+            if (popOutWindow && !popOutWindow.closed && popOutCanvases[track]) {
+                popOutCanvases[track].style.opacity = opacity;
+            }
+        }
+        
         function renderLiveShader() {
             // Calculate master tempo-synced time (READ ONLY - doesn't modify sessionStartTime)
             let currentTime = 0;
@@ -9869,16 +10128,8 @@ ${providedShaderCode}
                 
                 if (!device || !pipeline || !context || !canvas) continue;
                 
-                // V3_6_0_J: Shader intensity based on volume with ×2 curve (peak at 50%)
-                const isPlaying = trackAudioSources[track] !== null;
-                let intensity = 0;
-                
-                if (isPlaying && trackGainNodes[track]) {
-                    const volume = trackGainNodes[track].gain.value; // 0-1 range
-                    intensity = Math.min(1.0, volume * 2.0); // ×2, clamp at 1.0
-                    // Result: 0% vol→0%, 25% vol→50%, 50% vol→100% (maxed), 100% vol→100%
-                }
-                
+                // V3_7_0_J: Calculate final shader opacity (considers manual override, mute, solo, volume-based)
+                const intensity = calculateTrackShaderOpacity(track);
                 canvas.style.opacity = intensity;
                 
                 // Update uniforms (12 floats = 48 bytes for container shaders)
@@ -9931,15 +10182,8 @@ ${providedShaderCode}
                     
                     if (!device || !pipeline || !context || !canvas) continue;
                     
-                    // V3_6_0_J: Shader intensity based on volume (same curve as inset)
-                    const isPlaying = trackAudioSources[track] !== null;
-                    let intensity = 0;
-                    
-                    if (isPlaying && trackGainNodes[track]) {
-                        const volume = trackGainNodes[track].gain.value;
-                        intensity = Math.min(1.0, volume * 2.0);
-                    }
-                    
+                    // V3_7_0_J: Calculate final shader opacity (same as inset)
+                    const intensity = calculateTrackShaderOpacity(track);
                     canvas.style.opacity = intensity;
                     
                     // Update uniforms (same as inset)
@@ -10670,13 +10914,29 @@ ${providedShaderCode}
                 }
             }
             
-            // Arrow Up/Down - control selected volume knob
+            // Arrow Up/Down - control selected volume knob OR shader opacity (with Shift)
             if (selectedKnobIndex >= 0 && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
                 e.preventDefault();
                 
-                console.log(`V3_5_0_B DEBUG: Arrow ${e.key} pressed, selectedKnobIndex=${selectedKnobIndex}`);
-                
                 const delta = e.key === 'ArrowUp' ? 0.02 : -0.02; // 2% per press
+                
+                // V3_7_0_J: Shift+arrows = shader opacity control (tracks 1-4 only)
+                if (e.shiftKey && selectedKnobIndex < 4) {
+                    const trackIndex = selectedKnobIndex;
+                    const currentOpacity = trackShaderOpacity[trackIndex];
+                    const newOpacity = Math.max(0, Math.min(1, currentOpacity + delta));
+                    
+                    // V3_7_0_K: Use stored shader knob update function
+                    if (shaderKnobDrawFunctions[trackIndex]) {
+                        shaderKnobDrawFunctions[trackIndex](newOpacity);
+                    }
+                    
+                    console.log(`V3_7_0_J: Track ${trackIndex + 1} shader opacity ${Math.round(newOpacity * 100)}% (Shift+${e.key})`);
+                    return;
+                }
+                
+                // Normal arrows = audio volume control
+                console.log(`V3_5_0_B DEBUG: Arrow ${e.key} pressed, selectedKnobIndex=${selectedKnobIndex}`);
                 
                 if (selectedKnobIndex === 4) {
                     // Master knob
@@ -10782,6 +11042,52 @@ ${providedShaderCode}
                         autoSaveProject();
                     } else {
                         console.error(`V3_5_0_G: Solo button not found for track ${trackNum}`);
+                    }
+                }
+                return;
+            }
+            
+            // V3_7_0_J: Shift+, key - toggle SHADER mute on selected track (1-4 only)
+            if (e.key === ',' && e.shiftKey) {
+                if (selectedKnobIndex >= 0 && selectedKnobIndex < 4) {
+                    e.preventDefault();
+                    
+                    const trackIndex = selectedKnobIndex;
+                    const trackNum = trackIndex + 1;
+                    const shaderMuteBtn = document.querySelector(`.track-btn.shader-mute[data-track="${trackNum}"]`);
+                    
+                    if (shaderMuteBtn) {
+                        // Toggle shader mute state
+                        shaderMuteBtn.classList.toggle('active');
+                        trackShaderMute[trackIndex] = shaderMuteBtn.classList.contains('active');
+                        updateTrackShaderOpacity(trackIndex);
+                        console.log(`V3_7_0_J: Track ${trackNum} shader ${trackShaderMute[trackIndex] ? 'muted' : 'unmuted'} (Shift+comma)`);
+                    }
+                }
+                return;
+            }
+            
+            // V3_7_0_J: Shift+. key - toggle SHADER solo on selected track (1-4 only)
+            if (e.key === '.' && e.shiftKey) {
+                if (selectedKnobIndex >= 0 && selectedKnobIndex < 4) {
+                    e.preventDefault();
+                    
+                    const trackIndex = selectedKnobIndex;
+                    const trackNum = trackIndex + 1;
+                    const shaderSoloBtn = document.querySelector(`.track-btn.shader-solo[data-track="${trackNum}"]`);
+                    
+                    if (shaderSoloBtn) {
+                        // Toggle shader solo state
+                        shaderSoloBtn.classList.toggle('active');
+                        trackShaderSolo[trackIndex] = shaderSoloBtn.classList.contains('active');
+                        
+                        // Update all tracks based on solo state
+                        const anySolo = trackShaderSolo.some(s => s);
+                        for (let i = 0; i < 4; i++) {
+                            updateTrackShaderOpacity(i);
+                        }
+                        
+                        console.log(`V3_7_0_J: Track ${trackNum} shader ${trackShaderSolo[trackIndex] ? 'soloed' : 'unsoloed'} (Shift+period)`);
                     }
                 }
                 return;
@@ -11121,6 +11427,11 @@ ${providedShaderCode}
                     trackVolumes: gridState.trackVolumes.slice(),
                     trackMutes: gridState.trackMutes.slice(),
                     trackSolos: gridState.trackSolos.slice(),
+                    // V3_7_0_J: Shader state
+                    trackShaderOpacity: gridState.trackShaderOpacity.slice(),
+                    trackShaderMute: gridState.trackShaderMute.slice(),
+                    trackShaderSolo: gridState.trackShaderSolo.slice(),
+                    trackShaderManual: gridState.trackShaderManual.slice(),
                     masterVolume: gridState.masterVolume,
                     masterTempo: parseInt(document.getElementById('tempo').value) || 120,
                     lastSceneLaunched: gridState.lastSceneLaunched
@@ -11232,6 +11543,61 @@ ${providedShaderCode}
                             soloBtn.classList.remove('active');
                         }
                     }
+                }
+            }
+
+            // V3_7_0_J: Apply shader opacity
+            for (let t = 0; t < 4; t++) {
+                if (state.trackShaderOpacity && state.trackShaderOpacity[t] !== undefined) {
+                    gridState.trackShaderOpacity[t] = state.trackShaderOpacity[t];
+                    trackShaderOpacity[t] = state.trackShaderOpacity[t];
+                    
+                    // Redraw shader knob
+                    if (shaderKnobDrawFunctions[t]) {
+                        shaderKnobDrawFunctions[t](state.trackShaderOpacity[t]);
+                    }
+                }
+            }
+            
+            // V3_7_0_J: Apply shader mutes
+            for (let t = 0; t < 4; t++) {
+                if (state.trackShaderMute && state.trackShaderMute[t] !== undefined) {
+                    gridState.trackShaderMute[t] = state.trackShaderMute[t];
+                    trackShaderMute[t] = state.trackShaderMute[t];
+                    
+                    const shaderMuteBtn = document.querySelector(`.track-btn.shader-mute[data-track="${t + 1}"]`);
+                    if (shaderMuteBtn) {
+                        if (state.trackShaderMute[t]) {
+                            shaderMuteBtn.classList.add('active');
+                        } else {
+                            shaderMuteBtn.classList.remove('active');
+                        }
+                    }
+                }
+            }
+            
+            // V3_7_0_J: Apply shader solos
+            for (let t = 0; t < 4; t++) {
+                if (state.trackShaderSolo && state.trackShaderSolo[t] !== undefined) {
+                    gridState.trackShaderSolo[t] = state.trackShaderSolo[t];
+                    trackShaderSolo[t] = state.trackShaderSolo[t];
+                    
+                    const shaderSoloBtn = document.querySelector(`.track-btn.shader-solo[data-track="${t + 1}"]`);
+                    if (shaderSoloBtn) {
+                        if (state.trackShaderSolo[t]) {
+                            shaderSoloBtn.classList.add('active');
+                        } else {
+                            shaderSoloBtn.classList.remove('active');
+                        }
+                    }
+                }
+            }
+            
+            // V3_7_0_J: Apply shader manual override state
+            for (let t = 0; t < 4; t++) {
+                if (state.trackShaderManual && state.trackShaderManual[t] !== undefined) {
+                    gridState.trackShaderManual[t] = state.trackShaderManual[t];
+                    trackShaderManual[t] = state.trackShaderManual[t];
                 }
             }
 

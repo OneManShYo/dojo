@@ -1,6 +1,6 @@
-# OMS SHADER BAKER V3.6.0 - COMPLETE USER GUIDE
+# OMS SHADER BAKER V3.7.0 - COMPLETE USER GUIDE
 
-**Version:** V3.6.0  
+**Version:** V3.7.0  
 **Date:** November 16, 2025  
 **Purpose:** Complete guide to all features and workflows
 
@@ -14,12 +14,13 @@
 4. [Audio Reactivity](#audio-reactivity)
 5. [Live Performance](#live-performance)
 6. [Four-Track Compositing](#four-track-compositing)
-7. [Pop-Out Window](#pop-out-window)
-8. [Keyboard Controls](#keyboard-controls)
-9. [Settings & Preferences](#settings--preferences)
-10. [File Management](#file-management)
-11. [Export Workflow](#export-workflow)
-12. [Tips & Tricks](#tips--tricks)
+7. [Dual-Domain Mixer](#dual-domain-mixer)
+8. [Pop-Out Window](#pop-out-window)
+9. [Keyboard Controls](#keyboard-controls)
+10. [Settings & Preferences](#settings--preferences)
+11. [File Management](#file-management)
+12. [Export Workflow](#export-workflow)
+13. [Tips & Tricks](#tips--tricks)
 
 ---
 
@@ -250,6 +251,194 @@ Each track has its own WebGPU device and pipeline
 
 ---
 
+## DUAL-DOMAIN MIXER
+
+### Overview
+
+**V3.7.0 introduces independent shader and audio control per track!**
+
+Each track now has TWO separate control domains:
+
+```
+┌─────────────────────────────────┐
+│         [Track N]               │
+├──────────────┬──────────────────┤
+│   SHADER     │      AUDIO       │
+│              │                  │
+│  [vM] [vS]   │   [🎚️ volume]    │
+│  [🎚️ opacity] │   [▮▮] [▮▮]      │
+│              │   [L]   [R]      │
+│              │   [aM] [aS]      │
+└──────────────┴──────────────────┘
+```
+
+### Shader Domain (Left Side)
+
+**Purple controls for VISUAL mixing:**
+
+**Shader Opacity Knob (30px):**
+- Range: 0-100%
+- Color: Purple (#9d4edd)
+- Default: Auto mode (follows audio volume × 2)
+- Touch knob = enable manual override
+
+**Shader Mute Button [vM]:**
+- Purple when active
+- Hides shader (opacity = 0)
+- Audio continues playing normally
+- Independent from audio mute
+
+**Shader Solo Button [vS]:**
+- Cyan when active
+- Shows only this shader (others invisible)
+- Audio continues playing normally on all tracks
+- Independent from audio solo
+
+**Keyboard Shortcuts:**
+- `Shift+,` - Toggle shader mute
+- `Shift+.` - Toggle shader solo
+- `Shift+↑` - Increase opacity (+2%)
+- `Shift+↓` - Decrease opacity (-2%)
+
+### Audio Domain (Right Side)
+
+**Standard controls for AUDIO mixing:**
+
+**Audio Volume Knob (30px):**
+- Range: 0-100%
+- Color: Standard
+- Controls audio output level only
+- Does NOT affect shader when manual override enabled
+
+**Level Meters (40px height):**
+- L/R stereo meters
+- VU-style visualization
+- Shows current audio levels
+
+**Audio Mute Button [aM]:**
+- Standard appearance when active
+- Silences audio (volume = 0)
+- Shader continues rendering normally
+- Independent from shader mute
+
+**Audio Solo Button [aS]:**
+- Standard appearance when active
+- Mutes all other tracks
+- Shader continues rendering normally on all tracks
+- Independent from shader solo
+
+**Keyboard Shortcuts:**
+- `,` (comma) - Toggle audio mute
+- `.` (period) - Toggle audio solo
+- `↑` - Increase volume
+- `↓` - Decrease volume
+
+### Opacity Modes
+
+**AUTO Mode (Default):**
+- Shader opacity = audio volume × 2
+- Opacity reaches 100% at 50% fader position
+- Same behavior as V3.6.0
+- No visual indication (default state)
+
+**MANUAL Mode:**
+- Enabled by touching shader opacity knob
+- Opacity independent from audio volume
+- Persists until project reload
+- No visual indication (planned for V3.8.0)
+
+**Priority Logic:**
+1. Shader Mute → opacity 0 (highest priority)
+2. Shader Solo → opacity 0 if not soloed
+3. Manual Override → use manual value
+4. Auto Mode → volume × 2
+5. Not Playing → opacity 0 (lowest priority)
+
+### Workflow Examples
+
+**Example 1: Visual Build Without Audio Change**
+
+Build visuals during breakdown without touching audio:
+
+1. Audio stays at current mix (don't touch volume)
+2. Touch shader opacity knobs (enable manual)
+3. Fade in visuals using `Shift+↑`
+4. Gradually add layers on tracks 1, 2, 3
+5. Audio mix unchanged, visuals build smoothly
+
+**Example 2: Audio Drop With Visual Hold**
+
+Drop audio but keep visuals present:
+
+1. Touch all shader opacity knobs (manual mode)
+2. Set all shader opacity to 100%
+3. Drop audio volume faders to 0%
+4. Result: Visuals stay, audio silent
+
+**Example 3: Visual Solo for Highlight**
+
+Show only one shader while playing all audio:
+
+1. Press `Shift+.` on track 1 (shader solo)
+2. Shaders 2-4 invisible
+3. All audio still playing (normal mix)
+4. Perfect for highlighting specific element
+
+**Example 4: Independent Crossfade**
+
+Crossfade visuals while audio stays constant:
+
+1. Tracks 1-2 playing (audio at 75% each)
+2. Touch both shader opacity knobs (manual)
+3. Track 1 opacity 100% → 0% (fade out)
+4. Track 2 opacity 0% → 100% (fade in)
+5. Audio levels unchanged throughout
+
+### Master Mixer
+
+**Master section has parity with tracks (V3.7.0):**
+
+**Master Volume Knob (60px):**
+- 2x size of track knobs
+- Visual prominence for global control
+- Controls final output level
+
+**Master Meters (120px height):**
+- 3x height of track meters
+- Shows final mix levels
+- Clear visual hierarchy
+
+**Master Mute/Solo Buttons:**
+- Below volume knob
+- Symmetric with track layout
+- Control global audio output
+
+**Tempo Control:**
+- Below M/S buttons
+- Current BPM display
+- ± adjustment buttons
+- Integrated with master section
+
+### Tips
+
+**When to use Manual Override:**
+- Visual builds without audio changes
+- Audio drops while keeping visuals
+- Independent visual/audio crossfades
+- Complex layering effects
+
+**When to keep Auto Mode:**
+- Simple performances (visual follows audio)
+- Quick setup (no extra control needed)
+- V3.6.0-style workflow preferred
+- Learning/testing phases
+
+**Resetting to Auto:**
+- Currently: Reload project
+- V3.8.0 planned: Double-click opacity knob
+
+---
+
 ## POP-OUT WINDOW
 
 ### Opening
@@ -325,19 +514,33 @@ Click "Close Pop-Out ✕" button
 | Enter | Launch cell (single track) |
 | Esc | Return to scene column |
 
-### Volume Control
+### Audio Volume Control
 
 | Key | Action |
 |-----|--------|
-| ↑ | Increase selected track volume |
-| ↓ | Decrease selected track volume |
+| ↑ | Increase selected track audio volume |
+| ↓ | Decrease selected track audio volume |
 
-### Mute/Solo
+### Shader Opacity Control (V3.7.0)
 
 | Key | Action |
 |-----|--------|
-| , (comma) | Toggle mute on selected track |
-| . (period) | Toggle solo on selected track |
+| Shift+↑ | Increase selected track shader opacity (+2%) |
+| Shift+↓ | Decrease selected track shader opacity (-2%) |
+
+### Audio Mute/Solo
+
+| Key | Action |
+|-----|--------|
+| , (comma) | Toggle audio mute on selected track |
+| . (period) | Toggle audio solo on selected track |
+
+### Shader Mute/Solo (V3.7.0)
+
+| Key | Action |
+|-----|--------|
+| Shift+, (comma) | Toggle shader mute on selected track |
+| Shift+. (period) | Toggle shader solo on selected track |
 
 ### Cell Management
 
@@ -601,13 +804,21 @@ A/D       - Horizontal
 Enter     - Launch Cell
 Esc       - Back to Scenes
 
-VOLUME
+AUDIO VOLUME
 ↑         - Volume Up
 ↓         - Volume Down
 
-MUTE/SOLO
-,         - Toggle Mute
-.         - Toggle Solo
+AUDIO MUTE/SOLO
+,         - Toggle Audio Mute
+.         - Toggle Audio Solo
+
+SHADER OPACITY (V3.7.0)
+Shift+↑   - Opacity Up (+2%)
+Shift+↓   - Opacity Down (-2%)
+
+SHADER MUTE/SOLO (V3.7.0)
+Shift+,   - Toggle Shader Mute
+Shift+.   - Toggle Shader Solo
 
 CELL
 Delete    - Clear Cell
@@ -617,7 +828,7 @@ Delete    - Clear Cell
 
 **END OF USER GUIDE**
 
-Version: V3.6.0  
+Version: V3.7.0  
 Date: November 16, 2025  
 License: GPL-3.0  
 Website: https://onemanshyo.com
