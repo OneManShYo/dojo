@@ -1,7 +1,7 @@
-# ONEMANSHYO BETA - USER GUIDE
+# ONEMANSHYO App [Beta V5_0_0] - USER GUIDE
 
-**Version:** Beta V4_8_0  
-**Date:** December 19, 2025  
+**Version:** Beta V5_0_0
+**Date:** December 21, 2025
 **License:** GPL-3.0
 
 ---
@@ -14,11 +14,12 @@
 4. Support
 5. Credits
 
-INDEX A: DJ 101 Foundation
-INDEX B: ONEMANSHYO Origin Story
-INDEX C: Shader Creation Guide
-INDEX D: FFmpeg Video Conversion
-INDEX E: Visual Vocabulary
+APPENDIX A: DJ 101 Foundation
+APPENDIX B: ONEMANSHYO Origin Story
+APPENDIX C: Shader Creation Guide
+APPENDIX D: FFmpeg Video Conversion
+
+INDEX A: Visual Vocabulary
 
 ---
 
@@ -33,7 +34,7 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 **Browser:** Chrome (WebGPU support required)  
 **Screen:** 1352×761 effective viewport (14" MacBook Pro)
 
-**File:** `OMS_Beta_V4_8_0.html`
+**File:** `OMS_App_Beta_V5_0_0.html`
 
 ---
 
@@ -44,21 +45,21 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 If you want to create visuals based on music timing without setting up a library:
 
 **Audio-Reactive Visuals (reacts to your music):**
-1. Open `OMS_Beta_V4_8_0.html`
+1. Open `OMS_App_Beta_V5_0_0.html`
 2. Drag your audio file (.mp3, .wav) onto the waveform
 3. Visuals automatically react to bass, mids, treble
 4. Click [Render Video]
 5. Get SILENT video with pre-baked reactivity
 
 **Tempo-Synced Visuals (animated to BPM, no audio needed):**
-1. Open `OMS_Beta_V4_8_0.html`
+1. Open `OMS_App_Beta_V5_0_0.html`
 2. Set tempo (e.g., 128 BPM)
 3. Set duration (e.g., 03:30.000)
 4. Click [Render Video]
 5. Get animated visual
 
 **What you get:**
-- WebM video file (convert with FFmpeg - see INDEX C)
+- WebM video file (convert with FFmpeg - see APPENDIX D)
 - SILENT video (audio reactivity is pre-baked into visuals)
 - Ready for social media, streaming, or professional playback
 
@@ -136,6 +137,13 @@ A **shader** is GPU code that renders visuals in real-time.
 - `uniforms.shaderModAGain`, `shaderModBGain`, `shaderModCGain` - gain value (0-1)
 - `uniforms.shaderModAFFT`, `shaderModBFFT`, `shaderModCFFT` - FFT level (0-1)
 
+**Transform uniforms (V5_0_0):**
+- `uniforms.transformRotation` - rotation in radians
+- `uniforms.transformScaleX`, `transformScaleY` - scale factors
+- `uniforms.transformTranslateX`, `transformTranslateY` - position offset
+- `uniforms.transformPivotX`, `transformPivotY` - rotation center
+- `uniforms.transformTile` - tile repeat count
+
 **What it does:**
 - Runs once per pixel
 - Calculates color based on position and time
@@ -153,7 +161,7 @@ fn fs_main(@builtin(position) pos: vec4<f32>) -> @location(0) vec4<f32> {
 }
 ```
 
-**For complete shader creation guide, see INDEX B.**
+**For complete shader creation guide, see APPENDIX C.**
 
 ---
 
@@ -326,7 +334,48 @@ Each modulator (A, B, C) has:
 
 ---
 
-##### 3.2.4.5 OUTPUT Section
+##### 3.2.4.5 TRANSFORMS Section (V5_0_0)
+
+Controls to transform the shader output in real-time. All transforms save with your .oms containers.
+
+**ROTATION** (endless encoder)
+- Drag up/down to rotate (0° to 360°, wraps continuously)
+- Full 360° circle visual with indicator line
+- Double-tap Shift+Enter to reset to 0°
+
+**SCALE** (encoder)
+- Drag up/down to scale (0× to 4×)
+- Affects both X and Y uniformly
+- Double-tap Shift+Enter to reset to 1.0×
+
+**TILE** (encoder)
+- Drag up/down to repeat pattern (1 to 8)
+- Double-tap Shift+Enter to reset to 1
+
+**TRANSLATE** (XY pad, 50×30)
+- Drag to move shader position (-1 to +1)
+- Double-tap Shift+Enter to reset to center (0, 0)
+
+**PIVOT** (XY pad, 50×30)
+- Sets rotation/scale center point (-1 to +1)
+- Double-tap Shift+Enter to reset to center (0, 0)
+
+**Keyboard Mode (Shift+T):**
+
+| Key | Action |
+|-----|--------|
+| `Shift+T` | Enter/exit transform mode |
+| `← →` | Navigate between controls |
+| `Shift+← →` | Adjust encoder values |
+| `Shift+↑↓←→` | Move XY/Pivot pads |
+| `Shift+Enter×2` | Reset selected to default |
+| `Escape` | Exit transform mode |
+
+**Shift+Trackpad:** Hover over any control + Shift + scroll to adjust. Also works in keyboard mode - select control, then Shift + scroll anywhere.
+
+---
+
+##### 3.2.4.6 OUTPUT Section
 
 **Filename** (text field)
 - Auto-populated with shader name + audio name (V4_7_0)
@@ -499,6 +548,23 @@ Each modulator (A, B, C) has:
 | Escape | Exit reactivity mode |
 
 **Note:** Hold Shift+Arrow for progressive acceleration (faster changes).
+
+**Transform Mode (V5_0_0):**
+
+| Shortcut | Action |
+|----------|--------|
+| Shift+T | Enter/exit transform mode |
+| ← → | Navigate controls (Rotation/Scale/Tile/XY/Pivot) |
+| Shift+← → | Adjust encoder values |
+| Shift+↑↓←→ | Move XY/Pivot pads |
+| Shift+Enter×2 | Reset selected to default |
+| Escape | Exit transform mode |
+
+**Shift+Trackpad (V5_0_0):**
+
+Both Transform and Reactivity knobs support Shift+scroll:
+- Hover over control + Shift + scroll = adjust
+- In keyboard mode: select control + Shift + scroll anywhere
 
 ---
 
@@ -1134,7 +1200,7 @@ Social / YouTube
 ## 5. Credits
 
 **Created by:** Wes Smith / ONEMANSHYO  
-**Version:** Beta V4_8_0  
+**Version:** Beta V5_0_0  
 **Date:** December 17, 2025
 
 **Technology:**
@@ -1152,7 +1218,7 @@ Open source, free to use and modify.
 
 ---
 
-## INDEX A: DJ 101 Foundation
+## APPENDIX A: DJ 101 Foundation
 
 Understanding what DJing is and how it evolved from analog to digital performance.
 
@@ -1417,12 +1483,12 @@ Using a DAW for visuals leverages precise timing, MIDI mapping, and audio proces
 
 ---
 
-**END OF INDEX A**
+**END OF APPENDIX A**
 
 ---
 ---
 
-## INDEX B: ONEMANSHYO Origin Story
+## APPENDIX B: ONEMANSHYO Origin Story
 
 ### B.1 What ONEMANSHYO Is
 
@@ -1498,13 +1564,13 @@ OMS isn't a theoretical experiment or academic project. It's **codifying Wes's p
 - No team or crew needed
 - Proven workflow, accessible tools, free and open
 
-**END OF INDEX B**
+**END OF APPENDIX B**
 
 
-## INDEX C: Shader Creation Guide
+## APPENDIX C: Shader Creation Guide
 
 **Purpose:** Everything needed to create WGSL shaders for OMS  
-**Usage:** Drop this entire INDEX into Claude to enable shader creation
+**Usage:** Drop this entire APPENDIX into Claude to enable shader creation
 
 ---
 
@@ -1577,6 +1643,21 @@ The app auto-injects these. Just use them directly:
 let size = 0.3 + uniforms.shaderModAWave * 0.2;
 let colorIntensity = uniforms.shaderModAFFT;
 ```
+
+**Transform Uniforms (V5_0_0):**
+
+| Uniform | Type | Range | Purpose |
+|---------|------|-------|---------|
+| `uniforms.transformRotation` | f32 | radians | Rotation angle |
+| `uniforms.transformScaleX` | f32 | 0.1-4.0 | Horizontal scale |
+| `uniforms.transformScaleY` | f32 | 0.1-4.0 | Vertical scale |
+| `uniforms.transformTranslateX` | f32 | -1.0 to 1.0 | Horizontal offset |
+| `uniforms.transformTranslateY` | f32 | -1.0 to 1.0 | Vertical offset |
+| `uniforms.transformPivotX` | f32 | -1.0 to 1.0 | Pivot X position |
+| `uniforms.transformPivotY` | f32 | -1.0 to 1.0 | Pivot Y position |
+| `uniforms.transformTile` | f32 | 1-8 | Tile repeat count |
+
+**Note:** Transform uniforms reflect UI control values. Shaders can read these to create transform-aware effects.
 
 ---
 
@@ -1690,9 +1771,57 @@ let treble = uniforms.modC;
 let pulse = fract(uniforms.beat);        // 0→1 each beat
 let barPulse = fract(uniforms.beat / 4.0); // 0→1 each bar
 
+// Transform values (V5_0_0) - read from UI controls
+let rotation = uniforms.transformRotation;  // radians
+let scale = vec2<f32>(uniforms.transformScaleX, uniforms.transformScaleY);
+let translate = vec2<f32>(uniforms.transformTranslateX, uniforms.transformTranslateY);
+let tile = uniforms.transformTile;  // 1-8
+
 // Always return with alpha 1.0
 return vec4<f32>(color, 1.0);
 ```
+
+
+---
+
+#### C.1.8 Standard Transform Chain (V5_0_0)
+
+When implementing transforms in your shader, use this standard chain:
+
+```wgsl
+// === FULL TRANSFORM CHAIN ===
+let minDim = min(resolution.x, resolution.y);
+var uv = (coord.xy - resolution * 0.5) / minDim * 2.0;
+
+// Apply pivot offset
+uv.x -= uniforms.transformPivotX;
+uv.y += uniforms.transformPivotY;
+
+// Rotate around pivot
+let cosR = cos(uniforms.transformRotation);
+let sinR = sin(uniforms.transformRotation);
+uv = vec2<f32>(uv.x * cosR - uv.y * sinR, uv.x * sinR + uv.y * cosR);
+
+// Remove pivot, apply translation
+uv.x += uniforms.transformPivotX - uniforms.transformTranslateX;
+uv.y -= uniforms.transformPivotY - uniforms.transformTranslateY;
+
+// Scale (both axes uniform from Scale control)
+let scale = max(uniforms.transformScaleX, 0.01);
+uv = uv / scale;
+
+// Tile
+let tile = max(uniforms.transformTile, 1.0);
+uv = fract(uv * tile * 0.5 + 0.5) * 2.0 - 1.0;
+```
+
+**Order matters:** Pivot → Rotate → Translate → Scale → Tile
+
+**Notes:**
+- Rotation is in radians (UI shows degrees, shader receives radians)
+- Scale is uniform (X and Y always equal from the single Scale control)
+- Tile wraps UV space for seamless repetition
+- Transform values come directly from CREATE tab controls
 
 ---
 
@@ -1889,11 +2018,11 @@ let noise = fract(sin(dot(uv, vec2<f32>(12.9898, 78.233))) * 43758.5453);
 
 ---
 
-**END OF INDEX C**
+**END OF APPENDIX C**
 
 ---
 
-## INDEX D: FFmpeg Video Conversion
+## APPENDIX D: FFmpeg Video Conversion
 
 ### D.1 Overview
 
@@ -2025,15 +2154,15 @@ ffmpeg -i input.webm -vf scale=1280:720 -c:v libx264 -crf 23 output.mp4
 
 ---
 
-**END OF INDEX D**
+**END OF APPENDIX D**
 
 ---
 
-## INDEX E: Visual Vocabulary
+## INDEX A: Visual Vocabulary
 
 A reference guide for shader effects, patterns, and terminology used in OMS.
 
-**Note:** All code examples use the OMS shader contract from INDEX B. Function must be `fs_main`, struct is auto-injected.
+**Note:** All code examples use the OMS shader contract from APPENDIX C. Function must be `fs_main`, struct is auto-injected.
 
 ---
 
@@ -2600,15 +2729,16 @@ length(fract(uv * 8.0) - 0.5)
 |---------|------|---------|
 | 1.0.0 | December 2025 | Initial vocabulary catalog |
 | 1.1.0 | December 2025 | Updated for OMS shader contract (fs_main, auto-injected struct) |
+| 2.0.0 | December 2025 | Added Transform chain (V5_0_0), 112-byte uniform buffer |
 
 ---
 
-**END OF INDEX E**
+**END OF INDEX A**
 
 ---
 
 **END OF USER GUIDE**
 
-Version: Beta V4_8_0  
-Date: December 19, 2025  
+Version: Beta V5_0_0  
+Date: December 21, 2025  
 License: GPL-3.0

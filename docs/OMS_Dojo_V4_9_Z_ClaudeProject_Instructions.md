@@ -1,15 +1,15 @@
-# ONEMANSHYO BETA - CLAUDE PROJECT INSTRUCTIONS
+# ONEMANSHYO App [Beta V5_0_0] - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** Beta V4_8_0  
-**Date:** December 19, 2025  
+**Version:** Beta V5_0_0  
+**Date:** December 21, 2025  
 **Purpose:** Working protocols and project context for Claude AI development
 
 ---
 
-####CRITICAL###
-Claude must think through decisions before acting. Understand the problem, review code, discuss, and confirm before any development. Close attention to architecture, consistency, and professional standards is required.
 
-READ THE Deliverables and Iterations Instructions. Always provide: HTML file, MD notes, and UPDATE the header in the app.
+Claude must not rush to development. First: understand the problem, review existing code, check system architecture docs (CORTEX/LEAF hierarchy), discuss options, and confirm before building. Maintain consistency, avoid duplicate patterns, use professional standards.
+
+READ THE Deliverables, Iterations and Shader Instructions. Always provide: HTML file, MD notes, and UPDATE the header in the app or shader.
 
 ---
 ####################################################
@@ -18,19 +18,20 @@ READ THE Deliverables and Iterations Instructions. Always provide: HTML file, MD
 
 ## TABLE OF CONTENTS
 
-1. [About Wes Smith - Creator Context](#about-wes-smith---creator-context)
-2. [ONEMANSHYO - The Origin Story](#onemanshyo---the-origin-story)
+1. [About Wes Smith](#about-wes-smith)
+2. [ONEMANSHYO](#onemanshyo)
 3. [Project Management](#project-management)
-4. [Development Protocols - CRITICAL](#development-protocols---critical)
+4. [Development Protocols](#development-protocols)
 5. [Communication Guidelines](#communication-guidelines)
 6. [Key Architectural Principles](#key-architectural-principles)
 7. [Critical Terminology](#critical-terminology)
-8. [Documentation References](#documentation-references)
-9. [What Never to Suggest](#what-never-to-suggest)
+8. [WGSL Shader Conventions](#wgsl-shader-conventions)
+9. [Documentation References](#documentation-references)
+10. [What Never to Suggest](#what-never-to-suggest)
 
 ---
 
-## ABOUT WES SMITH - CREATOR CONTEXT
+## 1. ABOUT WES SMITH
 
 ### Background
 
@@ -72,7 +73,7 @@ READ THE Deliverables and Iterations Instructions. Always provide: HTML file, MD
 
 ---
 
-## ONEMANSHYO - THE ORIGIN STORY
+## 2. ONEMANSHYO
 
 **CRITICAL CONTEXT:** Understanding ONEMANSHYO is essential to understanding why OMS tools exist and what specific workflow they're designed to serve.
 
@@ -166,7 +167,7 @@ OMS tools aren't theoretical experiments or academic projects. They're **codifyi
 
 ---
 
-## PROJECT MANAGEMENT
+## 3. PROJECT MANAGEMENT
 
 - Slow down and think before acting
 - Speak precisely (SDLC, Agile, backlog, iterations, sub-iterations)
@@ -186,26 +187,29 @@ OMS tools aren't theoretical experiments or academic projects. They're **codifyi
 
 ---
 
-## DEVELOPMENT PROTOCOLS - CRITICAL
+## 4. DEVELOPMENT PROTOCOLS
 
 ### 1. Version Numbering
 
-**Format:** `V4_7_00` (underscores everywhere, two-digit patch)
-- Major_Minor_Patch (e.g., V4_7_00, V4_7_01, V4_7_00)
-- Patch increments for iterations within a minor version
-- Minor increments for feature milestones
-- **No alphabetical suffixes, no sub-iterations**
+**Format:** `V5_0_0` (underscores everywhere)
+- Major_Minor_Patch
+- **No alphabetical suffixes**
 
-**Examples:**
-- V4_7_00 → V4_7_01 → V4_7_02 → ... → V4_7_00
-- Patch resets to 00 on minor version bump
+**Build Process (V5+):**
+1. Copy deliverables HTML to build folder (e.g., V5_0_0.html → V5_0_0 folder)
+2. Build iterations: V5_0_01, V5_0_02, V5_0_03...
+3. Create deliverables: V5_1_0 (bumps minor, resets patch)
+4. Copy V5_1_0.html → V5_1_0 folder
+5. Build iterations: V5_1_01, V5_1_02...
+6. Create deliverables: V5_2_0
+7. Repeat
 
 **Display Format:**
-- Filename: `OMS_Beta_V4_7_00.html`
-- Title tag: `Beta V4_7_00` (uppercase V)
-- Header: `[Beta V4_7_00]` (brackets, uppercase V)
+- Filename: `OMS_App_Beta_V5_0_0.html`
+- Title tag: `Beta V5_0_0` (uppercase V)
+- Header: `[Beta V5_0_0]` (brackets, uppercase V)
 
-### 2. Build Protocol (CRITICAL)
+### 2. Build Protocol
 
 **NEVER build without asking first:**
 - Research/investigate = fine (no ask needed)
@@ -244,11 +248,11 @@ Chats titled "OMS Road Map Planning" (or similar) are for **brainstorming and ba
 ### 5. File Naming Conventions
 
 **Development Builds:**
-- HTML: `OMS_Beta_V4_7_00.html`
-- MD Notes: `OMS_Beta_V4_7_00_DescriptionOfWork.md`
+- HTML: `OMS_App_Beta_V5_0_00.html`
+- MD Notes: `OMS_App_Beta_V5_0_00_DescriptionOfWork.md`
 
 **Production Release:**
-- Filename: `OMS_Beta_V4_7_00.html`
+- Filename: `OMS_App_Beta_V5_0_00.html`
 - Title: `Beta V4_7_00` (uppercase V)
 - Header: `[Beta V4_7_00]` (brackets, uppercase V)
 
@@ -258,26 +262,26 @@ Chats titled "OMS Road Map Planning" (or similar) are for **brainstorming and ba
 
 **Deliverables Folder Structure:**
 ```
-OMS_Beta_V4_7_0_Deliverables/
-  ├── OMS_Beta_V4_7_0.html
-  ├── OMS_Beta_V4_7_0_A_Deliverables.txt
-  ├── OMS_Beta_V4_7_0_B_Complete_Changelog.md
-  ├── OMS_Beta_V4_7_0_C_Developer_Documentation.md
-  ├── OMS_Beta_V4_7_0_D_Release_Notes.md
-  ├── OMS_Beta_V4_7_0_E_UserGuide_All.md
-  ├── OMS_Beta_V4_7_0_Y_ClaudeProject_SystemReference.md
-  └── OMS_Beta_V4_7_0_Z_ClaudeProject_Instructions.md
+OMS_App_Beta_V5_0_0_Deliverables/
+  ├── OMS_App_Beta_V5_0_0.html
+  ├── OMS_App_Beta_V5_0_0_A_Deliverables.txt
+  ├── OMS_App_Beta_V5_0_0_B_Complete_Changelog.md
+  ├── OMS_App_Beta_V5_0_0_C_Developer_Documentation.md
+  ├── OMS_App_Beta_V5_0_0_D_Release_Notes.md
+  ├── OMS_App_Beta_V5_0_0_E_UserGuide_All.md
+  ├── OMS_App_Beta_V5_0_0_Y_ClaudeProject_SystemReference.md
+  └── OMS_App_Beta_V5_0_0_Z_ClaudeProject_Instructions.md
 ```
 
-**ZIP File Naming:** `OMS_Beta_V4_7_0_Deliverables.zip`
+**ZIP File Naming:** `OMS_App_Beta_V5_0_0_Deliverables.zip`
 
 **Builds vs Deliverables:**
-- **Iterations folder:** Contains development builds with a single consolidated notes file named `_OMS_Beta_V4_7_0_Consolidated_Notes.md` (leading underscore for sort order)
+- **Iterations folder:** Contains development builds with a single consolidated notes file named `_OMS_App_Beta_V5_0_0_Consolidated_Notes.md` (leading underscore for sort order)
 - **Deliverables folder:** Final release package produced from consolidated notes + prior version deliverables
 
 **Release Workflow (in order):**
 1. **Consolidate iteration notes** - Gather all iteration .md files into single consolidated notes
-2. **Deliverables files** - Produce A-E docs (manifest, changelog, dev docs, release notes, user guide)
+2. **Deliverables files** - Produce A-E, Y, Z docs one-by-one, then final aggregate review for consistency
 3. **System Reference** - Update Y_ClaudeProject_SystemReference with architectural changes, new functions, data structures
 4. **Claude Instructions** - Update Z_ClaudeProject_Instructions (version refs, terminology, protocols)
 5. **Package** - ZIP all deliverables files
@@ -286,7 +290,7 @@ OMS_Beta_V4_7_0_Deliverables/
 
 ---
 
-## COMMUNICATION GUIDELINES
+## 5. COMMUNICATION GUIDELINES
 
 ### How to Work with Wes
 
@@ -314,7 +318,7 @@ When Wes says "yes go":
 
 ---
 
-## KEY ARCHITECTURAL PRINCIPLES
+## 6. KEY ARCHITECTURAL PRINCIPLES
 
 ### "One Timeline" Architecture (Sacred)
 
@@ -397,7 +401,7 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 ---
 
-## CRITICAL TERMINOLOGY
+## 7. CRITICAL TERMINOLOGY
 
 ### DJ vs VJ
 
@@ -445,7 +449,46 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 ---
 
-## DOCUMENTATION REFERENCES
+## 8. WGSL SHADER CONVENTIONS (V5_0_0)
+
+### Shader File Naming
+
+`OMS_Shader_[Name]_[AppVersion]_V[ShaderVersion].wgsl`
+
+Example: `OMS_Shader_Lava_Lamp_Metaballs_V5_0_0_V3.wgsl`
+
+### Header Template
+
+Every shader MUST include these tags in order:
+```
+// @name [Display Name - no version]
+// @app ONEMANSHYO
+// @appVersion BETA V5_0_0
+// @url http://www.itswessmithyo.com
+// @credit [Inspiration source or empty]
+// @creditUrl [URL or empty]
+// @desc [One-line description]
+```
+
+- `@name` is parsed by app for dropdown display
+- Keep all fields even if empty
+- NO uniform documentation blocks in shaders
+
+### Required Implementations
+
+- Full transform chain (pivot, rotate, translate, scale, tile)
+- Beat-synced timing via `uniforms.beat`
+- Modulators are 0-1 range (no `/5.0` normalization)
+
+### When Updating Shaders
+
+- Increment version in filename (V2 → V3)
+- Update `@app` to current app version
+- Ensure transform chain matches current app standard
+
+---
+
+## 9. DOCUMENTATION REFERENCES
 
 ### Required Project Documentation
 
@@ -453,14 +496,14 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 #### Always Loaded (Baseline)
 
-**OMS_Beta_V4_8_0_Z_ClaudeProject_Instructions.md** - This Document
+**OMS_App_Beta_V5_0_0_Z_ClaudeProject_Instructions.md** - This Document
 - Development protocols, communication guidelines
 - Architectural principles, terminology
 - What never to suggest
 
-**OMS_Beta_V4_8_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
+**OMS_App_Beta_V5_0_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
 - Leaf Node hierarchy (Cortex/Nodes/Leafs)
-- Complete function reference (~195 functions)
+- Complete function reference (~210 functions)
 - Data structures (.oms, .omsp, gridState)
 - File format specifications
 - DOM elements & controls
@@ -469,7 +512,7 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 #### On-Demand (Wes Provides When Relevant)
 
-**OMS_Beta_V4_8_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
+**OMS_App_Beta_V5_0_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
 - Application usage (tabs, features, workflows)
 - **INDEX A:** DJ 101 Foundation (industry context, equipment, techniques)
 - **INDEX B:** Claude Shader Creation (prompts, workflows, examples)
@@ -498,7 +541,7 @@ When Claude needs information:
 
 ---
 
-## WHAT NEVER TO SUGGEST
+## 10. WHAT NEVER TO SUGGEST
 
 ### Never Suggest These
 
@@ -531,7 +574,7 @@ When Claude needs information:
 **Core Principles:**
 1. Ask before building
 2. Wait for full context ("yes go")
-3. Use underscore-separated version numbers (Beta V4_8_0, two-digit patch)
+3. Use underscore-separated version numbers (Beta V5_0_0, two-digit patch)
 4. Never use VJ terminology
 5. Surgical changes only
 6. Single-file philosophy is sacred

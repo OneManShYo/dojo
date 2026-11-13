@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V4_8
+ONEMANSHYO Dojo App V4_9
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V4_8
+Version: V4_9
 -->
 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V4_8]</title>
+    <title>ONEMANSHYO App [V4_9]</title>
     <!-- V4_3_0_sub6: JSZip for container export (loaded from CDN when needed) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -281,22 +281,94 @@ Version: V4_8
             outline-offset: 2px;
         }
 
+        /* ============================================
+           V4_9_35: OMS UNIVERSAL COMPONENTS
+           Use these classes for consistent styling.
+           - .oms-header-bar: Section headers
+           - .oms-field: Inputs and selects
+           - .oms-control-box: Grouped controls
+           ============================================ */
+
+        .oms-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            padding: 12px 15px;
+            border-radius: 0;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+
+        .oms-header-bar.no-margin-bottom {
+            margin-bottom: 0;
+        }
+
+        .oms-field {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-radius: 0;
+            color: #fff;
+            padding: 6px 10px;
+            font-size: 13px;
+        }
+
+        .oms-field:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .oms-field:focus {
+            outline: none;
+            box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.5);
+        }
+
+        .oms-control-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-radius: 0;
+            padding: 2px 6px;
+            gap: 5px;
+        }
+
+        /* V4_9_14: Mod row knob box - now extends oms-control-box */
+        .mod-knob-box {
+            display: flex;
+            gap: 5px;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-radius: 0;
+            padding: 0 6px;
+            align-self: center;
+            height: 34px;
+            align-items: center;
+        }
+        
+        /* V4_9_14: Reduce vertical spacing between mod rows */
+        .control-row.mod-row + .control-row.mod-row {
+            margin-top: -1px;
+        }
+
         /* V4_8_31: OmsDropdown component */
+        /* V4_9_35: Added min-width to prevent collapse in flex containers */
         .oms-dropdown {
             position: relative;
             width: 100%;
+            min-width: 60px;
         }
         .oms-dropdown-header {
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 4px 8px;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            padding: 6px 10px;
             cursor: pointer;
-            min-height: 28px;
+            min-height: 34px;
+            box-sizing: border-box;
         }
         .oms-dropdown-header:hover {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.08);
         }
         .oms-dropdown-tn {
             flex-shrink: 0;
@@ -365,8 +437,8 @@ Version: V4_8
         .control-group select,
         .control-group input,
         .btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            border: none;
             color: #fff;
             padding: 6px 10px;
             border-radius: 0;
@@ -409,10 +481,6 @@ Version: V4_8
             cursor: text;
         }
 
-        .control-group input[title]:hover {
-            border-color: rgba(255,255,255,0.4);
-        }
-
         .control-group input[type="range"] {
             cursor: pointer;
             padding: 0;
@@ -451,22 +519,19 @@ Version: V4_8
         .control-group input:focus,
         .btn:focus {
             outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.5);
         }
 
         .control-group select:hover,
         .control-group input:hover,
         .btn:hover {
-            background: rgba(255,255,255,0.15);
-            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.08);
         }
 
         .btn:disabled {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.03);
             color: #666;
             cursor: not-allowed;
-            border-color: rgba(255,255,255,0.1);
         }
 
         /* V2.9.0-M: Library card selection state */
@@ -631,7 +696,7 @@ Version: V4_8
             flex: 1;
             height: 100px;
             background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: none;
             border-radius: 0;
             cursor: pointer;
         }
@@ -775,14 +840,16 @@ Version: V4_8
         }
 
         /* V2.5.0-X: Active button styling (solid cyan when enabled) */
+        /* V4_9_35: Borderless */
         .btn.active {
             background: rgba(0, 212, 255, 0.9);
-            border: 1px solid rgba(0, 212, 255, 1.0);
+            border: none;
             color: #000;
         }
 
 
         /* V3.0.0-K: Input field styling for cells */
+        /* V4_9_35: Borderless to match SHADER CONTROLS */
         .cell-controls-row input[type="number"],
         .cell-controls-row input[type="text"] {
             flex: 1;
@@ -790,8 +857,8 @@ Version: V4_8
             height: 24px;
             padding: 2px 6px;
             font-size: 12px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            border: none;
             color: #fff;
             border-radius: 0;
             -moz-appearance: textfield;
@@ -804,14 +871,14 @@ Version: V4_8
         }
 
         /* V2.2.0-A: Audio Tempo field styling */
-        /* V2.3.0-D: Fixed background color to match other input fields */
+        /* V4_9_35: Borderless to match SHADER CONTROLS */
         #audioTempoField {
             width: 80px;
             height: 28px;
             padding: 4px 8px;
             font-size: 13px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            border: none;
             color: #fff;
             border-radius: 0;
             min-height: unset;
@@ -819,8 +886,7 @@ Version: V4_8
         }
 
         #audioTempoField:focus {
-            border-color: #00d4ff !important;
-            box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+            box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.5);
             outline: none;
         }
 
@@ -830,13 +896,14 @@ Version: V4_8
         }
 
         /* V2.8.0-D: Pitch control field styling */
+        /* V4_9_35: Borderless to match other controls */
         #audioPitchField {
             width: 70px;
             height: 28px;
             padding: 4px 8px;
             font-size: 13px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            border: none;
             color: #fff;
             border-radius: 0;
             min-height: unset;
@@ -844,8 +911,7 @@ Version: V4_8
         }
 
         #audioPitchField:focus {
-            border-color: #00d4ff !important;
-            box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+            box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.5);
             outline: none;
         }
 
@@ -1095,10 +1161,11 @@ Version: V4_8
         }
 
         /* V2.6.0-C: Preset cards with orientation-based aspect ratios */
+        /* V4_9_35: Updated to match universal styling */
         .preset-card {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 4px;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-radius: 0;
             cursor: pointer;
             transition: all 0.2s ease;
             padding: 4px;
@@ -1127,18 +1194,16 @@ Version: V4_8
         }
 
         .preset-card:hover {
-            background: rgba(255,255,255,0.15);
-            border-color: #00d4ff;
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.5);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
         }
 
         .preset-card:focus {
             outline: none;
-            background: rgba(255,255,255,0.15);
-            border-color: #00d4ff;
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.5);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.5);
         }
 
         /* V2.6.0-C: Canvas thumbnail inside card */
@@ -1175,10 +1240,11 @@ Version: V4_8
             font-weight: 500;
         }
 
+        /* V4_9_35: Updated to match universal styling */
         .preset-orientation-control select {
             flex: 1;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            border: none;
             color: #fff;
             padding: 6px 10px;
             border-radius: 0;
@@ -1187,8 +1253,7 @@ Version: V4_8
         }
 
         .preset-orientation-control select:hover {
-            background: rgba(255,255,255,0.15);
-            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.08);
         }
 
         /* ========================================
@@ -1312,21 +1377,22 @@ Version: V4_8
             margin-bottom: 12px;
         }
         
+        /* V4_9_35: Updated to match universal styling */
         .library-toolbar .search-input {
             flex: 1;
             min-width: 120px;
             max-width: 200px;
             padding: 6px 10px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid #444;
-            border-radius: 4px;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-radius: 0;
             color: #fff;
             font-size: 13px;
         }
         
         .library-toolbar .search-input:focus {
             outline: none;
-            border-color: #00d4ff;
+            box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.5);
         }
         
         .library-toolbar .search-input::placeholder {
@@ -2432,7 +2498,7 @@ Version: V4_8
     <div class="header">
         <div class="header-left">
             <div class="header-brand">ONEMANSHYO</div>
-            <div class="header-app">[Beta V4_8_0]</div>
+            <div class="header-app">[Beta V5_0_0]</div>
         </div>
         <div class="header-greeting" id="headerGreeting">Hi Friend, I'm Wes!</div>
     </div>
@@ -2459,7 +2525,8 @@ Version: V4_8
             <div class="controls-section">
                 <div class="controls">
                     <!-- V4_5_0: SHADER CONTROLS header - matches content width, proper spacing -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 4px; margin-top: 5px; margin-bottom: 15px;">
+                    <!-- V4_9_35: Using .oms-header-bar universal component -->
+                    <div class="oms-header-bar">
                         <div class="shader-header" style="margin: 0; padding: 0;">SHADER CONTROLS</div>
                         <div style="display: flex; gap: 8px;">
                             <button class="info-drawer-swap-btn" onclick="toggleCodeView()">Code</button>
@@ -2480,14 +2547,12 @@ Version: V4_8
                     </div>
                     
                     <!-- V4_6_0: Orientation moved up - fundamental shader setting -->
+                    <!-- V4_9_35: Converted to OmsDropdown -->
                     <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px;">Orientation</label>
                     <div class="control-row">
                         <div class="control-group" style="flex: 1;">
-                            <select id="orientation" style="width: 100%;" title="Video Aspect Ratio" onchange="updateCanvasSize(); autoSaveProject();">
-                                <option value="landscape">Landscape</option>
-                                <option value="portrait" selected>Portrait</option>
-                                <option value="square">Square</option>
-                            </select>
+                            <div id="orientationDropdown" title="Video Aspect Ratio"></div>
+                            <input type="hidden" id="orientation" value="portrait">
                         </div>
                     </div>
                     
@@ -2502,27 +2567,9 @@ Version: V4_8
                             <input type="number" id="tempo" min="1" max="999" value="120" step="1" title="Shader Tempo" placeholder="Shader Tempo">
                         </div>
                         <div class="control-group">
-                            <select id="loopLength" title="Shader Pattern Repeat">
-                                <option value="0">No Loop</option>
-                                <option disabled>---</option>
-                                <option value="4">1 Bar</option>
-                                <option value="8">2 Bars</option>
-                                <option value="16" selected>4 Bars</option>
-                                <option value="32">8 Bars</option>
-                                <option value="64">16 Bars</option>
-                                <option value="128">32 Bars</option>
-                                <option disabled>---</option>
-                                <option value="4">Whole</option>
-                                <option value="2">Half</option>
-                                <option value="1">1/4</option>
-                                <option value="0.5">1/8</option>
-                                <option value="0.25">1/16</option>
-                                <option disabled>---</option>
-                                <option value="chaos">Chaos</option>
-                                <option value="cycler">Cycler</option>
-                                <option value="madmax">Mad Max</option>
-                                <option value="psycho">Psycho</option>
-                            </select>
+                            <!-- V4_9_35: Converted to OmsDropdown -->
+                            <div id="loopLengthDropdown" title="Shader Pattern Repeat"></div>
+                            <input type="hidden" id="loopLength" value="16">
                         </div>
                         <div class="control-group">
                             <input type="text" id="renderDuration" value="00:30.000" 
@@ -2531,158 +2578,87 @@ Version: V4_8
                     </div>
 
                     <!-- V4_5_0: Reactivity sub-section -->
+                    <!-- V4_9_14: Each row's knobs in separate bordered box (scalable) -->
                     <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px;">Reactivity</label>
 
                     <!-- Row 2: Mod A Controls -->
+                    <!-- V4_9_35: Converted to OmsDropdown -->
                     <div class="control-row mod-row">
                         <div class="control-group">
-                            <select id="modASubdiv" title="Shader Mod A Note Duration">
-                                <option value="none" selected>None</option>
-                                <option value="4">Whole</option>
-                                <option value="2">Half</option>
-                                <option value="1">1/4</option>
-                                <option value="0.5">1/8</option>
-                                <option value="0.25">1/16</option>
-                                <option disabled>---</option>
-                                <option value="chaos">Chaos</option>
-                                <option value="cycler">Cycler</option>
-                                <option value="madmax">Mad Max</option>
-                                <option value="psycho">Psycho</option>
-                            </select>
+                            <div id="modASubdivDropdown" title="Shader Mod A Note Duration"></div>
+                            <input type="hidden" id="modASubdiv" value="none">
                         </div>
                         <div class="control-group">
-                            <select id="modAWaveform" title="Shader Mod A Waveform">
-                                <option value="none" selected>None</option>
-                                <option value="static">Static</option>
-                                <option value="sine">Sine</option>
-                                <option value="cosine">Cosine</option>
-                                <option value="sawtooth">Sawtooth</option>
-                                <option value="triangle">Triangle</option>
-                                <option value="square">Square</option>
-                                <option value="noise">Noise</option>
-                                <option value="random">Random</option>
-                                <option value="fibonacci">Fibonacci</option>
-                                <option value="prime">Prime</option>
-                                <option disabled>---</option>
-                                <option value="chaosmode">Chaos</option>
-                                <option value="cycler">Cycler</option>
-                                <option value="madmax">Mad Max</option>
-                                <option value="psycho">Psycho</option>
-                            </select>
+                            <div id="modAWaveformDropdown" title="Shader Mod A Waveform"></div>
+                            <input type="hidden" id="modAWaveform" value="none">
                         </div>
-                        <div class="control-group" id="modAGainGroup">
-                            <canvas id="modAGainKnob" width="30" height="30" style="cursor: pointer;" title="Shader Mod A Gain"></canvas>
-                            <input type="hidden" id="modAGain" value="0.1">
-                        </div>
-                        <div class="control-group">
-                            <canvas id="modAFreq1Knob" width="30" height="30" style="cursor: pointer;" title="Mod A Freq 1 (Hz)"></canvas>
-                            <input type="hidden" id="modAFreq1" value="30">
-                        </div>
-                        <div class="control-group">
-                            <canvas id="modAFreq2Knob" width="30" height="30" style="cursor: pointer;" title="Mod A Freq 2 (Hz)"></canvas>
-                            <input type="hidden" id="modAFreq2" value="50">
+                        <div class="mod-knob-box">
+                            <div class="control-group" id="modAGainGroup" style="flex: 0 0 30px;">
+                                <canvas id="modAGainKnob" width="30" height="30" style="cursor: pointer;" title="Shader Mod A Gain"></canvas>
+                                <input type="hidden" id="modAGain" value="0.1">
+                            </div>
+                            <div class="control-group" style="flex: 0 0 30px;">
+                                <canvas id="modAFreq1Knob" width="30" height="30" style="cursor: pointer;" title="Mod A Freq 1 (Hz)"></canvas>
+                                <input type="hidden" id="modAFreq1" value="30">
+                            </div>
+                            <div class="control-group" style="flex: 0 0 30px;">
+                                <canvas id="modAFreq2Knob" width="30" height="30" style="cursor: pointer;" title="Mod A Freq 2 (Hz)"></canvas>
+                                <input type="hidden" id="modAFreq2" value="50">
+                            </div>
                         </div>
                     </div>
 
                     <!-- Row 3: Mod B Controls -->
+                    <!-- V4_9_35: Converted to OmsDropdown -->
                     <div class="control-row mod-row">
                         <div class="control-group">
-                            <select id="modBSubdiv" title="Shader Mod B Note Duration">
-                                <option value="none" selected>None</option>
-                                <option value="4">Whole</option>
-                                <option value="2">Half</option>
-                                <option value="1">1/4</option>
-                                <option value="0.5">1/8</option>
-                                <option value="0.25">1/16</option>
-                                <option disabled>---</option>
-                                <option value="chaos">Chaos</option>
-                                <option value="cycler">Cycler</option>
-                                <option value="madmax">Mad Max</option>
-                                <option value="psycho">Psycho</option>
-                            </select>
+                            <div id="modBSubdivDropdown" title="Shader Mod B Note Duration"></div>
+                            <input type="hidden" id="modBSubdiv" value="none">
                         </div>
                         <div class="control-group">
-                            <select id="modBWaveform" title="Shader Mod B Waveform">
-                                <option value="none" selected>None</option>
-                                <option value="static">Static</option>
-                                <option value="sine">Sine</option>
-                                <option value="cosine">Cosine</option>
-                                <option value="sawtooth">Sawtooth</option>
-                                <option value="triangle">Triangle</option>
-                                <option value="square">Square</option>
-                                <option value="noise">Noise</option>
-                                <option value="random">Random</option>
-                                <option value="fibonacci">Fibonacci</option>
-                                <option value="prime">Prime</option>
-                                <option disabled>---</option>
-                                <option value="chaosmode">Chaos</option>
-                                <option value="cycler">Cycler</option>
-                                <option value="madmax">Mad Max</option>
-                                <option value="psycho">Psycho</option>
-                            </select>
+                            <div id="modBWaveformDropdown" title="Shader Mod B Waveform"></div>
+                            <input type="hidden" id="modBWaveform" value="none">
                         </div>
-                        <div class="control-group" id="modBGainGroup">
-                            <canvas id="modBGainKnob" width="30" height="30" style="cursor: pointer;" title="Shader Mod B Gain"></canvas>
-                            <input type="hidden" id="modBGain" value="0.1">
-                        </div>
-                        <div class="control-group">
-                            <canvas id="modBFreq1Knob" width="30" height="30" style="cursor: pointer;" title="Mod B Freq 1 (Hz)"></canvas>
-                            <input type="hidden" id="modBFreq1" value="50">
-                        </div>
-                        <div class="control-group">
-                            <canvas id="modBFreq2Knob" width="30" height="30" style="cursor: pointer;" title="Mod B Freq 2 (Hz)"></canvas>
-                            <input type="hidden" id="modBFreq2" value="75">
+                        <div class="mod-knob-box">
+                            <div class="control-group" id="modBGainGroup" style="flex: 0 0 30px;">
+                                <canvas id="modBGainKnob" width="30" height="30" style="cursor: pointer;" title="Shader Mod B Gain"></canvas>
+                                <input type="hidden" id="modBGain" value="0.1">
+                            </div>
+                            <div class="control-group" style="flex: 0 0 30px;">
+                                <canvas id="modBFreq1Knob" width="30" height="30" style="cursor: pointer;" title="Mod B Freq 1 (Hz)"></canvas>
+                                <input type="hidden" id="modBFreq1" value="50">
+                            </div>
+                            <div class="control-group" style="flex: 0 0 30px;">
+                                <canvas id="modBFreq2Knob" width="30" height="30" style="cursor: pointer;" title="Mod B Freq 2 (Hz)"></canvas>
+                                <input type="hidden" id="modBFreq2" value="75">
+                            </div>
                         </div>
                     </div>
 
                     <!-- Row 4: Mod C Controls -->
+                    <!-- V4_9_35: Converted to OmsDropdown -->
                     <div class="control-row mod-row">
                         <div class="control-group">
-                            <select id="modCSubdiv" title="Shader Mod C Note Duration">
-                                <option value="none" selected>None</option>
-                                <option value="4">Whole</option>
-                                <option value="2">Half</option>
-                                <option value="1">1/4</option>
-                                <option value="0.5">1/8</option>
-                                <option value="0.25">1/16</option>
-                                <option disabled>---</option>
-                                <option value="chaos">Chaos</option>
-                                <option value="cycler">Cycler</option>
-                                <option value="madmax">Mad Max</option>
-                                <option value="psycho">Psycho</option>
-                            </select>
+                            <div id="modCSubdivDropdown" title="Shader Mod C Note Duration"></div>
+                            <input type="hidden" id="modCSubdiv" value="none">
                         </div>
                         <div class="control-group">
-                            <select id="modCWaveform" title="Shader Mod C Waveform">
-                                <option value="none" selected>None</option>
-                                <option value="static">Static</option>
-                                <option value="sine">Sine</option>
-                                <option value="cosine">Cosine</option>
-                                <option value="sawtooth">Sawtooth</option>
-                                <option value="triangle">Triangle</option>
-                                <option value="square">Square</option>
-                                <option value="noise">Noise</option>
-                                <option value="random">Random</option>
-                                <option value="fibonacci">Fibonacci</option>
-                                <option value="prime">Prime</option>
-                                <option disabled>---</option>
-                                <option value="chaosmode">Chaos</option>
-                                <option value="cycler">Cycler</option>
-                                <option value="madmax">Mad Max</option>
-                                <option value="psycho">Psycho</option>
-                            </select>
+                            <div id="modCWaveformDropdown" title="Shader Mod C Waveform"></div>
+                            <input type="hidden" id="modCWaveform" value="none">
                         </div>
-                        <div class="control-group" id="modCGainGroup">
-                            <canvas id="modCGainKnob" width="30" height="30" style="cursor: pointer;" title="Shader Mod C Gain"></canvas>
-                            <input type="hidden" id="modCGain" value="0.1">
-                        </div>
-                        <div class="control-group">
-                            <canvas id="modCFreq1Knob" width="30" height="30" style="cursor: pointer;" title="Mod C Freq 1 (Hz)"></canvas>
-                            <input type="hidden" id="modCFreq1" value="100">
-                        </div>
-                        <div class="control-group">
-                            <canvas id="modCFreq2Knob" width="30" height="30" style="cursor: pointer;" title="Mod C Freq 2 (Hz)"></canvas>
-                            <input type="hidden" id="modCFreq2" value="500">
+                        <div class="mod-knob-box">
+                            <div class="control-group" id="modCGainGroup" style="flex: 0 0 30px;">
+                                <canvas id="modCGainKnob" width="30" height="30" style="cursor: pointer;" title="Shader Mod C Gain"></canvas>
+                                <input type="hidden" id="modCGain" value="0.1">
+                            </div>
+                            <div class="control-group" style="flex: 0 0 30px;">
+                                <canvas id="modCFreq1Knob" width="30" height="30" style="cursor: pointer;" title="Mod C Freq 1 (Hz)"></canvas>
+                                <input type="hidden" id="modCFreq1" value="100">
+                            </div>
+                            <div class="control-group" style="flex: 0 0 30px;">
+                                <canvas id="modCFreq2Knob" width="30" height="30" style="cursor: pointer;" title="Mod C Freq 2 (Hz)"></canvas>
+                                <input type="hidden" id="modCFreq2" value="500">
+                            </div>
                         </div>
                     </div>
 
@@ -2690,32 +2666,64 @@ Version: V4_8
                     <!-- Waveform and audio controls now in right panel audio-waveform and audio-controls-strip -->
                     <!-- Row 6 freed for future features -->
 
+                    <!-- V4_9_0: TRANSFORMS Section -->
+                    <!-- V4_9_09: Replaced Scale X/Y with unified ZOOM -->
+                    <!-- V4_9_10: Replaced Translate X/Y with XY pad -->
+                    <!-- V4_9_14: Added PIVOT XY pad -->
+                    <!-- V4_9_35: Using .oms-control-box universal component -->
+                    <label style="display: block; margin: 10px 0 10px 0; color: #aaa; font-size: 13px;">Transforms</label>
+                    <div class="control-row oms-control-box" style="justify-content: space-around; margin: 0 0 10px 0;">
+                        <div class="control-group" style="flex: 0; align-items: center;">
+                            <canvas id="transformRotationKnob" class="rotary-knob" width="30" height="30"></canvas>
+                            <input type="hidden" id="transformRotation" value="0">
+                        </div>
+                        <div class="control-group" style="flex: 0; align-items: center;">
+                            <canvas id="transformScaleKnob" class="rotary-knob" width="30" height="30"></canvas>
+                            <!-- V4_9_09: ZOOM writes to both ScaleX and ScaleY -->
+                            <input type="hidden" id="transformScaleX" value="1.0">
+                            <input type="hidden" id="transformScaleY" value="1.0">
+                        </div>
+                        <div class="control-group" style="flex: 0; align-items: center;">
+                            <canvas id="transformTileKnob" class="rotary-knob" width="30" height="30"></canvas>
+                            <!-- V4_9_14: TILE encoder for repeat count -->
+                            <input type="hidden" id="transformTile" value="1">
+                        </div>
+                        <div class="control-group" style="flex: 0; align-items: center;">
+                            <canvas id="transformXYPad" width="50" height="30" style="border-radius: 2px; cursor: crosshair;"></canvas>
+                            <!-- V4_9_10: XY pad writes to both TranslateX and TranslateY -->
+                            <input type="hidden" id="transformTranslateX" value="0">
+                            <input type="hidden" id="transformTranslateY" value="0">
+                        </div>
+                        <div class="control-group" style="flex: 0; align-items: center;">
+                            <canvas id="transformPivotPad" width="50" height="30" style="border-radius: 2px; cursor: crosshair;"></canvas>
+                            <!-- V4_9_14: PIVOT pad writes to both PivotX and PivotY -->
+                            <input type="hidden" id="transformPivotX" value="0">
+                            <input type="hidden" id="transformPivotY" value="0">
+                        </div>
+                    </div>
+
 
                     <!-- V2.1.1-G: Output Section -->
                     <div class="output-header">Output</div>
 
                     <!-- V4_6_0: Resolution, FPS only (Orientation moved above Timing) -->
+                    <!-- V4_9_35: Converted to OmsDropdown -->
                     <div class="control-row">
                         <div class="control-group" style="flex: 1;">
-                            <select id="resolution" style="width: 100%;" title="Video Resolution">
-                                <option value="720">720p</option>
-                                <option value="1080" selected>1080p</option>
-                                <option value="1440">1440p</option>
-                                <option value="2160">2160p</option>
-                            </select>
+                            <div id="resolutionDropdown" title="Video Resolution"></div>
+                            <input type="hidden" id="resolution" value="1080">
                         </div>
                         <div class="control-group" style="flex: 1;">
-                            <select id="fps" style="width: 100%;" title="Video Frame Rate">
-                                <option value="24">24 FPS</option>
-                                <option value="30" selected>30 FPS</option>
-                                <option value="60">60 FPS</option>
-                            </select>
+                            <div id="fpsDropdown" title="Video Frame Rate"></div>
+                            <input type="hidden" id="fps" value="30">
                         </div>
                     </div>
 
                     <!-- Row 6: Filename, Render -->
-                    <div class="control-row">
-                        <input type="text" id="filename" class="control-group input" value="" placeholder="Filename" title="Video Filename" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 10px; border-radius: 0; font-size: 14px;">
+                    <div class="control-row" style="margin-top: 2px;">
+                        <div class="control-group" style="flex: 1;">
+                            <input type="text" id="filename" value="" placeholder="Filename" title="Video Filename">
+                        </div>
                         <button class="btn btn-compact" id="renderBtn" title="Render Video" onclick="startRender()">R</button>
                     </div>
 
@@ -2733,67 +2741,85 @@ Version: V4_8
                     <button class="btn" onclick="exportShaderTxt()" title="Export Shader as .wgsl File">Export</button>
                 </div>
                 <textarea class="editor" id="shaderCode" placeholder="Paste your shader code here...">
-// OMS Shader Baker v2.0.3c - Flower Power
-// Available uniforms:
-//   uniforms.time - elapsed time in seconds
-//   uniforms.tempo - current tempo in BPM (audio tempo when audio loaded, shader tempo otherwise)
-//   uniforms.modA - modulation source A (0.0-1.0, tempo-synced, bass audio-reactive)
-//   uniforms.modB - modulation source B (0.0-1.0, tempo-synced, mid audio-reactive)
-//   uniforms.modC - modulation source C (0.0-1.0, tempo-synced, treble audio-reactive)
-//   uniforms.beat - current beat position (for tempo-synced visuals)
-//   uniforms.resolutionX, uniforms.resolutionY - canvas dimensions
+// OMS Transform Test Shader V4_9_14
+// Tests transform uniforms: rotation, scaleX/Y, translateX/Y, pivotX/Y, tile
 //
-// Note: Coordinates normalize by min(resolution.x, resolution.y) for consistent zoom across orientations
+// Available transform uniforms:
+//   uniforms.transformRotation - rotation in radians
+//   uniforms.transformScaleX   - X scale (default 1.0)
+//   uniforms.transformScaleY   - Y scale (default 1.0)
+//   uniforms.transformTranslateX - X offset (-1 to 1)
+//   uniforms.transformTranslateY - Y offset (-1 to 1)
+//   uniforms.transformPivotX   - rotation pivot X (-1 to 1) (V4_9_14)
+//   uniforms.transformPivotY   - rotation pivot Y (-1 to 1) (V4_9_14)
+//   uniforms.transformTile     - tile repeat count (1-8) (V4_9_14)
 
 @fragment
 fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
     let resolution = vec2<f32>(uniforms.resolutionX, uniforms.resolutionY);
-    let time = uniforms.time;
-    let tempo = uniforms.tempo;
-    let beat = uniforms.beat; // V4_8_31: Beat position for tempo-synced effects
-    let modA = uniforms.modA;
-    let modB = uniforms.modB;
-    let modC = uniforms.modC;
     
-    // Normalize tempo to a usable speed factor
-    let tempoFactor = tempo / 60.0;
+    // Normalize to -1..1, centered
+    var uv = (coord.xy - resolution * 0.5) / min(resolution.x, resolution.y) * 2.0;
     
-    // Normalize coordinates - using min dimension keeps same zoom in both orientations
-    let uv = (coord.xy - resolution * 0.5) / min(resolution.x, resolution.y);
+    // === APPLY TRANSFORMS ===
+    // Note: Screen Y is flipped (0 at top), so pivot Y is flipped.
+    // Translate Y is NOT flipped (to match visual expectation: up = up)
     
-    // Settings - modA controls base radius
-    let numCircles = 12;
-    let baseRadius = 0.3 + modA * 0.2;
-    let circleRadius = 0.15;
+    // 1. Translate to pivot point
+    uv.x -= uniforms.transformPivotX;
+    uv.y += uniforms.transformPivotY;  // Flipped for screen coords
     
-    // Rotation speed scales with tempo and modB
-    let rotation = time * tempoFactor * (0.1 + modB * 0.3);
+    // 2. Rotate around pivot
+    let cosR = cos(uniforms.transformRotation);
+    let sinR = sin(uniforms.transformRotation);
+    let rotated = vec2<f32>(
+        uv.x * cosR - uv.y * sinR,
+        uv.x * sinR + uv.y * cosR
+    );
+    uv = rotated;
     
-    var pattern = 0.0;
+    // 3. Translate back from pivot + apply translate offset
+    uv.x += uniforms.transformPivotX - uniforms.transformTranslateX;
+    uv.y -= uniforms.transformPivotY - uniforms.transformTranslateY;  // Pivot flipped, translate NOT flipped
     
-    // Draw circles in a ring
-    for (var i = 0; i < numCircles; i = i + 1) {
-        let fi = f32(i);
-        let angle = (fi / 12.0) * 6.28318 + rotation;
-        let circlePos = vec2<f32>(cos(angle), sin(angle)) * baseRadius;
-        
-        let dist = length(uv - circlePos);
-        
-        // Outline only
-        let outer = step(dist, circleRadius);
-        let inner = step(dist, circleRadius - 0.03);
-        pattern = pattern + (outer - inner);
-    }
+    // 4. Scale (divide to zoom in when scale > 1)
+    uv.x /= max(uniforms.transformScaleX, 0.01);
+    uv.y /= max(uniforms.transformScaleY, 0.01);
     
-    // Center circle
-    let centerDist = length(uv);
-    let centerOuter = step(centerDist, circleRadius);
-    let centerInner = step(centerDist, circleRadius - 0.03);
-    pattern = pattern + (centerOuter - centerInner);
+    // 5. Tile (V4_9_14) - multiply and wrap to create repeating pattern
+    let tile = max(uniforms.transformTile, 1.0);
+    uv = fract(uv * tile * 0.5 + 0.5) * 2.0 - 1.0;  // Scale, wrap to 0-1, remap to -1..1
     
-    // ModC controls brightness
-    let brightness = 0.5 + modC * 0.5;
-    let color = vec3<f32>(pattern * brightness);
+    // === DRAW TEST PATTERN ===
+    
+    // Grid lines
+    let gridSize = 0.25;
+    let gridX = abs(fract(uv.x / gridSize + 0.5) - 0.5) * gridSize;
+    let gridY = abs(fract(uv.y / gridSize + 0.5) - 0.5) * gridSize;
+    let gridLine = 0.01;
+    let grid = step(gridX, gridLine) + step(gridY, gridLine);
+    
+    // Center crosshair (thicker)
+    let crosshair = step(abs(uv.x), 0.02) + step(abs(uv.y), 0.02);
+    
+    // Center dot
+    let centerDot = 1.0 - smoothstep(0.03, 0.05, length(uv));
+    
+    // Pivot marker (V4_9_14) - show where pivot is in original space
+    // Note: Screen Y is flipped, so we negate pivotY for display
+    let pivotUV = (coord.xy - resolution * 0.5) / min(resolution.x, resolution.y) * 2.0;
+    let pivotDist = length(pivotUV - vec2<f32>(uniforms.transformPivotX, -uniforms.transformPivotY));
+    let pivotMarker = 1.0 - smoothstep(0.03, 0.05, pivotDist);
+    
+    // Color: cyan grid, magenta crosshair, yellow center, orange pivot
+    var color = vec3<f32>(0.0);
+    color += vec3<f32>(0.0, 0.3, 0.4) * grid;           // Cyan grid
+    color += vec3<f32>(0.8, 0.0, 0.5) * crosshair;      // Magenta cross
+    color += vec3<f32>(1.0, 1.0, 0.0) * centerDot;      // Yellow center
+    color += vec3<f32>(1.0, 0.5, 0.0) * pivotMarker;    // Orange pivot (V4_9_14)
+    
+    // Dim background
+    color = max(color, vec3<f32>(0.05));
     
     return vec4<f32>(color, 1.0);
 }
@@ -2809,10 +2835,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 <div class="controls-section" style="flex: 1; display: flex; flex-direction: column; border-bottom: none;">
                     <div class="controls" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
                         <!-- V4_5_0: SET header with background bar -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 4px; margin-top: 5px; margin-bottom: 15px;">
+                        <!-- V4_9_35: Using .oms-header-bar universal component -->
+                        <div class="oms-header-bar">
                             <div class="shader-header" style="margin: 0; padding: 0;">SET</div>
                         </div>
-                        <select id="liveSetSelector" onchange="onLiveSetChange()" style="background: rgba(255,255,255,0.1); border: 1px solid #555; color: #fff; padding: 8px 12px; font-size: 12px; margin-bottom: 12px;">
+                        <select id="liveSetSelector" class="oms-field" onchange="onLiveSetChange()" style="margin-bottom: 12px;">
                             <option value="all">All</option>
                             <option value="audio">All Audio</option>
                             <option value="presets" selected>Presets</option>
@@ -2847,7 +2874,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     <div class="controls" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
                         
                         <!-- V4_5_0: LIBRARY header with background bar -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 4px; margin-top: 5px; margin-bottom: 15px;">
+                        <!-- V4_9_35: Using .oms-header-bar universal component -->
+                        <div class="oms-header-bar">
                             <div class="shader-header" style="margin: 0; padding: 0;">LIBRARY</div>
                         </div>
                         
@@ -2955,14 +2983,15 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     </div>
                     
                     <!-- V3_8_0_B: Greeting Section -->
+                    <!-- V4_9_35: Using .oms-field universal component -->
                     <div style="margin-top: 30px;">
                         <div class="shader-header" style="font-size: 14px; margin-bottom: 15px;">GREETING</div>
                         
                         <div class="control-row">
                             <div class="control-group">
                                 <label style="display: block; margin-bottom: 5px; color: #aaa; font-size: 13px;">Header Text</label>
-                                <input type="text" id="headerGreetingInput" maxlength="50" 
-                                       style="width: 100%; padding: 8px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; font-size: 13px;"
+                                <input type="text" id="headerGreetingInput" class="oms-field" maxlength="50" 
+                                       style="width: 100%;"
                                        placeholder="Hi Friend, I'm Wes!">
                                 <div style="margin-top: 5px; color: #666; font-size: 11px;">
                                     Custom text displayed in the header (max 50 characters)
@@ -3187,7 +3216,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             <div class="tab-content" id="adminTabContent">
                 <div class="controls" style="padding: 8px 20px 20px 20px;">
                     <!-- V4_5_0: ADMIN header with background bar -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 4px; margin-top: 5px; margin-bottom: 15px;">
+                    <!-- V4_9_35: Using .oms-header-bar universal component -->
+                    <div class="oms-header-bar">
                         <div class="shader-header" style="margin: 0; padding: 0;">ADMIN</div>
                     </div>
                     <div class="admin-nav-item active" data-section="settings" onclick="switchAdminSection('settings')">Settings</div>
@@ -3257,10 +3287,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     </div>
                     
                     <!-- V4_4_0: Inline input row for container name (hidden by default) -->
+                    <!-- V4_9_35: Using .oms-field universal component -->
                     <div id="addContainerRow" class="control-row" style="display: none; margin-bottom: 12px;">
                         <div class="control-group" style="flex: 3;">
-                            <input type="text" id="containerNameInput" placeholder="Enter container name..." 
-                                   style="background: rgba(255,255,255,0.1); border: 1px solid #00d4ff; color: #fff; padding: 6px 10px; border-radius: 0; font-size: 14px;">
+                            <input type="text" id="containerNameInput" class="oms-field" placeholder="Enter container name...">
                         </div>
                         <div class="control-group">
                             <button class="btn" onclick="confirmAddToLibrary()" title="Confirm">✓</button>
@@ -3364,10 +3394,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             <div class="audio-controls-section">
             
             <!-- V4_6_0: Audio Controls section header with Swap/X buttons -->
-            <div id="audioControlsHeaderBar" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 4px; margin-top: 5px; margin-bottom: 0; position: relative;">
+            <!-- V4_9_35: Using .oms-header-bar universal component -->
+            <div id="audioControlsHeaderBar" class="oms-header-bar no-margin-bottom" style="position: relative;">
                 <div class="shader-header" style="margin: 0; padding: 0;" id="audioControlsHeader">AUDIO CONTROLS</div>
                 <!-- V4_6_0: Audio swap dropdown (absolute positioned, hidden until Swap clicked) -->
-                <select id="createAudioSwapSelect" style="display: none; position: absolute; right: 100px; top: 50%; transform: translateY(-50%); max-width: 250px; background: #333; border: 1px solid #555; color: #fff; padding: 6px; font-size: 12px; z-index: 10;" onchange="onCreateAudioSwapSelect()">
+                <select id="createAudioSwapSelect" class="oms-field" style="display: none; position: absolute; right: 100px; top: 50%; transform: translateY(-50%); max-width: 250px; z-index: 10;" onchange="onCreateAudioSwapSelect()">
                 </select>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <button class="info-drawer-swap-btn" id="waveformSwapBtn" onclick="showCreateAudioSwapDropdown()" title="Pick audio from Library">Swap</button>
@@ -3684,6 +3715,89 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
     </div> <!-- V3.0.0-H: End app-wrapper -->
 
     <script>
+        // ========================================
+        // SHADER CONTRACT - CORTEX (V4_9_15)
+        // Single Source of Truth for GPU uniforms
+        // WARNING: Change = cascade to ALL rendering
+        // ========================================
+        
+        // 1. WGSL struct definition (injected into all shaders)
+        const SHADER_UNIFORM_STRUCT = `
+struct Uniforms {
+    time: f32,
+    tempo: f32,
+    modA: f32,
+    modB: f32,
+    modC: f32,
+    beat: f32,
+    resolutionX: f32,
+    resolutionY: f32,
+    shaderModAWave: f32,
+    shaderModAGain: f32,
+    shaderModAFFT: f32,
+    shaderModBWave: f32,
+    shaderModBGain: f32,
+    shaderModBFFT: f32,
+    shaderModCWave: f32,
+    shaderModCGain: f32,
+    shaderModCFFT: f32,
+    transformRotation: f32,
+    transformScaleX: f32,
+    transformScaleY: f32,
+    transformTranslateX: f32,
+    transformTranslateY: f32,
+    transformPivotX: f32,
+    transformPivotY: f32,
+    transformTile: f32,
+    padding1: f32,
+    padding2: f32,
+    padding3: f32,
+}
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+`;
+        
+        // 2. Buffer size (28 floats × 4 bytes = 112)
+        const UNIFORM_BUFFER_SIZE = 112;
+        
+        // 3. Create uniform data array (order MUST match struct)
+        function createUniformData(p) {
+            return new Float32Array([
+                p.time ?? 0.0,
+                p.tempo ?? 120.0,
+                p.modA ?? 0.0,
+                p.modB ?? 0.0,
+                p.modC ?? 0.0,
+                p.beat ?? 0.0,
+                p.resolutionX ?? 1920,
+                p.resolutionY ?? 1080,
+                p.shaderModAWave ?? 0.0,
+                p.shaderModAGain ?? 0.1,
+                p.shaderModAFFT ?? 0.0,
+                p.shaderModBWave ?? 0.0,
+                p.shaderModBGain ?? 0.1,
+                p.shaderModBFFT ?? 0.0,
+                p.shaderModCWave ?? 0.0,
+                p.shaderModCGain ?? 0.1,
+                p.shaderModCFFT ?? 0.0,
+                p.transformRotation ?? 0.0,
+                p.transformScaleX ?? 1.0,
+                p.transformScaleY ?? 1.0,
+                p.transformTranslateX ?? 0.0,
+                p.transformTranslateY ?? 0.0,
+                p.transformPivotX ?? 0.0,
+                p.transformPivotY ?? 0.0,
+                p.transformTile ?? 1.0,
+                0.0,  // padding1
+                0.0,  // padding2
+                0.0   // padding3
+            ]);
+        }
+        
+        // ========================================
+        // END SHADER CONTRACT
+        // ========================================
+        
         let device, context, pipeline, canvas;
         let uniformBuffer, uniformBindGroup;
         let startTime = Date.now();
@@ -5387,33 +5501,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             `;
 
             // Add uniform structure to fragment shader with Tempo and Mods
-            // V4_8_31: Added independent modulator components (shaderModA/B/C Wave/Gain/FFT)
+            // V4_9_15: Uses SHADER_UNIFORM_STRUCT from CORTEX
             const fragmentShaderCode = `
-                struct Uniforms {
-                    time: f32,
-                    tempo: f32,
-                    modA: f32,
-                    modB: f32,
-                    modC: f32,
-                    beat: f32,
-                    resolutionX: f32,
-                    resolutionY: f32,
-                    shaderModAWave: f32,
-                    shaderModAGain: f32,
-                    shaderModAFFT: f32,
-                    shaderModBWave: f32,
-                    shaderModBGain: f32,
-                    shaderModBFFT: f32,
-                    shaderModCWave: f32,
-                    shaderModCGain: f32,
-                    shaderModCFFT: f32,
-                    padding1: f32,
-                    padding2: f32,
-                    padding3: f32,
-                }
-
-                @group(0) @binding(0) var<uniform> uniforms: Uniforms;
-
+                ${SHADER_UNIFORM_STRUCT}
                 ${shaderCode}
             `;
 
@@ -5422,9 +5512,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     code: vertexShaderCode + '\n' + fragmentShaderCode
                 });
 
-                // Create uniform buffer - 80 bytes for 20 floats (V4_8_31: expanded for independent mods)
+                // Create uniform buffer - V4_9_15: Uses UNIFORM_BUFFER_SIZE from CORTEX
                 uniformBuffer = device.createBuffer({
-                    size: 80,
+                    size: UNIFORM_BUFFER_SIZE,
                     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
                 });
 
@@ -5727,30 +5817,48 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 modC *= shaderModCGain;
             }
             
-            // V4_8_31: Update uniforms: 20 floats = 80 bytes
+            // V4_9_07: Update uniforms: 28 floats = 112 bytes (added transforms)
             // When audio is loaded, use audio tempo; otherwise use shader tempo
             const effectiveTempo = audioLoaded ? audioTempo : currentTempo;
             
-            const uniformData = new Float32Array([
-                currentTime,
-                effectiveTempo,
-                modA,               // Legacy combined
-                modB,
-                modC,
-                rawBeat,
-                canvas.width,
-                canvas.height,
-                shaderModAWave,     // V4_8_31: Independent waveform
-                shaderModAGain,     // V4_8_31: Independent gain
-                shaderModAFFT,      // V4_8_31: Independent FFT
-                shaderModBWave,
-                shaderModBGain,
-                shaderModBFFT,
-                shaderModCWave,
-                shaderModCGain,
-                shaderModCFFT,
-                0, 0, 0             // Padding to 20 floats
-            ]);
+            // V4_9_07: Get transform values
+            const transformRotation = parseFloat(document.getElementById('transformRotation')?.value || 0) * Math.PI / 180; // degrees → radians
+            const transformScaleX = parseFloat(document.getElementById('transformScaleX')?.value || 1);
+            const transformScaleY = parseFloat(document.getElementById('transformScaleY')?.value || 1);
+            const transformTranslateX = parseFloat(document.getElementById('transformTranslateX')?.value || 0);
+            const transformTranslateY = parseFloat(document.getElementById('transformTranslateY')?.value || 0);
+            const transformPivotX = parseFloat(document.getElementById('transformPivotX')?.value || 0);
+            const transformPivotY = parseFloat(document.getElementById('transformPivotY')?.value || 0);
+            const transformTile = parseFloat(document.getElementById('transformTile')?.value || 1);
+            
+            // V4_9_15: Uses createUniformData from CORTEX
+            const uniformData = createUniformData({
+                time: currentTime,
+                tempo: effectiveTempo,
+                modA: modA,
+                modB: modB,
+                modC: modC,
+                beat: rawBeat,
+                resolutionX: canvas.width,
+                resolutionY: canvas.height,
+                shaderModAWave: shaderModAWave,
+                shaderModAGain: shaderModAGain,
+                shaderModAFFT: shaderModAFFT,
+                shaderModBWave: shaderModBWave,
+                shaderModBGain: shaderModBGain,
+                shaderModBFFT: shaderModBFFT,
+                shaderModCWave: shaderModCWave,
+                shaderModCGain: shaderModCGain,
+                shaderModCFFT: shaderModCFFT,
+                transformRotation: transformRotation,
+                transformScaleX: transformScaleX,
+                transformScaleY: transformScaleY,
+                transformTranslateX: transformTranslateX,
+                transformTranslateY: transformTranslateY,
+                transformPivotX: transformPivotX,
+                transformPivotY: transformPivotY,
+                transformTile: transformTile
+            });
             
             device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
@@ -5987,24 +6095,28 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 
         // V2.6.0-R: Parse shader name from code comment
         function parseShaderNameFromCode(shaderCode) {
-            // Look for pattern: // OMS Shader Baker [version] - ShaderName
+            // Look for pattern: // @name ShaderName
             const lines = shaderCode.split('\n');
+            for (const line of lines.slice(0, 10)) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('// @name ')) {
+                    return trimmed.substring(9).trim();
+                }
+            }
+            // Fallback: legacy pattern // OMS Shader Baker [version] - ShaderName
             for (const line of lines) {
                 const trimmed = line.trim();
                 if (trimmed.startsWith('// OMS Shader Baker')) {
-                    // Find last dash and extract name after it
                     const lastDashIndex = trimmed.lastIndexOf(' - ');
                     if (lastDashIndex !== -1) {
                         const shaderName = trimmed.substring(lastDashIndex + 3).trim();
-                        // Clean name: remove special chars, keep alphanumeric and basic chars
-                        const cleanName = shaderName.replace(/[^a-zA-Z0-9_-]/g, '');
-                        if (cleanName.length > 0) {
-                            return cleanName;
+                        if (shaderName.length > 0) {
+                            return shaderName;
                         }
                     }
                 }
             }
-            return null; // No shader name found
+            return null;
         }
 
         // V2.1.1-C: Export shader code as .txt file
@@ -7103,7 +7215,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // Create .oms container
                 const container = {
                     name: preset.name,
-                    shaderCode: preset.shaderCode,
+                    shaderCode: preset.code,  // V4_9_15: omsPresets use .code
                     controlStates: {
                         orientation: preset.orientation || 'portrait'
                     },
@@ -7773,7 +7885,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     id: `preset_${index}`,
                     name: preset.name,
                     system: true,
-                    shaderCode: preset.shaderCode,
+                    shaderCode: preset.code,  // V4_9_15: Presets use .code property
                     controlStates: { orientation: preset.orientation },
                     audioTempo: null,
                     audioFilename: null,
@@ -9379,6 +9491,138 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             console.log('V4_8_31: Shader name dropdown initialized');
         }
         
+        // V4_9_35: Initialize all CREATE tab dropdowns (OmsDropdown without thumbnails)
+        // V4_9_35: Added error handling and logging
+        function initCreateTabDropdowns() {
+            // Shared options arrays
+            const subdivOptions = [
+                { value: 'none', label: 'None' },
+                { value: '4', label: 'Whole' },
+                { value: '2', label: 'Half' },
+                { value: '1', label: '1/4' },
+                { value: '0.5', label: '1/8' },
+                { value: '0.25', label: '1/16' },
+                { value: 'sep1', label: '───', separator: true },
+                { value: 'chaos', label: 'Chaos' },
+                { value: 'cycler', label: 'Cycler' },
+                { value: 'madmax', label: 'Mad Max' },
+                { value: 'psycho', label: 'Psycho' }
+            ];
+            
+            const waveformOptions = [
+                { value: 'none', label: 'None' },
+                { value: 'static', label: 'Static' },
+                { value: 'sine', label: 'Sine' },
+                { value: 'cosine', label: 'Cosine' },
+                { value: 'sawtooth', label: 'Sawtooth' },
+                { value: 'triangle', label: 'Triangle' },
+                { value: 'square', label: 'Square' },
+                { value: 'noise', label: 'Noise' },
+                { value: 'random', label: 'Random' },
+                { value: 'fibonacci', label: 'Fibonacci' },
+                { value: 'prime', label: 'Prime' },
+                { value: 'sep1', label: '───', separator: true },
+                { value: 'chaosmode', label: 'Chaos' },
+                { value: 'cycler', label: 'Cycler' },
+                { value: 'madmax', label: 'Mad Max' },
+                { value: 'psycho', label: 'Psycho' }
+            ];
+            
+            // Helper to create dropdown and sync to hidden input
+            function createSyncedDropdown(dropdownId, hiddenId, options, onChange) {
+                try {
+                    const container = document.getElementById(dropdownId);
+                    if (!container) {
+                        console.error('V4_9_35: Container not found:', dropdownId);
+                        return null;
+                    }
+                    
+                    const dropdown = new OmsDropdown(dropdownId, {
+                        showThumbnails: false,
+                        onChange: (value, item) => {
+                            document.getElementById(hiddenId).value = value;
+                            if (onChange) onChange(value, item);
+                        }
+                    });
+                    dropdown.setItems(options);
+                    
+                    const hiddenInput = document.getElementById(hiddenId);
+                    if (hiddenInput) {
+                        dropdown.setValue(hiddenInput.value);
+                    }
+                    
+                    console.log('V4_9_35: Created dropdown:', dropdownId);
+                    return dropdown;
+                } catch (err) {
+                    console.error('V4_9_35: Error creating dropdown:', dropdownId, err);
+                    return null;
+                }
+            }
+            
+            try {
+                // Orientation dropdown
+                window.orientationDropdown = createSyncedDropdown('orientationDropdown', 'orientation', [
+                    { value: 'landscape', label: 'Landscape' },
+                    { value: 'portrait', label: 'Portrait' },
+                    { value: 'square', label: 'Square' }
+                ], () => { updateCanvasSize(); autoSaveProject(); });
+                
+                // Loop Length dropdown
+                window.loopLengthDropdown = createSyncedDropdown('loopLengthDropdown', 'loopLength', [
+                    { value: '0', label: 'No Loop' },
+                    { value: 'sep1', label: '───', separator: true },
+                    { value: '4', label: '1 Bar' },
+                    { value: '8', label: '2 Bars' },
+                    { value: '16', label: '4 Bars' },
+                    { value: '32', label: '8 Bars' },
+                    { value: '64', label: '16 Bars' },
+                    { value: '128', label: '32 Bars' },
+                    { value: 'sep2', label: '───', separator: true },
+                    { value: '4', label: 'Whole' },
+                    { value: '2', label: 'Half' },
+                    { value: '1', label: '1/4' },
+                    { value: '0.5', label: '1/8' },
+                    { value: '0.25', label: '1/16' },
+                    { value: 'sep3', label: '───', separator: true },
+                    { value: 'chaos', label: 'Chaos' },
+                    { value: 'cycler', label: 'Cycler' },
+                    { value: 'madmax', label: 'Mad Max' },
+                    { value: 'psycho', label: 'Psycho' }
+                ]);
+                
+                // Modulator A dropdowns
+                window.modASubdivDropdown = createSyncedDropdown('modASubdivDropdown', 'modASubdiv', subdivOptions);
+                window.modAWaveformDropdown = createSyncedDropdown('modAWaveformDropdown', 'modAWaveform', waveformOptions);
+                
+                // Modulator B dropdowns
+                window.modBSubdivDropdown = createSyncedDropdown('modBSubdivDropdown', 'modBSubdiv', subdivOptions);
+                window.modBWaveformDropdown = createSyncedDropdown('modBWaveformDropdown', 'modBWaveform', waveformOptions);
+                
+                // Modulator C dropdowns
+                window.modCSubdivDropdown = createSyncedDropdown('modCSubdivDropdown', 'modCSubdiv', subdivOptions);
+                window.modCWaveformDropdown = createSyncedDropdown('modCWaveformDropdown', 'modCWaveform', waveformOptions);
+                
+                // Resolution dropdown
+                window.resolutionDropdown = createSyncedDropdown('resolutionDropdown', 'resolution', [
+                    { value: '720', label: '720p' },
+                    { value: '1080', label: '1080p' },
+                    { value: '1440', label: '1440p' },
+                    { value: '2160', label: '2160p' }
+                ]);
+                
+                // FPS dropdown
+                window.fpsDropdown = createSyncedDropdown('fpsDropdown', 'fps', [
+                    { value: '24', label: '24 FPS' },
+                    { value: '30', label: '30 FPS' },
+                    { value: '60', label: '60 FPS' }
+                ]);
+                
+                console.log('V4_9_35: CREATE tab dropdowns initialized (10 total)');
+            } catch (err) {
+                console.error('V4_9_35: Error in initCreateTabDropdowns:', err);
+            }
+        }
+        
         // V4_5_19: Remove audio from container
         function infoDrawerRemoveAudio() {
             document.getElementById('infoDrawerAudio').textContent = '—';
@@ -9838,8 +10082,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             const audioIcon = container.hasAudio ? '🎵' : '🎨';
             
-            // Replace div content with input field
-            nameDiv.innerHTML = `${audioIcon} <input type="text" id="edit-input-${containerId}" value="${originalName}" style="background: rgba(255,255,255,0.1); border: 1px solid #0ff; color: #fff; padding: 2px 6px; font-size: 13px; font-family: inherit; width: calc(100% - 30px); outline: none;" />`;
+            // V4_9_35: Using oms-field class instead of inline styles
+            nameDiv.innerHTML = `${audioIcon} <input type="text" id="edit-input-${containerId}" class="oms-field" value="${originalName}" style="width: calc(100% - 30px);" />`;
             
             const input = document.getElementById(`edit-input-${containerId}`);
             input.focus();
@@ -9945,7 +10189,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     showMessage('Preset not found', 'error');
                     return;
                 }
-                shaderCode = preset.shaderCode;
+                shaderCode = preset.code;  // V4_9_15: omsPresets use .code
                 presetName = preset.name;
             } else {
                 // Load from file
@@ -9994,7 +10238,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 currentAudioFile = null;
                 
                 // Load shader code
-                document.getElementById('shaderCode').value = preset.shaderCode;
+                document.getElementById('shaderCode').value = preset.code;  // V4_9_15: omsPresets use .code
                 
                 // Set orientation
                 document.getElementById('orientation').value = preset.orientation || 'portrait';
@@ -11318,7 +11562,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 
                 // Initialize WebGPU and render single frame for this thumbnail
                 try {
-                    await initThumbnailShader(canvas, preset.shaderCode, index);
+                    await initThumbnailShader(canvas, preset.code, index);  // V4_9_15: omsPresets use .code
                 } catch (error) {
                     console.error(`Failed to init thumbnail ${index}:`, error);
                     canvas.style.background = 'rgba(255,0,0,0.2)';
@@ -11368,33 +11612,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 `;
                 
                 // Fragment shader with uniforms
-                // V4_8_31: Added independent modulator components
+                // V4_9_15: Uses SHADER_UNIFORM_STRUCT from CORTEX
                 const fragmentShaderCode = `
-                    struct Uniforms {
-                        time: f32,
-                        tempo: f32,
-                        modA: f32,
-                        modB: f32,
-                        modC: f32,
-                        beat: f32,
-                        resolutionX: f32,
-                        resolutionY: f32,
-                        shaderModAWave: f32,
-                        shaderModAGain: f32,
-                        shaderModAFFT: f32,
-                        shaderModBWave: f32,
-                        shaderModBGain: f32,
-                        shaderModBFFT: f32,
-                        shaderModCWave: f32,
-                        shaderModCGain: f32,
-                        shaderModCFFT: f32,
-                        padding1: f32,
-                        padding2: f32,
-                        padding3: f32,
-                    }
-                    
-                    @group(0) @binding(0) var<uniform> uniforms: Uniforms;
-                    
+                    ${SHADER_UNIFORM_STRUCT}
 ${shaderCode}
                 `;
                 
@@ -11403,10 +11623,9 @@ ${shaderCode}
                     code: vertexShaderCode + '\n' + fragmentShaderCode
                 });
                 
-                // Create uniform buffer (80 bytes for 20 floats - V4_8_31)
-                const uniformBufferSize = 80;
+                // Create uniform buffer - V4_9_15: Uses UNIFORM_BUFFER_SIZE from CORTEX
                 const uniformBuffer = device.createBuffer({
-                    size: uniformBufferSize,
+                    size: UNIFORM_BUFFER_SIZE,
                     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
                 });
                 
@@ -11446,27 +11665,34 @@ ${shaderCode}
                     }
                 });
                 
-                // Set uniforms (time=2.0 for nice frame) - V4_8_31: 20 floats = 80 bytes
-                const uniformData = new Float32Array([
-                    2.0,                        // time
-                    120.0,                      // tempo
-                    0.5,                        // modA (legacy combined)
-                    0.5,                        // modB
-                    0.5,                        // modC
-                    4.0,                        // beat
-                    offscreenCanvas.width,      // resolutionX
-                    offscreenCanvas.height,     // resolutionY
-                    0.5,                        // shaderModAWave
-                    1.0,                        // shaderModAGain
-                    0.5,                        // shaderModAFFT
-                    0.5,                        // shaderModBWave
-                    1.0,                        // shaderModBGain
-                    0.5,                        // shaderModBFFT
-                    0.5,                        // shaderModCWave
-                    1.0,                        // shaderModCGain
-                    0.5,                        // shaderModCFFT
-                    0.0, 0.0, 0.0               // padding
-                ]);
+                // V4_9_15: Uses createUniformData from CORTEX (static values for nice preview frame)
+                const uniformData = createUniformData({
+                    time: 2.0,
+                    tempo: 120.0,
+                    modA: 0.5,
+                    modB: 0.5,
+                    modC: 0.5,
+                    beat: 4.0,
+                    resolutionX: offscreenCanvas.width,
+                    resolutionY: offscreenCanvas.height,
+                    shaderModAWave: 0.5,
+                    shaderModAGain: 1.0,
+                    shaderModAFFT: 0.5,
+                    shaderModBWave: 0.5,
+                    shaderModBGain: 1.0,
+                    shaderModBFFT: 0.5,
+                    shaderModCWave: 0.5,
+                    shaderModCGain: 1.0,
+                    shaderModCFFT: 0.5,
+                    transformRotation: 0.0,
+                    transformScaleX: 1.0,
+                    transformScaleY: 1.0,
+                    transformTranslateX: 0.0,
+                    transformTranslateY: 0.0,
+                    transformPivotX: 0.0,
+                    transformPivotY: 0.0,
+                    transformTile: 1.0
+                });
                 
                 device.queue.writeBuffer(uniformBuffer, 0, uniformData);
                 
@@ -11533,7 +11759,7 @@ ${shaderCode}
             const preset = omsPresets[index];
             
             // Load code into editor
-            document.getElementById('shaderCode').value = preset.shaderCode;
+            document.getElementById('shaderCode').value = preset.code;  // V4_9_15: omsPresets use .code
             
             // Set orientation in Controls tab to match preset's default
             document.getElementById('orientation').value = preset.orientation;
@@ -12397,7 +12623,18 @@ ${shaderCode}
                 shaderModCFreq2: parseNumeric(getElementValue('modCFreq2', '500'), 500, parseInt),
                 orientation: getElementValue('orientation', 'portrait') || "portrait",
                 resolution: parseNumeric(getElementValue('resolution', '1080'), 1080, parseInt),
-                fps: parseNumeric(getElementValue('fps', '30'), 30, parseInt)
+                fps: parseNumeric(getElementValue('fps', '30'), 30, parseInt),
+                // V4_9_05: Transform controls
+                transformRotation: parseNumeric(getElementValue('transformRotation', '0'), 0, parseFloat),
+                transformScaleX: parseNumeric(getElementValue('transformScaleX', '1'), 1, parseFloat),
+                transformScaleY: parseNumeric(getElementValue('transformScaleY', '1'), 1, parseFloat),
+                transformTranslateX: parseNumeric(getElementValue('transformTranslateX', '0'), 0, parseFloat),
+                transformTranslateY: parseNumeric(getElementValue('transformTranslateY', '0'), 0, parseFloat),
+                // V4_9_14: Pivot controls
+                transformPivotX: parseNumeric(getElementValue('transformPivotX', '0'), 0, parseFloat),
+                transformPivotY: parseNumeric(getElementValue('transformPivotY', '0'), 0, parseFloat),
+                // V4_9_14: Tile control
+                transformTile: parseNumeric(getElementValue('transformTile', '1'), 1, parseFloat)
             };
         }
 
@@ -12438,6 +12675,63 @@ ${shaderCode}
             document.getElementById('orientation').value = state.orientation;
             document.getElementById('resolution').value = state.resolution;
             document.getElementById('fps').value = state.fps;
+            
+            // V4_9_35: Sync OmsDropdown visuals with hidden input values
+            if (window.loopLengthDropdown) window.loopLengthDropdown.setValue(state.shaderLoopLength);
+            if (window.modASubdivDropdown) window.modASubdivDropdown.setValue(state.shaderModASubdiv);
+            if (window.modAWaveformDropdown) window.modAWaveformDropdown.setValue(state.shaderModAWaveform);
+            if (window.modBSubdivDropdown) window.modBSubdivDropdown.setValue(state.shaderModBSubdiv);
+            if (window.modBWaveformDropdown) window.modBWaveformDropdown.setValue(state.shaderModBWaveform);
+            if (window.modCSubdivDropdown) window.modCSubdivDropdown.setValue(state.shaderModCSubdiv);
+            if (window.modCWaveformDropdown) window.modCWaveformDropdown.setValue(state.shaderModCWaveform);
+            if (window.orientationDropdown) window.orientationDropdown.setValue(state.orientation);
+            if (window.resolutionDropdown) window.resolutionDropdown.setValue(state.resolution);
+            if (window.fpsDropdown) window.fpsDropdown.setValue(state.fps);
+            
+            // V4_9_05: Apply transform controls
+            if (state.transformRotation !== undefined) {
+                document.getElementById('transformRotation').value = state.transformRotation;
+                if (window.updatetransformRotation) window.updatetransformRotation(state.transformRotation);
+            }
+            // V4_9_09: Scale X/Y are stored separately but ZOOM knob shows unified value
+            if (state.transformScaleX !== undefined) {
+                document.getElementById('transformScaleX').value = state.transformScaleX;
+            }
+            if (state.transformScaleY !== undefined) {
+                document.getElementById('transformScaleY').value = state.transformScaleY;
+            }
+            // Update ZOOM knob visual (use ScaleX as source, assuming uniform scaling)
+            if (state.transformScaleX !== undefined && window.updatetransformScale) {
+                window.updatetransformScale(state.transformScaleX);
+            }
+            // V4_9_10: Update XY pad (both values together)
+            if (state.transformTranslateX !== undefined) {
+                document.getElementById('transformTranslateX').value = state.transformTranslateX;
+            }
+            if (state.transformTranslateY !== undefined) {
+                document.getElementById('transformTranslateY').value = state.transformTranslateY;
+            }
+            if (window.updatetransformXY) {
+                const x = state.transformTranslateX ?? 0;
+                const y = state.transformTranslateY ?? 0;
+                window.updatetransformXY(x, y);
+            }
+            // V4_9_14: Load pivot values
+            if (state.transformPivotX !== undefined) {
+                document.getElementById('transformPivotX').value = state.transformPivotX;
+            }
+            if (state.transformPivotY !== undefined) {
+                document.getElementById('transformPivotY').value = state.transformPivotY;
+            }
+            if (window.updatetransformPivot) {
+                const x = state.transformPivotX ?? 0;
+                const y = state.transformPivotY ?? 0;
+                window.updatetransformPivot(x, y);
+            }
+            // V4_9_14: Load tile value
+            if (state.transformTile !== undefined) {
+                document.getElementById('transformTile').value = state.transformTile;
+            }
             
             // Update currentTempo global
             currentTempo = state.shaderTempo;
@@ -15094,9 +15388,9 @@ ${shaderCode}
                         code: shaderCode
                     });
                     
-                    // Create uniform buffer (80 bytes = 20 floats - V4_8_31)
+                    // Create uniform buffer (96 bytes = 24 floats - V4_9_07)
                     liveShaderUniformBuffers[track] = device.createBuffer({
-                        size: 80,
+                        size: 112,
                         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
                     });
                     
@@ -15226,7 +15520,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V4_8]</title>
+    <title>ONEMANSHYO App [V4_9]</title>
     <style>
         body {
             margin: 0;
@@ -15299,9 +15593,9 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                         code: shaderCode
                     });
                     
-                    // Create uniform buffer (80 bytes = 20 floats - V4_8_31)
+                    // Create uniform buffer (96 bytes = 24 floats - V4_9_07)
                     popOutUniformBuffers[track] = device.createBuffer({
-                        size: 80,
+                        size: 112,
                         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
                     });
                     
@@ -15428,32 +15722,9 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
                 // Wrap container shader code
                 console.log(`V3_9_0_L_sub16: Provided shader code preview: ${providedShaderCode.substring(0, 200)}...`);
                 
+                // V4_9_15: Uses SHADER_UNIFORM_STRUCT from CORTEX
                 const wrappedShader = `
-// V4_8_31: Container shader uniform structure (20 floats = 80 bytes)
-struct Uniforms {
-    time: f32,
-    tempo: f32,
-    modA: f32,
-    modB: f32,
-    modC: f32,
-    beat: f32,
-    resolutionX: f32,
-    resolutionY: f32,
-    shaderModAWave: f32,
-    shaderModAGain: f32,
-    shaderModAFFT: f32,
-    shaderModBWave: f32,
-    shaderModBGain: f32,
-    shaderModBFFT: f32,
-    shaderModCWave: f32,
-    shaderModCGain: f32,
-    shaderModCFFT: f32,
-    padding1: f32,
-    padding2: f32,
-    padding3: f32,
-}
-
-@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+${SHADER_UNIFORM_STRUCT}
 
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,
@@ -15861,27 +16132,45 @@ ${providedShaderCode}
                 // V4_0_0_A_sub1: Get timeline-based modulator values
                 const modulators = getTimelineModulatorValues(track);
                 
-                // V4_8_31: Updated uniform layout - 20 floats = 80 bytes
-                const uniformData = new Float32Array([
-                    currentTime,
-                    gridState.masterTempo,
-                    modulators.modA,
-                    modulators.modB,
-                    modulators.modC,
-                    currentBeat,
-                    canvas.width,
-                    canvas.height,
-                    modulators.shaderModAWave,
-                    modulators.shaderModAGain,
-                    modulators.shaderModAFFT,
-                    modulators.shaderModBWave,
-                    modulators.shaderModBGain,
-                    modulators.shaderModBFFT,
-                    modulators.shaderModCWave,
-                    modulators.shaderModCGain,
-                    modulators.shaderModCFFT,
-                    0, 0, 0  // padding
-                ]);
+                // V4_9_07: Get transform values from container (degrees → radians for rotation)
+                const containerCS = trackContainerData[track]?.controlStates || {};
+                const transformRotation = (parseFloat(containerCS.transformRotation) || 0) * Math.PI / 180;
+                const transformScaleX = parseFloat(containerCS.transformScaleX) ?? 1;
+                const transformScaleY = parseFloat(containerCS.transformScaleY) ?? 1;
+                const transformTranslateX = parseFloat(containerCS.transformTranslateX) || 0;
+                const transformTranslateY = parseFloat(containerCS.transformTranslateY) || 0;
+                const transformPivotX = parseFloat(containerCS.transformPivotX) || 0;
+                const transformPivotY = parseFloat(containerCS.transformPivotY) || 0;
+                const transformTile = parseFloat(containerCS.transformTile) ?? 1;
+                
+                // V4_9_15: Uses createUniformData from CORTEX
+                const uniformData = createUniformData({
+                    time: currentTime,
+                    tempo: gridState.masterTempo,
+                    modA: modulators.modA,
+                    modB: modulators.modB,
+                    modC: modulators.modC,
+                    beat: currentBeat,
+                    resolutionX: canvas.width,
+                    resolutionY: canvas.height,
+                    shaderModAWave: modulators.shaderModAWave,
+                    shaderModAGain: modulators.shaderModAGain,
+                    shaderModAFFT: modulators.shaderModAFFT,
+                    shaderModBWave: modulators.shaderModBWave,
+                    shaderModBGain: modulators.shaderModBGain,
+                    shaderModBFFT: modulators.shaderModBFFT,
+                    shaderModCWave: modulators.shaderModCWave,
+                    shaderModCGain: modulators.shaderModCGain,
+                    shaderModCFFT: modulators.shaderModCFFT,
+                    transformRotation: transformRotation,
+                    transformScaleX: transformScaleX,
+                    transformScaleY: transformScaleY,
+                    transformTranslateX: transformTranslateX,
+                    transformTranslateY: transformTranslateY,
+                    transformPivotX: transformPivotX,
+                    transformPivotY: transformPivotY,
+                    transformTile: transformTile
+                });
                 
                 device.queue.writeBuffer(uniformBuffer, 0, uniformData);
                 
@@ -15928,27 +16217,45 @@ ${providedShaderCode}
                     // V4_0_0_A_sub1: Get timeline-based modulator values (same as inset)
                     const modulators = getTimelineModulatorValues(track);
                     
-                    // V4_8_31: Updated uniform layout - 20 floats = 80 bytes
-                    const uniformData = new Float32Array([
-                        currentTime,
-                        gridState.masterTempo,
-                        modulators.modA,
-                        modulators.modB,
-                        modulators.modC,
-                        currentBeat,
-                        canvas.width,
-                        canvas.height,
-                        modulators.shaderModAWave,
-                        modulators.shaderModAGain,
-                        modulators.shaderModAFFT,
-                        modulators.shaderModBWave,
-                        modulators.shaderModBGain,
-                        modulators.shaderModBFFT,
-                        modulators.shaderModCWave,
-                        modulators.shaderModCGain,
-                        modulators.shaderModCFFT,
-                        0, 0, 0  // padding
-                    ]);
+                    // V4_9_14: Get transform values from container (same as inset)
+                    const containerCS = trackContainerData[track]?.controlStates || {};
+                    const transformRotation = (parseFloat(containerCS.transformRotation) || 0) * Math.PI / 180;
+                    const transformScaleX = parseFloat(containerCS.transformScaleX) ?? 1;
+                    const transformScaleY = parseFloat(containerCS.transformScaleY) ?? 1;
+                    const transformTranslateX = parseFloat(containerCS.transformTranslateX) || 0;
+                    const transformTranslateY = parseFloat(containerCS.transformTranslateY) || 0;
+                    const transformPivotX = parseFloat(containerCS.transformPivotX) || 0;
+                    const transformPivotY = parseFloat(containerCS.transformPivotY) || 0;
+                    const transformTile = parseFloat(containerCS.transformTile) ?? 1;
+                    
+                    // V4_9_15: Uses createUniformData from CORTEX
+                    const uniformData = createUniformData({
+                        time: currentTime,
+                        tempo: gridState.masterTempo,
+                        modA: modulators.modA,
+                        modB: modulators.modB,
+                        modC: modulators.modC,
+                        beat: currentBeat,
+                        resolutionX: canvas.width,
+                        resolutionY: canvas.height,
+                        shaderModAWave: modulators.shaderModAWave,
+                        shaderModAGain: modulators.shaderModAGain,
+                        shaderModAFFT: modulators.shaderModAFFT,
+                        shaderModBWave: modulators.shaderModBWave,
+                        shaderModBGain: modulators.shaderModBGain,
+                        shaderModBFFT: modulators.shaderModBFFT,
+                        shaderModCWave: modulators.shaderModCWave,
+                        shaderModCGain: modulators.shaderModCGain,
+                        shaderModCFFT: modulators.shaderModCFFT,
+                        transformRotation: transformRotation,
+                        transformScaleX: transformScaleX,
+                        transformScaleY: transformScaleY,
+                        transformTranslateX: transformTranslateX,
+                        transformTranslateY: transformTranslateY,
+                        transformPivotX: transformPivotX,
+                        transformPivotY: transformPivotY,
+                        transformTile: transformTile
+                    });
                     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
                     
                     // Render this track's shader to pop-out
@@ -18698,6 +19005,397 @@ ${providedShaderCode}
             console.log('V4_8_10: Gain knobs initialized');
         }
 
+        // V4_9_02: Transform Encoders - rotation, scale, translate controls
+        // V4_9_03: Added interaction (drag, hover messages)
+        // V4_9_09: Replaced Scale X/Y with unified ZOOM (writes to both)
+        // V4_9_10: Replaced Translate X/Y with XY pad
+        // V4_9_14: Added TILE encoder
+        function initTransformEncoders() {
+            // Rotary encoders (ROT, SCALE, TILE)
+            const transformConfigs = [
+                { id: 'transformRotation', knobId: 'transformRotationKnob', label: 'Rotation', color: '#9d4edd', min: 0, max: 360, defaultVal: 0, unit: '°', decimals: 0, sensitivity: 1, endless: true },
+                { id: 'transformScale', knobId: 'transformScaleKnob', label: 'Scale', color: '#9d4edd', min: 0, max: 4, defaultVal: 1, unit: 'x', decimals: 2, sensitivity: 0.01, isCombo: true, targets: ['transformScaleX', 'transformScaleY'] },
+                { id: 'transformTile', knobId: 'transformTileKnob', label: 'Tile', color: '#9d4edd', min: 1, max: 8, defaultVal: 1, unit: 'x', decimals: 0, sensitivity: 0.1 }
+            ];
+            
+            transformConfigs.forEach(config => {
+                const knobCanvas = document.getElementById(config.knobId);
+                
+                if (!knobCanvas) {
+                    console.warn('V4_9_10: Transform knob not found:', config.knobId);
+                    return;
+                }
+                
+                const ctx = knobCanvas.getContext('2d');
+                let value = config.defaultVal;
+                
+                // V4_9_09: For combo encoders, read from first target
+                if (config.isCombo && config.targets) {
+                    const firstTarget = document.getElementById(config.targets[0]);
+                    if (firstTarget) value = parseFloat(firstTarget.value) || config.defaultVal;
+                } else {
+                    const input = document.getElementById(config.id);
+                    if (input) value = parseFloat(input.value) || config.defaultVal;
+                }
+                
+                let isDragging = false;
+                let lastY = 0;
+                
+                function drawTransformKnob() {
+                    ctx.clearRect(0, 0, 30, 30);
+                    
+                    // Background circle
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.beginPath();
+                    ctx.arc(15, 15, 14, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Border
+                    ctx.strokeStyle = '#444';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // Normalize value to 0-1
+                    const normalized = (value - config.min) / (config.max - config.min);
+                    
+                    // V4_9_25: Endless encoder = full 360° visual
+                    if (config.endless) {
+                        // Full circle track (dim)
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(15, 15, 11, 0, Math.PI * 2);
+                        ctx.stroke();
+                        
+                        // Indicator angle: 0° at 6 o'clock (bottom), clockwise
+                        // Canvas: 0 = 3 o'clock, PI/2 = 6 o'clock
+                        const indicatorAngle = Math.PI / 2 + normalized * Math.PI * 2;
+                        
+                        // Indicator line
+                        ctx.strokeStyle = config.color;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(15, 15);
+                        ctx.lineTo(15 + Math.cos(indicatorAngle) * 10, 15 + Math.sin(indicatorAngle) * 10);
+                        ctx.stroke();
+                        
+                        // Dot at end
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(15 + Math.cos(indicatorAngle) * 10, 15 + Math.sin(indicatorAngle) * 10, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        // Standard arc (7 o'clock to 5 o'clock)
+                        const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                        const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                        const currentAngle = startAngle + (endAngle - startAngle) * normalized;
+                        
+                        ctx.strokeStyle = config.color;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(15, 15, 11, startAngle, currentAngle);
+                        ctx.stroke();
+                        
+                        // Center indicator line
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(15, 15);
+                        ctx.lineTo(15 + Math.cos(currentAngle) * 9, 15 + Math.sin(currentAngle) * 9);
+                        ctx.stroke();
+                    }
+                }
+                
+                function formatValue() {
+                    return config.decimals === 0 
+                        ? Math.round(value) + config.unit
+                        : value.toFixed(config.decimals) + config.unit;
+                }
+                
+                function updateValue(newValue) {
+                    // V4_9_24: Endless encoders wrap, others clamp
+                    if (config.endless) {
+                        const range = config.max - config.min;
+                        value = ((newValue - config.min) % range + range) % range + config.min;
+                    } else {
+                        value = Math.max(config.min, Math.min(config.max, newValue));
+                    }
+                    
+                    // V4_9_09: Combo encoder writes to multiple targets
+                    if (config.isCombo && config.targets) {
+                        config.targets.forEach(targetId => {
+                            const target = document.getElementById(targetId);
+                            if (target) target.value = value;
+                        });
+                    } else {
+                        const input = document.getElementById(config.id);
+                        if (input) input.value = value;
+                    }
+                    
+                    drawTransformKnob();
+                    showMessage(`${config.label}: ${formatValue()}`, 'state');
+                }
+                
+                // Mouse events
+                knobCanvas.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    lastY = e.clientY;
+                });
+                
+                knobCanvas.addEventListener('mouseenter', () => {
+                    showMessage(`${config.label}: ${formatValue()} (drag ↑/↓)`, 'info');
+                });
+                
+                knobCanvas.addEventListener('mouseleave', () => {
+                    if (!isDragging) showMessage('', 'info');
+                });
+                
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const deltaY = lastY - e.clientY;
+                    updateValue(value + deltaY * config.sensitivity);
+                    lastY = e.clientY;
+                });
+                
+                window.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+                
+                // Initial draw
+                drawTransformKnob();
+                
+                // V4_9_09: Expose update function - for ZOOM, also update both targets
+                window[`update${config.id}`] = (newVal) => {
+                    value = Math.max(config.min, Math.min(config.max, newVal));
+                    if (config.isCombo && config.targets) {
+                        config.targets.forEach(targetId => {
+                            const target = document.getElementById(targetId);
+                            if (target) target.value = value;
+                        });
+                    } else {
+                        const input = document.getElementById(config.id);
+                        if (input) input.value = value;
+                    }
+                    drawTransformKnob();
+                };
+            });
+            
+            // V4_9_10: XY Pad for Translate X/Y
+            const xyPad = document.getElementById('transformXYPad');
+            if (xyPad) {
+                const ctx = xyPad.getContext('2d');
+                const inputX = document.getElementById('transformTranslateX');
+                const inputY = document.getElementById('transformTranslateY');
+                
+                let posX = parseFloat(inputX?.value) || 0;  // -1 to 1
+                let posY = parseFloat(inputY?.value) || 0;  // -1 to 1
+                let isDragging = false;
+                let isHovering = false;
+                
+                function drawXYPad() {
+                    const w = 50, h = 30;
+                    ctx.clearRect(0, 0, w, h);
+                    
+                    // Background
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, w, h);
+                    
+                    // Border
+                    ctx.strokeStyle = '#444';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
+                    
+                    // Crosshair (subtle)
+                    ctx.strokeStyle = '#333';
+                    ctx.beginPath();
+                    ctx.moveTo(w / 2, 0);
+                    ctx.lineTo(w / 2, h);
+                    ctx.moveTo(0, h / 2);
+                    ctx.lineTo(w, h / 2);
+                    ctx.stroke();
+                    
+                    // Position dot
+                    const dotX = (posX + 1) / 2 * w;  // -1..1 → 0..w
+                    const dotY = (1 - (posY + 1) / 2) * h;  // -1..1 → h..0 (inverted)
+                    
+                    ctx.fillStyle = '#9d4edd';
+                    ctx.beginPath();
+                    ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Dot border
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                
+                function updateXY(newX, newY) {
+                    posX = Math.max(-1, Math.min(1, newX));
+                    posY = Math.max(-1, Math.min(1, newY));
+                    if (inputX) inputX.value = posX.toFixed(2);
+                    if (inputY) inputY.value = posY.toFixed(2);
+                    drawXYPad();
+                    showMessage(`Translate: ${posX.toFixed(2)}, ${posY.toFixed(2)}`, 'state');
+                }
+                
+                function posFromEvent(e) {
+                    const rect = xyPad.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;  // 0..w → -1..1
+                    const y = 1 - ((e.clientY - rect.top) / rect.height) * 2;  // 0..h → 1..-1 (inverted)
+                    return { x, y };
+                }
+                
+                // Mouse events
+                xyPad.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    const pos = posFromEvent(e);
+                    updateXY(pos.x, pos.y);
+                });
+                
+                xyPad.addEventListener('mouseenter', () => {
+                    isHovering = true;
+                    showMessage(`Translate: ${posX.toFixed(2)}, ${posY.toFixed(2)} (drag to move)`, 'info');
+                });
+                
+                xyPad.addEventListener('mouseleave', () => {
+                    isHovering = false;
+                    if (!isDragging) showMessage('', 'info');
+                });
+                
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const pos = posFromEvent(e);
+                    updateXY(pos.x, pos.y);
+                });
+                
+                window.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+                
+                // Initial draw
+                drawXYPad();
+                
+                // Expose update function for container loading
+                window.updatetransformXY = (newX, newY) => {
+                    posX = Math.max(-1, Math.min(1, newX));
+                    posY = Math.max(-1, Math.min(1, newY));
+                    if (inputX) inputX.value = posX.toFixed(2);
+                    if (inputY) inputY.value = posY.toFixed(2);
+                    drawXYPad();
+                };
+            }
+            
+            // V4_9_14: PIVOT Pad for Pivot X/Y (rotation center)
+            const pivotPad = document.getElementById('transformPivotPad');
+            if (pivotPad) {
+                const ctx = pivotPad.getContext('2d');
+                
+                let posX = parseFloat(document.getElementById('transformPivotX')?.value) || 0;
+                let posY = parseFloat(document.getElementById('transformPivotY')?.value) || 0;
+                let isDraggingPivot = false;
+                let isHoveringPivot = false;
+                
+                function drawPivotPad() {
+                    const w = 50, h = 30;
+                    ctx.clearRect(0, 0, w, h);
+                    
+                    // Background
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, w, h);
+                    
+                    // Border
+                    ctx.strokeStyle = '#444';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
+                    
+                    // Crosshair (subtle)
+                    ctx.strokeStyle = '#333';
+                    ctx.beginPath();
+                    ctx.moveTo(w / 2, 0);
+                    ctx.lineTo(w / 2, h);
+                    ctx.moveTo(0, h / 2);
+                    ctx.lineTo(w, h / 2);
+                    ctx.stroke();
+                    
+                    // Position dot
+                    const dotX = (posX + 1) / 2 * w;  // -1..1 → 0..w
+                    const dotY = (1 - (posY + 1) / 2) * h;  // -1..1 → h..0 (inverted)
+                    
+                    ctx.fillStyle = '#9d4edd';
+                    ctx.beginPath();
+                    ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Dot border
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                
+                function updatePivot(newX, newY) {
+                    posX = Math.max(-1, Math.min(1, newX));
+                    posY = Math.max(-1, Math.min(1, newY));
+                    // Get inputs fresh each time
+                    const inX = document.getElementById('transformPivotX');
+                    const inY = document.getElementById('transformPivotY');
+                    if (inX) inX.value = posX.toFixed(2);
+                    if (inY) inY.value = posY.toFixed(2);
+                    drawPivotPad();
+                    showMessage(`Pivot: ${posX.toFixed(2)}, ${posY.toFixed(2)}`, 'state');
+                }
+                
+                function posFromEventPivot(e) {
+                    const rect = pivotPad.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                    const y = 1 - ((e.clientY - rect.top) / rect.height) * 2;
+                    return { x, y };
+                }
+                
+                // Mouse events
+                pivotPad.addEventListener('mousedown', (e) => {
+                    isDraggingPivot = true;
+                    const pos = posFromEventPivot(e);
+                    updatePivot(pos.x, pos.y);
+                });
+                
+                pivotPad.addEventListener('mouseenter', () => {
+                    isHoveringPivot = true;
+                    showMessage(`Pivot: ${posX.toFixed(2)}, ${posY.toFixed(2)} (drag to move)`, 'info');
+                });
+                
+                pivotPad.addEventListener('mouseleave', () => {
+                    isHoveringPivot = false;
+                    if (!isDraggingPivot) showMessage('', 'info');
+                });
+                
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDraggingPivot) return;
+                    const pos = posFromEventPivot(e);
+                    updatePivot(pos.x, pos.y);
+                });
+                
+                window.addEventListener('mouseup', () => {
+                    isDraggingPivot = false;
+                });
+                
+                // Initial draw
+                drawPivotPad();
+                
+                // Expose update function for container loading
+                window.updatetransformPivot = (newX, newY) => {
+                    posX = Math.max(-1, Math.min(1, newX));
+                    posY = Math.max(-1, Math.min(1, newY));
+                    const inX = document.getElementById('transformPivotX');
+                    const inY = document.getElementById('transformPivotY');
+                    if (inX) inX.value = posX.toFixed(2);
+                    if (inY) inY.value = posY.toFixed(2);
+                    drawPivotPad();
+                };
+            }
+            
+            console.log('V4_9_14: Transform encoders initialized (ROT, ZOOM, XY, PIVOT)');
+        }
+
         // V4_8_31: OmsDropdown - Reusable dropdown component with thumbnail support
         class OmsDropdown {
             constructor(containerId, options = {}) {
@@ -18996,13 +19694,21 @@ ${providedShaderCode}
         const MOD_COL_IDS = ['Subdiv', 'Waveform', 'Gain', 'Freq1', 'Freq2'];
         
         function getModControlId(row, col) {
-            // Map to actual element IDs
+            // Map to actual element IDs (hidden inputs for dropdowns)
             const rowPrefix = MOD_ROW_IDS[row];
             if (col === 0) return rowPrefix + 'Subdiv';
             if (col === 1) return rowPrefix + 'Waveform';
             if (col === 2) return rowPrefix + 'Gain';
             if (col === 3) return rowPrefix + 'Freq1';
             if (col === 4) return rowPrefix + 'Freq2';
+            return null;
+        }
+        
+        // V4_9_35: Get OmsDropdown instance for modulator controls
+        function getModDropdown(row, col) {
+            const rowPrefix = MOD_ROW_IDS[row];
+            if (col === 0) return window[rowPrefix + 'SubdivDropdown'];
+            if (col === 1) return window[rowPrefix + 'WaveformDropdown'];
             return null;
         }
         
@@ -19020,11 +19726,12 @@ ${providedShaderCode}
             
             if (!modReactivityMode) return;
             
-            // For dropdowns (col 0-1), add class to select element
+            // V4_9_35: For dropdowns (col 0-1), add class to OmsDropdown header
             if (modSelectedCol <= 1) {
-                const id = getModControlId(modSelectedRow, modSelectedCol);
-                const el = document.getElementById(id);
-                if (el) el.classList.add('mod-selected');
+                const dropdown = getModDropdown(modSelectedRow, modSelectedCol);
+                if (dropdown && dropdown.header) {
+                    dropdown.header.classList.add('mod-selected');
+                }
             }
             // For knobs (col 2-4), add class to canvas
             else {
@@ -19064,14 +19771,27 @@ ${providedShaderCode}
             modLastKeyTime = now;
             const accel = 1 + modKeyRepeatCount * 0.5; // 1x, 1.5x, 2x, 2.5x... up to 11x
             
-            // Dropdowns (col 0-1)
+            // V4_9_35: Dropdowns (col 0-1) - use OmsDropdown API
             if (modSelectedCol <= 1) {
-                const newIndex = el.selectedIndex + delta;
-                if (newIndex >= 0 && newIndex < el.options.length) {
-                    el.selectedIndex = newIndex;
-                    el.dispatchEvent(new Event('change'));
-                    showMessage(`Mod ${MOD_ROW_NAMES[modSelectedRow]} ${MOD_COL_NAMES[modSelectedCol]}: ${el.options[el.selectedIndex].text}`, 'state');
-                }
+                const dropdown = getModDropdown(modSelectedRow, modSelectedCol);
+                if (!dropdown || !dropdown.items) return;
+                
+                // Find current index (skip separators)
+                const currentValue = dropdown.getValue();
+                const selectableItems = dropdown.items.filter(item => !item.separator);
+                let currentIndex = selectableItems.findIndex(item => item.value === currentValue);
+                if (currentIndex === -1) currentIndex = 0;
+                
+                // Move to next/prev (wrapping)
+                let newIndex = currentIndex + delta;
+                if (newIndex < 0) newIndex = selectableItems.length - 1;
+                if (newIndex >= selectableItems.length) newIndex = 0;
+                
+                const newItem = selectableItems[newIndex];
+                dropdown.setValue(newItem.value);
+                el.value = newItem.value; // Sync hidden input
+                
+                showMessage(`Mod ${MOD_ROW_NAMES[modSelectedRow]} ${MOD_COL_NAMES[modSelectedCol]}: ${newItem.label}`, 'state');
             }
             // Gain knob (col 2) - V4_8_31: range 0-1, step 0.01 with acceleration
             else if (modSelectedCol === 2) {
@@ -19129,6 +19849,9 @@ ${providedShaderCode}
             // Shift+R: Toggle reactivity mode
             if (e.shiftKey && (e.key === 'r' || e.key === 'R')) {
                 e.preventDefault();
+                // V4_9_11: Exit transform mode if active
+                if (transformKeyboardMode) exitTransformMode();
+                
                 if (modReactivityMode) {
                     exitReactivityMode();
                 } else {
@@ -19183,6 +19906,319 @@ ${providedShaderCode}
         
         console.log('V4_8_31: Modulator keyboard controls initialized');
         
+        // V4_9_06: Transform keyboard controls - Shift+T mode
+        // V4_9_09: Updated for ZOOM combo encoder
+        // V4_9_10: Updated for XY pad (3 controls: ROT, ZOOM, XY)
+        let transformKeyboardMode = false;
+        let transformSelectedCol = 0;   // 0-2 = ROT/ZOOM/XY
+        let transformKeyRepeatCount = 0;
+        let transformLastKeyTime = 0;
+        let transformLastEnterTime = 0;  // V4_9_22: For double-tap Shift+Enter reset
+        
+        // V4_9_14: Added Tile after Zoom (5 controls total)
+        const TRANSFORM_COL_NAMES = ['Rotation', 'Scale', 'Tile', 'Translate', 'Pivot'];
+        const TRANSFORM_COL_IDS = ['transformRotation', 'transformScale', 'transformTile', 'transformTranslate', 'transformPivot'];
+        const TRANSFORM_KNOB_IDS = ['transformRotationKnob', 'transformScaleKnob', 'transformTileKnob', 'transformXYPad', 'transformPivotPad'];
+        const TRANSFORM_CONFIGS = [
+            { min: 0, max: 360, step: 1, unit: '°', decimals: 0, isCombo: false, endless: true },  // Rotation (V4_9_24: endless)
+            { min: 0, max: 4, step: 0.01, unit: 'x', decimals: 2, isCombo: true, targets: ['transformScaleX', 'transformScaleY'] },  // Scale
+            { min: 1, max: 8, step: 0.1, unit: 'x', decimals: 0, isCombo: false },           // Tile (V4_9_14)
+            { min: -1, max: 1, step: 0.01, unit: '', decimals: 2, isXY: true },              // Translate (XY pad)
+            { min: -1, max: 1, step: 0.01, unit: '', decimals: 2, isPivot: true }            // Pivot pad
+        ];
+        
+        function updateTransformSelection() {
+            // Clear all transform selection rings
+            TRANSFORM_KNOB_IDS.forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas) canvas.classList.remove('mod-selected');
+            });
+            
+            if (!transformKeyboardMode) return;
+            
+            // Add selection ring to current control
+            const canvas = document.getElementById(TRANSFORM_KNOB_IDS[transformSelectedCol]);
+            if (canvas) canvas.classList.add('mod-selected');
+            
+            // V4_9_14: Different help text for XY/Pivot pads (indices shifted)
+            if (transformSelectedCol === 3) {
+                showMessage(`Translate (⇧↑↓←→ move, ←→ nav, Esc exit)`, 'info');
+            } else if (transformSelectedCol === 4) {
+                showMessage(`Pivot (⇧↑↓←→ move, ←→ nav, Esc exit)`, 'info');
+            } else {
+                showMessage(`${TRANSFORM_COL_NAMES[transformSelectedCol]} (←→ nav, ⇧←→ adjust, Esc exit)`, 'info');
+            }
+        }
+        
+        function exitTransformMode() {
+            transformKeyboardMode = false;
+            transformKeyRepeatCount = 0;
+            TRANSFORM_KNOB_IDS.forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas) canvas.classList.remove('mod-selected');
+            });
+            showMessage('', 'info');
+        }
+        
+        function adjustTransformValue(delta) {
+            if (!transformKeyboardMode) return;
+            
+            const config = TRANSFORM_CONFIGS[transformSelectedCol];
+            const id = TRANSFORM_COL_IDS[transformSelectedCol];
+            
+            // V4_9_10: XY pad handled separately
+            if (config.isXY) return;
+            
+            // V4_9_09: For combo (ZOOM), read from first target
+            let el;
+            if (config.isCombo && config.targets) {
+                el = document.getElementById(config.targets[0]);
+            } else {
+                el = document.getElementById(id);
+            }
+            if (!el) return;
+            
+            // Progressive acceleration
+            const now = Date.now();
+            if (now - transformLastKeyTime < 150) {
+                transformKeyRepeatCount = Math.min(transformKeyRepeatCount + 1, 20);
+            } else {
+                transformKeyRepeatCount = 0;
+            }
+            transformLastKeyTime = now;
+            const accel = 1 + transformKeyRepeatCount * 0.5;
+            
+            let val = parseFloat(el.value);
+            if (isNaN(val)) val = config.min;
+            
+            // V4_9_24: Endless encoders wrap, others clamp
+            if (config.endless) {
+                const range = config.max - config.min;
+                val = ((val + delta * config.step * accel - config.min) % range + range) % range + config.min;
+            } else {
+                val = Math.max(config.min, Math.min(config.max, val + delta * config.step * accel));
+            }
+            const formattedVal = config.decimals === 0 ? Math.round(val) : val.toFixed(config.decimals);
+            
+            // V4_9_09: For combo (ZOOM), write to all targets
+            if (config.isCombo && config.targets) {
+                config.targets.forEach(targetId => {
+                    const target = document.getElementById(targetId);
+                    if (target) target.value = formattedVal;
+                });
+            } else {
+                el.value = formattedVal;
+            }
+            
+            // Update knob visual
+            const updateFn = window[`update${id}`];
+            if (updateFn) updateFn(val);
+            
+            const displayVal = config.decimals === 0 ? Math.round(val) + config.unit : val.toFixed(config.decimals) + config.unit;
+            showMessage(`${TRANSFORM_COL_NAMES[transformSelectedCol]}: ${displayVal}`, 'state');
+        }
+        
+        // V4_9_10: Adjust XY position with arrow keys
+        // V4_9_17: Fixed index check (was 2, now 3 after TILE added)
+        function adjustXYValue(deltaX, deltaY) {
+            if (!transformKeyboardMode || transformSelectedCol !== 3) return;
+            
+            const inputX = document.getElementById('transformTranslateX');
+            const inputY = document.getElementById('transformTranslateY');
+            if (!inputX || !inputY) return;
+            
+            // Progressive acceleration
+            const now = Date.now();
+            if (now - transformLastKeyTime < 150) {
+                transformKeyRepeatCount = Math.min(transformKeyRepeatCount + 1, 20);
+            } else {
+                transformKeyRepeatCount = 0;
+            }
+            transformLastKeyTime = now;
+            const accel = 1 + transformKeyRepeatCount * 0.5;
+            const step = 0.01 * accel;
+            
+            let x = parseFloat(inputX.value) || 0;
+            let y = parseFloat(inputY.value) || 0;
+            
+            x = Math.max(-1, Math.min(1, x + deltaX * step));
+            y = Math.max(-1, Math.min(1, y + deltaY * step));
+            
+            inputX.value = x.toFixed(2);
+            inputY.value = y.toFixed(2);
+            
+            // Update XY pad visual
+            if (window.updatetransformXY) window.updatetransformXY(x, y);
+            
+            showMessage(`Translate: ${x.toFixed(2)}, ${y.toFixed(2)}`, 'state');
+        }
+        
+        // V4_9_14: Adjust pivot value with keyboard
+        // V4_9_17: Fixed index check (was 3, now 4 after TILE added)
+        function adjustPivotValue(deltaX, deltaY) {
+            if (!transformKeyboardMode || transformSelectedCol !== 4) return;
+            
+            const inputX = document.getElementById('transformPivotX');
+            const inputY = document.getElementById('transformPivotY');
+            if (!inputX || !inputY) return;
+            
+            // Progressive acceleration
+            const now = Date.now();
+            if (now - transformLastKeyTime < 150) {
+                transformKeyRepeatCount = Math.min(transformKeyRepeatCount + 1, 20);
+            } else {
+                transformKeyRepeatCount = 0;
+            }
+            transformLastKeyTime = now;
+            const accel = 1 + transformKeyRepeatCount * 0.5;
+            const step = 0.01 * accel;
+            
+            let x = parseFloat(inputX.value) || 0;
+            let y = parseFloat(inputY.value) || 0;
+            
+            x = Math.max(-1, Math.min(1, x + deltaX * step));
+            y = Math.max(-1, Math.min(1, y + deltaY * step));
+            
+            inputX.value = x.toFixed(2);
+            inputY.value = y.toFixed(2);
+            
+            // Update Pivot pad visual
+            if (window.updatetransformPivot) window.updatetransformPivot(x, y);
+            
+            showMessage(`Pivot: ${x.toFixed(2)}, ${y.toFixed(2)}`, 'state');
+        }
+        
+        // Keyboard handler for transform controls
+        document.addEventListener('keydown', (e) => {
+            // Don't handle if typing in input/textarea
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            // Shift+T: Toggle transform mode
+            if (e.shiftKey && (e.key === 't' || e.key === 'T')) {
+                // Only handle in CREATE tab
+                const createTab = document.getElementById('controlsTabContent');
+                if (!createTab || createTab.style.display === 'none') return;
+                
+                e.preventDefault();
+                // Exit reactivity mode if active
+                if (modReactivityMode) exitReactivityMode();
+                
+                if (transformKeyboardMode) {
+                    exitTransformMode();
+                } else {
+                    transformKeyboardMode = true;
+                    updateTransformSelection();
+                }
+                return;
+            }
+            
+            // Escape: Exit transform mode
+            if (e.key === 'Escape' && transformKeyboardMode) {
+                e.preventDefault();
+                exitTransformMode();
+                return;
+            }
+            
+            // V4_9_22: Double-tap Shift+Enter = reset selected transform control
+            if (e.key === 'Enter' && e.shiftKey && transformKeyboardMode) {
+                e.preventDefault();
+                const now = Date.now();
+                if (now - transformLastEnterTime < 300) {
+                    // Double-tap detected - reset selected control
+                    const col = transformSelectedCol;
+                    
+                    if (col === 0) {
+                        // Rotation → 0
+                        const input = document.getElementById('transformRotation');
+                        if (input) input.value = '0';
+                        if (window.updatetransformRotation) window.updatetransformRotation(0);
+                        showMessage('Rotation: Reset to 0°', 'state');
+                    } else if (col === 1) {
+                        // Scale → 1.0
+                        const inputX = document.getElementById('transformScaleX');
+                        const inputY = document.getElementById('transformScaleY');
+                        if (inputX) inputX.value = '1.00';
+                        if (inputY) inputY.value = '1.00';
+                        if (window.updatetransformScale) window.updatetransformScale(1);
+                        showMessage('Scale: Reset to 1.00x', 'state');
+                    } else if (col === 2) {
+                        // Tile → 1
+                        const input = document.getElementById('transformTile');
+                        if (input) input.value = '1';
+                        if (window.updatetransformTile) window.updatetransformTile(1);
+                        showMessage('Tile: Reset to 1x', 'state');
+                    } else if (col === 3) {
+                        // Translate → 0, 0
+                        const inputX = document.getElementById('transformTranslateX');
+                        const inputY = document.getElementById('transformTranslateY');
+                        if (inputX) inputX.value = '0.00';
+                        if (inputY) inputY.value = '0.00';
+                        if (window.updatetransformXY) window.updatetransformXY(0, 0);
+                        showMessage('Translate: Reset to 0, 0', 'state');
+                    } else if (col === 4) {
+                        // Pivot → 0, 0
+                        const inputX = document.getElementById('transformPivotX');
+                        const inputY = document.getElementById('transformPivotY');
+                        if (inputX) inputX.value = '0.00';
+                        if (inputY) inputY.value = '0.00';
+                        if (window.updatetransformPivot) window.updatetransformPivot(0, 0);
+                        showMessage('Pivot: Reset to 0, 0', 'state');
+                    }
+                    transformLastEnterTime = 0;  // Reset timer
+                } else {
+                    transformLastEnterTime = now;
+                }
+                return;
+            }
+            
+            // Only handle arrows if in transform mode
+            if (!transformKeyboardMode) return;
+            
+            // V4_9_14: When Translate (XY) pad selected, Shift+Arrows move position (index 3)
+            if (transformSelectedCol === 3 && e.shiftKey) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const deltaX = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+                    const deltaY = e.key === 'ArrowUp' ? 1 : e.key === 'ArrowDown' ? -1 : 0;
+                    adjustXYValue(deltaX, deltaY);
+                    return;
+                }
+            }
+            
+            // V4_9_14: When Pivot pad selected, Shift+Arrows move position (index 4)
+            if (transformSelectedCol === 4 && e.shiftKey) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const deltaX = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+                    const deltaY = e.key === 'ArrowUp' ? 1 : e.key === 'ArrowDown' ? -1 : 0;
+                    adjustPivotValue(deltaX, deltaY);
+                    return;
+                }
+            }
+            
+            // Shift+Left/Right: Adjust value (for rotary encoders)
+            if (e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+                e.preventDefault();
+                const delta = e.key === 'ArrowRight' ? 1 : -1;
+                adjustTransformValue(delta);
+                return;
+            }
+            
+            // Left/Right (no shift): Navigate columns (5 controls)
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (e.key === 'ArrowLeft') {
+                    transformSelectedCol = (transformSelectedCol - 1 + 5) % 5;
+                } else {
+                    transformSelectedCol = (transformSelectedCol + 1) % 5;
+                }
+                updateTransformSelection();
+                return;
+            }
+        });
+        
+        console.log('V4_9_14: Transform keyboard controls initialized (ROT, ZOOM, TILE, TRANSLATE, PIVOT)');
+        
         // V4_8_14: Trackpad scroll on waveform = audio scrub (smooth only)
         document.addEventListener('DOMContentLoaded', () => {
             const waveformCanvas = document.getElementById('waveformCanvas');
@@ -19205,6 +20241,184 @@ ${providedShaderCode}
                 
                 console.log('V4_8_31: Trackpad waveform scrub initialized');
             }
+            
+            // V4_9_14: Global Shift+trackpad for XY or PIVOT (whichever is selected)
+            // V4_9_22: Unified wheel handler for ALL transform controls
+            // V4_9_35: Extended to support Reactivity knobs (Gain/Freq1/Freq2)
+            // Requires Shift key (consistent with all CREATE tab keyboard controls)
+            // Works two ways:
+            // 1. Shift + hover over control + scroll = adjust that control
+            // 2. Shift + in keyboard mode + scroll anywhere = adjust selected control
+            document.addEventListener('wheel', (e) => {
+                // Require Shift key
+                if (!e.shiftKey) return;
+                
+                // Only in CREATE tab
+                const createTab = document.getElementById('controlsTabContent');
+                if (!createTab || createTab.style.display === 'none') return;
+                
+                // Don't interfere with input fields
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                
+                const target = e.target;
+                const transformIds = ['transformRotationKnob', 'transformScaleKnob', 'transformTileKnob', 'transformXYPad', 'transformPivotPad'];
+                
+                // V4_9_35: Reactivity knob IDs
+                const reactivityKnobIds = [
+                    'modAGainKnob', 'modBGainKnob', 'modCGainKnob',
+                    'modAFreq1Knob', 'modBFreq1Knob', 'modCFreq1Knob',
+                    'modAFreq2Knob', 'modBFreq2Knob', 'modCFreq2Knob'
+                ];
+                
+                // Determine which control to adjust:
+                // 1. If hovering over a transform control, use that
+                // 2. Else if in transform keyboard mode, use selected control
+                // 3. V4_9_35: If hovering over reactivity knob, use that
+                // 4. V4_9_35: If in reactivity mode (col 2-4), use selected knob
+                let activeControlId = null;
+                
+                if (transformIds.includes(target.id)) {
+                    activeControlId = target.id;
+                } else if (transformKeyboardMode) {
+                    activeControlId = TRANSFORM_KNOB_IDS[transformSelectedCol];
+                } else if (reactivityKnobIds.includes(target.id)) {
+                    activeControlId = target.id;
+                } else if (modReactivityMode && modSelectedCol >= 2) {
+                    // In reactivity mode, cols 2-4 are knobs
+                    activeControlId = getModKnobCanvasId(modSelectedRow, modSelectedCol);
+                }
+                
+                if (!activeControlId) return;
+                
+                e.preventDefault();
+                
+                // V4_9_35: REACTIVITY KNOBS - Gain (linear 0-1)
+                if (activeControlId.endsWith('GainKnob')) {
+                    const prefix = activeControlId.replace('GainKnob', '');  // modA, modB, modC
+                    const input = document.getElementById(prefix + 'Gain');
+                    if (!input) return;
+                    
+                    const delta = -e.deltaY * 0.002;  // 0.002 per scroll unit
+                    let val = parseFloat(input.value) || 0.1;
+                    val = Math.max(0, Math.min(1, val + delta));
+                    input.value = val.toFixed(2);
+                    
+                    const updateFn = window['update' + prefix + 'Gain'];
+                    if (updateFn) updateFn(val);
+                    
+                    const rowName = prefix.replace('mod', '');  // A, B, C
+                    showMessage(`Mod ${rowName} Gain: ${val.toFixed(2)}`, 'state');
+                }
+                // V4_9_35: REACTIVITY KNOBS - Freq1/Freq2 (log scale 20-24000)
+                else if (activeControlId.includes('Freq')) {
+                    const match = activeControlId.match(/(mod[ABC])(Freq[12])Knob/);
+                    if (!match) return;
+                    const prefix = match[1];  // modA, modB, modC
+                    const freqName = match[2];  // Freq1, Freq2
+                    const input = document.getElementById(prefix + freqName);
+                    if (!input) return;
+                    
+                    // Log scale: multiply/divide by ratio
+                    const ratio = Math.abs(e.deltaY) > 50 ? 1.2 : 1.05;  // Faster for big scrolls
+                    let val = parseInt(input.value) || 100;
+                    if (e.deltaY < 0) {
+                        val = Math.min(24000, Math.round(val * ratio));
+                    } else {
+                        val = Math.max(20, Math.round(val / ratio));
+                    }
+                    input.value = val;
+                    
+                    const updateFn = window['update' + prefix + freqName];
+                    if (updateFn) updateFn(val);
+                    
+                    // Push behavior: Freq1 can't exceed Freq2
+                    const freq1El = document.getElementById(prefix + 'Freq1');
+                    const freq2El = document.getElementById(prefix + 'Freq2');
+                    if (freq1El && freq2El) {
+                        const freq1 = parseInt(freq1El.value);
+                        const freq2 = parseInt(freq2El.value);
+                        if (freqName === 'Freq1' && freq1 > freq2) {
+                            freq2El.value = freq1;
+                            const updateFn2 = window['update' + prefix + 'Freq2'];
+                            if (updateFn2) updateFn2(freq1);
+                        } else if (freqName === 'Freq2' && freq2 < freq1) {
+                            freq1El.value = freq2;
+                            const updateFn1 = window['update' + prefix + 'Freq1'];
+                            if (updateFn1) updateFn1(freq2);
+                        }
+                    }
+                    
+                    const rowName = prefix.replace('mod', '');  // A, B, C
+                    showMessage(`Mod ${rowName} ${freqName}: ${val} Hz`, 'state');
+                }
+                // ROTATION encoder (V4_9_24: endless/wrapping)
+                else if (activeControlId === 'transformRotationKnob') {
+                    const delta = -e.deltaY * 0.1;  // 0.1 deg per scroll unit
+                    const input = document.getElementById('transformRotation');
+                    if (!input) return;
+                    let val = parseFloat(input.value) || 0;
+                    val = ((val + delta) % 360 + 360) % 360;  // Wrap 0-360
+                    input.value = Math.round(val);
+                    if (window.updatetransformRotation) window.updatetransformRotation(val);
+                    showMessage(`Rotation: ${Math.round(val)}°`, 'state');
+                }
+                // SCALE encoder
+                else if (activeControlId === 'transformScaleKnob') {
+                    const delta = -e.deltaY * 0.001;  // 0.001 per scroll unit
+                    const inputX = document.getElementById('transformScaleX');
+                    const inputY = document.getElementById('transformScaleY');
+                    if (!inputX || !inputY) return;
+                    let val = parseFloat(inputX.value) || 1;
+                    val = Math.max(0, Math.min(4, val + delta));
+                    inputX.value = val.toFixed(2);
+                    inputY.value = val.toFixed(2);
+                    if (window.updatetransformScale) window.updatetransformScale(val);
+                    showMessage(`Scale: ${val.toFixed(2)}x`, 'state');
+                }
+                // TILE encoder
+                else if (activeControlId === 'transformTileKnob') {
+                    const delta = -e.deltaY * 0.01;  // 0.01 per scroll unit
+                    const input = document.getElementById('transformTile');
+                    if (!input) return;
+                    let val = parseFloat(input.value) || 1;
+                    val = Math.max(1, Math.min(8, val + delta));
+                    input.value = Math.round(val);
+                    if (window.updatetransformTile) window.updatetransformTile(val);
+                    showMessage(`Tile: ${Math.round(val)}x`, 'state');
+                }
+                // XY pad (Translate)
+                else if (activeControlId === 'transformXYPad') {
+                    const sensitivity = 0.002;
+                    const inputX = document.getElementById('transformTranslateX');
+                    const inputY = document.getElementById('transformTranslateY');
+                    if (!inputX || !inputY) return;
+                    let x = parseFloat(inputX.value) || 0;
+                    let y = parseFloat(inputY.value) || 0;
+                    x = Math.max(-1, Math.min(1, x + e.deltaX * sensitivity));
+                    y = Math.max(-1, Math.min(1, y - e.deltaY * sensitivity));
+                    inputX.value = x.toFixed(2);
+                    inputY.value = y.toFixed(2);
+                    if (window.updatetransformXY) window.updatetransformXY(x, y);
+                    showMessage(`Translate: ${x.toFixed(2)}, ${y.toFixed(2)}`, 'state');
+                }
+                // PIVOT pad
+                else if (activeControlId === 'transformPivotPad') {
+                    const sensitivity = 0.002;
+                    const inputX = document.getElementById('transformPivotX');
+                    const inputY = document.getElementById('transformPivotY');
+                    if (!inputX || !inputY) return;
+                    let x = parseFloat(inputX.value) || 0;
+                    let y = parseFloat(inputY.value) || 0;
+                    x = Math.max(-1, Math.min(1, x + e.deltaX * sensitivity));
+                    y = Math.max(-1, Math.min(1, y - e.deltaY * sensitivity));
+                    inputX.value = x.toFixed(2);
+                    inputY.value = y.toFixed(2);
+                    if (window.updatetransformPivot) window.updatetransformPivot(x, y);
+                    showMessage(`Pivot: ${x.toFixed(2)}, ${y.toFixed(2)}`, 'state');
+                }
+            }, { passive: false });
+            
+            console.log('V4_9_35: Unified wheel handler (Transform + Reactivity knobs, Shift required)');
         });
         
         // V4_8_31: Shift+< and Shift+> = jump to prev/next grid line
@@ -19253,8 +20467,14 @@ ${providedShaderCode}
             // V4_8_10: Initialize gain knobs
             initGainKnobs();
             
+            // V4_9_02: Initialize transform encoders
+            initTransformEncoders();
+            
             // V4_8_31: Initialize shader name dropdown
             initShaderNameDropdown();
+            
+            // V4_9_35: Initialize all CREATE tab dropdowns
+            initCreateTabDropdowns();
             
             const select = document.getElementById('projectStateSelect');
             if (select) {
