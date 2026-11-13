@@ -1,7 +1,7 @@
-# ONEMANSHYO App [Beta V5_4_0] - CLAUDE PROJECT INSTRUCTIONS
+# ONEMANSHYO App [Beta V5_5_0] - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** Beta V5_4_0  
-**Date:** December 31, 2025  
+**Version:** Beta V5_5_0  
+**Date:** January 3, 2026  
 **Purpose:** Working protocols and project context for Claude AI development
 
 ---
@@ -295,23 +295,23 @@ CREATE, ORGANIZE, and PERFORM are tabs in a single unified workflow:
 
 ### 1. Version Numbering
 
-**Format:** `V5_4_0` (underscores everywhere)
+**Format:** `V5_5_0` (underscores everywhere)
 - Major_Minor_Patch
 - **No alphabetical suffixes**
 
 **Build Process (V5+):**
-1. Copy deliverables HTML to build folder (e.g., V5_4_0.html → V5_4_0 folder)
-2. Build iterations: V5_4_01, V5_4_02, V5_4_03...
-3. Create deliverables: V5_4_0 (bumps minor, resets patch)
-4. Copy V5_4_0.html → V5_4_0 folder
-5. Build iterations: V5_4_01, V5_4_02...
-6. Create deliverables: V5_5_0
+1. Copy deliverables HTML to build folder (e.g., V5_5_0.html → V5_5_0 folder)
+2. Build iterations: V5_5_01, V5_5_02, V5_5_03...
+3. Create deliverables: V5_5_0 (bumps minor, resets patch)
+4. Copy V5_5_0.html → V5_5_0 folder
+5. Build iterations: V5_5_01, V5_5_02...
+6. Create deliverables: V5_6_0
 7. Repeat
 
 **Display Format:**
-- Filename: `OMS_App_Beta_V5_4_0.html`
-- Title tag: `Beta V5_4_0` (uppercase V)
-- Header: `[Beta V5_4_0]` (brackets, uppercase V)
+- Filename: `OMS_App_Beta_V5_5_0.html`
+- Title tag: `Beta V5_5_0` (uppercase V)
+- Header: `[Beta V5_5_0]` (brackets, uppercase V)
 
 ### 2. Build Protocol
 
@@ -357,35 +357,35 @@ Chats titled "OMS Road Map Planning" (or similar) are for **brainstorming and ba
 ### 5. File Naming Conventions
 
 **Development Builds:**
-- HTML: `OMS_App_Beta_V5_4_01.html`
-- MD Notes: `OMS_App_Beta_V5_4_01_DescriptionOfWork.md`
+- HTML: `OMS_App_Beta_V5_5_01.html`
+- MD Notes: `OMS_App_Beta_V5_5_01_DescriptionOfWork.md`
 
 **Production Release:**
-- Filename: `OMS_App_Beta_V5_4_0.html`
-- Title: `Beta V5_4_0` (uppercase V)
-- Header: `[Beta V5_4_0]` (brackets, uppercase V)
+- Filename: `OMS_App_Beta_V5_5_0.html`
+- Title: `Beta V5_5_0` (uppercase V)
+- Header: `[Beta V5_5_0]` (brackets, uppercase V)
 
-**Format:** Use underscores everywhere: `V5_4_0` (Major_Minor_Patch)
+**Format:** Use underscores everywhere: `V5_5_0` (Major_Minor_Patch)
 
 ### 6. Deliverables Protocol
 
 **Deliverables Folder Structure:**
 ```
-OMS_App_Beta_V5_4_0_Deliverables/
-  ├── OMS_App_Beta_V5_4_0.html
-  ├── OMS_App_Beta_V5_4_0_A_Deliverables.txt
-  ├── OMS_App_Beta_V5_4_0_B_Complete_Changelog.md
-  ├── OMS_App_Beta_V5_4_0_C_Developer_Documentation.md
-  ├── OMS_App_Beta_V5_4_0_D_Release_Notes.md
-  ├── OMS_App_Beta_V5_4_0_E_UserGuide_All.md
-  ├── OMS_App_Beta_V5_4_0_Y_ClaudeProject_SystemReference.md
-  └── OMS_App_Beta_V5_4_0_Z_ClaudeProject_Instructions.md
+OMS_App_Beta_V5_5_0_Deliverables/
+  ├── OMS_App_Beta_V5_5_0.html
+  ├── OMS_App_Beta_V5_5_0_A_Deliverables.txt
+  ├── OMS_App_Beta_V5_5_0_B_Complete_Changelog.md
+  ├── OMS_App_Beta_V5_5_0_C_Developer_Documentation.md
+  ├── OMS_App_Beta_V5_5_0_D_Release_Notes.md
+  ├── OMS_App_Beta_V5_5_0_E_UserGuide_All.md
+  ├── OMS_App_Beta_V5_5_0_Y_ClaudeProject_SystemReference.md
+  └── OMS_App_Beta_V5_5_0_Z_ClaudeProject_Instructions.md
 ```
 
-**ZIP File Naming:** `OMS_App_Beta_V5_4_0_Deliverables.zip`
+**ZIP File Naming:** `OMS_App_Beta_V5_5_0_Deliverables.zip`
 
 **Builds vs Deliverables:**
-- **Iterations folder:** Contains development builds with a single consolidated notes file named `_OMS_App_Beta_V5_4_0_Consolidated_Notes.md` (leading underscore for sort order)
+- **Iterations folder:** Contains development builds with a single consolidated notes file named `_OMS_App_Beta_V5_5_0_Consolidated_Notes.md` (leading underscore for sort order)
 - **Deliverables folder:** Final release package produced from consolidated notes + prior version deliverables
 
 **Release Workflow (in order):**
@@ -577,13 +577,13 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 ---
 
-## 8. WGSL SHADER CONVENTIONS (V5_4_0)
+## 8. WGSL SHADER CONVENTIONS (V5_5_0)
 
 ### Shader File Naming
 
 `OMS_Shader_[Name]_[AppVersion]_V[ShaderVersion].wgsl`
 
-Example: `OMS_Shader_Lava_Lamp_Metaballs_V5_4_0_V3.wgsl`
+Example: `OMS_Shader_Lava_Lamp_Metaballs_V5_5_0_V3.wgsl`
 
 ### Header Template
 
@@ -591,7 +591,7 @@ Every shader MUST include these tags in order:
 ```
 // @name [Display Name - no version]
 // @app ONEMANSHYO
-// @appVersion BETA V5_4_0
+// @appVersion BETA V5_5_0
 // @url http://www.itswessmithyo.com
 // @credit [Inspiration source or empty]
 // @creditUrl [URL or empty]
@@ -624,12 +624,12 @@ Every shader MUST include these tags in order:
 
 #### Always Loaded (Baseline)
 
-**OMS_App_Beta_V5_4_0_Z_ClaudeProject_Instructions.md** - This Document
+**OMS_App_Beta_V5_5_0_Z_ClaudeProject_Instructions.md** - This Document
 - Development protocols, communication guidelines
 - Architectural principles, terminology
 - What never to suggest
 
-**OMS_App_Beta_V5_4_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
+**OMS_App_Beta_V5_5_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
 - Leaf Node hierarchy (Cortex/Nodes/Leafs)
 - Complete function reference (~310 functions)
 - Data structures (.oms, .omsp, gridState)
@@ -640,7 +640,7 @@ Every shader MUST include these tags in order:
 
 #### On-Demand (Wes Provides When Relevant)
 
-**OMS_App_Beta_V5_4_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
+**OMS_App_Beta_V5_5_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
 - Application usage (tabs, features, workflows)
 - **INDEX A:** DJ 101 Foundation (industry context, equipment, techniques)
 - **INDEX B:** Claude Shader Creation (prompts, workflows, examples)
@@ -702,7 +702,7 @@ When Claude needs information:
 **Core Principles:**
 1. Ask before building
 2. Wait for full context ("yes go")
-3. Use underscore-separated version numbers (Beta V5_4_0, two-digit patch)
+3. Use underscore-separated version numbers (Beta V5_5_0, two-digit patch)
 4. Never use VJ terminology
 5. Surgical changes only
 6. Single-file philosophy is sacred

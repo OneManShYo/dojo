@@ -1,8 +1,9 @@
-# ONEMANSHYO App [Beta V5_4_0] - SYSTEM REFERENCE
+# ONEMANSHYO App [Beta V5_5_0] - SYSTEM REFERENCE
 
-**Date:** December 31, 2025  
-**Version:** V5_4_0  
-**Purpose:** Complete technical implementation reference
+**Date:** January 3, 2026  
+**Version:** V5_5_0  
+**Purpose:** Complete technical implementation reference  
+**Line Count:** 4,927 (V5_4_0) → 5,290 (V5_5_0)
 
 ---
 
@@ -303,14 +304,41 @@ Built on cortex. Other things depend on these. Trace up AND down before touching
 - Dubby: DelayNode 375ms with feedback
 - Break: playbackRate 1.0→0.1
 
-**Mod Tuning System (V5_3_0):**
+**Mod Tuning System (V5_3_0, V5_5_0 Per-Mod):**
 - `modTuningPanelOpen` - Panel visibility state
-- `modAQ`, `modBQ`, `modCQ` - Per-modulator Q values (0.5-10, default 1.0)
-- `adsrAttack` - Attack time (0-100ms, default 5ms)
-- `adsrDecay` - Decay time (0-200ms, default 20ms)
-- `adsrSustain` - Sustain level (0-100%, default 70%)
-- `adsrRelease` - Release time (0-500ms, default 50ms)
-- `adsrThreshold` - Noise gate (0-20%, default 1%)
+- `modTuningSelectedMod` - Which mod panel shows ('A', 'B', 'C') - syncs to Reactivity row
+
+**Per-Mod Envelope Parameters (V5_5_0 - 18 total, 6 per mod):**
+```javascript
+// Mod A (Bass) - optimized for kicks
+modAQ: 0.70,           // Q (0.5-10)
+modAAttack: 5,         // Attack (0-100ms)
+modADecay: 20,         // Decay (0-200ms)
+modASustain: 70,       // Sustain (0-100%)
+modARelease: 50,       // Release (0-500ms)
+modAThreshold: 10,     // Threshold (0-100%)
+
+// Mod B (Mids) - optimized for snares/claps
+modBQ: 0.70,
+modBAttack: 10,
+modBDecay: 30,
+modBSustain: 80,
+modBRelease: 100,
+modBThreshold: 5,
+
+// Mod C (Highs) - optimized for hats/cymbals
+modCQ: 0.70,
+modCAttack: 2,
+modCDecay: 15,
+modCSustain: 60,
+modCRelease: 80,
+modCThreshold: 5,
+```
+
+**V5_5_0 Changes from V5_4_0:**
+- ADSR was global (shared by all mods) → now per-mod (independent)
+- Threshold range expanded: 0-20% → 0-100%
+- N-panel syncs to selected Reactivity row (↑/↓ navigation)
 
 **Audio Analysis System (V5_3_0 Rewrite):**
 - `createBandpassFilter()` - Bandpass filter per modulator
@@ -374,6 +402,50 @@ MAIN Bus → DSP Compressor → MAIN Gain → Master Output (Speakers)
 - `vfxFrameBuffer` - Frame buffer for VFX processing
 - `vfxUniformBuffer` - VFX-specific uniforms
 
+**Video Sources & PIP Camera System (V5_5_0):**
+- `videoSourcesSettings` - Camera device ID, mirror mode
+- `cameraStream` - MediaStream instance (shared across all PIPs)
+- `cameraOverlayVisible` - Full-screen overlay state (O key)
+- `pip1Visible` - PIP 1 slideout state (PERFORM tab, P key)
+- `pip2Visible` - PIP 2 corner state (CREATE/ORG/ADMIN, P key)
+- `pip3Visible` - PIP 3 center state (CREATE/ORG/ADMIN, Shift+P)
+- `pip1Settings` - {visible, shape, color, label}
+- `pip2Settings` - {shape, color}
+- `pip3Settings` - {shape, color}
+- `pipColorPickerOpen` - Color picker popup state
+- `activePIPForColorPicker` - Which PIP is being configured
+
+**PIP Shapes:** 'landscape' (16:9), 'portrait' (9:16), 'square' (1:1), 'circle' (1:1 rounded)
+**PIP Colors:** 'none', 'cyan', 'magenta', 'orange', 'yellow', 'green', 'purple', 'pink', 'white'
+
+**Smart Stream Management:**
+- Camera starts when first PIP opens
+- Camera continues while ANY PIP is visible
+- Camera stops only when ALL PIPs close
+
+**Transform Animation System (V5_5_0):**
+- `transformRotationMode` - 'stop', 'cw', 'ccw', 'pingpong'
+- `transformRotationSpeed` - 0.03 to 256 (exponential scale)
+- `transformScaleMode` - 'stop', 'cw', 'ccw', 'pingpong'
+- `transformScaleSpeed` - 0.03 to 256
+- `transformTileMode` - 'stop', 'cw', 'ccw', 'pingpong'
+- `transformTileSpeed` - 0.03 to 256
+
+**Mode Behaviors:**
+| Mode | Key | Rotation | Scale | Tile |
+|------|-----|----------|-------|------|
+| Stop | 0 | Manual only | Manual only | Manual only |
+| CW | 1 | Clockwise | Grow | Increase |
+| CCW | 2 | Counter-clockwise | Shrink | Decrease |
+| PingPong | 3 | Oscillate | Oscillate | Oscillate |
+
+**Speed Control:** Trackpad scroll adjusts speed exponentially (0.03× to 256×)
+
+**FX Overlay System (V5_5_0):**
+- `fxOverlayVisible` - Panel visibility state
+- `trackVFXValues[track][slot]` - Per-track VFX values (placeholder)
+- `trackFXValues[track][slot]` - Per-track FX values (R/D/W)
+
 ---
 
 ### Tier 3: Leafs
@@ -418,6 +490,21 @@ End of chain. Nothing depends on these. Safe to modify.
 - `meterOverlayVisible` - Toggle state
 - Split-cube button styling
 - Per-track V/A module layout
+
+**FX Overlay (V5_5_0):**
+- `fxOverlayVisible` - Panel visibility state
+- Orange FX button styling
+- 120px slideout panel layout
+- Per-track VFX/FX modules (4 tracks × 6 knobs)
+- 20×20 knob standardization
+- Purple arcs (VFX), Orange arcs (FX)
+
+**PIP Camera Styling (V5_5_0):**
+- PIP container positioning (corner, center, slideout)
+- Shape CSS (landscape/portrait/square/circle)
+- Border colors (9 options)
+- Genie zoom animation CSS
+- Color picker popup styling
 
 ---
 
@@ -582,6 +669,49 @@ Escape → if activeAudioPanel, close panel; else exit Audio Focus
 - `handleEscapeKey(event)` - ESC double-tap handler
 - `stopAllWithConfirmation()` - Execute stop all
 - `flashStopButton()` - Visual feedback on stop
+
+**VIDEO SOURCES & PIP CAMERA DOMAIN (V5_5_0):**
+- `initVideoSources()` - Initialize camera system
+- `enumerateCameras()` - Get available video input devices
+- `startCameraStream(deviceId)` - Start MediaStream from camera
+- `stopCameraStream()` - Stop stream (only when ALL PIPs closed)
+- `toggleCameraOverlay()` - Toggle full-screen overlay (O key)
+- `togglePIP1()` - Toggle PIP 1 slideout (PERFORM, P key)
+- `togglePIP2()` - Toggle PIP 2 corner (CREATE/ORG/ADMIN, P key)
+- `togglePIP3()` - Toggle PIP 3 center (CREATE/ORG/ADMIN, Shift+P)
+- `showPIPColorPicker(pipIndex, event)` - Show color swatch popup
+- `hidePIPColorPicker()` - Hide color picker
+- `setPIPColor(pipIndex, color)` - Set border color
+- `setPIPShape(pipIndex, shape)` - Set shape (landscape/portrait/square/circle)
+- `updatePIPStyle(pipIndex)` - Apply shape/color to element
+- `testCamera()` - Preview camera in test mode
+- `copyDiagnosticReport()` - Copy device info to clipboard
+
+**TRANSFORM ANIMATION DOMAIN (V5_5_0):**
+- `setTransformMode(control, mode)` - Set animation mode (0=stop, 1=cw, 2=ccw, 3=pingpong)
+- `setTransformSpeed(control, speed)` - Set animation speed (0.03-256)
+- `applyTransformAnimations()` - Called each frame, updates values
+- `getTransformDelta(mode, speed, loopLength, beat)` - Calculate per-frame delta
+- `handleTransformScroll(event)` - Adjust speed via trackpad scroll
+
+**FX OVERLAY DOMAIN (V5_5_0):**
+- `toggleFXOverlay()` - Toggle 120px panel visibility
+- `initFXOverlayKnobs()` - Initialize 20×20 knobs (VFX + FX per track)
+- `updateTrackVFXKnob(track, slot, value)` - Update VFX knob (placeholder)
+- `drawFXOverlayKnob(canvas, value, color)` - Draw 20×20 knob (purple/orange)
+
+**ORGANIZE AUTO-SAVE DOMAIN (V5_5_0):**
+- `autoSaveDrawerField(fieldId)` - Save field on blur/Enter
+- `navigateContainerWithAutoSave(direction)` - Navigate ↑/↓ with auto-save
+- `initDrawerAutoSave()` - Initialize Apple Music-style auto-save
+- `startQuickRename(containerId)` - Begin inline rename (Enter key)
+
+**TAG AUTOCOMPLETE DOMAIN (V5_5_0):**
+- `initTagAutocomplete()` - Initialize autocomplete system
+- `showTagSuggestions(query)` - Show matching tags with counts
+- `hideTagSuggestions()` - Hide suggestions dropdown
+- `selectTagSuggestion(tag)` - Apply selected tag
+- `navigateTagSuggestions(direction)` - Navigate ↑/↓ in suggestions
 
 **#ForReview - LIVE TAB DOMAIN NAMING:**
 - `startMasterClock()` - #ForReview should be `liveStartMasterClock()`
@@ -782,16 +912,39 @@ audioTempoField = 124       // Audio track is 124 BPM
     // ... other control states
   },
   
-  // Mod Tuning (V5_3_0)
+  // Mod Tuning (V5_3_0, V5_5_0: Per-Mod ADSR+T)
   modTuning: {
-    modAQ: 1.0,           // 0.5-10 (bandpass Q)
-    modBQ: 1.0,
-    modCQ: 1.0,
-    attack: 5,            // ms (0-100)
-    decay: 20,            // ms (0-200)
-    sustain: 70,          // % (0-100)
-    release: 50,          // ms (0-500)
-    threshold: 1          // % (0-20)
+    // V5_5_0: Per-mod envelope parameters (18 total)
+    modAQ: 0.70,           // Q (0.5-10)
+    modAAttack: 5,         // Attack (0-100ms)
+    modADecay: 20,         // Decay (0-200ms)
+    modASustain: 70,       // Sustain (0-100%)
+    modARelease: 50,       // Release (0-500ms)
+    modAThreshold: 10,     // Threshold (0-100%, was 0-20%)
+    
+    modBQ: 0.70,
+    modBAttack: 10,
+    modBDecay: 30,
+    modBSustain: 80,
+    modBRelease: 100,
+    modBThreshold: 5,
+    
+    modCQ: 0.70,
+    modCAttack: 2,
+    modCDecay: 15,
+    modCSustain: 60,
+    modCRelease: 80,
+    modCThreshold: 5
+  },
+  
+  // Transform Animation (V5_5_0)
+  transformAnimation: {
+    rotationMode: 'stop',      // 'stop', 'cw', 'ccw', 'pingpong'
+    rotationSpeed: 1.0,        // 0.03-256 (exponential)
+    scaleMode: 'stop',
+    scaleSpeed: 1.0,
+    tileMode: 'stop',
+    tileSpeed: 1.0
   },
   
   // Container Tags (V5_3_0)
@@ -996,6 +1149,26 @@ const modA = waveform × audioLevel × gain;
   vfxSettings: {
     effect: 'off',              // 'off', 'rgbsplit', 'glitch', 'pixelate', etc.
     amount: 0                   // 0-100
+  },
+  
+  // Video Sources & PIP Settings (V5_5_0)
+  videoSourcesSettings: {
+    deviceId: null,             // Camera device ID or null for default
+    mirror: false               // Mirror mode toggle
+  },
+  pip1Settings: {
+    visible: false,             // PIP 1 slideout (PERFORM)
+    shape: 'landscape',         // 'landscape', 'portrait', 'square', 'circle'
+    color: 'cyan',              // 'none', 'cyan', 'magenta', 'orange', etc.
+    label: ''                   // Optional label for streaming
+  },
+  pip2Settings: {
+    shape: 'landscape',         // PIP 2 corner (CREATE/ORG/ADMIN)
+    color: 'cyan'
+  },
+  pip3Settings: {
+    shape: 'landscape',         // PIP 3 center (CREATE/ORG/ADMIN)
+    color: 'cyan'
   },
   
   // Quantize Setting (V5_3_0)
@@ -2421,6 +2594,59 @@ bumprSlideout                   // 80px panel inside preview-container
 bumprSlotRow[0-9]               // Slot rows with thumbnails
 ```
 
+**FX Overlay (V5_5_0):**
+```javascript
+// Orange FX button in MAIN column
+fxOverlayBtn                    // [FX] button (orange, opens slideout)
+fxOverlayPanel                  // 120px slideout panel
+
+// Per-track modules (4 tracks × 2 rows)
+trackVFXKnobs[track][slot]      // VFX knobs: A, B, C (20×20, purple)
+trackFXKnobs[track][slot]       // FX knobs: R, D, W (20×20, orange)
+// R = Reverb placeholder, D = Dubby, W = Washout
+```
+
+**PIP Camera (V5_5_0):**
+```javascript
+// Camera overlay (all tabs)
+cameraOverlay                   // Full-screen video overlay
+cameraOverlayVideo              // <video> element
+
+// PIP containers
+pip1Container                   // PIP 1 slideout (PERFORM tab only)
+pip1Video                       // <video> element
+pip1Border                      // Colored border element
+
+pip2Container                   // PIP 2 corner (CREATE/ORG/ADMIN)
+pip2Video                       // <video> element
+pip2Border                      // Colored border element
+
+pip3Container                   // PIP 3 center (CREATE/ORG/ADMIN)
+pip3Video                       // <video> element
+pip3Border                      // Colored border element
+
+// Color picker popup
+pipColorPicker                  // 9-swatch popup
+pipColorSwatches[color]         // Individual color buttons
+```
+
+**ADMIN Tab - Video Sources (V5_5_0):**
+```javascript
+// Video Sources section
+videoSourceDeviceDropdown       // Camera device selector (OmsDropdown)
+videoSourceMirrorToggle         // Mirror mode checkbox
+testCameraBtn                   // Test camera button
+copyDiagnosticBtn               // Copy diagnostic report button
+
+// PIP Configuration
+pip1ShapeDropdown               // PIP 1 shape selector
+pip1ColorDropdown               // PIP 1 color selector
+pip2ShapeDropdown               // PIP 2 shape selector
+pip2ColorDropdown               // PIP 2 color selector
+pip3ShapeDropdown               // PIP 3 shape selector
+pip3ColorDropdown               // PIP 3 color selector
+```
+
 ---
 
 ### Keyboard Shortcuts (CREATE Tab) (V5_2_0)
@@ -2465,7 +2691,11 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 | ←/→ | Navigate columns (Rotation/Scale/Tile/XY/Pivot) |
 | Shift+← | Decrease value |
 | Shift+→ | Increase value |
-| 0/1/2/3 | V5_1_0: Animation modes (stop/cw/ccw/pingpong) |
+| 0 | Stop mode (V5_5_0) |
+| 1 | CW/Grow/Increase mode (V5_5_0) |
+| 2 | CCW/Shrink/Decrease mode (V5_5_0) |
+| 3 | PingPong mode (V5_5_0) |
+| Trackpad scroll | Adjust animation speed (V5_5_0: 0.03×-256×) |
 | Escape | Exit mode |
 
 **Music Timing Focus Mode (V5_1_0):**
@@ -2486,11 +2716,18 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 | Enter | Trigger selected slot |
 | Escape | Exit mode |
 
+**PIP Camera (V5_5_0):**
+| Shortcut | Action |
+|----------|--------|
+| O | Toggle camera overlay |
+| P | Toggle PIP 2 (corner) |
+| Shift+P | Toggle PIP 3 (center) |
+
 **Note:** Hold Shift+Arrow for progressive acceleration (faster value changes).
 
 ---
 
-### Keyboard Shortcuts (PERFORM Tab) - V5_4_0 Updates
+### Keyboard Shortcuts (PERFORM Tab) - V5_4_0, V5_5_0 Updates
 
 **Note:** In V4_5_0, this tab is labeled "PERFORM" but internal references remain "live" for code continuity.
 
@@ -2502,13 +2739,25 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 | Esc | First press: Warning message "Press ESC again to stop all" |
 | Esc Esc | Double-tap within 500ms: Stop All |
 
-**Track/Cue Selection (V5_2_0):**
+**Track Selection (V5_5_0 - Bare Keys):**
 | Key | Action |
 |-----|--------|
-| Shift+1-4 | Select track 1-4 |
-| Shift+5 | Select MAIN (V5_4_0: renamed from master) |
-| 1/2/3/4/5 | Jump to cue point on selected track (V5_2_0: 5 cues) |
-| . | Toggle Cue (V5_4_0: when cue output configured, replaces Solo) |
+| 1 | Select track 1 (no modifier!) |
+| 2 | Select track 2 |
+| 3 | Select track 3 |
+| 4 | Select track 4 |
+| 0 | Deselect track |
+| Shift+5 | Select MAIN |
+
+**V5_5_0 Change:** Bare 1-4 keys now select tracks (was Shift+1-4). Cue jumping moved to C panel workflow.
+
+**Quick-Load Workflow (V5_5_0):**
+| Key | Action |
+|-----|--------|
+| ↑/↓ | Navigate library (when track selected) |
+| SHIFT+Right | Load to next empty cell (scan order: T1S1→T2S1→T3S1→T4S1, then S2...) |
+| SHIFT+Left | Return focus to library |
+| Enter | Load selected container to cursor |
 
 **Panel Access (V5_2_0):**
 | Key | Action |
@@ -2517,12 +2766,18 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 | E | Open EQ panel for selected track |
 | F | Open FX panel for selected track |
 
+**PIP Camera (V5_5_0):**
+| Key | Action |
+|-----|--------|
+| O | Toggle camera overlay (all tabs) |
+| P | Toggle PIP 1 slideout |
+
 **Categories:**
 - Safety: `Esc` (double-tap) (V5_4_0)
-- Track Selection: `Shift+1-5`
-- Cue Jump: `1/2/3/4/5` (V5_2_0: expanded from 3)
-- Cue Toggle: `.` (V5_4_0: when cue configured)
+- Track Selection: `1-4`, `0` (V5_5_0: bare keys)
+- Quick-Load: `SHIFT+Right/Left` (V5_5_0)
 - Panel Access: `C/E/F` (V5_2_0)
+- PIP: `O`, `P` (V5_5_0)
 - Grid Navigation: `W/A/S/D`
 - Playback: `Enter`, `Space`, `Delete`
 - Mixer: Arrow keys, `,` `.` `<` `>`
@@ -2530,13 +2785,16 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 - Zoom: `[ ]`
 - BumpR: `Shift+B`, then `1-0`, `↑/↓`, `Enter`
 
-**Complete list:** See User Guide section 3.4.11
+**Complete list:** See User Guide section 3.4.12
 
 ---
 
-### Keyboard Shortcuts (Library Tab)
+### Keyboard Shortcuts (Library Tab) - V5_5_0 Updates
 
 **Pattern:** Cmd+key for actions, arrow keys for navigation.
+
+**Apple Music-Style Auto-Save (V5_5_0):**
+Changes save automatically when navigating away - no OK/Cancel buttons.
 
 **Categories:**
 - Load/Update: `Cmd+L`, `Cmd+U`
@@ -2544,14 +2802,25 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 - Navigation: `↑/↓`, `Enter`
 - Info: `Cmd+I`
 
-**Complete list:** See User Guide section 3.3.10
-- `↑/↓`: Navigate list
-- `Enter`: Load container
-- `Delete`: Delete (with confirmation)
+**Complete list:** See User Guide section 3.3.11
+| Key | Action |
+|-----|--------|
+| ↑/↓ | Navigate list (auto-saves drawer) |
+| Enter | Quick rename selected (V5_5_0) |
+| Cmd+I | Toggle info drawer |
+| Delete | Delete (with confirmation) |
+| Escape | Save and close drawer (V5_5_0) |
+
+**PIP Camera (V5_5_0):**
+| Key | Action |
+|-----|--------|
+| O | Toggle camera overlay |
+| P | Toggle PIP 2 (corner) |
+| Shift+P | Toggle PIP 3 (center) |
 
 ---
 
-### Keyboard Shortcuts (ADMIN Tab) - V5_4_0
+### Keyboard Shortcuts (ADMIN Tab) - V5_4_0, V5_5_0
 
 **Section Navigation (V5_4_0):**
 | Key | Action |
@@ -2567,6 +2836,13 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 | ↑/↓ | Navigate slots (when in BumpR mode) |
 | Enter | Trigger selected slot |
 | Escape | Exit BumpR mode |
+
+**PIP Camera (V5_5_0):**
+| Key | Action |
+|-----|--------|
+| O | Toggle camera overlay |
+| P | Toggle PIP 2 (corner) |
+| Shift+P | Toggle PIP 3 (center) |
 
 ---
 
@@ -2914,12 +3190,22 @@ let transformLastEnterTime = 0;           // Double-tap Enter detection
 let createMusicTimingFocus = false;       // Was shaderMusicTimingFocus
 let createMusicTimingSelectedCol = 0;
 
-// Transform Animation Modes
+// Transform Animation Modes (V5_5_0: Added speed)
 let transformModes = {
-    rotation: 'stop',     // stop, clockwise, counterclockwise, pingpong
+    rotation: 'stop',     // stop, cw, ccw, pingpong
     scale: 'stop',
     tile: 'stop'
 };
+let transformSpeeds = {
+    rotation: 1.0,        // 0.03 to 256 (exponential)
+    scale: 1.0,
+    tile: 1.0
+};
+
+// V5_5_0: Speed Control
+// - Trackpad scroll adjusts speed exponentially
+// - Message bar shows: "Rotation: CW @ 2.5× speed"
+// - Speed persists to .oms containers
 
 // Shader Tempo Link
 let shaderTempoLinked = true;  // Stored in controlStates
@@ -3037,36 +3323,56 @@ let trackFXNodes = [null, null, null, null];     // Each: {washout, dubby, break
 
 ---
 
-### Mod Tuning State (V5_3_0)
+### Mod Tuning State (V5_3_0, V5_5_0 Per-Mod)
 
 ```javascript
 // Panel state
 let modTuningPanelOpen = false;     // Blender-style slide-out panel
+let modTuningSelectedMod = 'A';     // V5_5_0: Which mod panel shows (syncs to Reactivity row)
 
-// Per-modulator Q values (bandpass filter sharpness)
-let modAQ = 1.0;                     // 0.5-10 (default 1.0)
-let modBQ = 1.0;
-let modCQ = 1.0;
+// V5_5_0: Per-modulator envelope parameters (18 total)
+// Mod A (Bass) - optimized for kicks
+let modAQ = 0.70;                    // Q (0.5-10)
+let modAAttack = 5;                  // Attack (0-100ms)
+let modADecay = 20;                  // Decay (0-200ms)
+let modASustain = 70;                // Sustain (0-100%)
+let modARelease = 50;                // Release (0-500ms)
+let modAThreshold = 10;              // Threshold (0-100%, was 0-20%)
 
-// Global ADSR envelope parameters
-let adsrAttack = 5;                  // 0-100ms (default 5ms)
-let adsrDecay = 20;                  // 0-200ms (default 20ms)
-let adsrSustain = 70;                // 0-100% (default 70%)
-let adsrRelease = 50;                // 0-500ms (default 50ms)
-let adsrThreshold = 1;               // 0-20% (default 1% - noise gate)
+// Mod B (Mids) - optimized for snares/claps
+let modBQ = 0.70;
+let modBAttack = 10;
+let modBDecay = 30;
+let modBSustain = 80;
+let modBRelease = 100;
+let modBThreshold = 5;
+
+// Mod C (Highs) - optimized for hats/cymbals
+let modCQ = 0.70;
+let modCAttack = 2;
+let modCDecay = 15;
+let modCSustain = 60;
+let modCRelease = 80;
+let modCThreshold = 5;
 ```
 
-**Mod Tuning in .oms files:**
+**V5_5_0 Changes from V5_3_0/V5_4_0:**
+- ADSR was global (5 params shared) → now per-mod (18 params)
+- Threshold range expanded: 0-20% → 0-100%
+- N-panel syncs to selected Reactivity row (↑/↓ navigation)
+- Live readouts show current values (ms/%)
+
+**Mod Tuning in .oms files (V5_5_0):**
 ```javascript
 container.modTuning = {
-    modAQ: 1.0,
-    modBQ: 1.0,
-    modCQ: 1.0,
-    attack: 5,
-    decay: 20,
-    sustain: 70,
-    release: 50,
-    threshold: 1
+    modAQ: 0.70, modAAttack: 5, modADecay: 20,
+    modASustain: 70, modARelease: 50, modAThreshold: 10,
+    
+    modBQ: 0.70, modBAttack: 10, modBDecay: 30,
+    modBSustain: 80, modBRelease: 100, modBThreshold: 5,
+    
+    modCQ: 0.70, modCAttack: 2, modCDecay: 15,
+    modCSustain: 60, modCRelease: 80, modCThreshold: 5
 };
 ```
 
@@ -4815,7 +5121,7 @@ const CUE_HIT_TOLERANCE = 20;  // V5_1_0
 // Backward compatibility: not guaranteed (add migration if needed)
 ```
 
-**Migration Strategy (V5_4_0):**
+**Migration Strategy (V5_4_0, V5_5_0):**
 ```javascript
 function migrateProjectState(projectData) {
   const version = projectData.version;
@@ -4858,6 +5164,26 @@ function migrateProjectState(projectData) {
     };
   }
   
+  // V5_5_0: Add Video Sources & PIP settings
+  if (!projectData.videoSourcesSettings) {
+    projectData.videoSourcesSettings = {
+      deviceId: null,
+      mirror: false
+    };
+  }
+  
+  if (!projectData.pip1Settings) {
+    projectData.pip1Settings = { visible: false, shape: 'landscape', color: 'cyan', label: '' };
+  }
+  
+  if (!projectData.pip2Settings) {
+    projectData.pip2Settings = { shape: 'landscape', color: 'cyan' };
+  }
+  
+  if (!projectData.pip3Settings) {
+    projectData.pip3Settings = { shape: 'landscape', color: 'cyan' };
+  }
+  
   // V5_4_0: Rename master* to trackMain* in tracks array
   if (projectData.masterShaderOpacity !== undefined) {
     projectData.trackMainShaderOpacity = projectData.masterShaderOpacity;
@@ -4883,6 +5209,43 @@ function migrateContainer(containerData) {
   if (containerData.controlStates && 
       containerData.controlStates.shaderTempoLinked === undefined) {
     containerData.controlStates.shaderTempoLinked = true;
+  }
+  
+  // V5_5_0: Migrate global ADSR to per-mod ADSR+T
+  if (containerData.modTuning && containerData.modTuning.attack !== undefined) {
+    // Old format had global ADSR - migrate to per-mod
+    const oldAttack = containerData.modTuning.attack || 5;
+    const oldDecay = containerData.modTuning.decay || 20;
+    const oldSustain = containerData.modTuning.sustain || 70;
+    const oldRelease = containerData.modTuning.release || 50;
+    const oldThreshold = containerData.modTuning.threshold || 1;
+    
+    // Apply global values to all mods
+    containerData.modTuning = {
+      modAQ: containerData.modTuning.modAQ || 0.70,
+      modAAttack: oldAttack, modADecay: oldDecay,
+      modASustain: oldSustain, modARelease: oldRelease,
+      modAThreshold: oldThreshold,
+      
+      modBQ: containerData.modTuning.modBQ || 0.70,
+      modBAttack: oldAttack, modBDecay: oldDecay,
+      modBSustain: oldSustain, modBRelease: oldRelease,
+      modBThreshold: oldThreshold,
+      
+      modCQ: containerData.modTuning.modCQ || 0.70,
+      modCAttack: oldAttack, modCDecay: oldDecay,
+      modCSustain: oldSustain, modCRelease: oldRelease,
+      modCThreshold: oldThreshold
+    };
+  }
+  
+  // V5_5_0: Add transform animation if missing
+  if (!containerData.transformAnimation) {
+    containerData.transformAnimation = {
+      rotationMode: 'stop', rotationSpeed: 1.0,
+      scaleMode: 'stop', scaleSpeed: 1.0,
+      tileMode: 'stop', tileSpeed: 1.0
+    };
   }
   
   return containerData;

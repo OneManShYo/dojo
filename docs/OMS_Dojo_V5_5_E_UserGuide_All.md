@@ -1,8 +1,9 @@
-# ONEMANSHYO App [Beta V5_4_0] - USER GUIDE
+# ONEMANSHYO App [Beta V5_5_0] - USER GUIDE
 
-**Version:** Beta V5_4_0
-**Date:** December 31, 2025
-**License:** GPL-3.0
+**Version:** Beta V5_5_0  
+**Date:** January 3, 2026  
+**License:** GPL-3.0  
+**Line Count:** 3,687 (V5_4_0) → 3,913 (V5_5_0)
 
 ---
 
@@ -11,20 +12,6 @@
 1. Introduction
 2. Instant Gratification
 3. Using the Application
-   - 3.2.4.7 Mod Tuning Panel (V5_3_0)
-   - 3.2.5.2 Waveform Display (V5_3_0: Draggable Bar 1)
-   - 3.2.5.4 Cue Points (V5_2_0: 5 cues)
-   - 3.2.5.5 Audio Focus Mode (V5_2_0)
-   - 3.2.5.6 EQ3 System (V5_2_0)
-   - 3.2.5.7 DJ FX System (V5_2_0)
-   - 3.2.5.8 Volume Knob (V5_3_0: dB Scale)
-   - 3.3.4 Sets Panel (V5_3_0: Unified Sets)
-   - 3.3.8 Container Tags (V5_3_0)
-   - 3.4.2.2 Quantization (V5_3_0: Off/Beat/Bar)
-   - 3.4.5 Track Modules (V5_3_0: Peak Meters)
-   - 3.4.10 Cue Points in PERFORM (V5_2_0: 5 cues)
-   - 3.4.11 Per-Track EQ/FX (V5_2_0)
-   - 3.5.7 BumpR StickRs
 4. Support
 5. Credits
 
@@ -48,7 +35,7 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 **Browser:** Chrome (WebGPU support required)  
 **Screen:** 1352×761 effective viewport (14" MacBook Pro)
 
-**File:** `OMS_App_Beta_V5_3_0.html`
+**File:** `OMS_App_Beta_V5_5_0.html`
 
 ---
 
@@ -59,14 +46,14 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 If you want to create visuals based on music timing without setting up a library:
 
 **Audio-Reactive Visuals (reacts to your music):**
-1. Open `OMS_App_Beta_V5_3_0.html`
+1. Open `OMS_App_Beta_V5_5_0.html`
 2. Drag your audio file (.mp3, .wav) onto the waveform
 3. Visuals automatically react to bass, mids, treble
 4. Click [Render Video]
 5. Get SILENT video with pre-baked reactivity
 
 **Tempo-Synced Visuals (animated to BPM, no audio needed):**
-1. Open `OMS_App_Beta_V5_3_0.html`
+1. Open `OMS_App_Beta_V5_5_0.html`
 2. Set tempo (e.g., 128 BPM)
 3. Set duration (e.g., 03:30.000)
 4. Click [Render Video]
@@ -362,7 +349,7 @@ Each modulator (A, B, C) has:
 
 ---
 
-##### 3.2.4.5 TRANSFORMS Section (V5_0_0)
+##### 3.2.4.5 TRANSFORMS Section (V5_0_0, V5_5_0)
 
 Controls to transform the shader output in real-time. All transforms save with your .oms containers.
 
@@ -388,6 +375,27 @@ Controls to transform the shader output in real-time. All transforms save with y
 - Sets rotation/scale center point (-1 to +1)
 - Double-tap Shift+Enter to reset to center (0, 0)
 
+**Animation Modes (V5_5_0):**
+
+Each encoder (Rotation, Scale, Tile) can animate automatically:
+
+| Mode | Key | Behavior |
+|------|-----|----------|
+| Stop | 0 | Manual control only |
+| CW/Grow/Increase | 1 | Ramps up, resets at loop end |
+| CCW/Shrink/Decrease | 2 | Ramps down, resets at loop end |
+| PingPong | 3 | Bounces between min/max |
+
+**Speed Control (V5_5_0):**
+- Trackpad scroll adjusts speed (0.03× to 256×)
+- Exponential response for fine control
+- Speed displays in message bar
+
+**Loop Length Dropdown (V5_5_0 Reordered):**
+```
+No Loop → 1/64 → 1/32 → 1/16 → 1/8 → 1/4 → 1/2 → 1 Bar → 2 → 4 → 8 → 16 → 32 Bars
+```
+
 **Keyboard Mode (Shift+T):**
 
 | Key | Action |
@@ -397,9 +405,16 @@ Controls to transform the shader output in real-time. All transforms save with y
 | `Shift+← →` | Adjust encoder values |
 | `Shift+↑↓←→` | Move XY/Pivot pads |
 | `Shift+Enter×2` | Reset selected to default |
+| `0` | Stop mode (V5_5_0) |
+| `1` | CW/Grow/Increase mode (V5_5_0) |
+| `2` | CCW/Shrink/Decrease mode (V5_5_0) |
+| `3` | PingPong mode (V5_5_0) |
+| `Trackpad scroll` | Adjust animation speed (V5_5_0) |
 | `Escape` | Exit transform mode |
 
 **Shift+Trackpad:** Hover over any control + Shift + scroll to adjust. Also works in keyboard mode - select control, then Shift + scroll anywhere.
+
+**Persistence:** Modes and speeds save to .oms containers!
 
 ---
 
@@ -450,7 +465,7 @@ Controls to transform the shader output in real-time. All transforms save with y
 
 ---
 
-##### 3.2.4.7 Mod Tuning Panel (V5_3_0)
+##### 3.2.4.7 Mod Tuning Panel (V5_3_0, V5_5_0)
 
 Professional envelope shaping for audio reactivity.
 
@@ -458,31 +473,41 @@ Professional envelope shaping for audio reactivity.
 
 Blender-style slide-out panel for fine-tuning how modulators respond to audio.
 
-**Per-Modulator Q Knobs:**
+**Per-Modulator Controls (V5_5_0):**
 
-| Control | Range | Default | Effect |
-|---------|-------|---------|--------|
-| Mod A Q | 0.5-10 | 1.0 | Bandpass filter sharpness for bass |
-| Mod B Q | 0.5-10 | 1.0 | Bandpass filter sharpness for mids |
-| Mod C Q | 0.5-10 | 1.0 | Bandpass filter sharpness for highs |
+Each modulator (A, B, C) now has INDEPENDENT envelope settings:
 
+| Parameter | Range | Mod A Default | Mod B Default | Mod C Default |
+|-----------|-------|---------------|---------------|---------------|
+| Q | 0.5-10 | 0.70 | 0.70 | 0.70 |
+| Attack | 0-100ms | 5ms | 10ms | 2ms |
+| Decay | 0-200ms | 20ms | 30ms | 15ms |
+| Sustain | 0-100% | 70% | 80% | 60% |
+| Release | 0-500ms | 50ms | 100ms | 80ms |
+| Threshold | 0-100% | 10% | 5% | 5% |
+
+**Q (Bandpass Sharpness):**
 Higher Q = narrower frequency band, more isolated response.
 
-**Global ADSR Envelope:**
+**ADSR+T Parameters:**
+- **Attack** - How fast mod rises to peak
+- **Decay** - How fast mod falls to sustain
+- **Sustain** - Level held while signal present
+- **Release** - How fast mod returns to zero
+- **Threshold** - Noise gate (signals below ignored)
 
-| Parameter | Range | Default | Effect |
-|-----------|-------|---------|--------|
-| Attack | 0-100ms | 5ms | How fast mod rises to peak |
-| Decay | 0-200ms | 20ms | How fast mod falls to sustain |
-| Sustain | 0-100% | 70% | Level held while signal present |
-| Release | 0-500ms | 50ms | How fast mod returns to zero |
-| Threshold | 0-20% | 1% | Noise gate (signals below ignored) |
+**N-Panel Row Sync (V5_5_0):**
+- Panel syncs to selected Reactivity row
+- Navigate rows with ↑/↓ in Reactivity Focus
+- N-panel automatically shows that mod's envelope
+- Live readouts show current values (ms/%)
 
 **Keyboard:**
 
 | Key | Action |
 |-----|--------|
 | Shift+R | Enter Reactivity Focus |
+| ↑/↓ | Navigate rows (syncs N-panel) |
 | N | Toggle Mod Tuning panel |
 | Drag knobs | Adjust values |
 | Escape | Close panel |
@@ -490,11 +515,13 @@ Higher Q = narrower frequency band, more isolated response.
 **Workflow:**
 1. Load audio with clear transients
 2. Enter Reactivity Focus: `Shift+R`
-3. Open Mod Tuning: `N`
-4. Play audio, watch shader response
-5. Adjust Q for frequency isolation
-6. Adjust Attack/Decay for snappier or smoother response
-7. Set Threshold to reject noise floor
+3. Select modulator row: `↑/↓`
+4. Open Mod Tuning: `N` (shows that mod's settings)
+5. Play audio, watch shader response
+6. Adjust Q for frequency isolation
+7. Adjust Attack/Decay for snappier or smoother response
+8. Set Threshold to reject noise floor
+9. Navigate to another row - panel updates automatically!
 
 ---
 
@@ -1139,9 +1166,20 @@ Each shows:
 
 ---
 
-#### 3.3.7 Info Drawer
+#### 3.3.7 Info Drawer (V5_5_0: Auto-Save)
 
 **Access:** Click [ℹ] or press Cmd+I
+
+**Apple Music-Style Auto-Save (V5_5_0):**
+
+No more OK/Cancel buttons. Changes save automatically when you navigate away.
+
+| Action | Result |
+|--------|--------|
+| Edit field, click away | Auto-saves |
+| Press Enter | Saves, moves to next field |
+| Press Escape | Saves, closes drawer |
+| Press ↑/↓ | Saves, navigates to prev/next container |
 
 **Fields:**
 
@@ -1181,6 +1219,17 @@ Organize containers with multiple tags for easy filtering and search.
 2. Find Tags section
 3. Type tag name + Enter (or comma)
 4. Tag appears as chip
+
+**Tag Autocomplete (V5_5_0):**
+
+| Feature | Behavior |
+|---------|----------|
+| Start typing | Matching tags appear below |
+| Shows | "House (5)" with usage count |
+| Navigate | ↑/↓ arrows through suggestions |
+| Select | Enter or click suggestion |
+| Limit | 8 suggestions max |
+| Contains match | Finds tags containing your text |
 
 **Chip Behavior:**
 
@@ -1253,9 +1302,18 @@ Manage all tags across your library:
 | Cmd+Shift+S | Remove shader |
 | Cmd+A | Swap audio |
 | Cmd+Shift+A | Remove audio |
-| ↑ | Navigate up |
-| ↓ | Navigate down |
-| Enter | Load selected |
+| ↑ | Navigate up (auto-saves drawer) |
+| ↓ | Navigate down (auto-saves drawer) |
+| Enter | Quick rename selected (V5_5_0) |
+| Delete | Delete (with confirm) |
+| Escape | Save and close drawer (V5_5_0) |
+
+**Quick Rename (V5_5_0):**
+
+| Input | Action |
+|-------|--------|
+| Mouse | Long-press (500ms) on name |
+| Keyboard | Enter key on selected item |
 | Delete | Delete (with confirm) |
 
 ---
@@ -1551,7 +1609,43 @@ Click **VFX** button in MAIN column to open the effects slideout.
 
 ---
 
-#### 3.4.9 Scene Labels & Colors (V5_4_0)
+#### 3.4.9 FX Overlay (V5_5_0)
+
+Click the **FX** button (orange) in the MAIN column to open the per-track effects overlay.
+
+**Layout:**
+- 120px slideout panel
+- 4 track modules (one per track)
+- VFX section (top): 3 knobs per track
+- FX section (bottom): 3 knobs per track
+
+**VFX Knobs (Purple Arc):**
+
+| Knob | Effect |
+|------|--------|
+| A | VFX slot A (placeholder) |
+| B | VFX slot B (placeholder) |
+| C | VFX slot C (placeholder) |
+
+*Note: VFX knobs are interactive but backend not yet connected in V5_5_0.*
+
+**FX Knobs (Orange Arc):**
+
+| Knob | Effect |
+|------|--------|
+| R | Washout (highpass sweep) |
+| D | Dubby (dub delay) |
+| W | Break (vinyl stop) |
+
+**Visual Standardization:**
+- All knobs are 20×20 pixels
+- Purple arcs for VFX
+- Orange arcs for FX
+- Consistent with PERFORM tab design
+
+---
+
+#### 3.4.10 Scene Labels & Colors (V5_4_0)
 
 **Custom Labels:**
 - Each scene can have a custom label (up to 128 characters)
@@ -1572,7 +1666,7 @@ Go to ADMIN → Application Labels to edit all scene labels and colors.
 
 ---
 
-#### 3.4.10 Waveform Panel
+#### 3.4.11 Waveform Panel
 
 **Display:**
 - 4 tracks stacked vertically
@@ -1591,19 +1685,36 @@ Go to ADMIN → Application Labels to edit all scene labels and colors.
 
 ---
 
-#### 3.4.11 PERFORM Keyboard Shortcuts (V5_4_0)
+#### 3.4.12 PERFORM Keyboard Shortcuts (V5_4_0, V5_5_0)
 
-**Track Selection:**
+**Track Selection (V5_5_0):**
 
 | Shortcut | Action |
 |----------|--------|
-| Shift+1 | Select track 1 |
-| Shift+2 | Select track 2 |
-| Shift+3 | Select track 3 |
-| Shift+4 | Select track 4 |
+| 1 | Select track 1 (no modifier!) |
+| 2 | Select track 2 |
+| 3 | Select track 3 |
+| 4 | Select track 4 |
+| 0 | Deselect track |
 | Shift+5 | Select MAIN |
 | Tab | Next track |
 | Shift+Tab | Previous track |
+
+**Visual Feedback (V5_5_0):**
+- Track header highlights yellow when selected
+- Press 1-4: Yellow ring on track header
+
+**Quick-Load Workflow (V5_5_0):**
+
+| Shortcut | Action |
+|----------|--------|
+| ↑/↓ | Navigate library (when track selected) |
+| SHIFT+Right | Load to next empty cell |
+| SHIFT+Left | Return focus to library |
+| Enter | Load selected container to cursor |
+
+**Quick-Load Scan Order:**
+Scene 1: T1→T2→T3→T4, Scene 2: T1→T2→T3→T4, ... (horizontal through all 8 scenes)
 
 **Safety (V5_4_0):**
 
@@ -1612,21 +1723,22 @@ Go to ADMIN → Application Labels to edit all scene labels and colors.
 | ESC | Warning message (first press) |
 | ESC ESC | Stop All (double-tap within 500ms) |
 
-**Cue Jump (V5_2_0):**
+**Cue Jump (V5_5_0):**
 
-| Shortcut | Action |
-|----------|--------|
-| 1 | Jump to Cue 1 on selected track |
-| 2 | Jump to Cue 2 on selected track |
-| 3 | Jump to Cue 3 on selected track |
-| 4 | Jump to Cue 4 on selected track |
-| 5 | Jump to Cue 5 on selected track |
+Cue jumping now uses the C panel workflow:
 
-**Why the change:** Cue jumping is urgent during performance (needs fast access). Track selection is a setup task (less urgent). Plain number keys now do the most time-critical action.
+| Step | Action |
+|------|--------|
+| 1 | Select track (press 1-4) |
+| 2 | Open Cue panel (press C) |
+| 3 | Navigate cues (↑/↓) |
+| 4 | Jump to cue (Enter) |
 
-**Panel Access (V5_2_0):**
+**Note (V5_5_0):** In V5_4_0, bare 1-5 keys jumped to cues. In V5_5_0, bare 1-4 keys select tracks (more common action). Use the C panel for cue access.
 
-After selecting a track (Shift+1-4), access audio panels:
+**Panel Access (V5_2_0, V5_5_0):**
+
+After selecting a track (1-4), access audio panels:
 
 | Shortcut | Action |
 |----------|--------|
@@ -1680,7 +1792,7 @@ After selecting a track (Shift+1-4), access audio panels:
 | Shift+T | Track Grid toggle |
 | Shift+W | Waveform toggle |
 
-#### 3.4.12 Message Bar Feedback (V4_7_0)
+#### 3.4.13 Message Bar Feedback (V4_7_0)
 
 The message bar at the bottom of the screen provides instant feedback:
 
@@ -1706,7 +1818,7 @@ The message bar at the bottom of the screen provides instant feedback:
 
 ---
 
-#### 3.4.13 Cue Points in PERFORM (V5_2_0)
+#### 3.4.14 Cue Points in PERFORM (V5_2_0)
 
 Jump to saved cue positions during live performance.
 
@@ -1743,7 +1855,7 @@ Jump to saved cue positions during live performance.
 
 ---
 
-#### 3.4.14 Per-Track EQ/FX (V5_2_0)
+#### 3.4.15 Per-Track EQ/FX (V5_2_0)
 
 Each PERFORM track has independent EQ and FX processing.
 
@@ -1919,11 +2031,43 @@ Manage tags across your entire library.
 
 ---
 
-#### 3.5.7 BumpR StickRs (V5_1_0)
+#### 3.5.7 Video Sources (V5_5_0)
+
+Configure camera for PIP overlays.
+
+**Camera Selection:**
+- Dropdown shows available video input devices
+- Select your webcam or capture device
+- Settings persist in project state
+
+**Mirror Toggle:**
+- Flips video horizontally
+- Useful for webcams (natural mirror view)
+
+**PIP Shape/Color Configuration:**
+
+Each PIP (1, 2, 3) has independent settings:
+
+| Setting | Options |
+|---------|---------|
+| Shape | Landscape (16:9), Portrait (9:16), Square (1:1), Circle |
+| Color | None, Cyan, Magenta, Orange, Yellow, Green, Purple, Pink, White |
+
+**Test Camera:**
+- Preview camera output
+- Verify device is working
+
+**Copy Diagnostic Report:**
+- Copies device info to clipboard
+- Useful for troubleshooting
+
+---
+
+#### 3.5.8 BumpR StickRs (V5_1_0)
 
 Video overlay system for personal branding during live performance. Fire WebM video clips with transparency over your shader canvas.
 
-##### 3.5.7.1 Overview
+##### 3.5.8.1 Overview
 
 **What it is:**
 - 10-slot video overlay system
@@ -1935,7 +2079,7 @@ Video overlay system for personal branding during live performance. Fire WebM vi
 
 **Folder:** `/BumpRStickRs/` (auto-created on first drop)
 
-##### 3.5.7.2 Setting Up Slots
+##### 3.5.8.2 Setting Up Slots
 
 **Adding Videos:**
 1. Go to ADMIN → BumpR StickRs
@@ -1953,7 +2097,7 @@ Video overlay system for personal branding during live performance. Fire WebM vi
 ffmpeg -i input.mov -c:v libvpx-vp9 -pix_fmt yuva420p output.webm
 ```
 
-##### 3.5.7.3 Per-Slot Settings
+##### 3.5.8.3 Per-Slot Settings
 
 Each of the 10 slots has 4 independent dropdowns:
 
@@ -2015,7 +2159,7 @@ Each of the 10 slots has 4 independent dropdowns:
 | 5s | Cut after 5 seconds |
 | 10s | Cut after 10 seconds |
 
-##### 3.5.7.4 Keyboard Mode (Shift+B)
+##### 3.5.8.4 Keyboard Mode (Shift+B)
 
 **Entering Mode:**
 - Press `Shift+B` to enter BumpR mode
@@ -2044,7 +2188,7 @@ Each of the 10 slots has 4 independent dropdowns:
 | Escape | Exit BumpR mode |
 | Shift+B | Toggle mode off |
 
-##### 3.5.7.5 CDJ Cue Behavior
+##### 3.5.8.5 CDJ Cue Behavior
 
 BumpR triggers work like CDJ hot cues:
 - **Always fires** - Keys trigger immediately (no toggle)
@@ -2053,7 +2197,7 @@ BumpR triggers work like CDJ hot cues:
 
 This matches professional DJ equipment behavior.
 
-##### 3.5.7.6 Slideout Panel
+##### 3.5.8.6 Slideout Panel
 
 When BumpR mode is active:
 - Panel slides in from right edge of canvas
@@ -2062,7 +2206,7 @@ When BumpR mode is active:
 - Selected slot has cyan border
 - Hover shows slot info in message bar
 
-##### 3.5.7.7 Use Cases
+##### 3.5.8.7 Use Cases
 
 **Logo Hits:**
 - Short logo animation on drops
@@ -2086,7 +2230,7 @@ When BumpR mode is active:
 
 ---
 
-#### 3.5.8 ADMIN Keyboard Shortcuts (V5_4_0)
+#### 3.5.9 ADMIN Keyboard Shortcuts (V5_4_0)
 
 **Section Navigation (V5_4_0):**
 
@@ -2107,6 +2251,72 @@ When BumpR mode is active:
 
 ---
 
+### 3.6 PIP Camera System (V5_5_0)
+
+Picture-in-Picture camera overlays for streaming and recording.
+
+#### 3.6.1 Overview
+
+Add your webcam to your visuals with 3 PIP types plus a full-screen overlay.
+
+| PIP | Key | Location | Available Tabs |
+|-----|-----|----------|----------------|
+| Overlay | O | Full screen | ALL tabs |
+| PIP 1 | P | Slideout above shader | PERFORM only |
+| PIP 2 | P | Top-right corner | CREATE/ORGANIZE/ADMIN |
+| PIP 3 | Shift+P | Canvas center | CREATE/ORGANIZE/ADMIN |
+
+#### 3.6.2 Shape Options
+
+| Shape | Aspect Ratio | Border |
+|-------|--------------|--------|
+| Landscape | 16:9 | Square corners |
+| Portrait | 9:16 | Square corners |
+| Square | 1:1 | Square corners |
+| Circle | 1:1 | Fully rounded |
+
+#### 3.6.3 Color Options (9)
+
+None (transparent), Cyan, Magenta, Orange, Yellow, Green, Purple, Pink, White
+
+#### 3.6.4 Border-Click Color Picker
+
+- Click anywhere on the PIP border
+- 9 color swatches appear
+- Click swatch to select
+- Click outside to dismiss
+
+#### 3.6.5 Genie Zoom Animation
+
+- PIPs scale in/out smoothly when toggled
+- Each has appropriate transform-origin for natural animation
+
+#### 3.6.6 Smart Stream Management
+
+Camera stream management is intelligent:
+- Camera only STOPS when ALL outputs are closed
+- Toggling one PIP doesn't stop camera if another PIP is using it
+- Reduces camera start/stop latency
+
+#### 3.6.7 Configuration
+
+Go to ADMIN → Video Sources to configure:
+- Camera device selection
+- Mirror mode (horizontal flip)
+- Shape/color for each PIP
+- Test camera output
+
+#### 3.6.8 PIP Keyboard Shortcuts
+
+| Key | Action | Tabs |
+|-----|--------|------|
+| O | Toggle camera overlay | ALL |
+| P | Toggle PIP 1 (slideout) | PERFORM |
+| P | Toggle PIP 2 (corner) | CREATE/ORG/ADMIN |
+| Shift+P | Toggle PIP 3 (center) | CREATE/ORG/ADMIN |
+
+---
+
 ## 4. Support
 
 **@itswessmithyo**  
@@ -2119,8 +2329,8 @@ Social / YouTube
 ## 5. Credits
 
 **Created by:** Wes Smith / ONEMANSHYO  
-**Version:** Beta V5_3_0  
-**Date:** December 27, 2025
+**Version:** Beta V5_5_0  
+**Date:** January 3, 2026
 
 **Technology:**
 - WebGPU / WGSL (shaders)
@@ -3672,6 +3882,8 @@ length(fract(uv * 8.0) - 0.5)
 | 2.1.0 | December 2025 | Updated for V5_1_0 (Cue Points, BumpR StickRs) |
 | 2.2.0 | December 2025 | Updated for V5_2_0 (Audio Focus, EQ3, DJ FX, 5 Cues) |
 | 2.3.0 | December 2025 | Updated for V5_3_0 (Real Audio Reactivity, Mod Tuning, Tags, Sets, Quantize) |
+| 2.4.0 | December 2025 | Updated for V5_4_0 (Audio Card, MAIN Column, DSP, VFX, Scene Labels) |
+| 2.5.0 | January 2026 | Updated for V5_5_0 (Transform Animation, Per-Mod ADSR+T, PIP Camera) |
 
 ---
 
@@ -3681,6 +3893,6 @@ length(fract(uv * 8.0) - 0.5)
 
 **END OF USER GUIDE**
 
-Version: Beta V5_3_0  
-Date: December 27, 2025  
+Version: Beta V5_5_0  
+Date: January 3, 2026  
 License: GPL-3.0
