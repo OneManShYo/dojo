@@ -1,7 +1,7 @@
-# ONEMANSHYO App [Beta V5_3_0] - CLAUDE PROJECT INSTRUCTIONS
+# ONEMANSHYO App [Beta V5_4_0] - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** Beta V5_3_0  
-**Date:** December 27, 2025  
+**Version:** Beta V5_4_0  
+**Date:** December 31, 2025  
 **Purpose:** Working protocols and project context for Claude AI development
 
 ---
@@ -174,6 +174,15 @@ OMS tools aren't theoretical experiments or academic projects. They're **codifyi
 - Speak precisely (SDLC, Agile, backlog, iterations, sub-iterations)
 - Avoid code complexity by using specific naming from the application
 
+### Target Platform
+
+**Chrome on MacBook Pro 14" - that's it.**
+
+- No cross-browser testing needed
+- No Edge, Firefox, Safari considerations
+- No mobile/tablet considerations
+- WebGPU, File System Access API, Web Audio API all work in Chrome
+
 ### Unified Pipeline (CRITICAL)
 
 **The ONEMANSHYO App is ONE application with ONE pipeline - NOT three separate apps.**
@@ -200,6 +209,32 @@ CREATE, ORGANIZE, and PERFORM are tabs in a single unified workflow:
 - Does this pattern already exist in another tab? → Match it exactly
 - Am I creating a tab-specific variation? → WHY? Justify or unify
 - Will this work when the container moves through the pipeline? → Test it
+
+### Before Building Anything
+
+**Step 1: Document the feature (before "yes go"):**
+
+1. **Problem** - What are we solving?
+2. **Solution** - How are we solving it?
+3. **UI Design** - What controls? Where placed? What tab(s)?
+4. **UI Naming** - DOM IDs following conventions
+5. **Code Design** - Functions, state variables, data flow
+6. **Code Naming** - Function names, variable names following conventions
+7. **Message Bar** - All user feedback via `showMessage()` - what messages, what types?
+8. **Keyboard** - Any shortcuts? Conflicts checked?
+9. **CSS** - Reusing design system? New styles needed?
+10. **File Impact** - .oms/.omsp schema changes?
+
+**Step 2: Check what you're touching:**
+
+| Check | Action |
+|-------|--------|
+| CORTEX touch? | STOP, discuss with Wes first |
+| NODE touch? | Trace dependencies up AND down |
+| LEAF only? | Safe to proceed |
+| 10+ locations? | Stop, verify with Wes |
+| New global variables? | Check naming conflicts |
+| Schema changes? | Document, ensure backward compatibility |
 
 ### Product Management
 
@@ -260,23 +295,23 @@ CREATE, ORGANIZE, and PERFORM are tabs in a single unified workflow:
 
 ### 1. Version Numbering
 
-**Format:** `V5_3_0` (underscores everywhere)
+**Format:** `V5_4_0` (underscores everywhere)
 - Major_Minor_Patch
 - **No alphabetical suffixes**
 
 **Build Process (V5+):**
-1. Copy deliverables HTML to build folder (e.g., V5_3_0.html → V5_3_0 folder)
-2. Build iterations: V5_3_01, V5_3_02, V5_3_03...
-3. Create deliverables: V5_3_0 (bumps minor, resets patch)
-4. Copy V5_3_0.html → V5_3_0 folder
-5. Build iterations: V5_3_01, V5_3_02...
-6. Create deliverables: V5_4_0
+1. Copy deliverables HTML to build folder (e.g., V5_4_0.html → V5_4_0 folder)
+2. Build iterations: V5_4_01, V5_4_02, V5_4_03...
+3. Create deliverables: V5_4_0 (bumps minor, resets patch)
+4. Copy V5_4_0.html → V5_4_0 folder
+5. Build iterations: V5_4_01, V5_4_02...
+6. Create deliverables: V5_5_0
 7. Repeat
 
 **Display Format:**
-- Filename: `OMS_App_Beta_V5_3_0.html`
-- Title tag: `Beta V5_3_0` (uppercase V)
-- Header: `[Beta V5_3_0]` (brackets, uppercase V)
+- Filename: `OMS_App_Beta_V5_4_0.html`
+- Title tag: `Beta V5_4_0` (uppercase V)
+- Header: `[Beta V5_4_0]` (brackets, uppercase V)
 
 ### 2. Build Protocol
 
@@ -322,40 +357,40 @@ Chats titled "OMS Road Map Planning" (or similar) are for **brainstorming and ba
 ### 5. File Naming Conventions
 
 **Development Builds:**
-- HTML: `OMS_App_Beta_V5_3_01.html`
-- MD Notes: `OMS_App_Beta_V5_3_01_DescriptionOfWork.md`
+- HTML: `OMS_App_Beta_V5_4_01.html`
+- MD Notes: `OMS_App_Beta_V5_4_01_DescriptionOfWork.md`
 
 **Production Release:**
-- Filename: `OMS_App_Beta_V5_3_0.html`
-- Title: `Beta V5_3_0` (uppercase V)
-- Header: `[Beta V5_3_0]` (brackets, uppercase V)
+- Filename: `OMS_App_Beta_V5_4_0.html`
+- Title: `Beta V5_4_0` (uppercase V)
+- Header: `[Beta V5_4_0]` (brackets, uppercase V)
 
-**Format:** Use underscores everywhere: `V5_3_0` (Major_Minor_Patch)
+**Format:** Use underscores everywhere: `V5_4_0` (Major_Minor_Patch)
 
 ### 6. Deliverables Protocol
 
 **Deliverables Folder Structure:**
 ```
-OMS_App_Beta_V5_3_0_Deliverables/
-  ├── OMS_App_Beta_V5_3_0.html
-  ├── OMS_App_Beta_V5_3_0_A_Deliverables.txt
-  ├── OMS_App_Beta_V5_3_0_B_Complete_Changelog.md
-  ├── OMS_App_Beta_V5_3_0_C_Developer_Documentation.md
-  ├── OMS_App_Beta_V5_3_0_D_Release_Notes.md
-  ├── OMS_App_Beta_V5_3_0_E_UserGuide_All.md
-  ├── OMS_App_Beta_V5_3_0_Y_ClaudeProject_SystemReference.md
-  └── OMS_App_Beta_V5_3_0_Z_ClaudeProject_Instructions.md
+OMS_App_Beta_V5_4_0_Deliverables/
+  ├── OMS_App_Beta_V5_4_0.html
+  ├── OMS_App_Beta_V5_4_0_A_Deliverables.txt
+  ├── OMS_App_Beta_V5_4_0_B_Complete_Changelog.md
+  ├── OMS_App_Beta_V5_4_0_C_Developer_Documentation.md
+  ├── OMS_App_Beta_V5_4_0_D_Release_Notes.md
+  ├── OMS_App_Beta_V5_4_0_E_UserGuide_All.md
+  ├── OMS_App_Beta_V5_4_0_Y_ClaudeProject_SystemReference.md
+  └── OMS_App_Beta_V5_4_0_Z_ClaudeProject_Instructions.md
 ```
 
-**ZIP File Naming:** `OMS_App_Beta_V5_3_0_Deliverables.zip`
+**ZIP File Naming:** `OMS_App_Beta_V5_4_0_Deliverables.zip`
 
 **Builds vs Deliverables:**
-- **Iterations folder:** Contains development builds with a single consolidated notes file named `_OMS_App_Beta_V5_3_0_Consolidated_Notes.md` (leading underscore for sort order)
+- **Iterations folder:** Contains development builds with a single consolidated notes file named `_OMS_App_Beta_V5_4_0_Consolidated_Notes.md` (leading underscore for sort order)
 - **Deliverables folder:** Final release package produced from consolidated notes + prior version deliverables
 
 **Release Workflow (in order):**
 1. **Consolidate iteration notes** - Gather all iteration .md files into single consolidated notes
-2. **Deliverables files** - Produce A-E, Y, Z docs one-by-one, then final aggregate review for consistency
+2. **Deliverables files** - Produce A-E, Y, Z docs one-by-one with aggregate review, then final aggregate review for consistency.  show prior lines vs. new lines in doc and why
 3. **System Reference** - Update Y_ClaudeProject_SystemReference with architectural changes, new functions, data structures
 4. **Claude Instructions** - Update Z_ClaudeProject_Instructions (version refs, terminology, protocols)
 5. **Package** - ZIP all deliverables files
@@ -496,12 +531,31 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 **Shader Tempo:** Visual timing (independent from audio)
 - V4_8_0: DISABLED when audio loaded (audio tempo becomes THE tempo)
 **Audio Tempo:** Track tempo for beatgrid alignment (V4_7_0: standardized from "Audio BPM")
-**Master Tempo:** LIVE tab global tempo (all tracks time-stretched to match)
+**Master Tempo:** PERFORM tab global tempo (all tracks time-stretched to match)
 
 ### Master Clock vs Session Start
 
 **Master Clock (`audioContext.currentTime`):** Browser's audio timeline, never resets
 **Session Start (`trackMasterClockStart`):** When first track launches, reset on Esc
+
+### Master vs MAIN (V5_4_0)
+
+**Master** = Timing and grid systems (unchanged meaning):
+- `masterTempo`, `masterBeatNow()`, `masterBarNow()`
+- `masterGridVisible`, `trackMasterClockStart`
+- Master Clock, Master Grid
+
+**MAIN** = Output bus (V5_4_0 rename from "master"):
+- `trackMainVolume`, `trackMainAudioMute`
+- `trackMainShaderOpacity`, `trackMainGainNode`
+- MAIN Column, MAIN meters
+
+**Why the distinction:**
+- V5_4_0 introduced Audio Card with separate Master/Cue outputs
+- "Master output" (speakers) vs "master tempo" (timing) was confusing
+- Solution: Output bus = "MAIN", timing = "Master"
+
+**64 renames:** All `master[Output/Volume/Mute]` → `trackMain[...]`
 
 ### Cortex vs Nodes vs Leafs
 
@@ -523,13 +577,13 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 ---
 
-## 8. WGSL SHADER CONVENTIONS (V5_3_0)
+## 8. WGSL SHADER CONVENTIONS (V5_4_0)
 
 ### Shader File Naming
 
 `OMS_Shader_[Name]_[AppVersion]_V[ShaderVersion].wgsl`
 
-Example: `OMS_Shader_Lava_Lamp_Metaballs_V5_3_0_V3.wgsl`
+Example: `OMS_Shader_Lava_Lamp_Metaballs_V5_4_0_V3.wgsl`
 
 ### Header Template
 
@@ -537,7 +591,7 @@ Every shader MUST include these tags in order:
 ```
 // @name [Display Name - no version]
 // @app ONEMANSHYO
-// @appVersion BETA V5_3_0
+// @appVersion BETA V5_4_0
 // @url http://www.itswessmithyo.com
 // @credit [Inspiration source or empty]
 // @creditUrl [URL or empty]
@@ -570,14 +624,14 @@ Every shader MUST include these tags in order:
 
 #### Always Loaded (Baseline)
 
-**OMS_App_Beta_V5_3_0_Z_ClaudeProject_Instructions.md** - This Document
+**OMS_App_Beta_V5_4_0_Z_ClaudeProject_Instructions.md** - This Document
 - Development protocols, communication guidelines
 - Architectural principles, terminology
 - What never to suggest
 
-**OMS_App_Beta_V5_3_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
+**OMS_App_Beta_V5_4_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
 - Leaf Node hierarchy (Cortex/Nodes/Leafs)
-- Complete function reference (~260 functions)
+- Complete function reference (~310 functions)
 - Data structures (.oms, .omsp, gridState)
 - File format specifications
 - DOM elements & controls
@@ -586,7 +640,7 @@ Every shader MUST include these tags in order:
 
 #### On-Demand (Wes Provides When Relevant)
 
-**OMS_App_Beta_V5_3_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
+**OMS_App_Beta_V5_4_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
 - Application usage (tabs, features, workflows)
 - **INDEX A:** DJ 101 Foundation (industry context, equipment, techniques)
 - **INDEX B:** Claude Shader Creation (prompts, workflows, examples)
@@ -648,7 +702,7 @@ When Claude needs information:
 **Core Principles:**
 1. Ask before building
 2. Wait for full context ("yes go")
-3. Use underscore-separated version numbers (Beta V5_3_0, two-digit patch)
+3. Use underscore-separated version numbers (Beta V5_4_0, two-digit patch)
 4. Never use VJ terminology
 5. Surgical changes only
 6. Single-file philosophy is sacred
@@ -659,6 +713,7 @@ When Claude needs information:
 11. Leaf Node architecture (Cortex = sacred, Leafs = safe)
 12. Reference documentation instead of duplicating
 13. Ask for missing docs before proceeding
+14. Master = timing, MAIN = output (V5_4_0)
 
 **Development Workflow:**
 1. User describes feature

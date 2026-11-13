@@ -1,7 +1,7 @@
-# ONEMANSHYO App [Beta V5_3_0] - SYSTEM REFERENCE
+# ONEMANSHYO App [Beta V5_4_0] - SYSTEM REFERENCE
 
-**Date:** December 27, 2025  
-**Version:** V5_3_0  
+**Date:** December 31, 2025  
+**Version:** V5_4_0  
 **Purpose:** Complete technical implementation reference
 
 ---
@@ -46,6 +46,12 @@ Foundational elements. Everything traces back to these. Change = cascade failure
 - `trackAudioMasterClock()` - THE FUNCTION that converts seconds → beats
 - `masterBeatNow()` - calls trackAudioMasterClock(), returns current beat
 - `masterBarNow()` - calls masterBeatNow() / 4, returns current bar
+
+**V5_4_0 Terminology Clarification:**
+```
+"Master" = Timing/Grid systems (Master Clock, Master Tempo, Master Grid)
+"MAIN"   = Output bus (MAIN Column, MAIN meters, MAIN volume, trackMain*)
+```
 
 **Conversion Chain:**
 ```
@@ -319,6 +325,55 @@ Built on cortex. Other things depend on these. Trace up AND down before touching
 - `smartSetQuery` - Search query for smart sets
 - Storage: /Sets/[name].oms-set
 
+**Audio Card & Cue Bus System (V5_4_0):**
+- `audioCardMasterOutputId` - Selected master device ID
+- `audioCardCueOutputId` - Selected cue device ID
+- `audioCardCueMix` - Cue/MAIN blend (0-1, default 0.5)
+- `trackCues` - Per-track cue state [false, false, false, false]
+- `cueGainNode` - Pre-fader tap for cue bus
+- `cueBusGainNode` - Cue bus output gain
+- `cueMixGainNode` - Cue mix blend control
+- `cueDestination` - MediaStreamAudioDestinationNode for cue output
+
+**Signal Chain (V5_4_0):**
+```
+Track Source
+    ↓
+Cue Tap (Pre-Fader) ──────────────────→ Cue Bus → Cue Output (Headphones)
+    ↓
+Track Fader → EQ → FX → Track Gain
+    ↓
+MAIN Bus → DSP Compressor → MAIN Gain → Master Output (Speakers)
+                                ↓
+                          Cue Mix Blend → Cue Output
+```
+
+**MAIN Output System (V5_4_0):**
+- `trackMainShaderOpacity` - MAIN visual opacity (was masterShaderOpacity)
+- `trackMainShaderMute` - MAIN visual mute (was masterShaderMute)
+- `trackMainVolume` - MAIN audio volume (was masterVolume)
+- `trackMainAudioMute` - MAIN audio mute (was masterAudioMute)
+- `trackMainGainNode` - MAIN output gain node
+- `trackMainAnalyserL` - Left channel analyser
+- `trackMainAnalyserR` - Right channel analyser
+- `trackMainChannelSplitter` - ChannelSplitterNode for stereo
+
+**DSP Output Processing (V5_4_0):**
+- `dspEnabled` - DSP on/off state
+- `dspPreset` - Current preset name ('off', 'gentle', 'medium', 'aggressive', 'limiter')
+- `dspThreshold` - Compressor threshold (-48 to 0 dB)
+- `dspRatio` - Compression ratio (1:1 to 20:1)
+- `dspOutput` - Makeup gain (-12 to +12 dB)
+- `dspCompressor` - DynamicsCompressorNode
+- `dspMakeupGain` - GainNode for output level
+
+**VFX Post-Processing (V5_4_0):**
+- `vfxEffect` - Current effect name ('off', 'rgbsplit', 'glitch', etc.)
+- `vfxAmount` - Effect intensity (0-1)
+- `vfxPipeline` - WebGPU render pipeline for VFX
+- `vfxFrameBuffer` - Frame buffer for VFX processing
+- `vfxUniformBuffer` - VFX-specific uniforms
+
 ---
 
 ### Tier 3: Leafs
@@ -352,6 +407,17 @@ End of chain. Nothing depends on these. Safe to modify.
 - Animation CSS keyframes (15 types)
 - Dropdown styling (Scale/Timing/Animate/Duration)
 - Slideout panel layout
+
+**Scene Labels & Colors (V5_4_0):**
+- `sceneLabels[]` - 8 label strings (up to 128 chars each)
+- `sceneColors[]` - 8 color presets (null = default grey)
+- Ticker animation CSS/JS
+- Color picker popup
+
+**Meter Toggle (V5_4_0):**
+- `meterOverlayVisible` - Toggle state
+- Split-cube button styling
+- Per-track V/A module layout
 
 ---
 
@@ -466,6 +532,56 @@ Escape → if activeAudioPanel, close panel; else exit Audio Focus
 - `isCreateTabActive()` - Helper to check CREATE tab
 - `isPerformTabActive()` - Helper to check PERFORM tab
 - Keyboard handlers check active tab before processing
+
+**AUDIO CARD DOMAIN (V5_4_0):**
+- `initAudioCard()` - Initialize audio card system
+- `enumerateAudioDevices()` - Get available output devices
+- `setMasterOutput(deviceId)` - Set master output device
+- `setCueOutput(deviceId)` - Set cue output device
+- `updateCueMix(value)` - Update cue/MAIN blend
+- `toggleTrackCue(trackIndex)` - Toggle track cue state
+- `testAudioOutput(deviceId, type)` - Play test tone
+- `createCueBus()` - Create cue bus routing
+
+**DSP DOMAIN (V5_4_0):**
+- `initDSP()` - Initialize DSP chain
+- `setDSPPreset(preset)` - Apply preset settings
+- `updateDSPThreshold(value)` - Update compressor threshold
+- `updateDSPRatio(value)` - Update compression ratio
+- `updateDSPOutput(value)` - Update makeup gain
+- `getDSPGainReduction()` - Get current GR value
+- `drawGRMeter(canvas, dB)` - Draw gain reduction meter
+
+**VFX DOMAIN (V5_4_0):**
+- `initVFX()` - Initialize VFX pipeline
+- `setVFXEffect(effect)` - Set active effect
+- `updateVFXAmount(value)` - Update effect intensity
+- `createVFXPipeline(effect)` - Create WebGPU pipeline for effect
+- `renderVFXPass()` - Execute VFX render pass
+- `getVFXShaderCode(effect)` - Get shader code for effect
+- `resetVFXAmount()` - Reset amount to 0 (auto on "Off" select)
+
+**METER DOMAIN (V5_4_0):**
+- `toggleMeterOverlay()` - Toggle meter visibility
+- `initStereoMetering()` - Initialize stereo analysers
+- `updateMainStereoMeters()` - Update MAIN L/R meters
+- `updateTrackMeters()` - Update per-track meters
+- `drawStereoMeter(canvas, L, R)` - Draw stereo meter bars
+- `calculatePeakdB(analyser)` - Get peak level in dBFS
+
+**SCENE LABELS DOMAIN (V5_4_0):**
+- `setSceneLabel(sceneIndex, label)` - Set scene label
+- `setSceneColor(sceneIndex, color)` - Set scene color
+- `startSceneLabelEdit(sceneIndex)` - Begin inline edit
+- `saveSceneLabelEdit()` - Save inline edit
+- `showColorPicker(sceneIndex, event)` - Show color picker popup
+- `hideColorPicker()` - Hide color picker
+- `initTickerAnimation(element)` - Initialize ticker scroll
+
+**SAFETY DOMAIN (V5_4_0):**
+- `handleEscapeKey(event)` - ESC double-tap handler
+- `stopAllWithConfirmation()` - Execute stop all
+- `flashStopButton()` - Visual feedback on stop
 
 **#ForReview - LIVE TAB DOMAIN NAMING:**
 - `startMasterClock()` - #ForReview should be `liveStartMasterClock()`
@@ -841,11 +957,46 @@ const modA = waveform × audioLevel × gain;
     // ... tracks 2-4
   ],
   
-  // Master Controls
-  masterShaderMute: false,
-  masterShaderSolo: false,
-  masterAudioVolume: 100,
-  masterAudioMute: false,
+  // MAIN Controls (V5_4_0: renamed from master*)
+  trackMainShaderMute: false,
+  trackMainShaderSolo: false,
+  trackMainVolume: 100,
+  trackMainAudioMute: false,
+  
+  // Audio Card Settings (V5_4_0)
+  audioCardSettings: {
+    masterOutputId: null,       // Device ID or null for default
+    cueOutputId: null,          // Device ID or null for none
+    cueMix: 0.5                 // 0 = MAIN only, 1 = Cue only
+  },
+  
+  // Per-Track Cue State (V5_4_0)
+  trackCues: [false, false, false, false],
+  
+  // Scene Customization (V5_4_0)
+  sceneLabels: ['1', '2', '3', '4', '5', '6', '7', '8'],
+  sceneColors: [null, null, null, null, null, null, null, null],
+  // Colors: null (default), 'cyan', 'magenta', 'orange', 'yellow', 'green', 'purple', 'red'
+  
+  // Audio Preferences (V5_4_0)
+  audioPrefs: {
+    masterTempo: 120            // Default tempo for new sessions
+  },
+  
+  // DSP Settings (V5_4_0)
+  dspSettings: {
+    enabled: false,
+    preset: 'off',              // 'off', 'gentle', 'medium', 'aggressive', 'limiter'
+    threshold: -18,             // -48 to 0 dB
+    ratio: 4,                   // 1 to 20
+    output: 4                   // -12 to +12 dB
+  },
+  
+  // VFX Settings (V5_4_0)
+  vfxSettings: {
+    effect: 'off',              // 'off', 'rgbsplit', 'glitch', 'pixelate', etc.
+    amount: 0                   // 0-100
+  },
   
   // Quantize Setting (V5_3_0)
   quantizeMode: "bar",              // 'off', 'beat', 'bar' (default)
@@ -2187,25 +2338,59 @@ trackPeakMeterCanvas[track]      // 4px wide vertical meter
 // Colors: Green (-48 to -18dB), Yellow (-18 to -6dB), Red (-6 to 0dB)
 ```
 
-**Master Module:**
+**MAIN Column (V5_4_0 - renamed from Master Module):**
 ```javascript
 // Scene Launch Buttons (8 total)
 sceneLaunchBtn[scene]           // Launch all tracks in scene
+// V5_4_0: Customizable labels and colors
+sceneLabels[scene]              // Text labels (up to 128 chars)
+sceneColors[scene]              // Color preset or null
 
-// Master Shader Controls
-masterShaderMuteBtn             // Purple
-masterShaderSoloBtn             // Cyan
+// MAIN Visual Section
+trackMainShaderOpacityKnob      // Opacity knob
+trackMainShaderMuteBtn          // [M] button (purple)
+mainShaderMeterCanvas           // Purple meter bar
+mainShaderOpacityReadout        // % display
 
-// Master Audio Controls
-masterAudioVolumeKnob           // 60px encoder
-masterAudioMuteBtn              // Orange
+// MAIN Audio Section
+trackMainAudioVolumeKnob        // Volume knob
+trackMainAudioMuteBtn           // [M] button (orange)
+mainAudioMeterCanvasL           // Left meter bar
+mainAudioMeterCanvasR           // Right meter bar
+mainAudioPeakReadout            // dB display
 
-// Global Controls
-masterTempoKnob                 // 60px encoder (60-200 BPM)
-masterZoomKnob                  // 60px encoder (10-100 px/s)
-
-// V5_3_0: Quantize Dropdown (replaces RMS input)
+// Bottom Controls
+masterClockDisplay              // Bar.Beat.Tick
+dspBtn                          // [DSP] button (opens slideout)
+vfxBtn                          // [VFX] button (opens slideout)
 quantizeDropdown                // Options: 'off', 'beat', 'bar' (default)
+zoomKnob                        // Zoom control
+tempoKnob                       // Master Tempo (60-200 BPM)
+masterGridBtn                   // [M] toggle
+trackGridBtn                    // [T] toggle
+waveformBtn                     // [W] toggle
+stopAllBtn                      // ■ button (16×16)
+
+// V5_4_0: Meter Toggle
+meterToggleBtn                  // Split-cube button (purple/cyan gradient)
+meterOverlay                    // Per-track meter overlay container
+```
+
+**DSP Slideout (V5_4_0):**
+```javascript
+dspSlideout                     // Slideout panel
+dspPresetDropdown               // Preset selector
+dspThresholdKnob                // -48 to 0 dB
+dspRatioKnob                    // 1:1 to 20:1
+dspOutputKnob                   // -12 to +12 dB
+dspGRMeterCanvas                // Gain reduction meter
+```
+
+**VFX Slideout (V5_4_0):**
+```javascript
+vfxSlideout                     // Slideout panel
+vfxEffectDropdown               // Effect selector (OmsDropdown)
+vfxAmountKnob                   // 0-100%
 ```
 
 **Waveform Panel:**
@@ -2305,17 +2490,25 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 
 ---
 
-### Keyboard Shortcuts (LIVE Tab) - V5_2_0 Changes
+### Keyboard Shortcuts (PERFORM Tab) - V5_4_0 Updates
 
 **Note:** In V4_5_0, this tab is labeled "PERFORM" but internal references remain "live" for code continuity.
 
 **Pattern:** All keyboard actions trigger `showMessage()` with state feedback.
 
+**Safety (V5_4_0):**
+| Key | Action |
+|-----|--------|
+| Esc | First press: Warning message "Press ESC again to stop all" |
+| Esc Esc | Double-tap within 500ms: Stop All |
+
 **Track/Cue Selection (V5_2_0):**
 | Key | Action |
 |-----|--------|
-| Shift+1-5 | Select track/master |
+| Shift+1-4 | Select track 1-4 |
+| Shift+5 | Select MAIN (V5_4_0: renamed from master) |
 | 1/2/3/4/5 | Jump to cue point on selected track (V5_2_0: 5 cues) |
+| . | Toggle Cue (V5_4_0: when cue output configured, replaces Solo) |
 
 **Panel Access (V5_2_0):**
 | Key | Action |
@@ -2325,17 +2518,19 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 | F | Open FX panel for selected track |
 
 **Categories:**
+- Safety: `Esc` (double-tap) (V5_4_0)
 - Track Selection: `Shift+1-5`
 - Cue Jump: `1/2/3/4/5` (V5_2_0: expanded from 3)
+- Cue Toggle: `.` (V5_4_0: when cue configured)
 - Panel Access: `C/E/F` (V5_2_0)
 - Grid Navigation: `W/A/S/D`
-- Playback: `Enter`, `Space`, `Esc`, `Delete`
+- Playback: `Enter`, `Space`, `Delete`
 - Mixer: Arrow keys, `,` `.` `<` `>`
 - Visibility: `Shift+M/T/W`
 - Zoom: `[ ]`
 - BumpR: `Shift+B`, then `1-0`, `↑/↓`, `Enter`
 
-**Complete list:** See User Guide section 3.4.8
+**Complete list:** See User Guide section 3.4.11
 
 ---
 
@@ -2353,6 +2548,25 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 - `↑/↓`: Navigate list
 - `Enter`: Load container
 - `Delete`: Delete (with confirmation)
+
+---
+
+### Keyboard Shortcuts (ADMIN Tab) - V5_4_0
+
+**Section Navigation (V5_4_0):**
+| Key | Action |
+|-----|--------|
+| ↑ | Previous section (wraps from first to last) |
+| ↓ | Next section (wraps from last to first) |
+
+**BumpR Mode (V5_1_0):**
+| Key | Action |
+|-----|--------|
+| Shift+B | Enter/exit BumpR keyboard mode |
+| 1-9, 0 | Trigger slots 1-10 (when in BumpR mode) |
+| ↑/↓ | Navigate slots (when in BumpR mode) |
+| Enter | Trigger selected slot |
+| Escape | Exit BumpR mode |
 
 ---
 
@@ -4483,6 +4697,48 @@ createTransformSelectedCol   // Was shaderTransformSelectedCol
 // Old names still work but map to new names
 ```
 
+**V5_4_0 Master→MAIN Rename Pattern:**
+
+**Rule:** "Master" = timing/grid systems. "MAIN" = output bus.
+
+| Old Name (V5_3_0) | New Name (V5_4_0) |
+|-------------------|-------------------|
+| `masterShaderOpacity` | `trackMainShaderOpacity` |
+| `masterShaderMute` | `trackMainShaderMute` |
+| `masterShaderSolo` | `trackMainShaderSolo` |
+| `masterVolume` | `trackMainVolume` |
+| `masterAudioMute` | `trackMainAudioMute` |
+| `masterGainNode` | `trackMainGainNode` |
+| `masterAnalyser` | `trackMainAnalyser` |
+| `masterShaderOpacityKnob` | `trackMainShaderOpacityKnob` |
+| `masterShaderMuteBtn` | `trackMainShaderMuteBtn` |
+| `masterAudioVolumeKnob` | `trackMainAudioVolumeKnob` |
+| `masterAudioMuteBtn` | `trackMainAudioMuteBtn` |
+
+**Unchanged (still use "master"):**
+- `masterTempo` - timing setting
+- `masterBeatNow()` - timing function
+- `masterBarNow()` - timing function
+- `masterGridVisible` - grid visibility
+- `trackMasterClockStart` - clock reference
+- `gridState.masterTempo` - tempo state
+
+**New V5_4_0 Naming Patterns:**
+```javascript
+// Audio Card
+audioCard[Property]           // audioCardMasterOutputId, audioCardCueMix
+
+// DSP
+dsp[Property]                 // dspEnabled, dspPreset, dspThreshold
+
+// VFX
+vfx[Property]                 // vfxEffect, vfxAmount, vfxPipeline
+
+// Scene Labels
+scene[Property]               // sceneLabels, sceneColors
+sceneLabelEdit[Property]      // sceneLabelEditingIndex
+```
+
 **Arrays:**
 ```javascript
 // Per-track arrays (always length 4, index 0-3)
@@ -4551,7 +4807,7 @@ const CUE_HIT_TOLERANCE = 20;  // V5_1_0
 ```javascript
 // All files include version field
 {
-  version: "5.2.0",
+  version: "5.4.0",
   // ...
 }
 
@@ -4559,8 +4815,59 @@ const CUE_HIT_TOLERANCE = 20;  // V5_1_0
 // Backward compatibility: not guaranteed (add migration if needed)
 ```
 
-**Migration Strategy:**
+**Migration Strategy (V5_4_0):**
 ```javascript
+function migrateProjectState(projectData) {
+  const version = projectData.version;
+  
+  // V5_4_0: Add new fields if missing
+  if (!projectData.audioCardSettings) {
+    projectData.audioCardSettings = {
+      masterOutputId: null,
+      cueOutputId: null,
+      cueMix: 0.5
+    };
+  }
+  
+  if (!projectData.trackCues) {
+    projectData.trackCues = [false, false, false, false];
+  }
+  
+  if (!projectData.sceneLabels) {
+    projectData.sceneLabels = ['1', '2', '3', '4', '5', '6', '7', '8'];
+  }
+  
+  if (!projectData.sceneColors) {
+    projectData.sceneColors = [null, null, null, null, null, null, null, null];
+  }
+  
+  if (!projectData.dspSettings) {
+    projectData.dspSettings = {
+      enabled: false,
+      preset: 'off',
+      threshold: -18,
+      ratio: 4,
+      output: 4
+    };
+  }
+  
+  if (!projectData.vfxSettings) {
+    projectData.vfxSettings = {
+      effect: 'off',
+      amount: 0
+    };
+  }
+  
+  // V5_4_0: Rename master* to trackMain* in tracks array
+  if (projectData.masterShaderOpacity !== undefined) {
+    projectData.trackMainShaderOpacity = projectData.masterShaderOpacity;
+    delete projectData.masterShaderOpacity;
+  }
+  // ... repeat for other master* properties
+  
+  return projectData;
+}
+
 function migrateContainer(containerData) {
   const version = containerData.version;
   
@@ -4590,7 +4897,10 @@ function migrateContainer(containerData) {
 - 60fps shader rendering (all 4 tracks)
 - <16ms per frame budget
 - 4 WebGPU pipelines (one per track)
+- +1 VFX pipeline (V5_4_0: post-processing)
 - FFT analysis: 2048 samples per track
+- Stereo metering: 2048 samples × 2 channels (V5_4_0)
+- DSP: Real-time compression (no latency) (V5_4_0)
 - Waveform scroll: CSS transform (GPU accelerated)
 - BumpR video: WebM VP9 with alpha (hardware decoded)
 
@@ -4601,14 +4911,16 @@ function migrateContainer(containerData) {
 - Beat grid drawn once (only on tempo change)
 - requestAnimationFrame for all animations
 - BumpR thumbnails cached as data URLs
+- VFX pipeline cached per effect (V5_4_0)
 
-**Browser Requirements:**
+**Browser Requirements (V5_4_0):**
 - WebGPU support (Chrome 113+, Edge 113+)
+- setSinkId API (Chrome 110+, Edge 110+) - for Audio Card
 - Web Audio API (all modern browsers)
 - File System Access API (Chrome/Edge only)
 - WebM VP9 alpha (Chrome/Edge for BumpR)
 - Minimum 4GB RAM (for audio buffers)
-- Dedicated GPU recommended
+- Dedicated GPU recommended (especially for VFX)
 
 ---
 

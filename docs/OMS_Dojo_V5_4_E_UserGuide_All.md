@@ -1,7 +1,7 @@
-# ONEMANSHYO App [Beta V5_3_0] - USER GUIDE
+# ONEMANSHYO App [Beta V5_4_0] - USER GUIDE
 
-**Version:** Beta V5_3_0
-**Date:** December 27, 2025
+**Version:** Beta V5_4_0
+**Date:** December 31, 2025
 **License:** GPL-3.0
 
 ---
@@ -1355,29 +1355,44 @@ The PERFORM tab is a 4-track DJ mixer for live performance with reactive visuals
 
 ---
 
-#### 3.4.3 Interface Layout
+#### 3.4.3 Interface Layout (V5_4_0)
 
 **From left to right:**
 
-1. **Scene Launch Column** - 8 scene buttons (launch all 4 tracks)
+1. **Scene Launch Column** - 8 scene buttons (launch all 4 tracks) with custom labels/colors
 2. **Track 1-4 Columns** - Performance grid (4 tracks × 8 scenes = 32 cells)
-3. **Master Column** - Global controls
+3. **MAIN Column** - Output bus controls (renamed from Master in V5_4_0)
 4. **Waveform Panel** - Visual display (below grid)
+
+**Above Grid:**
+- Meter Toggle (split-cube button) - shows/hides per-track meter overlay
+
+**Slideout Panels (from MAIN Column):**
+- DSP Panel - Master bus compressor/limiter
+- VFX Panel - GPU post-processing effects
 
 ---
 
-#### 3.4.4 Performance Grid
+#### 3.4.4 Performance Grid (V5_4_0)
 
 **Grid Structure:**
 - 4 tracks (columns)
 - 8 scenes (rows)
 - 32 cells total
+- Half-height cells (32/9 aspect ratio) - see 2× more scenes
+
+**Cell Layout (Split Design):**
+| Left Half | Right Half |
+|-----------|------------|
+| Shader thumbnail (80×45) | Waveform bars |
+| 30% purple if no shader | 30% cyan if no audio |
 
 **Cell States:**
-- Empty = grey
-- Loaded = shows container name
-- Playing = green highlight
-- Selected = cyan border
+| State | Visual |
+|-------|--------|
+| Empty | "Empty" text centered, grey |
+| Playing | Yellow tint + outline |
+| Selected (cursor) | Cyan outline (always on top) |
 
 **Loading Containers:**
 - Drag from ORGANIZE tab
@@ -1389,13 +1404,16 @@ The PERFORM tab is a 4-track DJ mixer for live performance with reactive visuals
 - Press Enter (selected cell)
 - Click scene button (launch all 4)
 
-**Quantization:**
-- Launches snap to next bar
-- All tracks stay synchronized
+**Quantization (V5_3_0):**
+| Option | Behavior |
+|--------|----------|
+| Off | Immediate launch |
+| 1 Beat | Snap to next beat |
+| 1 Bar | Snap to next bar (default) |
 
 ---
 
-#### 3.4.5 Track Modules
+#### 3.4.5 Track Modules (V5_4_0)
 
 **Each track (1-4) has two sections:**
 
@@ -1407,7 +1425,13 @@ The PERFORM tab is a 4-track DJ mixer for live performance with reactive visuals
 **Audio Controls:**
 - Volume knob (0-100%)
 - [M] Mute button (orange)
-- [S] Solo button (green)
+- [S]/[C] Solo/Cue button (see below)
+
+**S→C Button Behavior (V5_4_0):**
+| Condition | Button | Color | Function |
+|-----------|--------|-------|----------|
+| No cue output configured | S | Green | Solo (mutes other tracks) |
+| Cue output configured | C | Orange | Cue (PFL to headphones) |
 
 **Peak Meters (V5_3_0):**
 
@@ -1419,11 +1443,16 @@ Real dBFS meters per track showing actual audio levels:
 | Warm | -18 to -6 | Yellow |
 | Hot | -6 to 0 | Red |
 
-Meters respond to actual audio dynamics - you'll see them jump on transients and settle during quiet passages.
+**Meter Overlay (V5_4_0):**
+
+Click the split-cube button (purple/cyan gradient) above the grid to show expanded meters:
+
+| Per-Track Module | Content |
+|------------------|---------|
+| Visual (left) | Purple bar, opacity % |
+| Audio (right) | Stereo L/R bars, peak dB |
 
 **dB Volume Mapping (V5_3_0):**
-
-Same Ableton-style mapping as CREATE tab:
 
 | Position | Gain | dB |
 |----------|------|-----|
@@ -1438,27 +1467,112 @@ Same Ableton-style mapping as CREATE tab:
 
 ---
 
-#### 3.4.6 Master Module
+#### 3.4.6 MAIN Column (V5_4_0)
 
-**Scene Launch Buttons (1-8)**
-- Launch all 4 tracks in scene
-- Quantized to next bar
+**Note:** Renamed from "Master Module" in V5_4_0. "Master" now refers only to timing/grid systems. "MAIN" refers to output bus.
 
-**Shader Controls:**
+**Visual Section (V):**
+- Purple opacity meter
+- Opacity readout (%)
 - [M] Master shader mute
-- [S] Master shader solo
+- Opacity knob
 
-**Audio Controls:**
-- Master volume knob (60px)
+**Audio Section (A):**
+- Stereo L/R meters (true stereo via ChannelSplitterNode)
+- Peak readout (dB)
 - [M] Master audio mute
+- Volume knob
 
-**Global Controls:**
-- Master Tempo knob (60-200 BPM)
-- Zoom knob (waveform scale)
+**Bottom Controls:**
+- Clock display (Bar.Beat.Tick)
+- DSP button (opens compressor slideout)
+- VFX button (opens effects slideout)
+- Quantize dropdown (Off/Beat/Bar)
+- Zoom knob
+- Tempo knob (60-200 BPM)
+- [M] Master Grid toggle
+- [T] Track Grid toggle
+- [W] Waveform toggle
+- Stop All button (■)
 
 ---
 
-#### 3.4.7 Waveform Panel
+#### 3.4.7 DSP Output Processing (V5_4_0)
+
+Click **DSP** button in MAIN column to open the compressor/limiter slideout.
+
+**Presets:**
+| Preset | Threshold | Ratio | Output |
+|--------|-----------|-------|--------|
+| Off | 0 dB | 1:1 | 0 dB |
+| Gentle | -24 dB | 2:1 | +2 dB |
+| Medium | -18 dB | 4:1 | +4 dB |
+| Aggressive | -12 dB | 8:1 | +6 dB |
+| Limiter | -6 dB | 20:1 | +3 dB |
+
+**Controls:**
+- Preset dropdown
+- Threshold knob (-48 to 0 dB)
+- Ratio knob (1:1 to 20:1)
+- Output knob (-12 to +12 dB makeup gain)
+- GR Meter (real-time gain reduction)
+
+**Tips:**
+- Start with "Medium" preset for glue
+- Switch to "Limiter" for safety during performance
+- Watch GR meter - more than 6dB may sound squashed
+
+---
+
+#### 3.4.8 VFX Post-Processing (V5_4_0)
+
+Click **VFX** button in MAIN column to open the effects slideout.
+
+**Available Effects (10):**
+| Effect | Description |
+|--------|-------------|
+| Off | No processing |
+| RGB Split | Chromatic aberration |
+| Glitch | Block displacement |
+| Pixelate | Resolution reduction |
+| Scanlines | CRT effect |
+| Feedback | Frame blending |
+| Mirror | Horizontal reflection |
+| Kaleidoscope | Radial segments |
+| VHS | Tracking errors |
+| Shake | Camera shake |
+
+**Controls:**
+- Effect dropdown
+- Amount knob (0-100%)
+- Double-click amount to reset to 0%
+
+**Live-Safe Feature:** Selecting "Off" automatically resets amount to 0% - safe to use during performance!
+
+---
+
+#### 3.4.9 Scene Labels & Colors (V5_4_0)
+
+**Custom Labels:**
+- Each scene can have a custom label (up to 128 characters)
+- Long labels automatically ticker-scroll (6-second loop)
+- Default labels: "1", "2", "3"... "8"
+
+**Color Presets (8):**
+Cyan, Magenta, Orange, Yellow, Green, Purple, Red, Default (grey)
+
+**Editing in PERFORM:**
+| Action | Result |
+|--------|--------|
+| Click + hold 500ms | Inline label edit |
+| Right-click | Color picker popup |
+
+**Editing in ADMIN:**
+Go to ADMIN → Application Labels to edit all scene labels and colors.
+
+---
+
+#### 3.4.10 Waveform Panel
 
 **Display:**
 - 4 tracks stacked vertically
@@ -1477,7 +1591,7 @@ Same Ableton-style mapping as CREATE tab:
 
 ---
 
-#### 3.4.8 PERFORM Keyboard Shortcuts
+#### 3.4.11 PERFORM Keyboard Shortcuts (V5_4_0)
 
 **Track Selection:**
 
@@ -1487,9 +1601,16 @@ Same Ableton-style mapping as CREATE tab:
 | Shift+2 | Select track 2 |
 | Shift+3 | Select track 3 |
 | Shift+4 | Select track 4 |
-| Shift+5 | Select master |
+| Shift+5 | Select MAIN |
 | Tab | Next track |
 | Shift+Tab | Previous track |
+
+**Safety (V5_4_0):**
+
+| Shortcut | Action |
+|----------|--------|
+| ESC | Warning message (first press) |
+| ESC ESC | Stop All (double-tap within 500ms) |
 
 **Cue Jump (V5_2_0):**
 
@@ -1559,7 +1680,7 @@ After selecting a track (Shift+1-4), access audio panels:
 | Shift+T | Track Grid toggle |
 | Shift+W | Waveform toggle |
 
-#### 3.4.9 Message Bar Feedback (V4_7_0)
+#### 3.4.12 Message Bar Feedback (V4_7_0)
 
 The message bar at the bottom of the screen provides instant feedback:
 
@@ -1585,7 +1706,7 @@ The message bar at the bottom of the screen provides instant feedback:
 
 ---
 
-#### 3.4.10 Cue Points in PERFORM (V5_2_0)
+#### 3.4.13 Cue Points in PERFORM (V5_2_0)
 
 Jump to saved cue positions during live performance.
 
@@ -1622,7 +1743,7 @@ Jump to saved cue positions during live performance.
 
 ---
 
-#### 3.4.11 Per-Track EQ/FX (V5_2_0)
+#### 3.4.14 Per-Track EQ/FX (V5_2_0)
 
 Each PERFORM track has independent EQ and FX processing.
 
@@ -1684,29 +1805,39 @@ You don't need to open a panel for cue jumping - just press `1-5` directly after
 
 The ADMIN tab contains settings, utilities, and application info.
 
-**Three sections:**
-- Settings - Application configuration
-- Utilities - Tools and batch operations
-- About - Credits and license
+**V5_4_0:** Restructured with flat alphabetical navigation (13 sections).
 
 ---
 
-#### 3.5.2 Interface Layout
+#### 3.5.2 Interface Layout (V5_4_0)
 
-**Left Navigation (alphabetized):**
-- [Application]
-- [BumpR StickRs] (V5_1_0)
-- [Create]
-- [Organize]
-- [Perform]
-- [Utilities]
-- [About]
+**Flat Navigation (13 items, alphabetical):**
 
-Click item to view content in right panel.
+| Section | Description |
+|---------|-------------|
+| About | App info, version, credits |
+| Application | Folder setup, project state |
+| Application Labels | Scene/track custom names |
+| Audio Card | Master/Cue device routing |
+| Audio Cues | Default cue point positions |
+| Audio EQ | Default EQ settings |
+| Audio FX | Default FX settings |
+| Audio Loop | Default In/Out points |
+| Audio Master Tempo | Default PERFORM tempo |
+| Container Tags | Tag management (rename/delete) |
+| Shader Tempo | Default CREATE tempo |
+| Utilities | Batch operations, import/export |
+| Visual BumpR StickRs | Video overlay settings |
+
+**Keyboard Navigation:**
+| Key | Action |
+|-----|--------|
+| ↑ | Previous section (wraps) |
+| ↓ | Next section (wraps) |
 
 ---
 
-#### 3.5.3 Settings
+#### 3.5.3 Application Section
 
 **Application Folder**
 
@@ -1736,34 +1867,55 @@ Auto-saves to `default.omsp` after each action.
 
 ---
 
-#### 3.5.4 Utilities
+#### 3.5.4 Audio Card (V5_4_0)
 
-**Batch Operations**
+Configure separate Master and Cue outputs for headphone cueing.
 
-| Operation | Function |
-|-----------|----------|
-| [Export All] | Export all containers as ZIP |
-| [Analyze Audio] | Re-analyze all timeline arrays |
-| [Validate Library] | Check for broken references |
+**Master Output:**
+- Dropdown to select output device (speakers/FOH)
+- [Test] button plays 440Hz tone
 
-**Import/Export**
+**Cue Output:**
+- Dropdown to select headphone output
+- [Test] button plays 880Hz tone
 
-| Operation | Function |
-|-----------|----------|
-| [Import Set] | Load .oms-set file |
-| [Export Set] | Save selection as .oms-set |
+**Cue Mix Knob:**
+| Position | Main in Headphones | Cue in Headphones |
+|----------|-------------------|-------------------|
+| Left (0%) | 100% | 0% |
+| Center | 50% | 50% |
+| Right (100%) | 0% | 100% |
+
+**Copy Report:** Copies device configuration to clipboard for troubleshooting.
+
+**Requirements:** Chrome/Edge 110+ with multi-channel audio interface (Behringer UMC204HD/404HD recommended).
 
 ---
 
-#### 3.5.5 About
+#### 3.5.5 Application Labels (V5_4_0)
 
-**Information displayed:**
-- Version number
-- Release date
-- License (GPL-3.0)
-- Creator credits
-- Technology stack
-- GitHub repository link
+Customize scene and track names.
+
+**Scene Labels (1-8):**
+- Text input for each scene
+- Color dropdown (8 presets)
+- Reset buttons
+
+**Track Labels (1-4):**
+- Text input for each track
+- If label is "1", displays "Track 1"
+- If label is "Drums", displays "Drums"
+
+---
+
+#### 3.5.6 Container Tags (V5_3_0)
+
+Manage tags across your entire library.
+
+**Tag List:**
+- Shows all unique tags with container counts
+- Click tag name to rename (propagates to all containers)
+- Delete button removes tag from all containers
 
 ---
 
@@ -1934,7 +2086,14 @@ When BumpR mode is active:
 
 ---
 
-#### 3.5.8 ADMIN Keyboard Shortcuts
+#### 3.5.8 ADMIN Keyboard Shortcuts (V5_4_0)
+
+**Section Navigation (V5_4_0):**
+
+| Shortcut | Action |
+|----------|--------|
+| ↑ | Previous section (wraps) |
+| ↓ | Next section (wraps) |
 
 **BumpR Mode (V5_1_0):**
 
@@ -1942,11 +2101,9 @@ When BumpR mode is active:
 |----------|--------|
 | Shift+B | Enter/exit BumpR mode |
 | 1-9, 0 | Trigger slots 1-10 |
-| ↑ / ↓ | Navigate slots |
+| ↑ / ↓ | Navigate slots (when in BumpR mode) |
 | Enter | Trigger selected |
 | Escape | Exit mode |
-
-No other keyboard shortcuts for ADMIN tab.
 
 ---
 
