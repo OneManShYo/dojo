@@ -1,7 +1,7 @@
-# ONEMANSHYO App [Beta V5_1_0] - SYSTEM REFERENCE
+# ONEMANSHYO App [Beta V5_2_0] - SYSTEM REFERENCE
 
-**Date:** December 24, 2025  
-**Version:** V5_1_0  
+**Date:** December 26, 2025  
+**Version:** V5_2_0  
 **Purpose:** Complete technical implementation reference
 
 ---
@@ -275,12 +275,26 @@ Built on cortex. Other things depend on these. Trace up AND down before touching
 - GainNode routing
 - Compositing order (z-index)
 
-**Cue Points System (V5_1_0):**
-- `audioCuePoints[]` - 3 beat positions per container (default: [0, 64, 128])
+**Cue Points System (V5_2_0):**
+- `audioCuePoints[]` - 5 beat positions per container (default: [0, 64, 128, 192, 256])
 - Stored relative to audioStartTime
 - Visual flags (orange #ffa500) on waveform
 - Draggable with bar snap (4 beats)
 - Click-to-jump functionality
+- V5_2_0: Expanded from 3 to 5 cues
+
+**EQ3 System (V5_2_0):**
+- `createEQHigh`, `createEQMid`, `createEQLow` - BiquadFilterNode instances (CREATE tab)
+- `trackEQNodes[track][band]` - Per-track EQ filters (PERFORM tab)
+- High: 2500Hz highshelf, Mid: 1000Hz peaking Q=0.7, Low: 250Hz lowshelf
+- Ableton-style mapping: 0=kill, 0.25=-12dB, 0.5=-6dB, 0.75=0dB (unity), 1.0=+6dB
+
+**DJ FX System (V5_2_0):**
+- `createFXWashout`, `createFXDubby`, `createFXBreak` - FX nodes (CREATE tab)
+- `trackFXNodes[track][slot]` - Per-track FX chains (PERFORM tab)
+- Washout: Highpass sweep 20Hz→2kHz
+- Dubby: DelayNode 375ms with feedback
+- Break: playbackRate 1.0→0.1
 
 ---
 
@@ -389,10 +403,46 @@ End of chain. Nothing depends on these. Safe to modify.
 - `enterBumprMode()` - Enter Shift+B keyboard mode
 - `exitBumprMode()` - Exit keyboard mode
 
-**FOCUS MODE DOMAIN (V5_1_0 Renames):**
-- `shaderReactivityFocus` - Reactivity keyboard mode (was `modReactivityMode`)
-- `shaderTransformFocus` - Transform keyboard mode (was `transformKeyboardMode`)
-- `shaderMusicTimingFocus` - Music Timing keyboard mode (NEW V5_1_0)
+**FOCUS MODE DOMAIN (V5_2_0 Centralized System):**
+
+V5_2_0 introduced a centralized focus mode system using Object.defineProperty for backward compatibility.
+
+**CORTEX Variables:**
+- `activeFocusMode` - Current mode: null, 'reactivity', 'transform', 'musicTiming', 'audio', 'bumpr'
+- `activeAudioPanel` - Current audio panel: null, 'volume', 'cue', 'eq', 'fx'
+- `exitAllFocusModes()` - Central cleanup function, clears all modes and panels
+
+**Mode Variables (backward compatible via defineProperty):**
+- `createReactivityFocus` - Reactivity mode (V5_2_0 rename from shaderReactivityFocus)
+- `createTransformFocus` - Transform mode (V5_2_0 rename from shaderTransformFocus)
+- `createMusicTimingFocus` - Music Timing mode
+- `createAudioFocus` - Audio Focus mode (NEW V5_2_0)
+
+**Audio Focus Sub-Panels (V5_2_0):**
+- V panel: Volume control
+- C panel: Cue points (1-5)
+- E panel: EQ3 (H/M/L)
+- F panel: FX (Washout/Dubby/Break)
+
+**Gate + Panel Pattern (V5_2_0):**
+```javascript
+// Enter Audio Focus (gate)
+Shift+A → activeFocusMode = 'audio'
+
+// Open sub-panel
+V/C/E/F → activeAudioPanel = 'volume'/'cue'/'eq'/'fx'
+
+// Navigate within panel
+↑/↓ → row selection, ←/→ → value adjustment
+
+// Exit (nested)
+Escape → if activeAudioPanel, close panel; else exit Audio Focus
+```
+
+**Tab Isolation (V5_2_0):**
+- `isCreateTabActive()` - Helper to check CREATE tab
+- `isPerformTabActive()` - Helper to check PERFORM tab
+- Keyboard handlers check active tab before processing
 
 **#ForReview - LIVE TAB DOMAIN NAMING:**
 - `startMasterClock()` - #ForReview should be `liveStartMasterClock()`
@@ -425,7 +475,7 @@ End of chain. Nothing depends on these. Safe to modify.
 - `audioEndField` - manual beatgrid end (seconds)
 - `inBeat` - loop In point (bar.beat format)
 - `outBeat` - loop Out point (bar.beat format)
-- `audioCuePoints` - V5_1_0: Array of 3 beat positions (default: [0, 64, 128])
+- `audioCuePoints` - V5_2_0: Array of 5 beat positions (default: [0, 64, 128, 192, 256])
 
 **AUDIO REACTIVITY DOMAIN:**
 - `bassGain` - 0.0-2.0 (multiplies modA)
@@ -455,11 +505,11 @@ End of chain. Nothing depends on these. Safe to modify.
 ```javascript
 {
   name: "Bass Drop Tunnel",
-  version: "5.1.0",
+  version: "5.2.0",
   shaderCode: "/* WGSL */",
   tempo: 128,
   modAWave: "sine",
-  audioCuePoints: [0, 64, 128],  // V5_1_0
+  audioCuePoints: [0, 64, 128, 192, 256],  // V5_2_0: 5 cues
   // ... full structure documented in File Formats section
 }
 ```
@@ -584,8 +634,8 @@ audioTempoField = 124       // Audio track is 124 BPM
     trebleGain: 1.0             // 0.0-2.0 (modC multiplier)
   },
   
-  // Cue Points (V5_1_0)
-  audioCuePoints: [0, 64, 128],   // 3 beat positions relative to audioStartTime
+  // Cue Points (V5_2_0: expanded to 5)
+  audioCuePoints: [0, 64, 128, 192, 256],   // 5 beat positions relative to audioStartTime
   
   // Control States (V5_1_0)
   controlStates: {
@@ -614,12 +664,12 @@ audioTempoField = 124       // Audio track is 124 BPM
 - User re-selects audio file when needed
 - Audio is optional (pure shader mode works without it)
 
-**Cue Points (V5_1_0):**
-- Array of 3 beat positions
+**Cue Points (V5_2_0):**
+- Array of 5 beat positions (expanded from 3 in V5_1_0)
 - Stored relative to audioStartTime (beat 0 = Bar 1.1)
-- Default values: `[0, 64, 128]` (Bar 1.1, 17.1, 33.1)
+- Default values: `[0, 64, 128, 192, 256]` (Bar 1.1, 17.1, 33.1, 49.1, 65.1)
 - Draggable with bar snap (4 beats)
-- Legacy containers default to `[0, 64, 128]`
+- Legacy 3-cue containers auto-padded to 5
 
 **WAVEFORM ARCHITECTURE - What's Stored vs. Calculated:**
 
@@ -803,7 +853,7 @@ const modA = waveform × audioLevel × gain;
       category: "Bass",
       shaderCode: "/* ... */",
       tempo: 128,
-      audioCuePoints: [0, 64, 128],  // V5_1_0
+      audioCuePoints: [0, 64, 128, 192, 256],  // V5_2_0
       // ... full .oms structure
     },
     {
@@ -811,7 +861,7 @@ const modA = waveform × audioLevel × gain;
       category: "Bass",
       shaderCode: "/* ... */",
       tempo: 140,
-      audioCuePoints: [0, 64, 128],  // V5_1_0
+      audioCuePoints: [0, 64, 128, 192, 256],  // V5_2_0
       // ... full .oms structure
     },
     // ... multiple presets
@@ -1580,17 +1630,18 @@ const BUMPR_DURATIONS = [
 
 ---
 
-### 8. Cue Points System (V5_1_0)
+### 8. Cue Points System (V5_2_0)
 
 **Purpose:** CDJ-style hot cue system for quick navigation
 
 **Key Components:**
 ```javascript
-let audioCuePoints = [0, 64, 128];  // Beats relative to audioStartTime
+let audioCuePoints = [0, 64, 128, 192, 256];  // V5_2_0: 5 cues (was 3)
 let draggingCueIndex = -1;          // Currently dragging (-1 = none)
 let dragStartX = 0;                 // Mouse start position
 let cueDragged = false;             // Whether drag occurred (vs click)
 const CUE_HIT_TOLERANCE = 20;       // Pixels for click detection
+const NUM_CUE_POINTS = 5;           // V5_2_0: Constant for cue count
 ```
 
 **Default Positions:**
@@ -1599,6 +1650,8 @@ const CUE_HIT_TOLERANCE = 20;       // Pixels for click detection
 | 1 | 1.1 | 0 | Intro |
 | 2 | 17.1 | 64 | First drop |
 | 3 | 33.1 | 128 | Second drop |
+| 4 | 49.1 | 192 | Third section |
+| 5 | 65.1 | 256 | Fourth section |
 
 **CREATE Tab Features:**
 - Visual flags: Orange (#ffa500) line + triangle + number
@@ -1608,12 +1661,20 @@ const CUE_HIT_TOLERANCE = 20;       // Pixels for click detection
 
 **PERFORM Tab Features:**
 - Display: Orange flags on track waveforms
-- Keyboard jump: 1/2/3 keys jump to cue on selected track
+- Keyboard jump: 1/2/3/4/5 keys jump to cue on selected track
 
 **Storage:**
 ```json
 {
-  "audioCuePoints": [0, 64, 128]
+  "audioCuePoints": [0, 64, 128, 192, 256]
+}
+```
+
+**Migration (V5_2_0):**
+```javascript
+// Pad legacy 3-cue containers to 5
+if (container.audioCuePoints && container.audioCuePoints.length === 3) {
+    container.audioCuePoints.push(192, 256);
 }
 ```
 
@@ -1719,7 +1780,7 @@ inBeat                // Loop In point (bar.beat format: "1.1")
 outBeat               // Loop Out point (bar.beat format: "65.1")
 
 // V5_1_0: Cue Points
-audioCuePoints        // Array of 3 beat positions [0, 64, 128]
+audioCuePoints        // V5_2_0: Array of 5 beat positions [0, 64, 128, 192, 256]
 
 inLabel               // Clickable label - jump to In point
 outLabel              // Clickable label - jump to Out point
@@ -1961,11 +2022,11 @@ masterZoomKnob                  // 60px encoder (10-100 px/s)
 trackWaveformCanvas[track]      // Canvas element
 trackWaveformOverlay[track]     // Container name + thumbnail
 
-// Nudge Controls (per track)
-trackNudgeLeftLarge[track]      // |< button (1 bar left)
-trackNudgeLeftSmall[track]      // << button (1 beat left)
-trackNudgeRightSmall[track]     // >> button (1 beat right)
-trackNudgeRightLarge[track]     // >| button (1 bar right)
+// V5_2_0: Track Audio Modules (replaced nudge buttons)
+trackAudioModule[track]         // Container for cue/EQ/FX controls
+trackCueButtons[track][1-5]     // 5 cue buttons per track
+trackEQKnobs[track][H/M/L]      // 3 EQ knobs per track
+trackFXKnobs[track][W/D/B]      // 3 FX knobs per track
 
 // Fixed Overlay
 playheadLine                    // Magenta vertical line (z-index 10)
@@ -1985,7 +2046,7 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 
 ---
 
-### Keyboard Shortcuts (CREATE Tab) (V5_1_0)
+### Keyboard Shortcuts (CREATE Tab) (V5_2_0)
 
 **Audio Navigation:**
 | Shortcut | Action |
@@ -1995,6 +2056,19 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 | Shift+< | Jump to previous grid line (4 bars) |
 | Shift+> | Jump to next grid line (4 bars) |
 | G | Toggle beatgrid |
+
+**Audio Focus Mode (V5_2_0):**
+| Shortcut | Action |
+|----------|--------|
+| Shift+A | Enter/exit Audio Focus mode |
+| V | Open Volume panel |
+| C | Open Cue panel (5 cues) |
+| E | Open EQ panel (H/M/L) |
+| F | Open FX panel (W/D/B) |
+| ↑/↓ | Navigate rows in panel |
+| ←/→ | Adjust values |
+| Enter | Activate (jump/kill) |
+| Escape | Exit panel or mode |
 
 **Reactivity Focus Mode:**
 | Shortcut | Action |
@@ -2038,27 +2112,35 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 
 ---
 
-### Keyboard Shortcuts (LIVE Tab) - V5_1_0 Changes
+### Keyboard Shortcuts (LIVE Tab) - V5_2_0 Changes
 
 **Note:** In V4_5_0, this tab is labeled "PERFORM" but internal references remain "live" for code continuity.
 
 **Pattern:** All keyboard actions trigger `showMessage()` with state feedback.
 
-**Track/Cue Selection (V5_1_0 Changes):**
+**Track/Cue Selection (V5_2_0):**
 | Key | Action |
 |-----|--------|
-| Shift+1-5 | Select track/master (V5_1_0: was 1-5) |
-| 1/2/3 | V5_1_0: Jump to cue point on selected track |
+| Shift+1-5 | Select track/master |
+| 1/2/3/4/5 | Jump to cue point on selected track (V5_2_0: 5 cues) |
+
+**Panel Access (V5_2_0):**
+| Key | Action |
+|-----|--------|
+| C | Open Cue panel for selected track |
+| E | Open EQ panel for selected track |
+| F | Open FX panel for selected track |
 
 **Categories:**
 - Track Selection: `Shift+1-5`
-- Cue Jump: `1/2/3` (V5_1_0)
+- Cue Jump: `1/2/3/4/5` (V5_2_0: expanded from 3)
+- Panel Access: `C/E/F` (V5_2_0)
 - Grid Navigation: `W/A/S/D`
 - Playback: `Enter`, `Space`, `Esc`, `Delete`
 - Mixer: Arrow keys, `,` `.` `<` `>`
 - Visibility: `Shift+M/T/W`
 - Zoom: `[ ]`
-- BumpR: `Shift+B`, then `1-0`, `↑/↓`, `Enter` (V5_1_0)
+- BumpR: `Shift+B`, then `1-0`, `↑/↓`, `Enter`
 
 **Complete list:** See User Guide section 3.4.8
 
@@ -2121,8 +2203,8 @@ containerData = {
   // Audio Loop State (V4.4.0)
   audioLoopEnabled: true,        // Loop on/off state
   
-  // Cue Points (V5_1_0)
-  audioCuePoints: [0, 64, 128],  // 3 beat positions
+  // Cue Points (V5_2_0: expanded to 5)
+  audioCuePoints: [0, 64, 128, 192, 256],  // 5 beat positions
   
   // Control States (V5_1_0)
   controlStates: {
@@ -2168,7 +2250,7 @@ let libraryContainersCache = [
         audioFilename: "bass_track.mp3",
         audioStartTime: 17.1,
         audioEndTime: 300.0,
-        audioCuePoints: [0, 64, 128],  // V5_1_0
+        audioCuePoints: [0, 64, 128, 192, 256],  // V5_2_0: 5 cues
         // ... everything from .oms file
     },
     // ... more containers
@@ -2317,13 +2399,13 @@ let projectLoopDefaults = {
 
 ---
 
-### UI State (V4_8_0 / V5_1_0 Focus Mode Renames)
+### UI State (V4_8_0 / V5_1_0 / V5_2_0 Focus Mode)
 
 ```javascript
-// Reactivity Focus Mode (V5_1_0 renames)
-let shaderReactivityFocus = false;     // Was modReactivityMode
-let shaderReactivitySelectedRow = 0;   // Was modSelectedRow (0-2 = A/B/C)
-let shaderReactivitySelectedCol = 0;   // Was modSelectedCol (0-4)
+// Reactivity Focus Mode (V5_2_0: renamed from shader* to create*)
+let createReactivityFocus = false;     // Was shaderReactivityFocus, was modReactivityMode
+let createReactivitySelectedRow = 0;   // Was shaderReactivitySelectedRow (0-2 = A/B/C)
+let createReactivitySelectedCol = 0;   // Was shaderReactivitySelectedCol (0-4)
 let modKeyRepeatCount = 0;             // Progressive acceleration counter
 let modLastKeyTime = 0;                // Timestamp for acceleration
 
@@ -2336,28 +2418,28 @@ let currentLoadedContainerId = null;   // null = new, "name" = editing existing
 
 ---
 
-### UI State (V5_0_0 / V5_1_0)
+### UI State (V5_0_0 / V5_1_0 / V5_2_0)
 
 ```javascript
-// Transform Focus Mode (V5_1_0 renames)
-let shaderTransformFocus = false;         // Was transformKeyboardMode
-let shaderTransformSelectedCol = 0;       // Was transformSelectedCol (0-4)
+// Transform Focus Mode (V5_2_0: renamed from shader* to create*)
+let createTransformFocus = false;         // Was shaderTransformFocus
+let createTransformSelectedCol = 0;       // Was shaderTransformSelectedCol
 let transformKeyRepeatCount = 0;          // Progressive acceleration counter
 let transformLastKeyTime = 0;             // Timestamp for acceleration
 let transformLastEnterTime = 0;           // Double-tap Enter detection
 
-// Music Timing Focus Mode (NEW V5_1_0)
-let shaderMusicTimingFocus = false;
-let shaderMusicTimingSelectedCol = 0;
+// Music Timing Focus Mode
+let createMusicTimingFocus = false;       // Was shaderMusicTimingFocus
+let createMusicTimingSelectedCol = 0;
 
-// Transform Animation Modes (V5_1_0)
+// Transform Animation Modes
 let transformModes = {
     rotation: 'stop',     // stop, clockwise, counterclockwise, pingpong
     scale: 'stop',
     tile: 'stop'
 };
 
-// Shader Tempo Link (V5_1_0)
+// Shader Tempo Link
 let shaderTempoLinked = true;  // Stored in controlStates
 
 // Transform configuration arrays
@@ -2371,15 +2453,24 @@ const TRANSFORM_CONFIGS = [
     { min: -1, max: 1, step: 0.05, default: 0 },                   // XY (both axes)
     { min: -1, max: 1, step: 0.05, default: 0 }                    // Pivot (both axes)
 ];
+
+// V5_2_0: Centralized Focus Mode System
+let activeFocusMode = null;      // CORTEX: Current mode
+let activeAudioPanel = null;     // CORTEX: Current audio panel
+
+// V5_2_0: Tab isolation helpers
+function isCreateTabActive() { return document.getElementById('controlsTabContent').style.display !== 'none'; }
+function isPerformTabActive() { return document.getElementById('liveTabContent').style.display !== 'none'; }
 ```
 
 ---
 
-### Cue Points State (V5_1_0)
+### Cue Points State (V5_2_0)
 
 ```javascript
 // Cue point positions (beats relative to audioStartTime)
-let audioCuePoints = [0, 64, 128];  // Default: Bar 1.1, 17.1, 33.1
+let audioCuePoints = [0, 64, 128, 192, 256];  // V5_2_0: 5 cues (was 3)
+// Default: Bar 1.1, 17.1, 33.1, 49.1, 65.1
 
 // Drag state (CREATE tab)
 let draggingCueIndex = -1;          // -1 = not dragging
@@ -2388,6 +2479,78 @@ let cueDragged = false;             // Whether actual drag occurred
 
 // Constants
 const CUE_HIT_TOLERANCE = 20;       // Pixels for click detection
+const NUM_CUE_POINTS = 5;           // V5_2_0: Constant for cue count
+```
+
+---
+
+### Audio Focus State (V5_2_0)
+
+```javascript
+// Focus mode (centralized system)
+let activeFocusMode = null;         // null, 'reactivity', 'transform', 'musicTiming', 'audio', 'bumpr'
+let activeAudioPanel = null;        // null, 'volume', 'cue', 'eq', 'fx'
+
+// Audio panel selection
+let audioFocusSelectedRow = 0;      // Row within active panel
+
+// CREATE tab audio controls
+let createAudioVolume = 75;         // 0-100
+let createAudioVolumeKilled = false;
+
+// EQ3 state (CREATE tab)
+let createEQHigh = 0.75;            // 0-1 (0.75 = unity/0dB)
+let createEQMid = 0.75;
+let createEQLow = 0.75;
+let createEQHighKilled = false;
+let createEQMidKilled = false;
+let createEQLowKilled = false;
+
+// DJ FX state (CREATE tab)
+let createFXWashout = 0;            // 0-1 (wet amount)
+let createFXDubby = 0;
+let createFXBreak = 0;
+let createFXWashoutKilled = false;
+let createFXDubbyKilled = false;
+let createFXBreakKilled = false;
+```
+
+---
+
+### Per-Track Audio State (V5_2_0)
+
+```javascript
+// EQ per track (PERFORM tab) - [4 tracks][3 bands]
+let trackEQValues = [
+    [0.75, 0.75, 0.75],  // Track 1: H, M, L
+    [0.75, 0.75, 0.75],  // Track 2
+    [0.75, 0.75, 0.75],  // Track 3
+    [0.75, 0.75, 0.75]   // Track 4
+];
+let trackEQKilled = [
+    [false, false, false],
+    [false, false, false],
+    [false, false, false],
+    [false, false, false]
+];
+
+// FX per track (PERFORM tab) - [4 tracks][3 slots]
+let trackFXValues = [
+    [0, 0, 0],  // Track 1: Washout, Dubby, Break
+    [0, 0, 0],  // Track 2
+    [0, 0, 0],  // Track 3
+    [0, 0, 0]   // Track 4
+];
+let trackFXKilled = [
+    [false, false, false],
+    [false, false, false],
+    [false, false, false],
+    [false, false, false]
+];
+
+// Audio routing nodes per track
+let trackEQNodes = [null, null, null, null];     // Each: {high, mid, low}
+let trackFXNodes = [null, null, null, null];     // Each: {washout, dubby, break}
 ```
 
 ---
@@ -2669,6 +2832,11 @@ PERFORMANCE
   - Volume knobs → GainNode.gain.value
   - Opacity knobs → canvas.style.opacity
   - Mute/Solo buttons → gain/opacity calculations
+  - V5_2_0: EQ knobs → BiquadFilterNode.gain
+  - V5_2_0: FX knobs → effect wet/dry mix
+  ↓
+[Per-Track Audio Chain (V5_2_0)]
+  Source → EQ (High→Mid→Low) → Washout → [Dubby] → Analyser → Gain → Master
   ↓
 [BumpR StickRs (V5_1_0)]
   - Shift+B mode → slot selection
@@ -2684,7 +2852,7 @@ PERFORMANCE
 
 ## FUNCTION REFERENCE
 
-**Total Functions:** ~225 (V5_1_0 adds ~25 new functions)
+**Total Functions:** ~260 (V5_2_0 adds ~35 new functions for Audio Focus, EQ3, DJ FX)
 
 ---
 
@@ -2796,30 +2964,185 @@ setFreqKnobsDisabled(disabled)
   // When disabled: dimmed, no interaction, tooltip shows reason
 ```
 
-**V5_1_0 Focus Mode Functions (Renamed):**
+**V5_2_0 Focus Mode Functions (Centralized System):**
 ```javascript
+// CORTEX: Central focus mode management
+exitAllFocusModes()
+  // Exit any active focus mode and audio panel
+  // Sets: activeFocusMode = null, activeAudioPanel = null
+  // Clears: all selection states, hides panels
+
+// Audio Focus (NEW V5_2_0)
+enterAudioFocus()
+  // Enter Audio Focus mode (Shift+A)
+  // Sets: activeFocusMode = 'audio'
+  // Shows: Audio Focus message bar
+
+exitAudioFocus()
+  // Exit Audio Focus mode
+  // Clears: activeAudioPanel if set
+
+openAudioPanel(panel)
+  // Open sub-panel: 'volume', 'cue', 'eq', 'fx'
+  // Sets: activeAudioPanel = panel
+
+closeAudioPanel()
+  // Close current audio panel
+  // Sets: activeAudioPanel = null
+
+// Renamed functions (V5_2_0: shader* → create*)
 enterReactivityFocus()  // Was enterReactivityMode()
-  // Enter keyboard control mode for modulators
-  // Sets: shaderReactivityFocus = true
-  // Shows: cyan selection ring
+  // Sets: activeFocusMode = 'reactivity', createReactivityFocus = true
 
-exitReactivityFocus()   // Was exitReactivityMode()
-  // Exit keyboard control mode
-  // Clears: selection ring, resets state
+exitReactivityFocus()
+  // Clears: createReactivityFocus = false
 
-enterTransformFocus()   // Was enterTransformMode()
-  // Enter keyboard mode (Shift+T)
-  // Sets: shaderTransformFocus = true
+enterTransformFocus()
+  // Sets: activeFocusMode = 'transform', createTransformFocus = true
 
-exitTransformFocus()    // Was exitTransformMode()
-  // Exit transform keyboard mode
+exitTransformFocus()
+  // Clears: createTransformFocus = false
 
-enterMusicTimingFocus() // NEW V5_1_0
-  // Enter keyboard mode (Shift+M)
-  // Sets: shaderMusicTimingFocus = true
+enterMusicTimingFocus()
+  // Sets: activeFocusMode = 'musicTiming', createMusicTimingFocus = true
 
-exitMusicTimingFocus()  // NEW V5_1_0
-  // Exit music timing keyboard mode
+exitMusicTimingFocus()
+  // Clears: createMusicTimingFocus = false
+```
+
+---
+
+### EQ3 DOMAIN (V5_2_0)
+
+**CREATE Tab:**
+```javascript
+initCreateEQ()
+  // Initialize 3-band EQ for CREATE tab
+  // Creates: BiquadFilterNode chain (High→Mid→Low)
+  // Connects to audio element output
+
+updateCreateEQ(band, value)
+  // Update EQ band value
+  // Args: band ('high', 'mid', 'low'), value (0-1)
+  // Maps to dB: 0=kill, 0.25=-12dB, 0.5=-6dB, 0.75=0dB, 1.0=+6dB
+
+killCreateEQ(band)
+  // Toggle kill state for band
+  // Args: band ('high', 'mid', 'low')
+
+drawEQKnob(canvas, value, killed)
+  // Draw EQ knob visual
+  // Args: canvas, value (0-1), killed (boolean)
+  // Colors: cyan arc (normal), magenta fill (killed)
+```
+
+**PERFORM Tab (Per-Track):**
+```javascript
+initTrackEQ(trackIndex)
+  // Initialize EQ for specific track
+  // Creates: BiquadFilterNode chain per track
+
+updateTrackEQ(trackIndex, band, value)
+  // Update track's EQ band
+  // Args: trackIndex (0-3), band (0-2), value (0-1)
+
+killTrackEQ(trackIndex, band)
+  // Toggle kill for track's EQ band
+```
+
+---
+
+### DJ FX DOMAIN (V5_2_0)
+
+**CREATE Tab:**
+```javascript
+initCreateFX()
+  // Initialize DJ FX for CREATE tab
+  // Creates: Washout (highpass), Dubby (delay), Break (playbackRate)
+
+updateCreateFX(slot, value)
+  // Update FX wet amount
+  // Args: slot ('washout', 'dubby', 'break'), value (0-1)
+
+killCreateFX(slot)
+  // Toggle kill state for FX slot
+
+drawFXKnob(canvas, value, killed)
+  // Draw FX knob visual
+  // Same style as EQ knobs
+```
+
+**PERFORM Tab (Per-Track):**
+```javascript
+initTrackFX(trackIndex)
+  // Initialize FX for specific track
+
+updateTrackFX(trackIndex, slot, value)
+  // Update track's FX slot
+  // Args: trackIndex (0-3), slot (0-2), value (0-1)
+
+killTrackFX(trackIndex, slot)
+  // Toggle kill for track's FX slot
+```
+
+**FX Implementation:**
+```javascript
+// Washout (Highpass Sweep)
+// BiquadFilterNode type='highpass'
+// frequency: 20Hz (value=0) → 2000Hz (value=1)
+// Q: 0.7
+
+// Dubby (Dub Delay)
+// DelayNode + GainNode feedback loop
+// delay: 375ms (3/16 at 120 BPM)
+// feedback: 0 (value=0) → 0.8 (value=1)
+
+// Break (Vinyl Stop)
+// playbackRate manipulation
+// rate: 1.0 (value=0) → 0.1 (value=1)
+```
+
+---
+
+### AUDIO CONTROLS MODULE (V5_2_0)
+
+**Volume Knob:**
+```javascript
+initCreateVolumeKnob()
+  // Initialize 24×24 volume knob in header
+  // Position: Left of container name
+
+updateCreateVolume(value)
+  // Update volume (0-100)
+
+killCreateVolume()
+  // Toggle volume kill (mute)
+
+drawVolumeKnob(canvas, value, killed)
+  // Draw volume knob visual
+  // 24×24 cyan knob, magenta when killed
+```
+
+---
+
+### TAB ISOLATION DOMAIN (V5_2_0)
+
+```javascript
+isCreateTabActive()
+  // Check if CREATE tab is visible
+  // Returns: boolean
+
+isPerformTabActive()
+  // Check if PERFORM tab is visible
+  // Returns: boolean
+
+// Keyboard handler pattern:
+document.addEventListener('keydown', (e) => {
+    // Tab isolation check
+    if (!isCreateTabActive()) return;
+    
+    // Then handle keys...
+});
 ```
 
 ---
@@ -2905,18 +3228,20 @@ setBumprDuration(slotIndex, duration, optionEl)
 
 ---
 
-### CUE POINTS DOMAIN (V5_1_0)
+### CUE POINTS DOMAIN (V5_2_0)
+
+**V5_2_0: Expanded from 3 to 5 cue points**
 
 **Drawing:**
 ```javascript
-// In drawProgress() - added cue flag drawing
-// In drawWaveformFromAudioBuffer() - added cue flags for PERFORM
+// In drawProgress() - draws 5 cue flags
+// In drawWaveformFromAudioBuffer() - draws 5 cue flags for PERFORM
 ```
 
 **Interaction (CREATE Tab):**
 ```javascript
 // Mouse handlers in waveform canvas:
-// - mousedown: Check cue hit, start drag
+// - mousedown: Check cue hit (1-5), start drag
 // - mousemove: Update cue position (bar snap)
 // - mouseup: End drag, or jump if no drag occurred
 ```
@@ -2924,13 +3249,18 @@ setBumprDuration(slotIndex, duration, optionEl)
 **Storage:**
 ```javascript
 // In buildContainerObject():
-audioCuePoints: audioCuePoints.slice()
+audioCuePoints: audioCuePoints.slice()  // 5 elements
+
+// Migration (V5_2_0):
+if (container.audioCuePoints.length === 3) {
+    container.audioCuePoints.push(192, 256);  // Pad to 5
+}
 
 // In loadContainer():
-audioCuePoints = container.audioCuePoints || [0, 64, 128]
+audioCuePoints = container.audioCuePoints || [0, 64, 128, 192, 256]
 
 // In updateContainer():
-audioCuePoints: audioCuePoints.slice()
+audioCuePoints: audioCuePoints.slice()  // 5 elements
 ```
 
 ---
@@ -3408,19 +3738,28 @@ Examples: bassGainGroup, midGainGroup, trebleGainGroup
 Examples: inLabel, outLabel
 ```
 
-### Variable Naming Rules (V5_1_0 Updates)
+### Variable Naming Rules (V5_2_0 Updates)
 
-**Focus Mode State:**
+**Focus Mode State (V5_2_0 Centralized + Renames):**
 ```javascript
-// V5_1_0: Renamed from "Mode" to "Focus"
-shaderReactivityFocus     // Was modReactivityMode
-shaderTransformFocus      // Was transformKeyboardMode
-shaderMusicTimingFocus    // NEW V5_1_0
+// V5_2_0: Centralized focus mode variables (CORTEX)
+activeFocusMode           // Current active mode (null or string)
+activeAudioPanel          // Current audio panel (null or string)
+exitAllFocusModes()       // Central cleanup function
 
-// Selected positions also renamed
-shaderReactivitySelectedRow  // Was modSelectedRow
-shaderReactivitySelectedCol  // Was modSelectedCol
-shaderTransformSelectedCol   // Was transformSelectedCol
+// V5_2_0: CREATE tab renames (shader* → create*)
+createReactivityFocus     // Was shaderReactivityFocus
+createTransformFocus      // Was shaderTransformFocus
+createMusicTimingFocus    // Was shaderMusicTimingFocus
+createAudioFocus          // NEW V5_2_0
+
+// Selected positions
+createReactivitySelectedRow  // Was shaderReactivitySelectedRow
+createReactivitySelectedCol  // Was shaderReactivitySelectedCol
+createTransformSelectedCol   // Was shaderTransformSelectedCol
+
+// Backward compatibility via Object.defineProperty
+// Old names still work but map to new names
 ```
 
 **Arrays:**
@@ -3430,11 +3769,15 @@ trackShaderOpacity = [100, 100, 100, 100];
 trackAudioVolume = [75, 75, 75, 75];
 trackAudioPlaying = [false, false, false, false];
 
-// Cue points (always length 3)
-audioCuePoints = [0, 64, 128];
+// Cue points (V5_2_0: length 5, was 3)
+audioCuePoints = [0, 64, 128, 192, 256];
 
 // BumpR slots (always length 10)
 bumprStickrsSlots = [null, null, null, null, null, null, null, null, null, null];
+
+// Per-track EQ/FX (V5_2_0) - [4 tracks][3 values]
+trackEQValues = [[0.75,0.75,0.75], [0.75,0.75,0.75], [0.75,0.75,0.75], [0.75,0.75,0.75]];
+trackFXValues = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]];
 ```
 
 **Maps/Objects:**
@@ -3487,7 +3830,7 @@ const CUE_HIT_TOLERANCE = 20;  // V5_1_0
 ```javascript
 // All files include version field
 {
-  version: "5.1.0",
+  version: "5.2.0",
   // ...
 }
 
@@ -3500,9 +3843,12 @@ const CUE_HIT_TOLERANCE = 20;  // V5_1_0
 function migrateContainer(containerData) {
   const version = containerData.version;
   
-  // V5_1_0: Add cue points if missing
+  // V5_2_0: Expand cue points from 3 to 5
   if (!containerData.audioCuePoints) {
-    containerData.audioCuePoints = [0, 64, 128];
+    containerData.audioCuePoints = [0, 64, 128, 192, 256];
+  } else if (containerData.audioCuePoints.length === 3) {
+    // Pad existing 3-cue containers to 5
+    containerData.audioCuePoints.push(192, 256);
   }
   
   // V5_1_0: Add shaderTempoLinked if missing

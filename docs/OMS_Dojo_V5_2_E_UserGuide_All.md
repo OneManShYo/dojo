@@ -1,7 +1,7 @@
-# ONEMANSHYO App [Beta V5_1_0] - USER GUIDE
+# ONEMANSHYO App [Beta V5_2_0] - USER GUIDE
 
-**Version:** Beta V5_1_0
-**Date:** December 24, 2025
+**Version:** Beta V5_2_0
+**Date:** December 26, 2025
 **License:** GPL-3.0
 
 ---
@@ -11,9 +11,14 @@
 1. Introduction
 2. Instant Gratification
 3. Using the Application
-   - 3.2.5.4 Cue Points (V5_1_0)
-   - 3.4.10 Cue Points in PERFORM (V5_1_0)
-   - 3.5.7 BumpR StickRs (V5_1_0)
+   - 3.2.5.4 Cue Points (V5_2_0: 5 cues)
+   - 3.2.5.5 Audio Focus Mode (V5_2_0)
+   - 3.2.5.6 EQ3 System (V5_2_0)
+   - 3.2.5.7 DJ FX System (V5_2_0)
+   - 3.2.5.8 Volume Knob (V5_2_0)
+   - 3.4.10 Cue Points in PERFORM (V5_2_0: 5 cues)
+   - 3.4.11 Per-Track EQ/FX (V5_2_0)
+   - 3.5.7 BumpR StickRs
 4. Support
 5. Credits
 
@@ -37,7 +42,7 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 **Browser:** Chrome (WebGPU support required)  
 **Screen:** 1352×761 effective viewport (14" MacBook Pro)
 
-**File:** `OMS_App_Beta_V5_1_0.html`
+**File:** `OMS_App_Beta_V5_2_0.html`
 
 ---
 
@@ -48,14 +53,14 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 If you want to create visuals based on music timing without setting up a library:
 
 **Audio-Reactive Visuals (reacts to your music):**
-1. Open `OMS_App_Beta_V5_1_0.html`
+1. Open `OMS_App_Beta_V5_2_0.html`
 2. Drag your audio file (.mp3, .wav) onto the waveform
 3. Visuals automatically react to bass, mids, treble
 4. Click [Render Video]
 5. Get SILENT video with pre-baked reactivity
 
 **Tempo-Synced Visuals (animated to BPM, no audio needed):**
-1. Open `OMS_App_Beta_V5_1_0.html`
+1. Open `OMS_App_Beta_V5_2_0.html`
 2. Set tempo (e.g., 128 BPM)
 3. Set duration (e.g., 03:30.000)
 4. Click [Render Video]
@@ -504,9 +509,9 @@ Controls to transform the shader output in real-time. All transforms save with y
 
 ---
 
-##### 3.2.5.4 Cue Points (V5_1_0)
+##### 3.2.5.4 Cue Points (V5_2_0)
 
-CDJ-style hot cues for instant navigation. 3 cue points per container, displayed as orange flags on the waveform.
+CDJ-style hot cues for instant navigation. 5 cue points per container, displayed as orange flags on the waveform.
 
 **Default Positions:**
 
@@ -515,11 +520,13 @@ CDJ-style hot cues for instant navigation. 3 cue points per container, displayed
 | 1 | Bar 1.1 | 0 | Intro |
 | 2 | Bar 17.1 | 64 | First drop |
 | 3 | Bar 33.1 | 128 | Second drop |
+| 4 | Bar 49.1 | 192 | Third section |
+| 5 | Bar 65.1 | 256 | Fourth section |
 
 **Visual Appearance:**
 - Orange vertical line (#ffa500)
 - Orange triangle flag pointing right
-- Number (1, 2, or 3) inside flag
+- Number (1-5) inside flag
 
 **Interaction:**
 
@@ -531,14 +538,184 @@ CDJ-style hot cues for instant navigation. 3 cue points per container, displayed
 
 **Bar Snap:** Cue positions always snap to bar boundaries (every 4 beats).
 
-**Storage:** Cue points save with your .oms container. Legacy containers default to 1.1, 17.1, 33.1.
+**Storage:** Cue points save with your .oms container. Legacy 3-cue containers auto-padded to 5.
 
 **Workflow:**
 1. Load audio
 2. Play through to find key moments
 3. Drag cue flags to those positions
 4. Save container - cues are stored!
-5. In PERFORM tab, press 1/2/3 to jump to cues
+5. In PERFORM tab, press 1-5 to jump to cues
+
+---
+
+##### 3.2.5.5 Audio Focus Mode (V5_2_0)
+
+Complete keyboard navigation for all audio controls in CREATE tab.
+
+**Entering Audio Focus:**
+- Press `Shift+A` to enter Audio Focus mode
+- Message bar shows: "Audio Focus | V=Vol, C=Cue, E=EQ, F=FX, Esc=exit"
+
+**Gate + Panel Pattern:**
+Audio Focus uses a two-step pattern:
+1. **Gate:** Enter Audio Focus (Shift+A)
+2. **Panel:** Open a sub-panel (V, C, E, or F)
+3. **Navigate:** Use arrow keys within panel
+4. **Exit:** Escape backs out one level at a time
+
+**Sub-Panels:**
+
+| Key | Panel | Controls |
+|-----|-------|----------|
+| V | Volume | Volume knob with kill |
+| C | Cue | 5 cue points |
+| E | EQ | 3-band EQ (H/M/L) |
+| F | FX | 3 DJ FX (Washout/Dubby/Break) |
+
+**Escape Nesting:**
+- In a panel → Escape → back to Audio Focus
+- In Audio Focus → Escape → exit completely
+
+**Keyboard Shortcuts:**
+
+| Key | Action |
+|-----|--------|
+| Shift+A | Enter/exit Audio Focus |
+| V | Open Volume panel |
+| C | Open Cue panel |
+| E | Open EQ panel |
+| F | Open FX panel |
+| ↑/↓ | Navigate rows in panel |
+| ←/→ | Adjust values |
+| Enter | Activate (jump/kill) |
+| Escape | Exit panel or mode |
+
+---
+
+##### 3.2.5.6 EQ3 System (V5_2_0)
+
+Professional DJ-style 3-band EQ with kill switches.
+
+**Frequency Bands:**
+
+| Band | Frequency | Type | Q |
+|------|-----------|------|---|
+| High | 2500 Hz | Highshelf | - |
+| Mid | 1000 Hz | Peaking | 0.7 |
+| Low | 250 Hz | Lowshelf | - |
+
+**Ableton-Style Value Mapping:**
+
+| Knob Position | Value | dB | Description |
+|---------------|-------|-----|-------------|
+| Full left | 0.0 | -∞ | Kill (mute) |
+| 9 o'clock | 0.25 | -12dB | Cut |
+| 12 o'clock | 0.5 | -6dB | Attenuate |
+| 3 o'clock | 0.75 | 0dB | Unity (default) |
+| Full right | 1.0 | +6dB | Boost |
+
+**Visual States:**
+- Normal: Cyan arc on dark background
+- Killed: Magenta fill (full circle)
+- Selected: Cyan ring around knob
+
+**Interaction:**
+- Mouse wheel: Adjust value
+- Click: Toggle kill
+- Drag: Adjust value
+
+**Keyboard (E Panel):**
+
+| Key | Action |
+|-----|--------|
+| ↑/↓ | Navigate H/M/L |
+| ←/→ | Adjust gain |
+| Enter | Kill/restore band |
+| Escape | Exit panel |
+
+**Workflow:**
+1. Enter Audio Focus: `Shift+A`
+2. Open EQ panel: `E`
+3. Navigate to band: `↑` or `↓`
+4. Cut bass for transition: `←` (on Low)
+5. Kill mids dramatically: `Enter` (on Mid)
+6. Exit: `Escape` twice
+
+---
+
+##### 3.2.5.7 DJ FX System (V5_2_0)
+
+Three essential DJ transition effects.
+
+**FX Slots:**
+
+| Slot | Name | Effect | Sound |
+|------|------|--------|-------|
+| W | **Washout** | Highpass filter sweep | Bass disappears as you turn up |
+| D | **Dubby** | Dub delay with feedback | Classic dub echo trails |
+| B | **Break** | Vinyl stop | Audio slows to a crawl |
+
+**How Each Effect Works:**
+
+**Washout (Highpass Sweep):**
+- Value 0 = Filter at 20Hz (all frequencies pass)
+- Value 1 = Filter at 2kHz (only highs pass)
+- Use for: Building tension, transitioning out
+
+**Dubby (Dub Delay):**
+- Delay time: 375ms (3/16 at 120 BPM)
+- Feedback increases with value
+- Use for: Dub vibes, echo trails, spacey moments
+
+**Break (Vinyl Stop):**
+- Value 0 = Normal playback
+- Value 1 = 10% speed (almost stopped)
+- Use for: Dramatic stops, section endings
+
+**Visual States:**
+- Normal: Cyan arc showing wet amount
+- Killed: Magenta fill
+- Selected: Cyan ring
+
+**Keyboard (F Panel):**
+
+| Key | Action |
+|-----|--------|
+| ↑/↓ | Navigate W/D/B |
+| ←/→ | Adjust wet amount |
+| Enter | Kill/restore effect |
+| Escape | Exit panel |
+
+---
+
+##### 3.2.5.8 Volume Knob (V5_2_0)
+
+Quick volume control with kill switch in the audio header.
+
+**Location:** Left side of AUDIO header, before container name
+
+**Appearance:**
+- 24×24 cyan knob
+- Shows current volume as arc
+- Magenta when killed
+
+**Interaction:**
+- Mouse wheel: Adjust volume (0-100%)
+- Click: Toggle kill (mute)
+
+**Keyboard (V Panel):**
+
+| Key | Action |
+|-----|--------|
+| ←/→ | Adjust volume |
+| Enter | Kill/restore |
+| Escape | Exit panel |
+
+**Audio Header Layout (V5_2_0):**
+```
+AUDIO | [Vol] | [Container Name (scrolling)] | [Time] | [SWAP] [X]
+```
 
 ---
 
@@ -600,6 +777,20 @@ CDJ-style hot cues for instant navigation. 3 cue points per container, displayed
 | Shift+< | Jump to previous grid line (4 bars) |
 | Shift+> | Jump to next grid line (4 bars) |
 | G | Toggle beatgrid |
+
+**Audio Focus Mode (V5_2_0):**
+
+| Shortcut | Action |
+|----------|--------|
+| Shift+A | Enter/exit Audio Focus mode |
+| V | Volume panel (in Audio Focus) |
+| C | Cue panel (in Audio Focus) |
+| E | EQ panel (in Audio Focus) |
+| F | FX panel (in Audio Focus) |
+| ↑ ↓ | Navigate rows in panel |
+| ← → | Adjust values |
+| Enter | Activate (jump/kill) |
+| Escape | Exit panel or mode |
 
 **Reactivity Mode (V4_8_0):**
 
@@ -1081,7 +1272,7 @@ The PERFORM tab is a 4-track DJ mixer for live performance with reactive visuals
 
 #### 3.4.8 PERFORM Keyboard Shortcuts
 
-**Track Selection (V5_1_0 changed):**
+**Track Selection:**
 
 | Shortcut | Action |
 |----------|--------|
@@ -1093,15 +1284,27 @@ The PERFORM tab is a 4-track DJ mixer for live performance with reactive visuals
 | Tab | Next track |
 | Shift+Tab | Previous track |
 
-**Cue Jump (V5_1_0 new):**
+**Cue Jump (V5_2_0):**
 
 | Shortcut | Action |
 |----------|--------|
 | 1 | Jump to Cue 1 on selected track |
 | 2 | Jump to Cue 2 on selected track |
 | 3 | Jump to Cue 3 on selected track |
+| 4 | Jump to Cue 4 on selected track |
+| 5 | Jump to Cue 5 on selected track |
 
 **Why the change:** Cue jumping is urgent during performance (needs fast access). Track selection is a setup task (less urgent). Plain number keys now do the most time-critical action.
+
+**Panel Access (V5_2_0):**
+
+After selecting a track (Shift+1-4), access audio panels:
+
+| Shortcut | Action |
+|----------|--------|
+| C | Open Cue panel for selected track |
+| E | Open EQ panel for selected track |
+| F | Open FX panel for selected track |
 
 **Grid Navigation:**
 
@@ -1175,7 +1378,7 @@ The message bar at the bottom of the screen provides instant feedback:
 
 ---
 
-#### 3.4.10 Cue Points in PERFORM (V5_1_0)
+#### 3.4.10 Cue Points in PERFORM (V5_2_0)
 
 Jump to saved cue positions during live performance.
 
@@ -1183,6 +1386,7 @@ Jump to saved cue positions during live performance.
 - Orange flags appear on track waveforms
 - Same positions saved in CREATE tab
 - Flags visible even when track not playing
+- 5 cue points per container
 
 **Keyboard Jump:**
 
@@ -1191,6 +1395,8 @@ Jump to saved cue positions during live performance.
 | 1 | Jump to Cue 1 |
 | 2 | Jump to Cue 2 |
 | 3 | Jump to Cue 3 |
+| 4 | Jump to Cue 4 |
+| 5 | Jump to Cue 5 |
 
 **Requirements:**
 - Track must be selected (Shift+1-4)
@@ -1205,6 +1411,63 @@ Jump to saved cue positions during live performance.
 2. Launch container: `Enter`
 3. Jump to drop: `2` (cue 2 = bar 17 by default)
 4. Jump to breakdown: `3` (cue 3 = bar 33 by default)
+5. Jump to outro: `5` (cue 5 = bar 65 by default)
+
+---
+
+#### 3.4.11 Per-Track EQ/FX (V5_2_0)
+
+Each PERFORM track has independent EQ and FX processing.
+
+**Track Modules:**
+The nudge buttons have been replaced with track modules showing:
+- 5 cue buttons (1-5)
+- 3 EQ knobs (H/M/L)
+- 3 FX knobs (W/D/B)
+
+**Independent Processing:**
+- Each track has its own EQ filters
+- Each track has its own FX chain
+- Adjustments on Track 1 don't affect Track 2
+
+**Audio Routing (per track):**
+```
+Source → EQ (H→M→L) → Washout → [Dubby] → Analyser → Gain → Master
+```
+
+**Keyboard Workflow:**
+
+1. Select track: `Shift+1` (or 2/3/4)
+2. Open panel: `C` (Cue), `E` (EQ), or `F` (FX)
+3. Navigate: `↑/↓` to select row
+4. Adjust: `←/→` to change value
+5. Kill: `Enter` to toggle kill
+6. Exit: `Escape` to close panel
+
+**Panel Controls:**
+
+**Cue Panel (C):**
+| Key | Action |
+|-----|--------|
+| ↑/↓ | Select cue 1-5 |
+| Enter | Jump to selected cue |
+
+**EQ Panel (E):**
+| Key | Action |
+|-----|--------|
+| ↑/↓ | Select H/M/L |
+| ←/→ | Adjust gain |
+| Enter | Kill/restore band |
+
+**FX Panel (F):**
+| Key | Action |
+|-----|--------|
+| ↑/↓ | Select W/D/B |
+| ←/→ | Adjust wet amount |
+| Enter | Kill/restore effect |
+
+**Quick Cue Access:**
+You don't need to open a panel for cue jumping - just press `1-5` directly after selecting a track.
 
 ---
 
@@ -1492,8 +1755,8 @@ Social / YouTube
 ## 5. Credits
 
 **Created by:** Wes Smith / ONEMANSHYO  
-**Version:** Beta V5_0_0  
-**Date:** December 17, 2025
+**Version:** Beta V5_2_0  
+**Date:** December 26, 2025
 
 **Technology:**
 - WebGPU / WGSL (shaders)
@@ -3043,6 +3306,7 @@ length(fract(uv * 8.0) - 0.5)
 | 1.1.0 | December 2025 | Updated for OMS shader contract (fs_main, auto-injected struct) |
 | 2.0.0 | December 2025 | Added Transform chain (V5_0_0), 112-byte uniform buffer |
 | 2.1.0 | December 2025 | Updated for V5_1_0 (Cue Points, BumpR StickRs) |
+| 2.2.0 | December 2025 | Updated for V5_2_0 (Audio Focus, EQ3, DJ FX, 5 Cues) |
 
 ---
 
@@ -3052,6 +3316,6 @@ length(fract(uv * 8.0) - 0.5)
 
 **END OF USER GUIDE**
 
-Version: Beta V5_1_0  
-Date: December 24, 2025  
+Version: Beta V5_2_0  
+Date: December 26, 2025  
 License: GPL-3.0

@@ -1,7 +1,7 @@
-# ONEMANSHYO App [Beta V5_1_0] - CLAUDE PROJECT INSTRUCTIONS
+# ONEMANSHYO App [Beta V5_2_0] - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** Beta V5_1_0  
-**Date:** December 25, 2025  
+**Version:** Beta V5_2_0  
+**Date:** December 26, 2025  
 **Purpose:** Working protocols and project context for Claude AI development
 
 ---
@@ -62,6 +62,7 @@ READ THE Deliverables, Iterations and Shader Instructions. Always provide: HTML 
 - Expects exact technical language, not approximations
 - Provides clear specifications upfront
 - Demonstrates familiarity with systematic development processes
+- Uses "itNN" shorthand for iterations (e.g., "it05" = iteration 05)
 
 **What This Means for Claude:**
 - Listen carefully to what Wes says
@@ -259,23 +260,23 @@ CREATE, ORGANIZE, and PERFORM are tabs in a single unified workflow:
 
 ### 1. Version Numbering
 
-**Format:** `V5_1_0` (underscores everywhere)
+**Format:** `V5_2_0` (underscores everywhere)
 - Major_Minor_Patch
 - **No alphabetical suffixes**
 
 **Build Process (V5+):**
-1. Copy deliverables HTML to build folder (e.g., V5_1_0.html → V5_1_0 folder)
-2. Build iterations: V5_1_01, V5_1_02, V5_1_03...
-3. Create deliverables: V5_2_0 (bumps minor, resets patch)
-4. Copy V5_2_0.html → V5_2_0 folder
-5. Build iterations: V5_2_01, V5_2_02...
-6. Create deliverables: V5_3_0
+1. Copy deliverables HTML to build folder (e.g., V5_2_0.html → V5_2_0 folder)
+2. Build iterations: V5_2_01, V5_2_02, V5_2_03...
+3. Create deliverables: V5_3_0 (bumps minor, resets patch)
+4. Copy V5_3_0.html → V5_3_0 folder
+5. Build iterations: V5_3_01, V5_3_02...
+6. Create deliverables: V5_4_0
 7. Repeat
 
 **Display Format:**
-- Filename: `OMS_App_Beta_V5_1_0.html`
-- Title tag: `Beta V5_1_0` (uppercase V)
-- Header: `[Beta V5_1_0]` (brackets, uppercase V)
+- Filename: `OMS_App_Beta_V5_2_0.html`
+- Title tag: `Beta V5_2_0` (uppercase V)
+- Header: `[Beta V5_2_0]` (brackets, uppercase V)
 
 ### 2. Build Protocol
 
@@ -291,6 +292,11 @@ CREATE, ORGANIZE, and PERFORM are tabs in a single unified workflow:
 4. Claude asks: "Ready to build [feature]? yes go?"
 5. User responds: "yes go" or provides more context
 6. THEN Claude builds
+
+**Iteration Management:**
+- Bug fixes: Stay on same iteration number
+- New features: Bump to new iteration number
+- Difficult features: Use sub-iterations (_01a, _01b, _01c...) instead of overwriting
 
 ### 3. HTML File Hygiene
 
@@ -316,35 +322,35 @@ Chats titled "OMS Road Map Planning" (or similar) are for **brainstorming and ba
 ### 5. File Naming Conventions
 
 **Development Builds:**
-- HTML: `OMS_App_Beta_V5_1_01.html`
-- MD Notes: `OMS_App_Beta_V5_1_01_DescriptionOfWork.md`
+- HTML: `OMS_App_Beta_V5_2_01.html`
+- MD Notes: `OMS_App_Beta_V5_2_01_DescriptionOfWork.md`
 
 **Production Release:**
-- Filename: `OMS_App_Beta_V5_1_0.html`
-- Title: `Beta V5_1_0` (uppercase V)
-- Header: `[Beta V5_1_0]` (brackets, uppercase V)
+- Filename: `OMS_App_Beta_V5_2_0.html`
+- Title: `Beta V5_2_0` (uppercase V)
+- Header: `[Beta V5_2_0]` (brackets, uppercase V)
 
-**Format:** Use underscores everywhere: `V5_1_0` (Major_Minor_Patch)
+**Format:** Use underscores everywhere: `V5_2_0` (Major_Minor_Patch)
 
 ### 6. Deliverables Protocol
 
 **Deliverables Folder Structure:**
 ```
-OMS_App_Beta_V5_1_0_Deliverables/
-  ├── OMS_App_Beta_V5_1_0.html
-  ├── OMS_App_Beta_V5_1_0_A_Deliverables.txt
-  ├── OMS_App_Beta_V5_1_0_B_Complete_Changelog.md
-  ├── OMS_App_Beta_V5_1_0_C_Developer_Documentation.md
-  ├── OMS_App_Beta_V5_1_0_D_Release_Notes.md
-  ├── OMS_App_Beta_V5_1_0_E_UserGuide_All.md
-  ├── OMS_App_Beta_V5_1_0_Y_ClaudeProject_SystemReference.md
-  └── OMS_App_Beta_V5_1_0_Z_ClaudeProject_Instructions.md
+OMS_App_Beta_V5_2_0_Deliverables/
+  ├── OMS_App_Beta_V5_2_0.html
+  ├── OMS_App_Beta_V5_2_0_A_Deliverables.txt
+  ├── OMS_App_Beta_V5_2_0_B_Complete_Changelog.md
+  ├── OMS_App_Beta_V5_2_0_C_Developer_Documentation.md
+  ├── OMS_App_Beta_V5_2_0_D_Release_Notes.md
+  ├── OMS_App_Beta_V5_2_0_E_UserGuide_All.md
+  ├── OMS_App_Beta_V5_2_0_Y_ClaudeProject_SystemReference.md
+  └── OMS_App_Beta_V5_2_0_Z_ClaudeProject_Instructions.md
 ```
 
-**ZIP File Naming:** `OMS_App_Beta_V5_1_0_Deliverables.zip`
+**ZIP File Naming:** `OMS_App_Beta_V5_2_0_Deliverables.zip`
 
 **Builds vs Deliverables:**
-- **Iterations folder:** Contains development builds with a single consolidated notes file named `_OMS_App_Beta_V5_1_0_Consolidated_Notes.md` (leading underscore for sort order)
+- **Iterations folder:** Contains development builds with a single consolidated notes file named `_OMS_App_Beta_V5_2_0_Consolidated_Notes.md` (leading underscore for sort order)
 - **Deliverables folder:** Final release package produced from consolidated notes + prior version deliverables
 
 **Release Workflow (in order):**
@@ -517,13 +523,13 @@ const nextBar = Math.round(masterBeatNow() / 4) * 4;
 
 ---
 
-## 8. WGSL SHADER CONVENTIONS (V5_1_0)
+## 8. WGSL SHADER CONVENTIONS (V5_2_0)
 
 ### Shader File Naming
 
 `OMS_Shader_[Name]_[AppVersion]_V[ShaderVersion].wgsl`
 
-Example: `OMS_Shader_Lava_Lamp_Metaballs_V5_1_0_V3.wgsl`
+Example: `OMS_Shader_Lava_Lamp_Metaballs_V5_2_0_V3.wgsl`
 
 ### Header Template
 
@@ -531,7 +537,7 @@ Every shader MUST include these tags in order:
 ```
 // @name [Display Name - no version]
 // @app ONEMANSHYO
-// @appVersion BETA V5_1_0
+// @appVersion BETA V5_2_0
 // @url http://www.itswessmithyo.com
 // @credit [Inspiration source or empty]
 // @creditUrl [URL or empty]
@@ -564,14 +570,14 @@ Every shader MUST include these tags in order:
 
 #### Always Loaded (Baseline)
 
-**OMS_App_Beta_V5_1_0_Z_ClaudeProject_Instructions.md** - This Document
+**OMS_App_Beta_V5_2_0_Z_ClaudeProject_Instructions.md** - This Document
 - Development protocols, communication guidelines
 - Architectural principles, terminology
 - What never to suggest
 
-**OMS_App_Beta_V5_1_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
+**OMS_App_Beta_V5_2_0_Y_ClaudeProject_SystemReference.md** (or current version) - Technical Reference
 - Leaf Node hierarchy (Cortex/Nodes/Leafs)
-- Complete function reference (~225 functions)
+- Complete function reference (~260 functions)
 - Data structures (.oms, .omsp, gridState)
 - File format specifications
 - DOM elements & controls
@@ -580,7 +586,7 @@ Every shader MUST include these tags in order:
 
 #### On-Demand (Wes Provides When Relevant)
 
-**OMS_App_Beta_V5_1_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
+**OMS_App_Beta_V5_2_0_E_UserGuide_All.md** - Comprehensive User & Reference Guide
 - Application usage (tabs, features, workflows)
 - **INDEX A:** DJ 101 Foundation (industry context, equipment, techniques)
 - **INDEX B:** Claude Shader Creation (prompts, workflows, examples)
@@ -642,7 +648,7 @@ When Claude needs information:
 **Core Principles:**
 1. Ask before building
 2. Wait for full context ("yes go")
-3. Use underscore-separated version numbers (Beta V5_1_0, two-digit patch)
+3. Use underscore-separated version numbers (Beta V5_2_0, two-digit patch)
 4. Never use VJ terminology
 5. Surgical changes only
 6. Single-file philosophy is sacred

@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V5_1
+ONEMANSHYO Dojo App V5_2
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V5_1
+Version: V5_2
 -->
 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V5_1]</title>
+    <title>ONEMANSHYO App [V5_2]</title>
     <!-- V4_3_0_sub6: JSZip for container export (loaded from CDN when needed) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -329,6 +329,12 @@ Version: V5_1
             outline-offset: 2px;
         }
 
+        /* V5_1_35: Audio focus keyboard selection ring */
+        .audio-focus-selected {
+            outline: 2px solid #00d4ff !important;
+            outline-offset: 2px;
+        }
+
         /* ============================================
            V4_9_35: OMS UNIVERSAL COMPONENTS
            Use these classes for consistent styling.
@@ -444,6 +450,7 @@ Version: V5_1
             right: 0;
             max-height: 300px;
             overflow-y: auto;
+            overflow-x: hidden;
             background: #1a1a1a;
             border: 1px solid rgba(255,255,255,0.2);
             border-top: none;
@@ -460,6 +467,15 @@ Version: V5_1
             cursor: pointer;
             font-size: 14px;
             color: #fff;
+            min-width: 0;
+        }
+        /* V5_1_49: Truncate long labels in dropdown items */
+        .oms-dropdown-item span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            min-width: 0;
         }
         .oms-dropdown-item:hover,
         .oms-dropdown-item.highlighted {
@@ -754,6 +770,132 @@ Version: V5_1
             height: 100px;
             margin-left: 10px;
             font-size: 24px;
+        }
+
+        /* V5_1_35: Audio controls module wrapper - contains FX + EQ */
+        .audio-controls-module {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 6px;
+            padding: 6px;
+            background: #333;
+            border: 1px solid #444;
+            border-right: none;
+            border-radius: 4px 0 0 4px;
+            z-index: 10;
+        }
+
+        /* V5_1_35: EQ3 overlay panel - inside module wrapper */
+        .eq-overlay-panel {
+            position: relative;
+            width: 40px;
+            height: 100px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* V5_1_35: FX overlay panel - inside module wrapper */
+        .fx-overlay-panel {
+            position: relative;
+            width: 40px;
+            height: 100px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fx-knob-row {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #444;
+        }
+
+        .fx-knob-row:last-child {
+            border-bottom: none;
+        }
+
+        .fx-overlay-panel .fx-knob-canvas {
+            flex: none;
+            display: block;
+            width: 24px;
+            height: 24px;
+            background: none;
+            cursor: pointer;
+        }
+
+        .eq-knob-row {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #444;
+        }
+
+        .eq-knob-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Override .audio-waveform canvas rule */
+        .eq-overlay-panel .eq-knob-canvas {
+            flex: none;
+            display: block;
+            width: 24px;
+            height: 24px;
+            background: none;
+            cursor: pointer;
+        }
+
+        /* V5_1_35: Cue points panel - inside module wrapper */
+        .cue-overlay-panel {
+            position: relative;
+            width: 55px;
+            height: 100px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cue-row {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+        }
+
+        .cue-row:last-child {
+            border-bottom: none;
+        }
+
+        .cue-row:hover {
+            background: rgba(255, 165, 0, 0.1);
+        }
+
+        .cue-row.selected {
+            background: rgba(0, 212, 255, 0.15);
+        }
+
+        .cue-flag {
+            color: #ffa500;
+            font-size: 9px;
+            font-weight: 600;
+            margin-right: 3px;
+        }
+
+        .cue-bar-beat {
+            color: #888;
+            font-size: 9px;
+            font-family: monospace;
         }
 
         /* V3.0.0-K: Audio controls strip with 5 bordered cells */
@@ -2231,7 +2373,7 @@ Version: V5_1
         .waveform-track {
             flex: 1;
             display: grid; /* V3.2.0-K: Each row is a grid */
-            grid-template-columns: 1fr 70px; /* V4_0_0_C_sub138: Removed 110px spacer - just canvas | controls */
+            grid-template-columns: 1fr 115px; /* V5_1_35: Waveform + track audio module (wider for cue labels) */
             gap: 0; /* V3_4_0_J: No gap - controls flush against canvas */
             background: transparent;
             border: none;
@@ -2246,61 +2388,71 @@ Version: V5_1
         }
 
         /* V3.2.0-K: Track control (left cell in each row) */
-        .waveform-track-control {
-            background: #2a2a2a; /* Match SCENES */
-            border: 1px solid #444;
-            border-radius: 0; /* V3_4_0_I: Sharp corners for modular look */
-            display: flex; /* V3.2.0-M: Flex for button rows */
-            flex-direction: column;
-            align-items: stretch; /* V3_4_0_K: Stretch to fill width (not center) */
-            justify-content: flex-start; /* V3_4_0_J: No centering - buttons start at top */
-            padding: 0; /* V3_4_0_I: No padding for modular look */
-            gap: 0; /* V3_4_0_I: No gap between rows */
-            position: relative; /* V3.3.0_Q: For z-index to work */
-            z-index: 300; /* V4_0_0_C_sub131: Above clock dot lane (200) */
-            width: 70px; /* V3_4_0_H: Align with SCENES column */
-            height: 100%; /* V3_4_0_J: Fill track height */
-        }
-
-        /* V3.2.0-M: Button rows inside track control */
-        /* V3_4_0_H: Gap reduced to 2px for 70px container fit */
-        /* V3_4_0_I: Gap removed for modular look */
-        /* V3_4_0_J: Flex 1 to fill container height equally */
-        .track-control-btn-row {
-            display: flex;
-            gap: 0;
-            align-items: center;
-            justify-content: center;
-            flex: 1; /* V3_4_0_J: Fill available height */
-        }
-
-        /* V3.2.0-M: Track control buttons (base style) */
-        /* V3_4_0_G: Set width to 70px to align with SCENES column */
-        /* V3_4_0_H: Changed to 32px for even fit in 70px container */
-        /* V3_4_0_I: Changed to 35px, removed border-radius for modular look */
-        /* V3_4_0_J: Height 100% to fill row */
-        .track-control-btn {
-            background: #3a3a3a;
-            border: 1px solid #555;
-            border-radius: 0;
-            color: #888;
-            font-size: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%; /* V3_4_0_J: Fill row height */
-            width: 35px;
-        }
-
-        .track-control-btn:hover {
-            background: #4a4a4a;
-            border-color: #666;
-        }
-
-        .track-control-btn:active {
+        /* V5_1_35: Track Audio Module - replaces old nudge controls */
+        .track-audio-module {
             background: #2a2a2a;
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            gap: 1px;
+            width: 115px;
+            height: 100%;
+            z-index: 300;
+        }
+
+        .track-cue-panel {
+            display: flex;
+            flex-direction: column;
+            width: 55px;
+            background: #222;
+        }
+
+        .track-cue {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 4px;
+            font-size: 9px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+        }
+
+        .track-cue:last-child {
+            border-bottom: none;
+        }
+
+        .track-cue:hover {
+            background: rgba(255, 165, 0, 0.1);
+        }
+
+        /* V5_1_49: Match CREATE tab cue styling */
+        .track-cue .cue-num {
+            color: #ffa500;
+            font-weight: 600;
+            margin-right: 2px;
+        }
+
+        .track-cue .cue-pos {
+            color: #888;
+            font-family: monospace;
+        }
+
+        .track-fx-panel,
+        .track-eq-panel {
+            display: flex;
+            flex-direction: column;
+            width: 22px;
+            background: #222;
+            align-items: center;
+            justify-content: space-around;
+            padding: 2px 0;
+        }
+
+        .track-knob {
+            display: block;
+            cursor: pointer;
         }
 
         /* V3.2.0-K: Waveform canvas container (right cell in each row) */
@@ -2324,6 +2476,11 @@ Version: V5_1
             100% {
                 transform: translateX(-50%);
             }
+        }
+
+        /* V5_1_49: Scrolling animation for audio header name */
+        #audioHeaderNameWrapper.scrolling #audioHeaderName {
+            animation: marquee-scroll 8s linear infinite;
         }
 
         .waveform-overlay {
@@ -2776,8 +2933,8 @@ Version: V5_1
     <!-- V3_8_0_N: Header with single line brand + app name, and customizable right greeting -->
     <div class="header">
         <div class="header-left">
-            <div class="header-brand">ONEMANSHYO</div>
-            <div class="header-app">[V5_1]</div>
+            <div class="header-brand">ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">app</span></div>
+            <div class="header-app">[Beta V5_1_49]</div>
         </div>
         <div class="header-greeting" id="headerGreeting">Hi Friend, I'm Wes!</div>
     </div>
@@ -3511,10 +3668,19 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     <div class="oms-header-bar">
                         <div class="shader-header" style="margin: 0; padding: 0;">ADMIN</div>
                     </div>
+                    
+                    <!-- V5_1_35: Audio section -->
+                    <div class="admin-nav-label">Audio</div>
+                    <div class="admin-nav-subitem" data-section="audio-eq" onclick="switchAdminSection('audio-eq')">EQ</div>
+                    <div class="admin-nav-subitem" data-section="audio-fx" onclick="switchAdminSection('audio-fx')">FX</div>
+                    
+                    <!-- V5_1_35: Visuals section -->
+                    <div class="admin-nav-label">Visuals</div>
+                    <div class="admin-nav-subitem" data-section="visuals-bumprstickrs" onclick="switchAdminSection('visuals-bumprstickrs')">BumpR StickRs</div>
+                    
                     <!-- V5_0_08: Settings sub-menu structure -->
                     <div class="admin-nav-label">Settings</div>
                     <div class="admin-nav-subitem active" data-section="settings-application" onclick="switchAdminSection('settings-application')">Application</div>
-                    <div class="admin-nav-subitem" data-section="settings-bumprstickrs" onclick="switchAdminSection('settings-bumprstickrs')">BumpR StickRs</div>
                     <div class="admin-nav-subitem" data-section="settings-create" onclick="switchAdminSection('settings-create')">Create</div>
                     <div class="admin-nav-subitem" data-section="settings-organize" onclick="switchAdminSection('settings-organize')">Organize</div>
                     <div class="admin-nav-subitem" data-section="settings-perform" onclick="switchAdminSection('settings-perform')">Perform</div>
@@ -3703,8 +3869,21 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             
             <!-- V4_6_0: Audio Controls section header with Swap/X buttons -->
             <!-- V4_9_35: Using .oms-header-bar universal component -->
+            <!-- V5_2_0: Layout: AUDIO | Vol | Title | Time | SWAP X -->
             <div id="audioControlsHeaderBar" class="oms-header-bar no-margin-bottom" style="position: relative;">
-                <div class="shader-header" style="margin: 0; padding: 0;" id="audioControlsHeader">AUDIO CONTROLS</div>
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                    <div class="shader-header" style="margin: 0; padding: 0; white-space: nowrap;" id="audioControlsHeader">AUDIO</div>
+                    <!-- V5_2_0: Volume knob moved to left of title -->
+                    <span style="color: #555;">|</span>
+                    <canvas id="createAudioVolumeKnob" width="24" height="24" style="cursor: pointer;" title="Audio Volume (Enter=kill)"></canvas>
+                    <span id="audioHeaderSeparator" style="color: #555; display: none;">|</span>
+                    <div id="audioHeaderNameWrapper" style="flex: 1; min-width: 0; overflow: hidden; display: none;">
+                        <span id="audioHeaderName" style="color: rgba(255,255,255,0.6); font-size: 11px; white-space: nowrap; display: inline-block;"></span>
+                    </div>
+                    <span id="audioHeaderTime" style="color: rgba(255,255,255,0.6); font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; display: none;"></span>
+                    <!-- V5_2_0: Separator before SWAP -->
+                    <span id="audioHeaderTimeSeparator" style="color: #555; display: none;">|</span>
+                </div>
                 <!-- V4_6_0: Audio swap dropdown (absolute positioned, hidden until Swap clicked) -->
                 <select id="createAudioSwapSelect" class="oms-field" style="display: none; position: absolute; right: 100px; top: 50%; transform: translateY(-50%); max-width: 250px; z-index: 10;" onchange="onCreateAudioSwapSelect()">
                 </select>
@@ -3727,6 +3906,60 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 <!-- Hidden file inputs for programmatic use -->
                 <input type="file" id="audioFile" accept="audio/*" style="display: none;" onchange="loadAudioFileAndSetTempo(event)">
                 <input type="file" id="omsFile" accept=".zip" style="display: none;" onchange="handleZipImport(event)">
+                
+                <!-- V5_1_35: Audio controls module wrapper - contains Cue + FX + EQ -->
+                <div class="audio-controls-module" id="audioControlsModule">
+                    <!-- V5_1_35: Cue points panel - 5 cue point rows -->
+                    <div class="cue-overlay-panel" id="cueOverlayPanel">
+                        <div class="cue-row" id="cueRow1" data-cue="0" onclick="jumpToCueFromPanel(0)">
+                            <span class="cue-flag">▶1</span>
+                            <span class="cue-bar-beat" id="cueBarBeat1">1.1</span>
+                        </div>
+                        <div class="cue-row" id="cueRow2" data-cue="1" onclick="jumpToCueFromPanel(1)">
+                            <span class="cue-flag">▶2</span>
+                            <span class="cue-bar-beat" id="cueBarBeat2">17.1</span>
+                        </div>
+                        <div class="cue-row" id="cueRow3" data-cue="2" onclick="jumpToCueFromPanel(2)">
+                            <span class="cue-flag">▶3</span>
+                            <span class="cue-bar-beat" id="cueBarBeat3">33.1</span>
+                        </div>
+                        <div class="cue-row" id="cueRow4" data-cue="3" onclick="jumpToCueFromPanel(3)">
+                            <span class="cue-flag">▶4</span>
+                            <span class="cue-bar-beat" id="cueBarBeat4">49.1</span>
+                        </div>
+                        <div class="cue-row" id="cueRow5" data-cue="4" onclick="jumpToCueFromPanel(4)">
+                            <span class="cue-flag">▶5</span>
+                            <span class="cue-bar-beat" id="cueBarBeat5">65.1</span>
+                        </div>
+                    </div>
+                    
+                    <!-- V5_1_35: FX overlay panel - Reverb/Delay/WashOut top to bottom -->
+                    <!-- V5_1_49: DJ FX panel - Washout, Dubby, Break -->
+                    <div class="fx-overlay-panel" id="fxOverlayPanel">
+                        <div class="fx-knob-row">
+                            <canvas class="fx-knob-canvas" id="fxKnobWashout" width="24" height="24" title="Washout - filter sweep"></canvas>
+                        </div>
+                        <div class="fx-knob-row">
+                            <canvas class="fx-knob-canvas" id="fxKnobDubby" width="24" height="24" title="Dubby - dub echo"></canvas>
+                        </div>
+                        <div class="fx-knob-row">
+                            <canvas class="fx-knob-canvas" id="fxKnobBreak" width="24" height="24" title="Break - vinyl stop"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- V5_1_35: EQ3 overlay panel - H/M/L top to bottom -->
+                    <div class="eq-overlay-panel" id="eqOverlayPanel">
+                        <div class="eq-knob-row">
+                            <canvas class="eq-knob-canvas" id="eqKnobHigh" width="24" height="24" title="High EQ (click to kill)"></canvas>
+                        </div>
+                        <div class="eq-knob-row">
+                            <canvas class="eq-knob-canvas" id="eqKnobMid" width="24" height="24" title="Mid EQ (click to kill)"></canvas>
+                        </div>
+                        <div class="eq-knob-row">
+                            <canvas class="eq-knob-canvas" id="eqKnobLow" width="24" height="24" title="Low EQ (click to kill)"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- V3.0.0-K: Audio Controls Strip with 5 Bordered Cells (60px Fixed Height) -->
@@ -3880,16 +4113,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="waveform-track-control">
-                                    <div class="track-control-btn-row">
-                                        <button class="track-control-btn bar-left" id="barLeftBtn1">|&lt;</button>
-                                        <button class="track-control-btn bar-right" id="barRightBtn1">&gt;|</button>
-                                    </div>
-                                    <div class="track-control-btn-row">
-                                        <button class="track-control-btn nudge-left" id="nudgeLeftBtn1">&lt;&lt;</button>
-                                        <button class="track-control-btn nudge-right" id="nudgeRightBtn1">&gt;&gt;</button>
-                                    </div>
+                                <!-- V5_1_35: Track 1 Audio Controls Module -->
+                                <div class="track-audio-module" id="trackModule1">
+                                    <div class="track-cue-panel"><div class="track-cue" id="t1Cue0" onclick="jumpToTrackCue(1,0)"><span class="cue-num">▶1</span><span class="cue-pos">1.1</span></div><div class="track-cue" id="t1Cue1" onclick="jumpToTrackCue(1,1)"><span class="cue-num">▶2</span><span class="cue-pos">17.1</span></div><div class="track-cue" id="t1Cue2" onclick="jumpToTrackCue(1,2)"><span class="cue-num">▶3</span><span class="cue-pos">33.1</span></div><div class="track-cue" id="t1Cue3" onclick="jumpToTrackCue(1,3)"><span class="cue-num">▶4</span><span class="cue-pos">49.1</span></div><div class="track-cue" id="t1Cue4" onclick="jumpToTrackCue(1,4)"><span class="cue-num">▶5</span><span class="cue-pos">65.1</span></div></div>
+                                    <div class="track-fx-panel"><canvas class="track-knob" id="t1FxR" width="14" height="14"></canvas><canvas class="track-knob" id="t1FxD" width="14" height="14"></canvas><canvas class="track-knob" id="t1FxW" width="14" height="14"></canvas></div>
+                                    <div class="track-eq-panel"><canvas class="track-knob" id="t1EqH" width="14" height="14"></canvas><canvas class="track-knob" id="t1EqM" width="14" height="14"></canvas><canvas class="track-knob" id="t1EqL" width="14" height="14"></canvas></div>
                                 </div>
                             </div>
                             <div class="waveform-track">
@@ -3904,16 +4132,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="waveform-track-control">
-                                    <div class="track-control-btn-row">
-                                        <button class="track-control-btn bar-left" id="barLeftBtn2">|&lt;</button>
-                                        <button class="track-control-btn bar-right" id="barRightBtn2">&gt;|</button>
-                                    </div>
-                                    <div class="track-control-btn-row">
-                                        <button class="track-control-btn nudge-left" id="nudgeLeftBtn2">&lt;&lt;</button>
-                                        <button class="track-control-btn nudge-right" id="nudgeRightBtn2">&gt;&gt;</button>
-                                    </div>
+                                <!-- V5_1_35: Track 2 Audio Controls Module -->
+                                <div class="track-audio-module" id="trackModule2">
+                                    <div class="track-cue-panel"><div class="track-cue" id="t2Cue0" onclick="jumpToTrackCue(2,0)"><span class="cue-num">▶1</span><span class="cue-pos">1.1</span></div><div class="track-cue" id="t2Cue1" onclick="jumpToTrackCue(2,1)"><span class="cue-num">▶2</span><span class="cue-pos">17.1</span></div><div class="track-cue" id="t2Cue2" onclick="jumpToTrackCue(2,2)"><span class="cue-num">▶3</span><span class="cue-pos">33.1</span></div><div class="track-cue" id="t2Cue3" onclick="jumpToTrackCue(2,3)"><span class="cue-num">▶4</span><span class="cue-pos">49.1</span></div><div class="track-cue" id="t2Cue4" onclick="jumpToTrackCue(2,4)"><span class="cue-num">▶5</span><span class="cue-pos">65.1</span></div></div>
+                                    <div class="track-fx-panel"><canvas class="track-knob" id="t2FxR" width="14" height="14"></canvas><canvas class="track-knob" id="t2FxD" width="14" height="14"></canvas><canvas class="track-knob" id="t2FxW" width="14" height="14"></canvas></div>
+                                    <div class="track-eq-panel"><canvas class="track-knob" id="t2EqH" width="14" height="14"></canvas><canvas class="track-knob" id="t2EqM" width="14" height="14"></canvas><canvas class="track-knob" id="t2EqL" width="14" height="14"></canvas></div>
                                 </div>
                             </div>
                             <div class="waveform-track">
@@ -3928,16 +4151,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="waveform-track-control">
-                                    <div class="track-control-btn-row">
-                                        <button class="track-control-btn bar-left" id="barLeftBtn3">|&lt;</button>
-                                        <button class="track-control-btn bar-right" id="barRightBtn3">&gt;|</button>
-                                    </div>
-                                    <div class="track-control-btn-row">
-                                        <button class="track-control-btn nudge-left" id="nudgeLeftBtn3">&lt;&lt;</button>
-                                        <button class="track-control-btn nudge-right" id="nudgeRightBtn3">&gt;&gt;</button>
-                                    </div>
+                                <!-- V5_1_35: Track 3 Audio Controls Module -->
+                                <div class="track-audio-module" id="trackModule3">
+                                    <div class="track-cue-panel"><div class="track-cue" id="t3Cue0" onclick="jumpToTrackCue(3,0)"><span class="cue-num">▶1</span><span class="cue-pos">1.1</span></div><div class="track-cue" id="t3Cue1" onclick="jumpToTrackCue(3,1)"><span class="cue-num">▶2</span><span class="cue-pos">17.1</span></div><div class="track-cue" id="t3Cue2" onclick="jumpToTrackCue(3,2)"><span class="cue-num">▶3</span><span class="cue-pos">33.1</span></div><div class="track-cue" id="t3Cue3" onclick="jumpToTrackCue(3,3)"><span class="cue-num">▶4</span><span class="cue-pos">49.1</span></div><div class="track-cue" id="t3Cue4" onclick="jumpToTrackCue(3,4)"><span class="cue-num">▶5</span><span class="cue-pos">65.1</span></div></div>
+                                    <div class="track-fx-panel"><canvas class="track-knob" id="t3FxR" width="14" height="14"></canvas><canvas class="track-knob" id="t3FxD" width="14" height="14"></canvas><canvas class="track-knob" id="t3FxW" width="14" height="14"></canvas></div>
+                                    <div class="track-eq-panel"><canvas class="track-knob" id="t3EqH" width="14" height="14"></canvas><canvas class="track-knob" id="t3EqM" width="14" height="14"></canvas><canvas class="track-knob" id="t3EqL" width="14" height="14"></canvas></div>
                                 </div>
                             </div>
                             <div class="waveform-track">
@@ -3952,16 +4170,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="waveform-track-control">
-                                    <div class="track-control-btn-row">
-                                        <button class="track-control-btn bar-left" id="barLeftBtn4">|&lt;</button>
-                                        <button class="track-control-btn bar-right" id="barRightBtn4">&gt;|</button>
-                                    </div>
-                                    <div class="track-control-btn-row">
-                                        <button class="track-control-btn nudge-left" id="nudgeLeftBtn4">&lt;&lt;</button>
-                                        <button class="track-control-btn nudge-right" id="nudgeRightBtn4">&gt;&gt;</button>
-                                    </div>
+                                <!-- V5_1_35: Track 4 Audio Controls Module -->
+                                <div class="track-audio-module" id="trackModule4">
+                                    <div class="track-cue-panel"><div class="track-cue" id="t4Cue0" onclick="jumpToTrackCue(4,0)"><span class="cue-num">▶1</span><span class="cue-pos">1.1</span></div><div class="track-cue" id="t4Cue1" onclick="jumpToTrackCue(4,1)"><span class="cue-num">▶2</span><span class="cue-pos">17.1</span></div><div class="track-cue" id="t4Cue2" onclick="jumpToTrackCue(4,2)"><span class="cue-num">▶3</span><span class="cue-pos">33.1</span></div><div class="track-cue" id="t4Cue3" onclick="jumpToTrackCue(4,3)"><span class="cue-num">▶4</span><span class="cue-pos">49.1</span></div><div class="track-cue" id="t4Cue4" onclick="jumpToTrackCue(4,4)"><span class="cue-num">▶5</span><span class="cue-pos">65.1</span></div></div>
+                                    <div class="track-fx-panel"><canvas class="track-knob" id="t4FxR" width="14" height="14"></canvas><canvas class="track-knob" id="t4FxD" width="14" height="14"></canvas><canvas class="track-knob" id="t4FxW" width="14" height="14"></canvas></div>
+                                    <div class="track-eq-panel"><canvas class="track-knob" id="t4EqH" width="14" height="14"></canvas><canvas class="track-knob" id="t4EqM" width="14" height="14"></canvas><canvas class="track-knob" id="t4EqL" width="14" height="14"></canvas></div>
                                 </div>
                             </div>
                             
@@ -4119,12 +4332,26 @@ struct Uniforms {
         let audioTempo = 120;     // Audio reference tempo (for IN/OUT beat positioning)
         let audioPitch = 0;       // V2.8.0-D: Audio pitch adjustment (-16 to +16 percent)
         
+        // V5_1_35: EQ filter nodes for CREATE tab audio
+        let eqLowFilter = null;   // BiquadFilterNode - lowshelf ~250Hz
+        let eqMidFilter = null;   // BiquadFilterNode - peaking ~1kHz
+        let eqHighFilter = null;  // BiquadFilterNode - highshelf ~4kHz
+        
+        // V5_1_49: DJ FX nodes for CREATE tab audio (Washout, Dubby, Break)
+        let fxDelayNode = null;   // DelayNode - main delay (Dubby)
+        let fxDelayFeedback = null; // GainNode - feedback amount
+        let fxDelayDry = null;    // GainNode - dry signal
+        let fxDelayWet = null;    // GainNode - wet signal
+        let fxWashFilter = null;  // BiquadFilterNode - highpass for Washout
+        // Break uses audioElement.playbackRate directly (no nodes needed)
+        
         // V3_9_0_D: Separate audio contexts for main system vs LIVE tab
         // Audio analysis variables (Main system - all tabs except LIVE)
         let audioContext = null;  // Main system audio context (Controls/Presets/Library/Code/Settings/About)
         let audioElement = null;
         let audioSource = null;
         let analyser = null;
+        let createAudioGainNode = null;  // V5_1_49: Volume control for CREATE tab
         let audioDataArray = null;
         let audioLoaded = false;
         let audioExplicitlyRemoved = false;  // V4_5_19: Track explicit audio removal for update
@@ -4146,7 +4373,7 @@ struct Uniforms {
         
         // V5_0_51: Cue points (in beats, relative to audioStartTime)
         // Default: 1.1 (beat 0), 17.1 (beat 64), 33.1 (beat 128)
-        let audioCuePoints = [0, 64, 128];  // 3 cues, stored as beats
+        let audioCuePoints = [0, 64, 128, 192, 256];  // 5 cues, stored as beats (Bars 1.1, 17.1, 33.1, 49.1, 65.1)
         
         // V2.2.0-D: Grid/Free mode for bracket adjustment [REMOVED IN V2.2.0-H - brackets always move together]
         // let gridMode = true; // No longer used - arrow keys always shift both brackets
@@ -4594,13 +4821,77 @@ struct Uniforms {
                 audioDataArray = new Uint8Array(analyser.frequencyBinCount);
             }
             
-            // Connect audio source
+            // V5_1_49: Create volume gain node
+            if (!createAudioGainNode) {
+                createAudioGainNode = audioContext.createGain();
+                createAudioGainNode.gain.value = 0.5;  // Default 12 o'clock
+            }
+            
+            // V5_1_35: Create EQ filters if not exists
+            if (!eqLowFilter) {
+                eqLowFilter = audioContext.createBiquadFilter();
+                eqLowFilter.type = 'lowshelf';
+                eqLowFilter.frequency.value = 250;  // Ableton EQ3 pattern
+                eqLowFilter.gain.value = 0;  // Unity
+                
+                eqMidFilter = audioContext.createBiquadFilter();
+                eqMidFilter.type = 'peaking';
+                eqMidFilter.frequency.value = 1000;  // Geometric mean of 250 and 2500
+                eqMidFilter.Q.value = 0.7;  // Wider Q for smoother transition
+                eqMidFilter.gain.value = 0;  // Unity
+                
+                eqHighFilter = audioContext.createBiquadFilter();
+                eqHighFilter.type = 'highshelf';
+                eqHighFilter.frequency.value = 2500;  // Ableton EQ3 pattern
+                eqHighFilter.gain.value = 0;  // Unity
+            }
+            
+            // V5_1_49: Create DJ FX nodes if not exists (Washout, Dubby - Break uses playbackRate)
+            if (!fxDelayNode) {
+                // Dubby: Dub echo effect
+                fxDelayNode = audioContext.createDelay(2.0);  // Max 2 sec delay
+                fxDelayNode.delayTime.value = 0.375;  // 3/16 note at 120 BPM
+                fxDelayFeedback = audioContext.createGain();
+                fxDelayFeedback.gain.value = 0.5;  // Feedback amount (dub style)
+                fxDelayDry = audioContext.createGain();
+                fxDelayDry.gain.value = 1.0;
+                fxDelayWet = audioContext.createGain();
+                fxDelayWet.gain.value = 0;  // Start dry
+                
+                // Delay feedback loop
+                fxDelayNode.connect(fxDelayFeedback);
+                fxDelayFeedback.connect(fxDelayNode);
+                fxDelayNode.connect(fxDelayWet);
+                
+                // Washout: Filter sweep (highpass for transition effect)
+                fxWashFilter = audioContext.createBiquadFilter();
+                fxWashFilter.type = 'highpass';
+                fxWashFilter.frequency.value = 20;  // Start at bottom (no filtering)
+                fxWashFilter.Q.value = 0.7;
+            }
+            
+            // Connect audio source with EQ + FX chain
             if (audioSource) {
                 audioSource.disconnect();
             }
             audioSource = audioContext.createMediaElementSource(audioElement);
-            audioSource.connect(analyser);
-            analyser.connect(audioContext.destination);
+            
+            // V5_1_49: Chain: source → EQ → wash filter → delay (dry/wet) → analyser → gain → dest
+            audioSource.connect(eqLowFilter);
+            eqLowFilter.connect(eqMidFilter);
+            eqMidFilter.connect(eqHighFilter);
+            eqHighFilter.connect(fxWashFilter);
+            
+            // Dry path
+            fxWashFilter.connect(fxDelayDry);
+            fxDelayDry.connect(analyser);
+            
+            // Delay wet path
+            fxWashFilter.connect(fxDelayNode);
+            fxDelayWet.connect(analyser);
+            
+            analyser.connect(createAudioGainNode);  // V5_1_49: Route through volume
+            createAudioGainNode.connect(audioContext.destination);
             
             // Decode audio file to get real waveform data
             try {
@@ -4637,6 +4928,9 @@ struct Uniforms {
                     const shaderCode = document.getElementById('shaderCode').value;
                     filenameField.value = buildContainerName(file.name, shaderCode);
                 }
+                
+                // V5_1_49: Show waveform overlay with container name and time
+                updateCreateWaveformOverlay();
                 
                 // V2.8.0-D: Enable pitch control
                 const audioPitchField = document.getElementById('audioPitchField');
@@ -5203,6 +5497,100 @@ struct Uniforms {
                 ctx.textAlign = 'center';
                 ctx.fillText(timeText, canvas.width / 2, canvas.height / 2 + 14);
             }
+            
+            // V5_1_49: Update CREATE waveform overlay
+            updateCreateWaveformOverlay();
+        }
+        
+        // V5_1_49: Update CREATE audio header with container name and time
+        // V5_2_0: Added time separator before SWAP
+        function updateCreateWaveformOverlay() {
+            // Get header elements
+            const sep1 = document.getElementById('audioHeaderSeparator');
+            const nameWrapper = document.getElementById('audioHeaderNameWrapper');
+            const nameEl = document.getElementById('audioHeaderName');
+            const timeEl = document.getElementById('audioHeaderTime');
+            const timeSep = document.getElementById('audioHeaderTimeSeparator');
+            
+            if (!sep1 || !nameWrapper || !nameEl || !timeEl) return;
+            
+            // Only show when audio is loaded
+            if (!audioElement || !audioLoaded) {
+                sep1.style.display = 'none';
+                nameWrapper.style.display = 'none';
+                timeEl.style.display = 'none';
+                if (timeSep) timeSep.style.display = 'none';
+                return;
+            }
+            
+            // Get container name from filename field
+            const filenameField = document.getElementById('filename');
+            const containerName = filenameField ? filenameField.value.trim() : '';
+            
+            // Check if we need scrolling (name overflows wrapper)
+            const needsScroll = nameEl.scrollWidth > nameWrapper.clientWidth;
+            if (needsScroll) {
+                // Double the text for seamless loop
+                nameEl.textContent = (containerName || 'Untitled') + '     •     ' + (containerName || 'Untitled') + '     •     ';
+                nameWrapper.classList.add('scrolling');
+            } else {
+                nameEl.textContent = containerName || 'Untitled';
+                nameWrapper.classList.remove('scrolling');
+            }
+            
+            // Calculate bar.beat positions
+            const tempo = audioTempo || 120;
+            const beatsPerSecond = tempo / 60.0;
+            
+            // Current position relative to audioStartTime
+            const currentTime = audioElement.currentTime;
+            const relativeTime = currentTime - audioStartTime;
+            const currentBeat = Math.max(0, relativeTime * beatsPerSecond);
+            
+            // Total beats (from loop out or audio end)
+            const outBeat = barBeatToBeats(document.getElementById('audioLoopOutField').value);
+            
+            // Total time (loop duration)
+            const totalTime = (outBeat / beatsPerSecond);
+            const elapsedTime = Math.max(0, relativeTime);
+            
+            // Format bar.beat (1-indexed bars)
+            const currentBarBeat = beatsToBarBeat(currentBeat);
+            const totalBarBeat = beatsToBarBeat(outBeat);
+            
+            // Format time as M:SS.s
+            const formatTimeShort = (secs) => {
+                const s = Math.max(0, secs);
+                const mins = Math.floor(s / 60);
+                const secsPart = (s % 60).toFixed(1);
+                return `${mins}:${secsPart.padStart(4, '0')}`;
+            };
+            
+            // Format: B.B / B.B | M:SS.s / M:SS.s
+            timeEl.textContent = `${currentBarBeat} / ${totalBarBeat} | ${formatTimeShort(elapsedTime)} / ${formatTimeShort(totalTime)}`;
+            
+            // Show all elements
+            sep1.style.display = 'inline';
+            nameWrapper.style.display = 'block';
+            timeEl.style.display = 'inline';
+            if (timeSep) timeSep.style.display = 'inline';
+        }
+        
+        // V5_1_49: Hide CREATE audio header info
+        // V5_2_0: Also hides time separator
+        function hideCreateWaveformOverlay() {
+            const sep1 = document.getElementById('audioHeaderSeparator');
+            const nameWrapper = document.getElementById('audioHeaderNameWrapper');
+            const timeEl = document.getElementById('audioHeaderTime');
+            const timeSep = document.getElementById('audioHeaderTimeSeparator');
+            
+            if (sep1) sep1.style.display = 'none';
+            if (nameWrapper) {
+                nameWrapper.style.display = 'none';
+                nameWrapper.classList.remove('scrolling');
+            }
+            if (timeEl) timeEl.style.display = 'none';
+            if (timeSep) timeSep.style.display = 'none';
         }
         
         // V2.8.0-D: Apply pitch adjustment to audio playback
@@ -5325,7 +5713,8 @@ struct Uniforms {
             audioSnapLastBar = null;
             
             // V5_0_51: Reset cue points to defaults
-            audioCuePoints = [0, 64, 128];
+            audioCuePoints = [0, 64, 128, 192, 256];
+            updateCuePanelDisplay();  // V5_1_35
             
             audioLoaded = false;
             audioExplicitlyRemoved = true;  // V4_5_19: Mark audio as explicitly removed
@@ -5379,6 +5768,9 @@ struct Uniforms {
             shaderTempoField.disabled = false;
             shaderTempoField.style.opacity = '';
             shaderTempoField.title = 'Shader Tempo';
+            
+            // V5_1_49: Hide CREATE waveform overlay
+            hideCreateWaveformOverlay();
             
             showMessage('Audio removed', 'state');
         }
@@ -6332,6 +6724,9 @@ struct Uniforms {
                     audioElement.currentTime = audioStartTime + (inBeat / audioBeatsPerSecond);
                 }
                 
+                // V5_1_49: Update CREATE waveform overlay during playback
+                updateCreateWaveformOverlay();
+                
                 const audioLevels = analyzeAudio();
                 // V4_8_31: Store FFT values separately
                 shaderModAFFT = audioLevels.bass;
@@ -6657,6 +7052,28 @@ struct Uniforms {
             bar.style.cursor = onClick ? 'pointer' : 'default';
         }
 
+        // V5_1_49: Tab visibility helpers - UNIVERSAL gate for keyboard handlers
+        // Use these to prevent cross-tab keyboard conflicts
+        function isCreateTabActive() {
+            const el = document.getElementById('controlsTabContent');
+            return el && el.style.display !== 'none';
+        }
+        
+        function isPerformTabActive() {
+            const el = document.getElementById('liveMixerContainer');
+            return el && el.style.display !== 'none';
+        }
+        
+        function isOrganizeTabActive() {
+            const el = document.getElementById('libraryTabContent');
+            return el && el.style.display !== 'none';
+        }
+        
+        function isAdminTabActive() {
+            const el = document.getElementById('adminTabContent');
+            return el && el.style.display !== 'none';
+        }
+
         // V2.1.1-C: Copy shader code to clipboard
         function copyShaderCode() {
             const shaderCode = document.getElementById('shaderCode').value;
@@ -6885,10 +7302,8 @@ struct Uniforms {
         // V2.1.0-C: Tab switching function
         // V4_4_0: Removed presetsTab handling
         function switchTab(tabName) {
-            // V5_0_51: Exit BumpR mode on tab switch
-            if (bumprModeActive) {
-                exitBumprMode();
-            }
+            // V5_2_0: Exit any focus mode on tab switch
+            exitAllFocusModes();
             
             // Hide all tab contents in left panel
             document.getElementById('controlsTabContent').classList.remove('active');
@@ -7174,6 +7589,142 @@ struct Uniforms {
                     adminSelect.innerHTML = originalSelect.innerHTML;
                     adminSelect.value = originalSelect.value;
                 }
+            } else if (sectionName === 'audio-eq') {
+                // V5_1_35: EQ Configuration
+                contentArea.innerHTML = `
+                    <div class="controls-section" style="padding: 0;">
+                        <div class="shader-header">EQ CONFIGURATION</div>
+                        
+                        <div style="margin-top: 20px;">
+                            <div style="color: #888; font-size: 12px; margin-bottom: 15px;">
+                                3-band EQ with Ableton-style crossover frequencies.
+                            </div>
+                            
+                            <!-- Low Shelf -->
+                            <div style="margin-bottom: 20px; padding: 12px; background: #1a1a1a; border: 1px solid #333;">
+                                <div style="color: #ff6b6b; font-weight: 600; font-size: 12px; margin-bottom: 8px;">LOW SHELF</div>
+                                <div style="display: flex; gap: 20px;">
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Frequency</span>
+                                        <div style="color: #fff; font-size: 14px;">250 Hz</div>
+                                    </div>
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Max Boost</span>
+                                        <div style="color: #fff; font-size: 14px;">+6 dB</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mid Peak -->
+                            <div style="margin-bottom: 20px; padding: 12px; background: #1a1a1a; border: 1px solid #333;">
+                                <div style="color: #ffd93d; font-weight: 600; font-size: 12px; margin-bottom: 8px;">MID PEAK</div>
+                                <div style="display: flex; gap: 20px;">
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Frequency</span>
+                                        <div style="color: #fff; font-size: 14px;">1000 Hz</div>
+                                    </div>
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Q</span>
+                                        <div style="color: #fff; font-size: 14px;">0.7</div>
+                                    </div>
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Max Boost</span>
+                                        <div style="color: #fff; font-size: 14px;">+6 dB</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- High Shelf -->
+                            <div style="margin-bottom: 20px; padding: 12px; background: #1a1a1a; border: 1px solid #333;">
+                                <div style="color: #6bcb77; font-weight: 600; font-size: 12px; margin-bottom: 8px;">HIGH SHELF</div>
+                                <div style="display: flex; gap: 20px;">
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Frequency</span>
+                                        <div style="color: #fff; font-size: 14px;">2500 Hz</div>
+                                    </div>
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Max Boost</span>
+                                        <div style="color: #fff; font-size: 14px;">+6 dB</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="color: #666; font-size: 11px; font-style: italic;">
+                                Preset: Ableton EQ3 (read-only)
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (sectionName === 'audio-fx') {
+                // V5_1_35: FX Configuration
+                contentArea.innerHTML = `
+                    <div class="controls-section" style="padding: 0;">
+                        <div class="shader-header">FX CONFIGURATION</div>
+                        
+                        <div style="margin-top: 20px;">
+                            <div style="color: #888; font-size: 12px; margin-bottom: 15px;">
+                                3 FX slots for live performance.
+                            </div>
+                            
+                            <!-- Slot 1: Reverb -->
+                            <div style="margin-bottom: 20px; padding: 12px; background: #1a1a1a; border: 1px solid #333;">
+                                <div style="color: #00d4ff; font-weight: 600; font-size: 12px; margin-bottom: 8px;">SLOT 1: REVERB</div>
+                                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Type</span>
+                                        <div style="color: #fff; font-size: 14px;">Multi-Tap</div>
+                                    </div>
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Decay</span>
+                                        <div style="color: #fff; font-size: 14px;">170ms</div>
+                                    </div>
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Damping</span>
+                                        <div style="color: #fff; font-size: 14px;">0.3</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Slot 2: Delay -->
+                            <div style="margin-bottom: 20px; padding: 12px; background: #1a1a1a; border: 1px solid #333;">
+                                <div style="color: #00d4ff; font-weight: 600; font-size: 12px; margin-bottom: 8px;">SLOT 2: DELAY</div>
+                                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Time</span>
+                                        <div style="color: #fff; font-size: 14px;">375ms (3/16)</div>
+                                    </div>
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Feedback</span>
+                                        <div style="color: #fff; font-size: 14px;">40%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Slot 3: Wash Out -->
+                            <div style="margin-bottom: 20px; padding: 12px; background: #1a1a1a; border: 1px solid #333;">
+                                <div style="color: #00d4ff; font-weight: 600; font-size: 12px; margin-bottom: 8px;">SLOT 3: WASH OUT</div>
+                                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">HPF Range</span>
+                                        <div style="color: #fff; font-size: 14px;">20 → 2000 Hz</div>
+                                    </div>
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Reverb Send</span>
+                                        <div style="color: #fff; font-size: 14px;">60%</div>
+                                    </div>
+                                    <div>
+                                        <span style="color: #666; font-size: 11px;">Delay Send</span>
+                                        <div style="color: #fff; font-size: 14px;">50%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="color: #666; font-size: 11px; font-style: italic;">
+                                Preset: DJ Transition (read-only)
+                            </div>
+                        </div>
+                    </div>
+                `;
             } else if (sectionName === 'settings-create') {
                 // V5_0_08: Create tab settings
                 contentArea.innerHTML = `
@@ -7243,7 +7794,7 @@ struct Uniforms {
                         </div>
                     </div>
                 `;
-            } else if (sectionName === 'settings-bumprstickrs') {
+            } else if (sectionName === 'visuals-bumprstickrs') {
                 // V5_0_51: BumpR StickRs settings - Per-slot settings with fixed-width dropdowns
                 const getAnimateOptions = (slotIdx) => `
                     <div class="bumpr-dropdown-item" onclick="event.stopPropagation(); setBumprAnimate(${slotIdx}, 'none')">None</div>
@@ -10026,6 +10577,13 @@ struct Uniforms {
             // Toggle visibility
             if (select.style.display !== 'none') {
                 select.style.display = 'none';
+                // V5_2_0: Restore time field when dropdown closes
+                if (audioLoaded) {
+                    const timeEl = document.getElementById('audioHeaderTime');
+                    const timeSep = document.getElementById('audioHeaderTimeSeparator');
+                    if (timeEl) timeEl.style.display = 'inline';
+                    if (timeSep) timeSep.style.display = 'inline';
+                }
                 return;
             }
             
@@ -10097,6 +10655,12 @@ struct Uniforms {
                 select.innerHTML = '<option value="">— No audio files in Library —</option>';
             }
             
+            // V5_2_0: Hide time field when dropdown is open
+            const timeEl = document.getElementById('audioHeaderTime');
+            const timeSep = document.getElementById('audioHeaderTimeSeparator');
+            if (timeEl) timeEl.style.display = 'none';
+            if (timeSep) timeSep.style.display = 'none';
+            
             select.style.display = 'block';
         }
         
@@ -10107,6 +10671,13 @@ struct Uniforms {
             
             if (!filename) {
                 select.style.display = 'none';
+                // V5_2_0: Restore time field when dropdown closes
+                if (audioLoaded) {
+                    const timeEl = document.getElementById('audioHeaderTime');
+                    const timeSep = document.getElementById('audioHeaderTimeSeparator');
+                    if (timeEl) timeEl.style.display = 'inline';
+                    if (timeSep) timeSep.style.display = 'inline';
+                }
                 return;
             }
             
@@ -10310,6 +10881,7 @@ struct Uniforms {
         }
         
         // V4_8_31: Handle shader name dropdown change
+        // V5_1_49: Library entries now load full container
         function onShaderNameSelect(value, item) {
             // If "_current" selected, do nothing
             if (value === '_current') {
@@ -10328,12 +10900,21 @@ struct Uniforms {
                 return;
             }
             
-            // Load shader code from item
+            // V5_1_49: Library entries load full container (shader + audio + controls)
+            if (value.startsWith('library:')) {
+                const containerId = value.replace('library:', '');
+                loadContainer(containerId);
+                return;
+            }
+            
+            // Presets: Load shader code only (starting points)
             if (item && item.shaderCode) {
                 const shaderCodeEl = document.getElementById('shaderCode');
                 if (shaderCodeEl) {
                     shaderCodeEl.value = item.shaderCode;
                     compileShader(false);
+                    // V5_1_49: Clear currentLoadedContainerId for presets (it's a new work)
+                    currentLoadedContainerId = null;
                     showMessage(`Loaded shader: ${item.label}`, 'state');
                 }
             } else {
@@ -11389,12 +11970,17 @@ struct Uniforms {
                 // V5_0_51: Restore cue points
                 if (containerData.audioCuePoints && Array.isArray(containerData.audioCuePoints)) {
                     audioCuePoints = [...containerData.audioCuePoints];
+                    // V5_1_35: Pad to 5 if container has fewer cue points
+                    while (audioCuePoints.length < 5) {
+                        audioCuePoints.push(audioCuePoints.length * 64);
+                    }
                     console.log('V5_0_51: Restored audioCuePoints:', audioCuePoints);
                 } else {
                     // Reset to defaults if not present
-                    audioCuePoints = [0, 64, 128];
+                    audioCuePoints = [0, 64, 128, 192, 256];
                     console.log('V5_0_51: No audioCuePoints in container, using defaults');
                 }
+                updateCuePanelDisplay();  // V5_1_35
                 
                 console.log('V3.2.0-P: Audio timing data restoration complete');
             }
@@ -11500,7 +12086,7 @@ struct Uniforms {
                 audioLoopIn: audioExplicitlyRemoved ? null : (audioLoaded ? barBeatToBeats(document.getElementById('audioLoopInField').value) : (existingContainer.audioLoopIn || null)),
                 audioLoopOut: audioExplicitlyRemoved ? null : (audioLoaded ? barBeatToBeats(document.getElementById('audioLoopOutField').value) : (existingContainer.audioLoopOut || null)),
                 audioLoopEnabled: audioExplicitlyRemoved ? false : audioLoopEnabled,  // V4_5_19
-                audioCuePoints: audioExplicitlyRemoved ? [0, 64, 128] : (audioLoaded ? [...audioCuePoints] : (existingContainer.audioCuePoints || [0, 64, 128])),  // V5_0_51
+                audioCuePoints: audioExplicitlyRemoved ? [0, 64, 128, 192, 256] : (audioLoaded ? [...audioCuePoints] : (existingContainer.audioCuePoints || [0, 64, 128, 192, 256])),  // V5_1_35: 5 cues
                 hasAudio: !!audioFilename,
                 // V4_0_0_D_sub137: ALWAYS preserve timeline arrays!
                 shaderModATimeline: existingContainer.shaderModATimeline || null,
@@ -14352,6 +14938,17 @@ ${shaderCode}
         let masterAnalyser = null;
         let meterAnimationRunning = false;
         
+        // V5_1_49: Per-track EQ filters (3 per track: High, Mid, Low)
+        let trackEQFilters = []; // Array of {high, mid, low} per track
+        
+        // V5_1_49: Per-track FX nodes
+        let trackFXDelayNodes = [];      // Delay node per track
+        let trackFXDelayFeedback = [];   // Delay feedback gain per track
+        let trackFXDelayWet = [];        // Delay wet gain per track
+        let trackFXReverbWet = [];       // Reverb wet gain per track (simplified reverb)
+        let trackFXWashFilter = [];      // Wash highpass filter per track
+        let trackFXWashWet = [];         // Wash wet gain per track
+        
         // V3_7_0_J: Shader state per track
         let trackShaderOpacity = [1.0, 1.0, 1.0, 1.0]; // Manual opacity (0-1)
         let trackShaderMute = [false, false, false, false]; // Shader muted
@@ -14446,7 +15043,9 @@ ${shaderCode}
         // V4_0_0_B_sub2: Check if any track is past 1.1.1 (regardless of play/pause state)
         // Rule: Any track past 1.1.1? YES = don't reset clock, NO = reset clock
         function isAnyTrackPast_1_1_1() {
-            return trackLaunchBeats.some(beat => beat !== null && beat > 0);
+            // V5_1_35: Fixed - check if master clock is running, not if beat > 0
+            // Previous check (beat > 0) failed when track was launched from beat 0 (cue 1)
+            return trackMasterClockStart !== null;
         }
         
         // Start master clock on first launch (sets timing reference)
@@ -14499,10 +15098,66 @@ ${shaderCode}
                 console.log('[TrackAudioMasterClock] V3_9_0_D_sub1: trackAudioContext connected to trackAudioMasterClock');
             }
             
-            // V3.1.0-K: Create 4 track gain nodes + analysers
+            // V3.1.0-K: Create 4 track gain nodes + analysers + V5_1_49: EQ/FX
             trackGainNodes = [];
             trackAnalysers = [];
+            trackEQFilters = [];
+            trackFXDelayNodes = [];
+            trackFXDelayFeedback = [];
+            trackFXDelayWet = [];
+            trackFXReverbWet = [];
+            trackFXWashFilter = [];
+            trackFXWashWet = [];
+            
             for (let i = 0; i < NUM_TRACKS; i++) {
+                // V5_1_49: Create EQ filters for this track
+                const eqHigh = trackAudioContext.createBiquadFilter();
+                eqHigh.type = 'highshelf';
+                eqHigh.frequency.value = 4000;  // 4kHz
+                eqHigh.gain.value = 0;  // 0dB = unity
+                
+                const eqMid = trackAudioContext.createBiquadFilter();
+                eqMid.type = 'peaking';
+                eqMid.frequency.value = 1000;  // 1kHz
+                eqMid.Q.value = 1.0;
+                eqMid.gain.value = 0;  // 0dB = unity
+                
+                const eqLow = trackAudioContext.createBiquadFilter();
+                eqLow.type = 'lowshelf';
+                eqLow.frequency.value = 250;  // 250Hz
+                eqLow.gain.value = 0;  // 0dB = unity
+                
+                trackEQFilters.push({ high: eqHigh, mid: eqMid, low: eqLow });
+                
+                // V5_1_49: Create FX nodes for this track
+                // Delay
+                const delayNode = trackAudioContext.createDelay(2.0);
+                delayNode.delayTime.value = 0.375;  // 3/16 note at 120 BPM
+                const delayFeedback = trackAudioContext.createGain();
+                delayFeedback.gain.value = 0.3;
+                const delayWet = trackAudioContext.createGain();
+                delayWet.gain.value = 0;  // Start dry
+                
+                // Reverb (simplified - using delay network)
+                const reverbWet = trackAudioContext.createGain();
+                reverbWet.gain.value = 0;  // Start dry
+                
+                // Wash (highpass filter)
+                const washFilter = trackAudioContext.createBiquadFilter();
+                washFilter.type = 'highpass';
+                washFilter.frequency.value = 800;
+                washFilter.Q.value = 0.7;
+                const washWet = trackAudioContext.createGain();
+                washWet.gain.value = 0;  // Start dry
+                
+                trackFXDelayNodes.push(delayNode);
+                trackFXDelayFeedback.push(delayFeedback);
+                trackFXDelayWet.push(delayWet);
+                trackFXReverbWet.push(reverbWet);
+                trackFXWashFilter.push(washFilter);
+                trackFXWashWet.push(washWet);
+                
+                // Create gain node
                 const gainNode = trackAudioContext.createGain();
                 gainNode.gain.value = 0.5; // V3.1.0-M: Default 50% volume (12 o'clock)
                 trackGainNodes.push(gainNode);
@@ -14513,7 +15168,43 @@ ${shaderCode}
                 analyser.smoothingTimeConstant = 0.8; // Smooth meter movement
                 trackAnalysers.push(analyser);
                 
-                // Route: gain → analyser
+                // V5_1_49: Wire up routing: EQ → Gain → Analyser
+                // EQ chain: High → Mid → Low
+                eqHigh.connect(eqMid);
+                eqMid.connect(eqLow);
+                
+                // EQ out → Gain (dry path)
+                eqLow.connect(gainNode);
+                
+                // FX sends (parallel to dry)
+                // Delay send
+                eqLow.connect(delayNode);
+                delayNode.connect(delayFeedback);
+                delayFeedback.connect(delayNode);  // Feedback loop
+                delayNode.connect(delayWet);
+                delayWet.connect(gainNode);
+                
+                // Reverb send (simplified using multiple delays)
+                const reverbDelay1 = trackAudioContext.createDelay(0.1);
+                reverbDelay1.delayTime.value = 0.03;
+                const reverbDelay2 = trackAudioContext.createDelay(0.1);
+                reverbDelay2.delayTime.value = 0.05;
+                const reverbDelay3 = trackAudioContext.createDelay(0.1);
+                reverbDelay3.delayTime.value = 0.07;
+                eqLow.connect(reverbDelay1);
+                eqLow.connect(reverbDelay2);
+                eqLow.connect(reverbDelay3);
+                reverbDelay1.connect(reverbWet);
+                reverbDelay2.connect(reverbWet);
+                reverbDelay3.connect(reverbWet);
+                reverbWet.connect(gainNode);
+                
+                // Wash send
+                eqLow.connect(washFilter);
+                washFilter.connect(washWet);
+                washWet.connect(gainNode);
+                
+                // Gain → Analyser
                 gainNode.connect(analyser);
             }
             
@@ -16956,7 +17647,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V5_1]</title>
+    <title>ONEMANSHYO App [V5_2]</title>
     <style>
         body {
             margin: 0;
@@ -17868,7 +18559,7 @@ ${providedShaderCode}
                 drawInfoOverlay(ctx, containerData, height);
                 
                 // V5_0_51: Draw cue point flags (orange)
-                const cuePoints = containerData.audioCuePoints || [0, 64, 128];
+                const cuePoints = containerData.audioCuePoints || [0, 64, 128, 192, 256];
                 const beatsPerSecond = containerData.audioTempo / 60;
                 const pixelsPerBeat = PIXELS_PER_BAR / 4;
                 
@@ -18328,8 +19019,8 @@ ${providedShaderCode}
             // V4_2_0_A_sub1: Shift+M, Shift+T, Shift+W key handlers for grid visibility
             // Changed from plain M/T/W to avoid conflict with WASD navigation
             document.addEventListener('keydown', (e) => {
-                // Only if LIVE tab active and no input focused
-                if (document.getElementById('liveMixerContainer').style.display !== 'none' &&
+                // V5_1_49: Only if LIVE tab active and no input focused
+                if (isPerformTabActive() &&
                     document.activeElement.tagName !== 'INPUT' &&
                     document.activeElement.tagName !== 'TEXTAREA') {
                     // V4_2_0_A_sub1: Require Shift modifier for visibility toggles
@@ -18658,7 +19349,7 @@ ${providedShaderCode}
                     }
                     
                     // Connect to track gain node
-                    source.connect(trackGainNodes[track]);
+                    source.connect(trackEQFilters[track].high)  // V5_1_49: Route through EQ;
                     
                     // V3.2.0-A: Start playback at specified time (or immediately if no time given)
                     // V4_0_0_B_sub13: Start FROM Bar 1 (audioStartTime), not file position 0
@@ -18748,8 +19439,101 @@ ${providedShaderCode}
             // Ignore if typing in input field
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
             
+            // V5_1_49: Unified PERFORM panel keyboard handling
+            // Track must be focused (Shift+1-4), then C/E/F activates panel
+            // Only active on PERFORM tab
+            if (isPerformTabActive() && performActivePanel !== 'none' && selectedKnobIndex >= 0 && selectedKnobIndex <= 3) {
+                // Escape exits panel
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    exitPerformPanel();
+                    return;
+                }
+                
+                // Panel-specific navigation
+                if (performActivePanel === 'eq') {
+                    if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        performEQSelectedBand = Math.max(0, performEQSelectedBand - 1);
+                        updatePerformEQSelection();
+                        return;
+                    }
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        performEQSelectedBand = Math.min(2, performEQSelectedBand + 1);
+                        updatePerformEQSelection();
+                        return;
+                    }
+                    if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        adjustPerformEQValue(-1);
+                        return;
+                    }
+                    if (e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        adjustPerformEQValue(1);
+                        return;
+                    }
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        togglePerformEQKill();
+                        return;
+                    }
+                } else if (performActivePanel === 'fx') {
+                    if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        performFXSelectedSlot = Math.max(0, performFXSelectedSlot - 1);
+                        updatePerformFXSelection();
+                        return;
+                    }
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        performFXSelectedSlot = Math.min(2, performFXSelectedSlot + 1);
+                        updatePerformFXSelection();
+                        return;
+                    }
+                    if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        adjustPerformFXValue(-1);
+                        return;
+                    }
+                    if (e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        adjustPerformFXValue(1);
+                        return;
+                    }
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        togglePerformFXKill();  // V5_1_49: Enter = kill toggle (same as EQ)
+                        return;
+                    }
+                } else if (performActivePanel === 'cue') {
+                    // All arrows navigate cues
+                    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        performCueSelectedRow = (performCueSelectedRow - 1 + 5) % 5;
+                        updatePerformCueSelection();
+                        return;
+                    }
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        performCueSelectedRow = (performCueSelectedRow + 1) % 5;
+                        updatePerformCueSelection();
+                        return;
+                    }
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        jumpToSelectedPerformCue();
+                        return;
+                    }
+                }
+                // Other keys fall through (Shift+1-5, spacebar, C/E/F to switch panels, etc.)
+            }
+            
+            // V5_1_49: C/E/F keys are handled later in unified section for both CREATE and PERFORM
+            
             // V5_0_51: Number keys 1-3 - jump to cue on selected/playing track
-            if (e.key >= '1' && e.key <= '3' && !e.shiftKey) {
+            if (e.key >= '1' && e.key <= '5' && !e.shiftKey) {
                 const cueIndex = parseInt(e.key) - 1;  // 0, 1, or 2
                 
                 // V5_0_51: Determine target track
@@ -18804,7 +19588,7 @@ ${providedShaderCode}
                 }
                 
                 // Get cue points from container (default if not present)
-                const cuePoints = containerData.audioCuePoints || [0, 64, 128];
+                const cuePoints = containerData.audioCuePoints || [0, 64, 128, 192, 256];
                 const cueBeat = cuePoints[cueIndex];
                 
                 // Calculate cue time in audio file
@@ -18826,7 +19610,7 @@ ${providedShaderCode}
                         const source = trackAudioContext.createBufferSource();
                         source.buffer = audioBuffer;
                         source.playbackRate.value = gridState.masterTempo / audioTempo;
-                        source.connect(trackGainNodes[track]);
+                        source.connect(trackEQFilters[track].high)  // V5_1_49: Route through EQ;
                         source.loop = containerData.audioLoopEnabled || false;
                         
                         if (source.loop) {
@@ -18890,13 +19674,27 @@ ${providedShaderCode}
                 e.preventDefault();
                 
                 const keyNum = parseInt(e.code.replace('Digit', ''));
+                const oldTrack = selectedKnobIndex;
+                
                 if (keyNum >= 1 && keyNum <= 4) {
                     // Tracks 1-4
                     selectedKnobIndex = keyNum - 1;
+                    
+                    // V5_1_49: If switching tracks, clear panel (don't transfer)
+                    if (oldTrack !== selectedKnobIndex && performActivePanel !== 'none') {
+                        clearPerformPanelHighlights(oldTrack);
+                        performActivePanel = 'none';
+                    }
+                    
                     showMessage(`Track ${keyNum} selected`, 'state');
                     console.log(`Track selected: ${keyNum} (index ${selectedKnobIndex})`);
                 } else if (keyNum === 5) {
-                    // Master
+                    // Master - also clears panel (master has no panels)
+                    // V5_1_49: Clear old track highlights BEFORE changing selectedKnobIndex
+                    if (performActivePanel !== 'none' && oldTrack >= 0 && oldTrack <= 3) {
+                        clearPerformPanelHighlights(oldTrack);
+                        performActivePanel = 'none';
+                    }
                     selectedKnobIndex = 4;
                     showMessage('Master selected', 'state');
                     console.log('Master track selected (index 4)');
@@ -20676,7 +21474,978 @@ ${providedShaderCode}
             console.log('V4_8_10: Gain knobs initialized');
         }
 
-        // V4_9_02: Transform Encoders - rotation, scale, translate controls
+        // V5_1_35: EQ3 knobs for CREATE tab - compact, kill indicator on knob
+        let eqLowValue = 0.75;   // 0-1, 0.75 = unity (0dB)
+        let eqMidValue = 0.75;
+        let eqHighValue = 0.75;
+        let eqLowKilled = false;
+        let eqMidKilled = false;
+        let eqHighKilled = false;
+
+        // V5_1_49: Unified panel focus for CREATE tab Audio section
+        // Shift+A = gate (must be set first), then C/E/F activates panel
+        let createAudioPanel = 'none';  // 'none', 'volume', 'cue', 'eq', 'fx'
+        let createEQSelectedBand = 0;  // 0=High, 1=Mid, 2=Low
+        let createFXSelectedSlot = 0;  // 0=Washout, 1=Dubby, 2=Break
+        let createCueSelectedRow = 0;  // 0-4 for cue points 1-5
+        let eqKeyRepeatCount = 0;
+        let eqLastKeyTime = 0;
+        let fxKeyRepeatCount = 0;
+        let fxLastKeyTime = 0;
+
+        // V5_1_49: CREATE tab audio volume with kill
+        let createAudioVolume = 0.5;      // 0-1, default 0.5 (12 o'clock)
+        let createAudioVolumeKilled = false;
+
+        // V5_1_49: DJ FX knobs for CREATE tab - Washout/Dubby/Break
+        let fxWashValue = 0;       // 0-1 filter sweep intensity
+        let fxDelayValue = 0;      // 0-1 dub echo wet/dry
+        let fxBreakValue = 0;      // 0-1 brake intensity (playbackRate)
+        let fxWashOn = false;      // Washout on/off
+        let fxDelayOn = false;     // Dubby on/off
+        let fxBreakOn = false;     // Break on/off
+        
+        // V5_1_49: CREATE FX kill state (magenta fill when killed)
+        let fxWashKilled = false;
+        let fxDelayKilled = false;
+        let fxBreakKilled = false;
+
+        // V5_1_49: PERFORM tab panel focus (single active panel per selected track)
+        // Track must be selected (Shift+1-4) first, then C/E/F activates panel
+        let performActivePanel = 'none';  // 'none', 'cue', 'eq', 'fx'
+        let performEQSelectedBand = 0;  // 0=High, 1=Mid, 2=Low
+        let performFXSelectedSlot = 0;  // 0=Washout, 1=Dubby, 2=Break
+        let performCueSelectedRow = 0;  // 0-4 for cues 1-5
+
+        // V5_1_35: Per-track EQ values (4 tracks × 3 bands)
+        let trackEQValues = [
+            [0.75, 0.75, 0.75],  // Track 1: H, M, L (0.75 = unity/0dB)
+            [0.75, 0.75, 0.75],  // Track 2
+            [0.75, 0.75, 0.75],  // Track 3
+            [0.75, 0.75, 0.75]   // Track 4
+        ];
+        
+        // V5_1_49: Per-track EQ kill state (4 tracks × 3 bands)
+        let trackEQKilled = [
+            [false, false, false],  // Track 1: H, M, L
+            [false, false, false],  // Track 2
+            [false, false, false],  // Track 3
+            [false, false, false]   // Track 4
+        ];
+
+        // V5_1_35: Per-track FX values (4 tracks × 3 FX)
+        let trackFXValues = [
+            [0, 0, 0],  // Track 1: R, D, W (0 = off)
+            [0, 0, 0],  // Track 2
+            [0, 0, 0],  // Track 3
+            [0, 0, 0]   // Track 4
+        ];
+        let trackFXOn = [
+            [false, false, false],  // Track 1
+            [false, false, false],  // Track 2
+            [false, false, false],  // Track 3
+            [false, false, false]   // Track 4
+        ];
+        
+        // V5_1_49: Per-track FX kill state (4 tracks × 3 FX)
+        let trackFXKilled = [
+            [false, false, false],  // Track 1: R, D, W
+            [false, false, false],  // Track 2
+            [false, false, false],  // Track 3
+            [false, false, false]   // Track 4
+        ];
+
+        // V5_1_35: Per-track cue points (4 tracks × 5 cues, in beats)
+        let trackCuePoints = [
+            [0, 64, 128, 192, 256],  // Track 1
+            [0, 64, 128, 192, 256],  // Track 2
+            [0, 64, 128, 192, 256],  // Track 3
+            [0, 64, 128, 192, 256]   // Track 4
+        ];
+
+        // V5_1_35: Convert knob value (0-1) to dB - Ableton pattern
+        // 0.75-1.0 (3-5 o'clock): 0 to +6dB linear (boost)
+        // 0.0-0.75 (7-3 o'clock): -∞ to 0dB logarithmic (cut)
+        function knobToDb(value) {
+            if (value >= 0.75) {
+                // Boost: 0 to +6dB linear
+                return (value - 0.75) * 24;  // 0.25 range * 24 = +6dB max
+            } else if (value <= 0) {
+                return -96;  // Full cut
+            } else {
+                // Cut: 0dB to -∞ logarithmic
+                const normalized = value / 0.75;  // 0-1 in this range
+                return 40 * Math.log10(normalized);  // Log curve to -∞
+            }
+        }
+
+        // V5_1_35: Apply EQ values to Web Audio filters
+        function applyEQToFilters() {
+            if (!eqLowFilter) return;  // Filters not initialized yet
+            
+            const lowDb = eqLowKilled ? -96 : knobToDb(eqLowValue);
+            const midDb = eqMidKilled ? -96 : knobToDb(eqMidValue);
+            const highDb = eqHighKilled ? -96 : knobToDb(eqHighValue);
+            
+            eqLowFilter.gain.value = lowDb;
+            eqMidFilter.gain.value = midDb;
+            eqHighFilter.gain.value = highDb;
+        }
+
+        // V5_1_35: Apply FX values to Web Audio nodes
+        function applyFXToNodes() {
+            if (!fxDelayNode) return;  // FX not initialized yet
+            
+            // V5_1_49: Washout: HPF sweep (filter sweep for transitions)
+            if (fxWashKilled) {
+                fxWashFilter.frequency.value = 20;  // No filtering
+            } else if (fxWashOn) {
+                // HPF sweeps from 20Hz to 2000Hz based on value
+                const minFreq = 20;
+                const maxFreq = 2000;
+                const freq = minFreq * Math.pow(maxFreq / minFreq, fxWashValue);
+                fxWashFilter.frequency.value = freq;
+            } else {
+                fxWashFilter.frequency.value = 20;  // No filtering
+            }
+            
+            // V5_1_49: Dubby: dub echo wet/dry crossfade
+            if (fxDelayKilled) {
+                fxDelayDry.gain.value = 1;
+                fxDelayWet.gain.value = 0;
+            } else if (fxDelayOn) {
+                fxDelayDry.gain.value = 1 - (fxDelayValue * 0.5);  // Keep some dry
+                fxDelayWet.gain.value = fxDelayValue;
+            } else {
+                fxDelayDry.gain.value = 1;
+                fxDelayWet.gain.value = 0;
+            }
+            
+            // V5_1_49: Break: vinyl stop (playbackRate slowdown)
+            if (audioElement) {
+                if (fxBreakKilled) {
+                    // Killed = instant normal speed
+                    audioElement.playbackRate = 1.0;
+                } else if (fxBreakOn) {
+                    // Break slows down from 1.0 to near-stop based on value
+                    // Value 0 = normal, value 1 = nearly stopped (0.1)
+                    const targetRate = 1.0 - (fxBreakValue * 0.9);  // 1.0 → 0.1
+                    audioElement.playbackRate = Math.max(0.1, targetRate);
+                } else {
+                    audioElement.playbackRate = 1.0;
+                }
+            }
+        }
+
+        // V5_1_35: Get EQ dB string for display (0=High, 1=Mid, 2=Low)
+        function getEQdBString(band) {
+            let value, killed;
+            if (band === 0) { value = eqHighValue; killed = eqHighKilled; }
+            else if (band === 1) { value = eqMidValue; killed = eqMidKilled; }
+            else { value = eqLowValue; killed = eqLowKilled; }
+            
+            if (killed) return 'KILLED';
+            const db = knobToDb(value);
+            if (db <= -60) return '-∞';
+            const sign = db >= 0 ? '+' : '';
+            return `${sign}${db.toFixed(1)} dB`;
+        }
+
+        // V5_1_35: Redraw all EQ knobs (for keyboard mode selection ring)
+        function redrawAllEQKnobs() {
+            // Trigger redraw via stored functions
+            if (window.redrawEQKnobLow) window.redrawEQKnobLow();
+            if (window.redrawEQKnobMid) window.redrawEQKnobMid();
+            if (window.redrawEQKnobHigh) window.redrawEQKnobHigh();
+        }
+
+        // V5_1_49: Initialize CREATE audio volume knob
+        function initCreateAudioVolumeKnob() {
+            const canvas = document.getElementById('createAudioVolumeKnob');
+            if (!canvas) return;
+            
+            drawCreateAudioVolumeKnob();
+            
+            // Wheel to adjust
+            canvas.addEventListener('wheel', (e) => {
+                if (createAudioVolumeKilled) return;
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.02 : 0.02;
+                createAudioVolume = Math.max(0, Math.min(1, createAudioVolume + delta));
+                applyCreateAudioVolume();
+                drawCreateAudioVolumeKnob();
+                showMessage(`Audio Volume: ${Math.round(createAudioVolume * 100)}%`, 'state');
+            });
+            
+            // Click to toggle kill
+            canvas.addEventListener('click', () => {
+                toggleCreateAudioVolumeKill();
+            });
+        }
+        
+        // V5_1_49: Draw CREATE audio volume knob
+        function drawCreateAudioVolumeKnob() {
+            const canvas = document.getElementById('createAudioVolumeKnob');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+            const cx = size / 2;
+            const cy = size / 2;
+            const radius = size / 2 - 2;
+            
+            ctx.clearRect(0, 0, size, size);
+            
+            // V5_1_49: Selection ring when volume panel active
+            if (createAudioPanel === 'volume') {
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius + 1, 0, Math.PI * 2);
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            
+            if (createAudioVolumeKilled) {
+                // Magenta fill when killed
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius - 1, 0, Math.PI * 2);
+                ctx.fillStyle = '#ff006e';
+                ctx.fill();
+            } else {
+                // Normal cyan knob
+                // Background
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Value arc (270° range, starts at 135°)
+                const startAngle = 0.75 * Math.PI;  // 135°
+                const endAngle = startAngle + (createAudioVolume * 1.5 * Math.PI);
+                
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius - 1, startAngle, endAngle);
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // Pointer
+                const pointerAngle = startAngle + (createAudioVolume * 1.5 * Math.PI);
+                const pointerLength = radius - 4;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(
+                    cx + Math.cos(pointerAngle) * pointerLength,
+                    cy + Math.sin(pointerAngle) * pointerLength
+                );
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+        
+        // V5_1_49: Apply volume to audio
+        function applyCreateAudioVolume() {
+            if (!createAudioGainNode) return;
+            const gain = createAudioVolumeKilled ? 0 : createAudioVolume;
+            createAudioGainNode.gain.setTargetAtTime(gain, audioContext.currentTime, 0.01);
+        }
+        
+        // V5_1_49: Toggle volume kill
+        function toggleCreateAudioVolumeKill() {
+            createAudioVolumeKilled = !createAudioVolumeKilled;
+            applyCreateAudioVolume();
+            drawCreateAudioVolumeKnob();
+            showMessage(`Audio Volume: ${createAudioVolumeKilled ? 'KILLED' : Math.round(createAudioVolume * 100) + '%'}`, 'state');
+        }
+
+        // V5_1_35: Update EQ selection visual and message bar
+        function updateEQSelection() {
+            // Order: 0=High, 1=Mid, 2=Low (1/2/3 keys match top to bottom)
+            const bandNames = ['High', 'Mid', 'Low'];
+            const bandName = bandNames[createEQSelectedBand];
+            const dbStr = getEQdBString(createEQSelectedBand);
+            
+            redrawAllEQKnobs();
+            
+            if (dbStr === 'KILLED') {
+                showMessage(`EQ: ${bandName} KILLED (↑↓ select, Enter=restore, Esc exit)`, 'info');
+            } else {
+                showMessage(`EQ: ${bandName} ${dbStr} (↑↓ select, ←→ adjust, Enter=kill, Esc exit)`, 'info');
+            }
+        }
+
+        // V5_1_49: Unified CREATE tab panel functions (mirrors PERFORM pattern)
+        function setShaderPanel(panel) {
+            // V5_1_49: Store old panel, then clear state BEFORE redrawing
+            const oldPanel = createAudioPanel;
+            createAudioPanel = 'none';  // Clear first so redraw doesn't show selection
+            
+            // Now redraw old panel (without selection ring)
+            if (oldPanel !== 'none') {
+                if (oldPanel === 'volume') drawCreateAudioVolumeKnob();
+                else if (oldPanel === 'eq') redrawAllEQKnobs();
+                else if (oldPanel === 'fx') redrawAllFXKnobs();
+                else if (oldPanel === 'cue') updateCueSelection();
+            }
+            
+            // Set new panel
+            createAudioPanel = panel;
+            
+            if (panel === 'none') {
+                showMessage('', 'info');
+                return;
+            }
+            
+            // Always reset to first item when activating panel
+            if (panel === 'volume') {
+                updateVolumeSelection();
+            } else if (panel === 'eq') {
+                createEQSelectedBand = 0;  // High
+                updateEQSelection();
+            } else if (panel === 'fx') {
+                createFXSelectedSlot = 0;  // Washout
+                updateFXSelection();
+            } else if (panel === 'cue') {
+                createCueSelectedRow = 0;  // Cue 1
+                updateCuePanelDisplay();
+                updateCueSelection();
+            }
+        }
+        
+        function exitShaderPanel() {
+            // V5_1_49: Store old panel, clear state BEFORE redrawing
+            const oldPanel = createAudioPanel;
+            createAudioPanel = 'none';
+            
+            // Redraw without selection ring
+            if (oldPanel === 'volume') drawCreateAudioVolumeKnob();
+            else if (oldPanel === 'eq') redrawAllEQKnobs();
+            else if (oldPanel === 'fx') redrawAllFXKnobs();
+            else if (oldPanel === 'cue') updateCueSelection();
+            
+            showMessage('', 'info');
+        }
+        
+        // V5_1_49: Update volume selection display
+        function updateVolumeSelection() {
+            drawCreateAudioVolumeKnob();
+            if (createAudioVolumeKilled) {
+                showMessage(`Volume: KILLED (←→ adjust, Enter=restore, Esc exit)`, 'info');
+            } else {
+                showMessage(`Volume: ${Math.round(createAudioVolume * 100)}% (←→ adjust, Enter=kill, Esc exit)`, 'info');
+            }
+        }
+        
+        // V5_1_49: Adjust volume value
+        function adjustVolumeValue(delta) {
+            if (createAudioVolumeKilled) {
+                showMessage('Volume: KILLED (Enter to restore)', 'info');
+                return;
+            }
+            createAudioVolume = Math.max(0, Math.min(1, createAudioVolume + delta * 0.02));
+            applyCreateAudioVolume();
+            updateVolumeSelection();
+        }
+
+        // V5_1_49: Exit EQ focus mode (legacy wrapper)
+        function exitEQMode() {
+            exitShaderPanel();
+        }
+
+        // V5_1_35: Adjust selected EQ band value
+        function adjustEQValue(delta) {
+            // Order: 0=High, 1=Mid, 2=Low
+            const bandNames = ['High', 'Mid', 'Low'];
+            const bandName = bandNames[createEQSelectedBand];
+            
+            // Check if killed (0=High, 1=Mid, 2=Low)
+            let killed;
+            if (createEQSelectedBand === 0) killed = eqHighKilled;
+            else if (createEQSelectedBand === 1) killed = eqMidKilled;
+            else killed = eqLowKilled;
+            
+            if (killed) {
+                showMessage(`EQ ${bandName}: KILLED (Enter to restore)`, 'info');
+                return;
+            }
+            
+            // Progressive acceleration
+            const now = Date.now();
+            if (now - eqLastKeyTime < 150) {
+                eqKeyRepeatCount++;
+            } else {
+                eqKeyRepeatCount = 0;
+            }
+            eqLastKeyTime = now;
+            
+            // Step size: 0.5dB base, up to 2dB when held
+            const stepMultiplier = Math.min(1 + eqKeyRepeatCount * 0.3, 4);
+            const step = 0.02 * stepMultiplier * delta;  // 0.02 = ~0.5dB
+            
+            // Get current value (0=High, 1=Mid, 2=Low)
+            let currentValue;
+            if (createEQSelectedBand === 0) currentValue = eqHighValue;
+            else if (createEQSelectedBand === 1) currentValue = eqMidValue;
+            else currentValue = eqLowValue;
+            
+            const newValue = Math.max(0, Math.min(1, currentValue + step));
+            
+            // Update via stored function
+            const updateFn = window[`updateEQKnob${bandName}`];
+            if (updateFn) {
+                updateFn(newValue);
+            }
+            
+            // Show updated value
+            const dbStr = getEQdBString(createEQSelectedBand);
+            showMessage(`EQ ${bandName}: ${dbStr}`, 'state');
+        }
+
+        // V5_1_49: EQ knob drag state
+        let eqDraggingBand = null;
+        let eqDragLastY = 0;
+        
+        function initEQ3Knobs() {
+            // V5_1_35: Order H/M/L - indices match createEQSelectedBand (0=High, 1=Mid, 2=Low)
+            const bands = [
+                { id: 'High', knobId: 'eqKnobHigh', color: '#6bcb77', index: 0 },
+                { id: 'Mid', knobId: 'eqKnobMid', color: '#ffd93d', index: 1 },
+                { id: 'Low', knobId: 'eqKnobLow', color: '#ff6b6b', index: 2 }
+            ];
+            
+            bands.forEach(band => {
+                const knobCanvas = document.getElementById(band.knobId);
+                
+                if (!knobCanvas) {
+                    console.warn('V5_1_35: EQ knob not found:', band.knobId);
+                    return;
+                }
+                
+                const ctx = knobCanvas.getContext('2d');
+                let knobValue = 0.75;  // Unity (0dB)
+                
+                function getKilled() {
+                    if (band.id === 'Low') return eqLowKilled;
+                    if (band.id === 'Mid') return eqMidKilled;
+                    return eqHighKilled;
+                }
+                
+                function setKilled(val) {
+                    if (band.id === 'Low') eqLowKilled = val;
+                    else if (band.id === 'Mid') eqMidKilled = val;
+                    else eqHighKilled = val;
+                    applyEQToFilters();
+                }
+                
+                function getValue() {
+                    if (band.id === 'Low') return eqLowValue;
+                    if (band.id === 'Mid') return eqMidValue;
+                    return eqHighValue;
+                }
+                
+                function drawEQKnob() {
+                    const killed = getKilled();
+                    knobValue = getValue();
+                    ctx.clearRect(0, 0, 24, 24);
+                    
+                    const isSelected = createAudioPanel === 'eq' && createEQSelectedBand === band.index;
+                    if (isSelected) {
+                        ctx.strokeStyle = '#00d4ff';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(12, 12, 11, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                    
+                    ctx.fillStyle = killed ? '#ff006e' : '#1a1a1a';
+                    ctx.beginPath();
+                    ctx.arc(12, 12, isSelected ? 9 : 11, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    if (!isSelected && !killed) {
+                        ctx.strokeStyle = '#444';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                    
+                    if (!killed) {
+                        const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                        const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                        const unityAngle = startAngle + (endAngle - startAngle) * 0.75;
+                        const currentAngle = startAngle + (endAngle - startAngle) * knobValue;
+                        
+                        ctx.strokeStyle = band.color;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        const arcRadius = isSelected ? 6 : 8;
+                        if (knobValue >= 0.75) {
+                            ctx.arc(12, 12, arcRadius, unityAngle, currentAngle);
+                        } else {
+                            ctx.arc(12, 12, arcRadius, currentAngle, unityAngle);
+                        }
+                        ctx.stroke();
+                        
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(12, 12);
+                        const lineLen = isSelected ? 5 : 7;
+                        ctx.lineTo(12 + Math.cos(currentAngle) * lineLen, 12 + Math.sin(currentAngle) * lineLen);
+                        ctx.stroke();
+                    }
+                }
+                
+                function updateEQValue(newValue) {
+                    knobValue = Math.max(0, Math.min(1, newValue));
+                    if (band.id === 'Low') eqLowValue = knobValue;
+                    else if (band.id === 'Mid') eqMidValue = knobValue;
+                    else eqHighValue = knobValue;
+                    drawEQKnob();
+                    applyEQToFilters();
+                }
+                
+                // Store functions globally
+                window[`redrawEQKnob${band.id}`] = drawEQKnob;
+                window[`updateEQKnob${band.id}`] = updateEQValue;
+                window[`getEQKilled${band.id}`] = getKilled;
+                window[`getEQValue${band.id}`] = getValue;
+                window[`toggleEQKill${band.id}`] = () => {
+                    const killed = !getKilled();
+                    setKilled(killed);
+                    drawEQKnob();
+                    return killed;
+                };
+                
+                // Click to toggle kill (only if not dragging)
+                knobCanvas.addEventListener('click', (e) => {
+                    if (eqDraggingBand) return;
+                    const killed = !getKilled();
+                    setKilled(killed);
+                    drawEQKnob();
+                    showMessage(`EQ ${band.id}: ${killed ? 'KILLED' : 'ON'}`, 'state');
+                });
+                
+                // Mousedown = start potential drag
+                knobCanvas.addEventListener('mousedown', (e) => {
+                    eqDraggingBand = null;
+                    eqDragLastY = e.clientY;
+                    knobCanvas.dataset.dragInit = 'true';
+                });
+                
+                knobCanvas.addEventListener('mouseenter', () => {
+                    if (eqDraggingBand) return;
+                    const killed = getKilled();
+                    if (killed) {
+                        showMessage(`EQ ${band.id}: KILLED (drag ↑/↓, click=restore)`, 'info');
+                    } else {
+                        const db = knobToDb(getValue());
+                        const dbStr = db <= -60 ? '-∞' : (db >= 0 ? '+' : '') + db.toFixed(1) + ' dB';
+                        showMessage(`EQ ${band.id}: ${dbStr} (drag ↑/↓, click=kill)`, 'info');
+                    }
+                });
+                
+                knobCanvas.addEventListener('mouseleave', () => {
+                    if (!eqDraggingBand) showMessage('', 'info');
+                });
+                
+                // Initial draw
+                drawEQKnob();
+            });
+            
+            // V5_1_49: Single global mousemove handler for EQ knobs
+            window.addEventListener('mousemove', (e) => {
+                if (e.buttons !== 1) {
+                    eqDraggingBand = null;
+                    return;
+                }
+                
+                // Check if any EQ knob initiated the drag
+                const bands = ['High', 'Mid', 'Low'];
+                for (const bandId of bands) {
+                    const canvas = document.getElementById(`eqKnob${bandId}`);
+                    if (canvas && canvas.dataset.dragInit === 'true') {
+                        const delta = eqDragLastY - e.clientY;
+                        if (Math.abs(delta) > 2) {
+                            eqDraggingBand = bandId;
+                            canvas.dataset.dragInit = 'false';
+                        }
+                        break;
+                    }
+                }
+                
+                // If we have an active drag, update that knob
+                if (eqDraggingBand) {
+                    const delta = eqDragLastY - e.clientY;
+                    const getKilled = window[`getEQKilled${eqDraggingBand}`];
+                    const getValue = window[`getEQValue${eqDraggingBand}`];
+                    const updateFn = window[`updateEQKnob${eqDraggingBand}`];
+                    
+                    if (getKilled && !getKilled() && updateFn) {
+                        const currentVal = getValue();
+                        updateFn(currentVal + delta * 0.01);
+                        const db = knobToDb(getValue());
+                        const dbStr = db <= -60 ? '-∞' : (db >= 0 ? '+' : '') + db.toFixed(1) + ' dB';
+                        showMessage(`EQ ${eqDraggingBand}: ${dbStr}`, 'state');
+                    }
+                }
+                eqDragLastY = e.clientY;
+            });
+            
+            // Clear drag state on mouseup
+            window.addEventListener('mouseup', () => {
+                ['High', 'Mid', 'Low'].forEach(bandId => {
+                    const canvas = document.getElementById(`eqKnob${bandId}`);
+                    if (canvas) canvas.dataset.dragInit = 'false';
+                });
+                eqDraggingBand = null;
+            });
+            
+            console.log('V5_1_49: EQ3 knobs initialized');
+        }
+
+        // V5_1_35: FX knobs - Reverb/Delay/WashOut with On/Off and Dry/Wet
+        // V5_1_49: Initialize DJ FX knobs - Washout, Dubby, Break
+        let fxDraggingSlot = null;  // Track which FX knob is being dragged
+        let fxDragLastY = 0;
+        
+        function initFXKnobs() {
+            const fxSlots = [
+                { id: 'Washout', knobId: 'fxKnobWashout', color: '#00d4ff', index: 0 },
+                { id: 'Dubby', knobId: 'fxKnobDubby', color: '#00d4ff', index: 1 },
+                { id: 'Break', knobId: 'fxKnobBreak', color: '#00d4ff', index: 2 }
+            ];
+            
+            fxSlots.forEach(slot => {
+                const knobCanvas = document.getElementById(slot.knobId);
+                if (!knobCanvas) return;
+                
+                const ctx = knobCanvas.getContext('2d');
+                let knobValue = 0;  // Dry/wet 0-1
+                
+                function getOn() {
+                    if (slot.id === 'Washout') return fxWashOn;
+                    if (slot.id === 'Dubby') return fxDelayOn;
+                    return fxBreakOn;
+                }
+                
+                function setOn(val) {
+                    if (slot.id === 'Washout') fxWashOn = val;
+                    else if (slot.id === 'Dubby') fxDelayOn = val;
+                    else fxBreakOn = val;
+                    applyFXToNodes();
+                }
+                
+                function getKilled() {
+                    if (slot.id === 'Washout') return fxWashKilled;
+                    if (slot.id === 'Dubby') return fxDelayKilled;
+                    return fxBreakKilled;
+                }
+                
+                function setKilled(val) {
+                    if (slot.id === 'Washout') fxWashKilled = val;
+                    else if (slot.id === 'Dubby') fxDelayKilled = val;
+                    else fxBreakKilled = val;
+                    applyFXToNodes();
+                }
+                
+                function getValue() {
+                    if (slot.id === 'Washout') return fxWashValue;
+                    if (slot.id === 'Dubby') return fxDelayValue;
+                    return fxBreakValue;
+                }
+                
+                function drawFXKnob() {
+                    const isOn = getOn();
+                    const isKilled = getKilled();
+                    knobValue = getValue();
+                    ctx.clearRect(0, 0, 24, 24);
+                    
+                    const isSelected = createAudioPanel === 'fx' && createFXSelectedSlot === slot.index;
+                    if (isSelected) {
+                        ctx.strokeStyle = '#00d4ff';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(12, 12, 11, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                    
+                    if (isKilled) {
+                        ctx.fillStyle = '#ff006e';
+                        ctx.beginPath();
+                        ctx.arc(12, 12, isSelected ? 9 : 11, 0, Math.PI * 2);
+                        ctx.fill();
+                        return;
+                    }
+                    
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.beginPath();
+                    ctx.arc(12, 12, isSelected ? 9 : 11, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    if (!isSelected) {
+                        ctx.strokeStyle = '#444';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                    
+                    if (isOn) {
+                        const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                        const endAngle = (150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                        const currentAngle = startAngle + (endAngle - startAngle) * knobValue;
+                        
+                        ctx.strokeStyle = '#00d4ff';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        const arcRadius = isSelected ? 6 : 8;
+                        ctx.arc(12, 12, arcRadius, startAngle, currentAngle);
+                        ctx.stroke();
+                        
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(12, 12);
+                        const lineLen = isSelected ? 5 : 7;
+                        ctx.lineTo(12 + Math.cos(currentAngle) * lineLen, 12 + Math.sin(currentAngle) * lineLen);
+                        ctx.stroke();
+                    } else {
+                        const startAngle = (-150 * Math.PI / 180) + Math.PI / 2 + Math.PI;
+                        ctx.strokeStyle = '#444';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(12, 12);
+                        const lineLen = isSelected ? 5 : 7;
+                        ctx.lineTo(12 + Math.cos(startAngle) * lineLen, 12 + Math.sin(startAngle) * lineLen);
+                        ctx.stroke();
+                    }
+                }
+                
+                function updateFXValue(newValue) {
+                    knobValue = Math.max(0, Math.min(1, newValue));
+                    if (slot.id === 'Washout') fxWashValue = knobValue;
+                    else if (slot.id === 'Dubby') fxDelayValue = knobValue;
+                    else fxBreakValue = knobValue;
+                    drawFXKnob();
+                    applyFXToNodes();
+                }
+                
+                // Store functions for keyboard mode
+                window[`toggleFX${slot.id}`] = () => {
+                    const newState = !getOn();
+                    setOn(newState);
+                    drawFXKnob();
+                    return newState;
+                };
+                
+                window[`toggleFXKill${slot.id}`] = () => {
+                    const newState = !getKilled();
+                    setKilled(newState);
+                    drawFXKnob();
+                    return newState;
+                };
+                
+                window[`redrawFXKnob${slot.id}`] = drawFXKnob;
+                window[`adjustFXValue${slot.id}`] = (delta) => {
+                    if (getKilled()) return;
+                    updateFXValue(getValue() + delta);
+                };
+                
+                // V5_1_49: Store update function for drag handler
+                window[`updateFXValue${slot.id}`] = updateFXValue;
+                window[`getFXOn${slot.id}`] = getOn;
+                window[`getFXValue${slot.id}`] = getValue;
+                
+                // Click = toggle on/off (only if not dragging)
+                knobCanvas.addEventListener('click', (e) => {
+                    if (fxDraggingSlot) return;
+                    const newState = !getOn();
+                    setOn(newState);
+                    drawFXKnob();
+                    showMessage(`FX ${slot.id}: ${newState ? 'ON' : 'OFF'}`, 'state');
+                });
+                
+                // Mousedown = start potential drag
+                knobCanvas.addEventListener('mousedown', (e) => {
+                    fxDraggingSlot = null;  // Reset - will be set on actual drag
+                    fxDragLastY = e.clientY;
+                    
+                    // Store which knob initiated
+                    knobCanvas.dataset.dragInit = 'true';
+                });
+                
+                knobCanvas.addEventListener('mouseenter', () => {
+                    if (fxDraggingSlot) return;
+                    const isOn = getOn();
+                    if (isOn) {
+                        const pct = Math.round(getValue() * 100);
+                        showMessage(`FX ${slot.id}: ON ${pct}% (drag ↑/↓, click=off)`, 'info');
+                    } else {
+                        showMessage(`FX ${slot.id}: OFF (click to enable)`, 'info');
+                    }
+                });
+                
+                knobCanvas.addEventListener('mouseleave', () => {
+                    if (!fxDraggingSlot) showMessage('', 'info');
+                });
+                
+                // Initial draw
+                drawFXKnob();
+            });
+            
+            // V5_1_49: Single global mousemove handler for FX knobs
+            window.addEventListener('mousemove', (e) => {
+                if (e.buttons !== 1) {
+                    fxDraggingSlot = null;
+                    return;
+                }
+                
+                // Check if any FX knob initiated the drag
+                const slots = ['Washout', 'Dubby', 'Break'];
+                for (const slotId of slots) {
+                    const canvas = document.getElementById(`fxKnob${slotId}`);
+                    if (canvas && canvas.dataset.dragInit === 'true') {
+                        const delta = fxDragLastY - e.clientY;
+                        if (Math.abs(delta) > 2) {
+                            fxDraggingSlot = slotId;
+                            canvas.dataset.dragInit = 'false';
+                        }
+                        break;
+                    }
+                }
+                
+                // If we have an active drag, update that knob
+                if (fxDraggingSlot) {
+                    const delta = fxDragLastY - e.clientY;
+                    const getOn = window[`getFXOn${fxDraggingSlot}`];
+                    const getValue = window[`getFXValue${fxDraggingSlot}`];
+                    const updateFn = window[`updateFXValue${fxDraggingSlot}`];
+                    
+                    if (getOn && getOn() && updateFn) {
+                        const currentVal = getValue();
+                        updateFn(currentVal + delta * 0.01);
+                        const pct = Math.round(getValue() * 100);
+                        showMessage(`FX ${fxDraggingSlot}: ${pct}%`, 'state');
+                    }
+                }
+                fxDragLastY = e.clientY;
+            });
+            
+            // Clear drag state on mouseup
+            window.addEventListener('mouseup', () => {
+                // Clear all dragInit flags
+                ['Washout', 'Dubby', 'Break'].forEach(slotId => {
+                    const canvas = document.getElementById(`fxKnob${slotId}`);
+                    if (canvas) canvas.dataset.dragInit = 'false';
+                });
+                fxDraggingSlot = null;
+            });
+            
+            console.log('V5_1_49: FX knobs initialized');
+        }
+
+        // V5_1_49: Redraw all FX knobs (for keyboard mode selection ring)
+        function redrawAllFXKnobs() {
+            if (window.redrawFXKnobWashout) window.redrawFXKnobWashout();
+            if (window.redrawFXKnobDubby) window.redrawFXKnobDubby();
+            if (window.redrawFXKnobBreak) window.redrawFXKnobBreak();
+        }
+
+        // V5_1_49: Update FX selection visual and message bar
+        function updateFXSelection() {
+            const slotNames = ['Washout', 'Dubby', 'Break'];
+            const slotName = slotNames[createFXSelectedSlot];
+            const isKilled = createFXSelectedSlot === 0 ? fxWashKilled : 
+                            createFXSelectedSlot === 1 ? fxDelayKilled : fxBreakKilled;
+            const isOn = createFXSelectedSlot === 0 ? fxWashOn : 
+                         createFXSelectedSlot === 1 ? fxDelayOn : fxBreakOn;
+            const value = createFXSelectedSlot === 0 ? fxWashValue : 
+                          createFXSelectedSlot === 1 ? fxDelayValue : fxBreakValue;
+            
+            redrawAllFXKnobs();
+            
+            // V5_1_49: Show killed state
+            if (isKilled) {
+                showMessage(`FX: ${slotName} KILLED (↑↓ nav, Enter=restore, Esc exit)`, 'info');
+            } else {
+                const pct = Math.round(value * 100);
+                showMessage(`FX: ${slotName} ${pct}% (↑↓ nav, ←→ adjust, Enter=kill, Esc exit)`, 'info');
+            }
+        }
+
+        // V5_1_35: Exit FX focus mode
+        // V5_1_49: Exit FX focus mode (legacy wrapper)
+        function exitFXMode() {
+            exitShaderPanel();
+        }
+
+        // V5_1_49: Adjust selected FX slot value
+        function adjustFXValue(delta) {
+            const slotNames = ['Washout', 'Dubby', 'Break'];
+            const slotName = slotNames[createFXSelectedSlot];
+            const adjustFn = window[`adjustFXValue${slotName}`];
+            
+            // Progressive acceleration
+            const now = Date.now();
+            if (now - fxLastKeyTime < 150) {
+                fxKeyRepeatCount++;
+            } else {
+                fxKeyRepeatCount = 0;
+            }
+            fxLastKeyTime = now;
+            
+            const acceleration = 1 + Math.min(fxKeyRepeatCount * 0.5, 3);
+            const adjustedDelta = delta * 0.02 * acceleration;
+            
+            if (adjustFn) {
+                adjustFn(adjustedDelta);
+                const value = createFXSelectedSlot === 0 ? fxWashValue : 
+                              createFXSelectedSlot === 1 ? fxDelayValue : fxBreakValue;
+                const pct = Math.round(value * 100);
+                showMessage(`FX ${slotName}: ${pct}%`, 'state');
+            }
+        }
+
+        // V5_1_35: Jump to cue from panel click
+        function jumpToCueFromPanel(cueIndex) {
+            jumpToCue(cueIndex);
+            createCueSelectedRow = cueIndex;
+            updateCueSelection();
+        }
+
+        // V5_1_35: Update cue panel display from audioCuePoints
+        function updateCuePanelDisplay() {
+            for (let i = 0; i < 5; i++) {
+                const barBeatEl = document.getElementById(`cueBarBeat${i + 1}`);
+                if (barBeatEl) {
+                    const beat = audioCuePoints[i] !== undefined ? audioCuePoints[i] : i * 64;
+                    barBeatEl.textContent = beatsToBarBeat(beat);
+                }
+            }
+        }
+
+        // V5_1_35: Update cue selection visual
+        function updateCueSelection() {
+            for (let i = 0; i < 5; i++) {
+                const row = document.getElementById(`cueRow${i + 1}`);
+                if (row) {
+                    row.classList.toggle('selected', createAudioPanel === 'cue' && createCueSelectedRow === i);
+                }
+            }
+            if (createAudioPanel === 'cue') {
+                const beat = audioCuePoints[createCueSelectedRow] !== undefined ? 
+                             audioCuePoints[createCueSelectedRow] : createCueSelectedRow * 64;
+                const barBeat = beatsToBarBeat(beat);
+                showMessage(`Cue ${createCueSelectedRow + 1}: ${barBeat} | Arrows nav, Enter jump, Esc exit`, 'info');
+            }
+        }
+
+        // V5_1_35: Exit Cue focus mode
+        // V5_1_49: Exit Cue focus mode (legacy wrapper)
+        function exitCueMode() {
+            exitShaderPanel();
+        }
+
         // V4_9_03: Added interaction (drag, hover messages)
         // V4_9_09: Replaced Scale X/Y with unified ZOOM (writes to both)
         // V4_9_10: Replaced Translate X/Y with XY pad
@@ -21067,6 +22836,102 @@ ${providedShaderCode}
             console.log('V4_9_14: Transform encoders initialized (ROT, ZOOM, XY, PIVOT)');
         }
 
+        // V5_2_0: UNIFIED FOCUS MODE ARCHITECTURE
+        // Single source of truth for all keyboard focus modes
+        // Values: 'none', 'name', 'orientation', 'musicTiming', 'transform', 'reactivity', 'audio', 'bumpr'
+        let activeFocusMode = 'none';
+        
+        // V5_2_0: Central exit function - clears ANY active focus mode
+        function exitAllFocusModes() {
+            const previousMode = activeFocusMode;
+            
+            // Clear mode-specific state based on what was active
+            switch (activeFocusMode) {
+                case 'name':
+                    document.querySelectorAll('.name-selected').forEach(el => el.classList.remove('name-selected'));
+                    break;
+                case 'orientation':
+                    document.querySelectorAll('.orientation-selected').forEach(el => el.classList.remove('orientation-selected'));
+                    break;
+                case 'musicTiming':
+                    timingKeyRepeatCount = 0;
+                    document.querySelectorAll('.timing-selected').forEach(el => el.classList.remove('timing-selected'));
+                    break;
+                case 'transform':
+                    transformKeyRepeatCount = 0;
+                    TRANSFORM_KNOB_IDS.forEach(id => {
+                        const canvas = document.getElementById(id);
+                        if (canvas) canvas.classList.remove('mod-selected');
+                    });
+                    break;
+                case 'reactivity':
+                    modKeyRepeatCount = 0;
+                    document.querySelectorAll('.mod-selected').forEach(el => el.classList.remove('mod-selected'));
+                    break;
+                case 'audio':
+                    audioKeyRepeatCount = 0;
+                    document.querySelectorAll('.audio-focus-selected').forEach(el => el.classList.remove('audio-focus-selected'));
+                    // Also clear any active panel
+                    if (createAudioPanel !== 'none') {
+                        const oldPanel = createAudioPanel;
+                        createAudioPanel = 'none';
+                        if (oldPanel === 'volume') drawCreateAudioVolumeKnob();
+                        else if (oldPanel === 'eq') redrawAllEQKnobs();
+                        else if (oldPanel === 'fx') redrawAllFXKnobs();
+                        else if (oldPanel === 'cue') updateCueSelection();
+                    }
+                    break;
+                case 'bumpr':
+                    const slideout = document.getElementById('bumprSlideout');
+                    if (slideout) slideout.classList.remove('active');
+                    break;
+            }
+            
+            activeFocusMode = 'none';
+            
+            // Only clear message if we actually exited something
+            if (previousMode !== 'none') {
+                showMessage('', 'info');
+            }
+        }
+        
+        // V5_2_0: Simplified check - just check the single variable
+        // Note: name and orientation ARE dropdown modes, but still block other dropdowns
+        function isAnyFocusModeActive() {
+            return activeFocusMode !== 'none' || createAudioPanel !== 'none';
+        }
+        
+        // V5_2_0: Compatibility layer - old variable names map to activeFocusMode
+        // This allows existing code using the old boolean checks to continue working
+        Object.defineProperty(window, 'shaderNameFocus', {
+            get: () => activeFocusMode === 'name',
+            set: (val) => { if (val) activeFocusMode = 'name'; else if (activeFocusMode === 'name') activeFocusMode = 'none'; }
+        });
+        Object.defineProperty(window, 'shaderOrientationFocus', {
+            get: () => activeFocusMode === 'orientation',
+            set: (val) => { if (val) activeFocusMode = 'orientation'; else if (activeFocusMode === 'orientation') activeFocusMode = 'none'; }
+        });
+        Object.defineProperty(window, 'shaderMusicTimingFocus', {
+            get: () => activeFocusMode === 'musicTiming',
+            set: (val) => { if (val) activeFocusMode = 'musicTiming'; else if (activeFocusMode === 'musicTiming') activeFocusMode = 'none'; }
+        });
+        Object.defineProperty(window, 'shaderTransformFocus', {
+            get: () => activeFocusMode === 'transform',
+            set: (val) => { if (val) activeFocusMode = 'transform'; else if (activeFocusMode === 'transform') activeFocusMode = 'none'; }
+        });
+        Object.defineProperty(window, 'shaderReactivityFocus', {
+            get: () => activeFocusMode === 'reactivity',
+            set: (val) => { if (val) activeFocusMode = 'reactivity'; else if (activeFocusMode === 'reactivity') activeFocusMode = 'none'; }
+        });
+        Object.defineProperty(window, 'createAudioFocus', {
+            get: () => activeFocusMode === 'audio',
+            set: (val) => { if (val) activeFocusMode = 'audio'; else if (activeFocusMode === 'audio') activeFocusMode = 'none'; }
+        });
+        Object.defineProperty(window, 'bumprModeActive', {
+            get: () => activeFocusMode === 'bumpr',
+            set: (val) => { if (val) activeFocusMode = 'bumpr'; else if (activeFocusMode === 'bumpr') activeFocusMode = 'none'; }
+        });
+
         // V4_8_31: OmsDropdown - Reusable dropdown component with thumbnail support
         class OmsDropdown {
             constructor(containerId, options = {}) {
@@ -21230,6 +23095,14 @@ ${providedShaderCode}
                         el.addEventListener('mouseenter', () => {
                             this.highlightedIndex = index;
                             this.updateHighlight();
+                            // V5_1_49: Show full name in message bar on hover
+                            if (item.label && item.label.length > 30) {
+                                showMessage(item.label, 'info');
+                            }
+                        });
+                        el.addEventListener('mouseleave', () => {
+                            // V5_1_49: Clear message bar on leave
+                            showMessage('', 'info');
                         });
                         
                         this.list.appendChild(el);
@@ -21303,6 +23176,10 @@ ${providedShaderCode}
             }
             
             toggle() {
+                // V5_1_49: Block dropdown if in a focus mode
+                if (isAnyFocusModeActive()) {
+                    return;
+                }
                 if (this.isOpen) {
                     this.close();
                 } else {
@@ -21379,7 +23256,7 @@ ${providedShaderCode}
         console.log('V4_8_31: OmsDropdown component ready');
 
         // V5_0_17: Name keyboard controls - Shift+N focus mode
-        let shaderNameFocus = false;
+        // V5_2_0: Now uses activeFocusMode === 'name' instead of shaderNameFocus
         let shaderNameCurrentIndex = 0;  // Track position in shader list for cycling
         
         function getNameControlElement() {
@@ -21390,7 +23267,7 @@ ${providedShaderCode}
         function updateNameSelection() {
             document.querySelectorAll('.name-selected').forEach(el => el.classList.remove('name-selected'));
             
-            if (!shaderNameFocus) return;
+            if (activeFocusMode !== 'name') return;
             
             const el = getNameControlElement();
             if (el) el.classList.add('name-selected');
@@ -21399,13 +23276,16 @@ ${providedShaderCode}
         }
         
         function exitNameMode() {
-            shaderNameFocus = false;
-            document.querySelectorAll('.name-selected').forEach(el => el.classList.remove('name-selected'));
-            showMessage('', 'info');
+            // V5_2_0: Use unified exit
+            if (activeFocusMode === 'name') {
+                document.querySelectorAll('.name-selected').forEach(el => el.classList.remove('name-selected'));
+                activeFocusMode = 'none';
+                showMessage('', 'info');
+            }
         }
         
         async function activateNameControl(delta) {
-            if (!shaderNameFocus) return;
+            if (activeFocusMode !== 'name') return;
             
             const dropdown = window.shaderNameDropdown;
             if (!dropdown) return;
@@ -21432,7 +23312,7 @@ ${providedShaderCode}
         }
 
         // V5_0_17: Orientation keyboard controls - Shift+O focus mode
-        let shaderOrientationFocus = false;
+        // V5_2_0: Now uses activeFocusMode === 'orientation' instead of shaderOrientationFocus
         
         function getOrientationControlElement() {
             // Try window first, then container._omsDropdown fallback
@@ -21449,7 +23329,7 @@ ${providedShaderCode}
         function updateOrientationSelection() {
             document.querySelectorAll('.orientation-selected').forEach(el => el.classList.remove('orientation-selected'));
             
-            if (!shaderOrientationFocus) return;
+            if (activeFocusMode !== 'orientation') return;
             
             const el = getOrientationControlElement();
             if (el) el.classList.add('orientation-selected');
@@ -21458,14 +23338,17 @@ ${providedShaderCode}
         }
         
         function exitOrientationMode() {
-            shaderOrientationFocus = false;
-            document.querySelectorAll('.orientation-selected').forEach(el => el.classList.remove('orientation-selected'));
-            showMessage('', 'info');
+            // V5_2_0: Use unified exit
+            if (activeFocusMode === 'orientation') {
+                document.querySelectorAll('.orientation-selected').forEach(el => el.classList.remove('orientation-selected'));
+                activeFocusMode = 'none';
+                showMessage('', 'info');
+            }
         }
         
         function activateOrientationControl(delta) {
-            console.log('activateOrientationControl called with delta:', delta, 'focus:', shaderOrientationFocus);
-            if (!shaderOrientationFocus) return;
+            console.log('activateOrientationControl called with delta:', delta, 'focus:', activeFocusMode);
+            if (activeFocusMode !== 'orientation') return;
             
             // Try to get dropdown from window, otherwise find it directly
             let dropdown = window.orientationDropdown;
@@ -21528,7 +23411,7 @@ ${providedShaderCode}
         }
 
         // V5_0_15: Music Timing keyboard controls - Shift+M focus mode
-        let shaderMusicTimingFocus = false;
+        // V5_2_0: Now uses activeFocusMode === 'musicTiming' instead of shaderMusicTimingFocus
         let shaderMusicTimingSelectedCol = 0;  // 0-3 = Tempo/Linked/LoopLength/Duration
         
         const TIMING_COL_NAMES = ['Tempo', 'Linked', 'Loop Length', 'Duration'];
@@ -21548,7 +23431,7 @@ ${providedShaderCode}
             // Clear all timing selection rings
             document.querySelectorAll('.timing-selected').forEach(el => el.classList.remove('timing-selected'));
             
-            if (!shaderMusicTimingFocus) return;
+            if (activeFocusMode !== 'musicTiming') return;
             
             const el = getTimingControlElement(shaderMusicTimingSelectedCol);
             if (el) el.classList.add('timing-selected');
@@ -21557,17 +23440,20 @@ ${providedShaderCode}
         }
         
         function exitMusicTimingMode() {
-            shaderMusicTimingFocus = false;
-            timingKeyRepeatCount = 0;
-            document.querySelectorAll('.timing-selected').forEach(el => el.classList.remove('timing-selected'));
-            showMessage('', 'info');
+            // V5_2_0: Use unified exit
+            if (activeFocusMode === 'musicTiming') {
+                timingKeyRepeatCount = 0;
+                document.querySelectorAll('.timing-selected').forEach(el => el.classList.remove('timing-selected'));
+                activeFocusMode = 'none';
+                showMessage('', 'info');
+            }
         }
         
         let timingKeyRepeatCount = 0;
         let timingLastKeyTime = 0;
         
         function adjustMusicTimingValue(delta) {
-            if (!shaderMusicTimingFocus) return;
+            if (activeFocusMode !== 'musicTiming') return;
             
             const col = shaderMusicTimingSelectedCol;
             
@@ -21623,9 +23509,784 @@ ${providedShaderCode}
             }
         }
 
+        // V5_1_35: Audio Focus mode - Shift+A
+        // V5_2_0: Now uses activeFocusMode === 'audio' instead of createAudioFocus
+        let shaderAudioSelectedCol = 0;  // 0-11 columns
+        
+        const AUDIO_COL_NAMES = ['Cue 1', 'Cue 2', 'Cue 3', 'Audio Start', 'Audio End', 'Tempo', 'Pitch', 'Loop In', 'Loop Out', 'Loop', 'Grid', 'Snap'];
+        const AUDIO_COL_IDS = [null, null, null, 'audioStartField', 'audioEndField', 'audioTempoField', 'audioPitchField', 'audioLoopInField', 'audioLoopOutField', 'audioLoopBtn', 'audioGridBtn', 'audioSnapBtn'];
+        
+        function getAudioControlElement(col) {
+            const id = AUDIO_COL_IDS[col];
+            if (!id) return null;  // Cue columns have no DOM element
+            return document.getElementById(id);
+        }
+        
+        function updateAudioSelection() {
+            // Clear all audio selection rings
+            document.querySelectorAll('.audio-focus-selected').forEach(el => el.classList.remove('audio-focus-selected'));
+            
+            if (activeFocusMode !== 'audio') return;
+            
+            const el = getAudioControlElement(shaderAudioSelectedCol);
+            if (el) el.classList.add('audio-focus-selected');
+            
+            const col = shaderAudioSelectedCol;
+            let hint = '←→ nav, ';
+            if (col <= 2) {
+                hint += `${col + 1}=jump`;
+            } else if (col <= 8) {
+                hint += '⇧←→ adjust';
+            } else {
+                hint += 'Enter=toggle';
+            }
+            hint += ', Esc exit';
+            
+            showMessage(`Audio: ${AUDIO_COL_NAMES[col]} (${hint})`, 'info');
+        }
+        
+        function exitAudioMode() {
+            // V5_2_0: Use unified exit - also clears any active panel
+            if (activeFocusMode === 'audio') {
+                audioKeyRepeatCount = 0;
+                document.querySelectorAll('.audio-focus-selected').forEach(el => el.classList.remove('audio-focus-selected'));
+                // Clear panel if active
+                if (createAudioPanel !== 'none') {
+                    const oldPanel = createAudioPanel;
+                    createAudioPanel = 'none';
+                    if (oldPanel === 'volume') drawCreateAudioVolumeKnob();
+                    else if (oldPanel === 'eq') redrawAllEQKnobs();
+                    else if (oldPanel === 'fx') redrawAllFXKnobs();
+                    else if (oldPanel === 'cue') updateCueSelection();
+                }
+                activeFocusMode = 'none';
+                showMessage('', 'info');
+            }
+        }
+        
+        let audioKeyRepeatCount = 0;
+        let audioLastKeyTime = 0;
+        
+        function jumpToCue(cueIndex) {
+            if (!audioLoaded || !audioElement) {
+                showMessage('No audio loaded', 'error');
+                return;
+            }
+            const cueBeat = audioCuePoints[cueIndex];
+            const beatsPerSecond = audioTempo / 60;
+            const cueTime = audioStartTime + (cueBeat / beatsPerSecond);
+            audioElement.currentTime = cueTime;
+            const barBeat = beatsToBarBeat(cueBeat);
+            showMessage(`Jumped to Cue ${cueIndex + 1} (${barBeat})`, 'state');
+        }
+        
+        // V5_1_35: Jump to cue on specific PERFORM track
+        function jumpToTrackCue(trackNum, cueIndex) {
+            const track = trackNum - 1;  // Convert to 0-indexed
+            const cueBeat = trackCuePoints[track][cueIndex];
+            const barBeat = beatsToBarBeat(cueBeat);
+            
+            // Get container data - either from playing track OR from grid cell
+            let containerData = trackContainerData[track];
+            let audioBuffer = trackAudioBuffers[track];
+            let cellScene = -1;
+            
+            // If not playing, find cell with container
+            if (!containerData || !audioBuffer) {
+                for (let scene = 0; scene < NUM_SCENES; scene++) {
+                    const cellIndex = track * NUM_SCENES + scene;
+                    const cellData = gridState.cells[cellIndex];
+                    if (cellData && cellData.id) {
+                        const containers = getLibraryContainers();
+                        containerData = containers.find(c => c.id === cellData.id);
+                        audioBuffer = cellData.audioBuffer;
+                        cellScene = scene;
+                        break;
+                    }
+                }
+            }
+            
+            if (!containerData) {
+                showMessage(`Track ${trackNum}: No container loaded`, 'info');
+                return;
+            }
+            
+            if (!audioBuffer) {
+                showMessage(`Track ${trackNum}: No audio loaded`, 'info');
+                return;
+            }
+            
+            // Calculate cue time in audio file
+            const audioTempo = containerData.audioTempo || 120;
+            const audioStartTime = containerData.audioStartTime || 0;
+            const beatsPerSecond = audioTempo / 60;
+            const cueTimeInFile = audioStartTime + (cueBeat / beatsPerSecond);
+            
+            // Resume audio context if suspended
+            if (trackAudioContext && trackAudioContext.state === 'suspended') {
+                trackAudioContext.resume();
+            }
+            
+            // Stop current source if playing
+            if (trackAudioSources[track]) {
+                trackAudioSources[track].stop();
+                trackAudioSources[track].disconnect();
+            }
+            
+            // V5_1_35: Initialize master clock if not already running
+            const clockNeedsInit = !isAnyTrackPast_1_1_1();
+            if (clockNeedsInit) {
+                const clockRef = trackAudioContext.currentTime;
+                trackMasterClockStart = clockRef;
+                trackAudioMasterClock.initializeTempoHistory(clockRef, gridState.masterTempo);
+                stopDAWClockAnimation();
+                startDAWClockAnimation();
+                console.log(`V5_1_35: jumpToTrackCue - initialized master clock at ${clockRef.toFixed(3)}`);
+            }
+            
+            // Create new source at cue position
+            const source = trackAudioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.playbackRate.value = gridState.masterTempo / audioTempo;
+            source.connect(trackEQFilters[track].high)  // V5_1_49: Route through EQ;
+            source.loop = containerData.audioLoopEnabled || false;
+            
+            if (source.loop) {
+                const loopInBeats = containerData.audioLoopIn || 0;
+                const loopOutBeats = containerData.audioLoopOut || 64;
+                source.loopStart = audioStartTime + (loopInBeats / beatsPerSecond);
+                source.loopEnd = audioStartTime + (loopOutBeats / beatsPerSecond);
+            }
+            
+            source.start(0, cueTimeInFile);
+            trackAudioSources[track] = source;
+            trackAudioBuffers[track] = audioBuffer;
+            
+            // Store container data if not already set
+            if (!trackContainerData[track]) {
+                trackContainerData[track] = containerData;
+            }
+            
+            // V5_1_35: Set trackLaunchBeats AFTER clock init
+            const currentBeat = trackAudioMasterClock.getCurrentBeat();
+            trackLaunchBeats[track] = clockNeedsInit ? -cueBeat : (currentBeat - cueBeat);
+            trackAudioStartContextTime[track] = trackAudioContext.currentTime;
+            
+            // Position waveform and start scrolling
+            positionTrackAudioWaveformAtPlayhead(track + 1, audioBuffer);
+            startAudioWaveformScroll(track, audioBuffer);
+            
+            // Update visual feedback
+            if (cellScene >= 0) {
+                const cell = document.querySelector(`.clip-slot[data-track="${track}"][data-scene="${cellScene}"]`);
+                if (cell) cell.classList.add('playing');
+            }
+            
+            showMessage(`Track ${trackNum}: Cue ${cueIndex + 1} (${barBeat})`, 'state');
+        }
+        
+        // V5_1_35: Initialize PERFORM track knobs (all 4 tracks × 6 knobs = 24 total)
+        function initTrackKnobs() {
+            // V5_1_35: Draw all track knobs using redraw functions for consistency
+            for (let t = 0; t < 4; t++) {
+                redrawTrackEQKnobs(t);
+                redrawTrackFXKnobs(t);
+            }
+            console.log('V5_1_35: Track knobs initialized (4 tracks × 6 knobs)');
+        }
+        
+        // V5_1_49: Unified PERFORM Panel Functions
+        function setPerformPanel(panel) {
+            // Clear highlights from current track before switching
+            if (performActivePanel !== 'none' && selectedKnobIndex >= 0 && selectedKnobIndex <= 3) {
+                clearPerformPanelHighlights(selectedKnobIndex);
+            }
+            
+            performActivePanel = panel;
+            
+            if (panel === 'none') {
+                showMessage('', 'info');
+                return;
+            }
+            
+            // V5_1_49: Always reset to first item when activating panel
+            if (panel === 'eq') {
+                performEQSelectedBand = 0;  // High
+                updatePerformEQSelection();
+            } else if (panel === 'fx') {
+                performFXSelectedSlot = 0;  // Washout
+                updatePerformFXSelection();
+            } else if (panel === 'cue') {
+                performCueSelectedRow = 0;  // Cue 1
+                updatePerformCueSelection();
+            }
+        }
+        
+        function exitPerformPanel() {
+            if (performActivePanel !== 'none' && selectedKnobIndex >= 0 && selectedKnobIndex <= 3) {
+                clearPerformPanelHighlights(selectedKnobIndex);
+            }
+            performActivePanel = 'none';
+            showMessage('', 'info');
+        }
+        
+        function updatePerformPanelHighlights(oldTrack) {
+            // Called when track changes with panel active
+            // Clear old track, show on new track
+            if (oldTrack >= 0 && oldTrack <= 3) {
+                clearPerformPanelHighlights(oldTrack);
+            }
+            
+            // Show highlights on new track
+            if (performActivePanel === 'eq') {
+                updatePerformEQSelection();
+            } else if (performActivePanel === 'fx') {
+                updatePerformFXSelection();
+            } else if (performActivePanel === 'cue') {
+                updatePerformCueSelection();
+            }
+        }
+        
+        function clearPerformPanelHighlights(trackIndex) {
+            // Clear ALL panel highlights for a track
+            redrawTrackEQKnobs(trackIndex);
+            redrawTrackFXKnobs(trackIndex);
+            clearTrackCueHighlights(trackIndex);
+        }
+        
+        // V5_1_35: PERFORM EQ Mode Functions
+        function updatePerformEQSelection() {
+            const trackNum = selectedKnobIndex + 1;
+            const bandNames = ['High', 'Mid', 'Low'];
+            const bandName = bandNames[performEQSelectedBand];
+            const killed = trackEQKilled[selectedKnobIndex][performEQSelectedBand];
+            
+            if (killed) {
+                showMessage(`Track ${trackNum} EQ: ${bandName} KILLED (↑↓ select, Enter=on, Esc exit)`, 'info');
+            } else {
+                const value = trackEQValues[selectedKnobIndex][performEQSelectedBand];
+                const db = knobToDb(value);
+                const dbStr = db <= -60 ? '-∞' : (db >= 0 ? '+' : '') + db.toFixed(1) + ' dB';
+                showMessage(`Track ${trackNum} EQ: ${bandName} ${dbStr} (↑↓ select, ←→ adj, Enter=kill, Esc exit)`, 'info');
+            }
+            redrawTrackEQKnobs(selectedKnobIndex);
+        }
+        
+        // V5_1_49: exitPerformEQMode replaced by exitPerformPanel()
+        
+        function redrawTrackEQKnobs(trackIndex) {
+            const t = trackIndex + 1;
+            const eqColors = ['#00d4ff', '#00d4ff', '#00d4ff'];  // V5_1_49: All cyan
+            const bands = ['H', 'M', 'L'];
+            
+            bands.forEach((band, i) => {
+                const canvas = document.getElementById(`t${t}Eq${band}`);
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const cx = 7, cy = 7, r = 5;
+                const value = trackEQValues[trackIndex][i];
+                const killed = trackEQKilled[trackIndex][i];
+                
+                // V5_1_49: Selection ring if EQ panel active AND this is selected track AND this band
+                const isSelected = performActivePanel === 'eq' && selectedKnobIndex === trackIndex && performEQSelectedBand === i;
+                
+                // Clear
+                ctx.clearRect(0, 0, 14, 14);
+                
+                // Selection ring (matches CREATE tab)
+                if (isSelected) {
+                    ctx.strokeStyle = '#00d4ff';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, r + 1, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                
+                // Background circle - magenta when killed
+                ctx.fillStyle = killed ? '#ff006e' : '#1a1a1a';
+                ctx.beginPath();
+                ctx.arc(cx, cy, isSelected ? r - 1 : r, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Border when not selected and not killed
+                if (!isSelected && !killed) {
+                    ctx.strokeStyle = '#444';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                
+                // Value indicator (arc from 7 o'clock to value position) - skip when killed
+                if (!killed) {
+                    const startAngle = Math.PI * 0.75;  // 7 o'clock
+                    const endAngle = startAngle + (value * Math.PI * 1.5);  // 300° sweep
+                    const arcRadius = isSelected ? 3 : 4;
+                    ctx.strokeStyle = eqColors[i];
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, arcRadius, startAngle, endAngle);
+                    ctx.stroke();
+                }
+            });
+        }
+        
+        function adjustPerformEQValue(delta) {
+            if (performActivePanel !== 'eq' || selectedKnobIndex < 0 || selectedKnobIndex > 3) return;
+            
+            // V5_1_49: Don't adjust if killed
+            if (trackEQKilled[selectedKnobIndex][performEQSelectedBand]) {
+                showMessage(`Track ${selectedKnobIndex + 1} EQ: ${['High', 'Mid', 'Low'][performEQSelectedBand]} KILLED (Enter to restore)`, 'info');
+                return;
+            }
+            
+            let value = trackEQValues[selectedKnobIndex][performEQSelectedBand];
+            value = Math.max(0, Math.min(1, value + delta * 0.02));
+            trackEQValues[selectedKnobIndex][performEQSelectedBand] = value;
+            
+            applyTrackEQ(selectedKnobIndex);  // V5_1_49: Apply to audio
+            updatePerformEQSelection();
+        }
+        
+        // V5_1_49: Toggle EQ kill for selected band on selected track
+        function togglePerformEQKill() {
+            if (selectedKnobIndex < 0 || selectedKnobIndex > 3) return;
+            
+            const killed = !trackEQKilled[selectedKnobIndex][performEQSelectedBand];
+            trackEQKilled[selectedKnobIndex][performEQSelectedBand] = killed;
+            
+            const trackNum = selectedKnobIndex + 1;
+            const bandNames = ['High', 'Mid', 'Low'];
+            const bandName = bandNames[performEQSelectedBand];
+            
+            showMessage(`Track ${trackNum} EQ: ${bandName} ${killed ? 'KILLED' : 'ON'}`, 'state');
+            applyTrackEQ(selectedKnobIndex);  // V5_1_49: Apply to audio
+            redrawTrackEQKnobs(selectedKnobIndex);
+        }
+        
+        // V5_1_49: Apply EQ values to actual audio filters
+        function applyTrackEQ(trackIndex) {
+            if (!trackEQFilters[trackIndex]) return;
+            
+            const filters = trackEQFilters[trackIndex];
+            const values = trackEQValues[trackIndex];
+            const killed = trackEQKilled[trackIndex];
+            
+            // Band 0 = High, Band 1 = Mid, Band 2 = Low
+            // When killed, set gain to -60dB (effectively silent)
+            const highDb = killed[0] ? -60 : knobToDb(values[0]);
+            const midDb = killed[1] ? -60 : knobToDb(values[1]);
+            const lowDb = killed[2] ? -60 : knobToDb(values[2]);
+            
+            filters.high.gain.setTargetAtTime(highDb, trackAudioContext.currentTime, 0.01);
+            filters.mid.gain.setTargetAtTime(midDb, trackAudioContext.currentTime, 0.01);
+            filters.low.gain.setTargetAtTime(lowDb, trackAudioContext.currentTime, 0.01);
+        }
+        
+        // V5_1_49: Apply FX values to actual audio nodes
+        function applyTrackFX(trackIndex) {
+            if (!trackFXDelayWet[trackIndex]) return;
+            
+            const values = trackFXValues[trackIndex];
+            const killed = trackFXKilled[trackIndex];
+            
+            // Slot 0 = Reverb, Slot 1 = Delay, Slot 2 = Wash
+            const reverbWet = killed[0] ? 0 : values[0];
+            const delayWet = killed[1] ? 0 : values[1];
+            const washWet = killed[2] ? 0 : values[2];
+            
+            trackFXReverbWet[trackIndex].gain.setTargetAtTime(reverbWet, trackAudioContext.currentTime, 0.01);
+            trackFXDelayWet[trackIndex].gain.setTargetAtTime(delayWet, trackAudioContext.currentTime, 0.01);
+            trackFXWashWet[trackIndex].gain.setTargetAtTime(washWet, trackAudioContext.currentTime, 0.01);
+        }
+        
+        // V5_1_35: PERFORM FX Mode Functions
+        function updatePerformFXSelection() {
+            const trackNum = selectedKnobIndex + 1;
+            const fxNames = ['Washout', 'Dubby', 'Break'];
+            const fxName = fxNames[performFXSelectedSlot];
+            const killed = trackFXKilled[selectedKnobIndex][performFXSelectedSlot];
+            
+            if (killed) {
+                showMessage(`Track ${trackNum} FX: ${fxName} KILLED (↑↓ nav, Enter=restore, Esc exit)`, 'info');
+            } else {
+                const isOn = trackFXOn[selectedKnobIndex][performFXSelectedSlot];
+                const value = trackFXValues[selectedKnobIndex][performFXSelectedSlot];
+                
+                if (!isOn || value === 0) {
+                    showMessage(`Track ${trackNum} FX: ${fxName} OFF (↑↓ nav, ←→ adjust, Enter=kill, Esc exit)`, 'info');
+                } else {
+                    const pct = Math.round(value * 100);
+                    showMessage(`Track ${trackNum} FX: ${fxName} ${pct}% (↑↓ nav, ←→ adj, Enter=kill, Esc exit)`, 'info');
+                }
+            }
+            redrawTrackFXKnobs(selectedKnobIndex);
+        }
+        
+        // V5_1_49: exitPerformFXMode replaced by exitPerformPanel()
+        
+        function redrawTrackFXKnobs(trackIndex) {
+            const t = trackIndex + 1;
+            const fxKeys = ['R', 'D', 'W'];
+            
+            fxKeys.forEach((fx, i) => {
+                const canvas = document.getElementById(`t${t}Fx${fx}`);
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const cx = 7, cy = 7, r = 5;
+                const isOn = trackFXOn[trackIndex][i];
+                const value = trackFXValues[trackIndex][i];
+                
+                // V5_1_49: Selection ring if FX panel active AND this is selected track AND this slot
+                const isSelected = performActivePanel === 'fx' && selectedKnobIndex === trackIndex && performFXSelectedSlot === i;
+                
+                // Clear
+                ctx.clearRect(0, 0, 14, 14);
+                
+                // Selection ring
+                if (isSelected) {
+                    ctx.strokeStyle = '#00d4ff';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, r + 1, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                
+                // V5_1_49: Background - magenta when KILLED
+                const killed = trackFXKilled[trackIndex][i];
+                ctx.fillStyle = killed ? '#ff006e' : '#1a1a1a';
+                ctx.beginPath();
+                ctx.arc(cx, cy, isSelected ? r - 1 : r, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Border when not selected and not killed
+                if (!isSelected && !killed) {
+                    ctx.strokeStyle = '#444';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                
+                // V5_1_49: Cyan arc when ON and not killed, dim indicator when OFF
+                if (!killed) {
+                    const startAngle = Math.PI * 0.75;  // 7 o'clock
+                    const endAngle = startAngle + Math.PI * 1.5;  // 5 o'clock (300° sweep)
+                    const arcRadius = isSelected ? 3 : 4;
+                    
+                    if (isOn && value > 0) {
+                        // Cyan arc showing wet amount
+                        const currentAngle = startAngle + (endAngle - startAngle) * value;
+                        ctx.strokeStyle = '#00d4ff';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, arcRadius, startAngle, currentAngle);
+                        ctx.stroke();
+                    } else {
+                        // OFF or value=0 - dim indicator at 7 o'clock
+                        ctx.strokeStyle = '#444';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(cx, cy);
+                        ctx.lineTo(cx + Math.cos(startAngle) * arcRadius, cy + Math.sin(startAngle) * arcRadius);
+                        ctx.stroke();
+                    }
+                }
+            });
+        }
+        
+        function adjustPerformFXValue(delta) {
+            if (performActivePanel !== 'fx' || selectedKnobIndex < 0 || selectedKnobIndex > 3) return;
+            
+            // V5_1_49: Can't adjust if killed
+            if (trackFXKilled[selectedKnobIndex][performFXSelectedSlot]) {
+                showMessage(`Track ${selectedKnobIndex + 1} FX: ${['Washout', 'Dubby', 'Break'][performFXSelectedSlot]} KILLED (Enter to restore)`, 'info');
+                return;
+            }
+            
+            // V5_1_49: Arrows adjust value directly (no on/off toggle needed)
+            let value = trackFXValues[selectedKnobIndex][performFXSelectedSlot];
+            value = Math.max(0, Math.min(1, value + delta * 0.02));
+            trackFXValues[selectedKnobIndex][performFXSelectedSlot] = value;
+            
+            // Auto-set on state based on value
+            trackFXOn[selectedKnobIndex][performFXSelectedSlot] = value > 0;
+            
+            applyTrackFX(selectedKnobIndex);  // V5_1_49: Apply to audio
+            updatePerformFXSelection();
+        }
+        
+        // V5_1_49: togglePerformFX removed - Enter now toggles kill
+        
+        // V5_1_49: Toggle FX kill for selected slot on selected track
+        function togglePerformFXKill() {
+            if (selectedKnobIndex < 0 || selectedKnobIndex > 3) return;
+            
+            const killed = !trackFXKilled[selectedKnobIndex][performFXSelectedSlot];
+            trackFXKilled[selectedKnobIndex][performFXSelectedSlot] = killed;
+            
+            const trackNum = selectedKnobIndex + 1;
+            const fxNames = ['Washout', 'Dubby', 'Break'];
+            const fxName = fxNames[performFXSelectedSlot];
+            
+            showMessage(`Track ${trackNum} FX: ${fxName} ${killed ? 'KILLED' : 'restored'}`, 'state');
+            applyTrackFX(selectedKnobIndex);  // V5_1_49: Apply to audio
+            redrawTrackFXKnobs(selectedKnobIndex);
+        }
+        
+        // V5_1_35: PERFORM Cue Mode Functions
+        function updatePerformCueSelection() {
+            const trackNum = selectedKnobIndex + 1;
+            const cueNum = performCueSelectedRow + 1;
+            const cueBeat = trackCuePoints[selectedKnobIndex][performCueSelectedRow];
+            const barBeat = beatsToBarBeat(cueBeat);
+            showMessage(`Track ${trackNum} Cue: ${cueNum} (${barBeat}) (↑↓ select, Enter=jump, Esc exit)`, 'info');
+            highlightTrackCue(selectedKnobIndex, performCueSelectedRow);
+        }
+        
+        // V5_1_49: exitPerformCueMode replaced by exitPerformPanel()
+        
+        function highlightTrackCue(trackIndex, cueIndex) {
+            const t = trackIndex + 1;
+            console.log(`V5_1_49: highlightTrackCue(${trackIndex}, ${cueIndex}) - looking for t${t}Cue${cueIndex}`);
+            
+            // Clear all cues for this track first, highlight selected
+            for (let i = 0; i < 5; i++) {
+                const cueEl = document.getElementById(`t${t}Cue${i}`);
+                console.log(`V5_1_49: t${t}Cue${i} = ${cueEl ? 'found' : 'NOT FOUND'}`);
+                if (cueEl) {
+                    if (i === cueIndex) {
+                        // V5_1_49: Use standard cyan (matches CREATE tab .cue-row.selected)
+                        cueEl.style.cssText = 'background: rgba(0, 212, 255, 0.3) !important;';
+                    } else {
+                        cueEl.style.cssText = '';
+                    }
+                }
+            }
+        }
+        
+        function clearTrackCueHighlights(trackIndex) {
+            const t = trackIndex + 1;
+            for (let i = 0; i < 5; i++) {
+                const cueEl = document.getElementById(`t${t}Cue${i}`);
+                if (cueEl) {
+                    cueEl.style.cssText = '';
+                }
+            }
+        }
+        
+        function jumpToSelectedPerformCue() {
+            if (performActivePanel !== 'cue' || selectedKnobIndex < 0 || selectedKnobIndex > 3) return;
+            
+            const track = selectedKnobIndex;  // 0-indexed
+            const cueIndex = performCueSelectedRow;
+            const cueBeat = trackCuePoints[track][cueIndex];
+            const barBeat = beatsToBarBeat(cueBeat);
+            
+            // Get container data - either from playing track OR from grid cell
+            let containerData = trackContainerData[track];
+            let audioBuffer = trackAudioBuffers[track];
+            let cellScene = -1;
+            
+            // If not playing, find cell with container
+            if (!containerData || !audioBuffer) {
+                for (let scene = 0; scene < NUM_SCENES; scene++) {
+                    const cellIndex = track * NUM_SCENES + scene;
+                    const cellData = gridState.cells[cellIndex];
+                    if (cellData && cellData.id) {
+                        // Get container from library
+                        const containers = getLibraryContainers();
+                        containerData = containers.find(c => c.id === cellData.id);
+                        audioBuffer = cellData.audioBuffer;
+                        cellScene = scene;
+                        break;
+                    }
+                }
+            }
+            
+            if (!containerData) {
+                showMessage(`Track ${track + 1}: No container loaded`, 'info');
+                return;
+            }
+            
+            if (!audioBuffer) {
+                showMessage(`Track ${track + 1}: No audio loaded`, 'info');
+                return;
+            }
+            
+            // Calculate cue time in audio file
+            const audioTempo = containerData.audioTempo || 120;
+            const audioStartTime = containerData.audioStartTime || 0;
+            const beatsPerSecond = audioTempo / 60;
+            const cueTimeInFile = audioStartTime + (cueBeat / beatsPerSecond);
+            
+            // Resume audio context if suspended
+            if (trackAudioContext && trackAudioContext.state === 'suspended') {
+                trackAudioContext.resume();
+            }
+            
+            // Stop current source if playing
+            if (trackAudioSources[track]) {
+                trackAudioSources[track].stop();
+                trackAudioSources[track].disconnect();
+            }
+            
+            // V5_1_35: Initialize master clock if not already running
+            const clockNeedsInit = !isAnyTrackPast_1_1_1();
+            if (clockNeedsInit) {
+                const clockRef = trackAudioContext.currentTime;
+                trackMasterClockStart = clockRef;
+                trackAudioMasterClock.initializeTempoHistory(clockRef, gridState.masterTempo);
+                stopDAWClockAnimation();
+                startDAWClockAnimation();
+                console.log(`V5_1_35: Initialized master clock from cue launch at ${clockRef.toFixed(3)}`);
+            }
+            
+            // Create new source at cue position
+            const source = trackAudioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.playbackRate.value = gridState.masterTempo / audioTempo;
+            source.connect(trackEQFilters[track].high)  // V5_1_49: Route through EQ;
+            source.loop = containerData.audioLoopEnabled || false;
+            
+            if (source.loop) {
+                const loopInBeats = containerData.audioLoopIn || 0;
+                const loopOutBeats = containerData.audioLoopOut || 64;
+                source.loopStart = audioStartTime + (loopInBeats / beatsPerSecond);
+                source.loopEnd = audioStartTime + (loopOutBeats / beatsPerSecond);
+            }
+            
+            source.start(0, cueTimeInFile);
+            trackAudioSources[track] = source;
+            trackAudioBuffers[track] = audioBuffer;
+            
+            // Store container data if not already set
+            if (!trackContainerData[track]) {
+                trackContainerData[track] = containerData;
+            }
+            
+            // V5_1_35: Set trackLaunchBeats AFTER clock init
+            // If we just initialized clock, currentBeat is 0, so launchBeat = -cueBeat
+            // This means: waveform shows position = cueBeat beats into the track
+            const currentBeat = trackAudioMasterClock.getCurrentBeat();
+            trackLaunchBeats[track] = clockNeedsInit ? -cueBeat : (currentBeat - cueBeat);
+            trackAudioStartContextTime[track] = trackAudioContext.currentTime;
+            
+            // Position waveform and start scrolling
+            positionTrackAudioWaveformAtPlayhead(track + 1, audioBuffer);
+            startAudioWaveformScroll(track, audioBuffer);
+            
+            // Update visual feedback
+            if (cellScene >= 0) {
+                const cell = document.querySelector(`.clip-slot[data-track="${track}"][data-scene="${cellScene}"]`);
+                if (cell) cell.classList.add('playing');
+            }
+            
+            showMessage(`Track ${track + 1}: Cue ${cueIndex + 1} (${barBeat})`, 'state');
+        }
+        
+        function adjustAudioValue(delta) {
+            if (!createAudioFocus) return;
+            
+            const col = shaderAudioSelectedCol;
+            
+            // Progressive acceleration
+            const now = Date.now();
+            if (now - audioLastKeyTime < 150) {
+                audioKeyRepeatCount++;
+            } else {
+                audioKeyRepeatCount = 0;
+            }
+            audioLastKeyTime = now;
+            
+            const acceleratedDelta = delta * (1 + Math.floor(audioKeyRepeatCount / 5));
+            
+            if (col <= 2) {
+                // Cue columns - jump on any adjust
+                jumpToCue(col);
+            } else if (col === 3) {
+                // Audio Start - adjust by 0.1s
+                const input = document.getElementById('audioStartField');
+                let seconds = timeStringToSeconds(input.value);
+                const step = acceleratedDelta > 1 || acceleratedDelta < -1 ? 1.0 : 0.1;
+                seconds = Math.max(0, seconds + (delta * step));
+                input.value = secondsToTimeString(seconds);
+                audioStartTime = seconds;
+                showMessage(`Audio Start: ${secondsToTimeString(seconds)}`, 'state');
+                drawProgress();
+            } else if (col === 4) {
+                // Audio End - adjust by 0.1s
+                const input = document.getElementById('audioEndField');
+                let seconds = timeStringToSeconds(input.value);
+                const step = acceleratedDelta > 1 || acceleratedDelta < -1 ? 1.0 : 0.1;
+                seconds = Math.max(0.1, seconds + (delta * step));
+                input.value = secondsToTimeString(seconds);
+                audioEndTime = seconds;
+                showMessage(`Audio End: ${secondsToTimeString(seconds)}`, 'state');
+                drawProgress();
+            } else if (col === 5) {
+                // Tempo - adjust by 1 BPM
+                const input = document.getElementById('audioTempoField');
+                let val = parseFloat(input.value) || 120;
+                val = Math.max(1, Math.min(999, val + acceleratedDelta));
+                input.value = val.toFixed(2);
+                audioTempo = val;
+                showMessage(`Audio Tempo: ${val.toFixed(2)} BPM`, 'state');
+                drawProgress();
+            } else if (col === 6) {
+                // Pitch - adjust by 0.01 (semitones)
+                const input = document.getElementById('audioPitchField');
+                let val = parseFloat(input.value) || 0;
+                const step = acceleratedDelta > 1 || acceleratedDelta < -1 ? 0.1 : 0.01;
+                val = Math.max(-12, Math.min(12, val + (delta * step)));
+                input.value = val.toFixed(2);
+                audioPitch = val;
+                applyPitchToAudio();
+                showMessage(`Pitch: ${val > 0 ? '+' : ''}${val.toFixed(2)}`, 'state');
+            } else if (col === 7) {
+                // Loop In - adjust by 1 beat (or 4 with acceleration)
+                const input = document.getElementById('audioLoopInField');
+                let beats = barBeatToBeats(input.value);
+                const step = acceleratedDelta > 1 || acceleratedDelta < -1 ? 4 : 1;
+                beats = Math.max(0, beats + (delta * step));
+                input.value = beatsToBarBeat(beats);
+                showMessage(`Loop In: ${beatsToBarBeat(beats)}`, 'state');
+                drawProgress();
+            } else if (col === 8) {
+                // Loop Out - adjust by 1 beat (or 4 with acceleration)
+                const input = document.getElementById('audioLoopOutField');
+                let beats = barBeatToBeats(input.value);
+                const step = acceleratedDelta > 1 || acceleratedDelta < -1 ? 4 : 1;
+                beats = Math.max(1, beats + (delta * step));
+                input.value = beatsToBarBeat(beats);
+                showMessage(`Loop Out: ${beatsToBarBeat(beats)}`, 'state');
+                drawProgress();
+            } else if (col === 9) {
+                // Loop button - toggle
+                toggleAudioLoop();
+                showMessage(`Loop: ${audioLoopEnabled ? 'ON' : 'OFF'}`, 'state');
+            } else if (col === 10) {
+                // Grid button - toggle
+                toggleAudioGrid();
+            } else if (col === 11) {
+                // Snap button - activate
+                snapAudioEndToBar();
+            }
+        }
+        
+        function activateAudioControl() {
+            const col = shaderAudioSelectedCol;
+            if (col <= 2) {
+                jumpToCue(col);
+            } else if (col === 9) {
+                toggleAudioLoop();
+                showMessage(`Loop: ${audioLoopEnabled ? 'ON' : 'OFF'}`, 'state');
+            } else if (col === 10) {
+                toggleAudioGrid();
+            } else if (col === 11) {
+                snapAudioEndToBar();
+            }
+        }
+
         // V4_8_15: Modulator keyboard controls - Shift+R reactivity mode
+        // V5_2_0: Now uses activeFocusMode === 'reactivity' instead of shaderReactivityFocus
         // Selection state
-        let shaderReactivityFocus = false;  // V4_8_15: Reactivity mode active
         let shaderReactivitySelectedCol = 0;   // 0-4 = Subdiv/Wave/Gain/Freq1/Freq2
         let shaderReactivitySelectedRow = 0;   // 0-2 = ModA/ModB/ModC
         
@@ -21665,7 +24326,7 @@ ${providedShaderCode}
             // Clear all selection rings
             document.querySelectorAll('.mod-selected').forEach(el => el.classList.remove('mod-selected'));
             
-            if (!shaderReactivityFocus) return;
+            if (activeFocusMode !== 'reactivity') return;
             
             // V4_9_35: For dropdowns (col 0-1), add class to OmsDropdown header
             if (shaderReactivitySelectedCol <= 1) {
@@ -21685,10 +24346,13 @@ ${providedShaderCode}
         }
         
         function exitReactivityMode() {
-            shaderReactivityFocus = false;
-            modKeyRepeatCount = 0;  // V4_8_31: Reset acceleration
-            document.querySelectorAll('.mod-selected').forEach(el => el.classList.remove('mod-selected'));
-            showMessage('', 'info');
+            // V5_2_0: Use unified exit
+            if (activeFocusMode === 'reactivity') {
+                modKeyRepeatCount = 0;
+                document.querySelectorAll('.mod-selected').forEach(el => el.classList.remove('mod-selected'));
+                activeFocusMode = 'none';
+                showMessage('', 'info');
+            }
         }
         
         // V4_8_15: Reactivity keyboard mode - track key repeat for acceleration
@@ -21696,7 +24360,7 @@ ${providedShaderCode}
         let modLastKeyTime = 0;
         
         function adjustModValue(delta) {
-            if (!shaderReactivityFocus) return;
+            if (activeFocusMode !== 'reactivity') return;
             
             const id = getModControlId(shaderReactivitySelectedRow, shaderReactivitySelectedCol);
             const el = document.getElementById(id);
@@ -21799,6 +24463,8 @@ ${providedShaderCode}
                 if (shaderReactivityFocus) exitReactivityMode();
                 if (shaderMusicTimingFocus) exitMusicTimingMode();
                 if (shaderOrientationFocus) exitOrientationMode();
+                if (createAudioFocus) exitAudioMode();  // V5_1_35
+                if (createAudioPanel !== 'none') exitShaderPanel();  // V5_1_35
                 
                 if (shaderNameFocus) {
                     exitNameMode();
@@ -21821,6 +24487,8 @@ ${providedShaderCode}
                 if (shaderReactivityFocus) exitReactivityMode();
                 if (shaderMusicTimingFocus) exitMusicTimingMode();
                 if (shaderNameFocus) exitNameMode();
+                if (createAudioFocus) exitAudioMode();  // V5_1_35
+                if (createAudioPanel !== 'none') exitShaderPanel();  // V5_1_35
                 
                 if (shaderOrientationFocus) {
                     exitOrientationMode();
@@ -21843,6 +24511,8 @@ ${providedShaderCode}
                 if (shaderReactivityFocus) exitReactivityMode();
                 if (shaderNameFocus) exitNameMode();
                 if (shaderOrientationFocus) exitOrientationMode();
+                if (createAudioFocus) exitAudioMode();
+                if (createAudioPanel !== 'none') exitShaderPanel();  // V5_1_35
                 
                 if (shaderMusicTimingFocus) {
                     exitMusicTimingMode();
@@ -21853,6 +24523,87 @@ ${providedShaderCode}
                 return;
             }
             
+            // V5_1_49: Shift+A: Toggle audio focus mode (gate for V/C/E/F panels)
+            if (e.shiftKey && (e.key === 'a' || e.key === 'A')) {
+                if (!isCreateTabActive()) return;
+                
+                e.preventDefault();
+                // Exit other focus modes
+                if (shaderTransformFocus) exitTransformMode();
+                if (shaderReactivityFocus) exitReactivityMode();
+                if (shaderMusicTimingFocus) exitMusicTimingMode();
+                if (shaderNameFocus) exitNameMode();
+                if (shaderOrientationFocus) exitOrientationMode();
+                if (bumprModeActive) exitBumprMode();
+                
+                if (createAudioFocus) {
+                    // Exit audio focus and any active panel
+                    exitShaderPanel();
+                    exitAudioMode();
+                } else {
+                    createAudioFocus = true;
+                    createAudioPanel = 'none';
+                    showMessage('Audio Focus | V=Vol, C=Cue, E=EQ, F=FX, Esc=exit', 'info');
+                }
+                return;
+            }
+            
+            // V5_1_49: V key - Volume control when Audio focused (CREATE tab)
+            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'v' || e.key === 'V')) {
+                if (isCreateTabActive() && createAudioFocus) {
+                    e.preventDefault();
+                    setShaderPanel('volume');
+                    return;
+                }
+            }
+            
+            // V5_1_49: C/E/F without Shift - activate panel when Audio focused (CREATE tab)
+            // or when track selected (PERFORM tab)
+            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'c' || e.key === 'C')) {
+                // PERFORM tab first - requires track selection
+                if (isPerformTabActive() && selectedKnobIndex >= 0 && selectedKnobIndex <= 3) {
+                    e.preventDefault();
+                    setPerformPanel('cue');
+                    return;
+                }
+                // CREATE tab - requires Audio focus
+                if (isCreateTabActive() && createAudioFocus) {
+                    e.preventDefault();
+                    setShaderPanel('cue');
+                    return;
+                }
+            }
+            
+            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'e' || e.key === 'E')) {
+                // PERFORM tab first - requires track selection
+                if (isPerformTabActive() && selectedKnobIndex >= 0 && selectedKnobIndex <= 3) {
+                    e.preventDefault();
+                    setPerformPanel('eq');
+                    return;
+                }
+                // CREATE tab - requires Audio focus
+                if (isCreateTabActive() && createAudioFocus) {
+                    e.preventDefault();
+                    setShaderPanel('eq');
+                    return;
+                }
+            }
+            
+            if (!e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'f' || e.key === 'F')) {
+                // PERFORM tab first - requires track selection
+                if (isPerformTabActive() && selectedKnobIndex >= 0 && selectedKnobIndex <= 3) {
+                    e.preventDefault();
+                    setPerformPanel('fx');
+                    return;
+                }
+                // CREATE tab - requires Audio focus
+                if (isCreateTabActive() && createAudioFocus) {
+                    e.preventDefault();
+                    setShaderPanel('fx');
+                    return;
+                }
+            }
+            
             // Shift+R: Toggle reactivity mode
             if (e.shiftKey && (e.key === 'r' || e.key === 'R')) {
                 e.preventDefault();
@@ -21861,6 +24612,8 @@ ${providedShaderCode}
                 if (shaderMusicTimingFocus) exitMusicTimingMode();
                 if (shaderNameFocus) exitNameMode();
                 if (shaderOrientationFocus) exitOrientationMode();
+                if (createAudioFocus) exitAudioMode();  // V5_1_35
+                if (createAudioPanel !== 'none') exitShaderPanel();  // V5_1_49
                 if (bumprModeActive) exitBumprMode();  // V5_0_51: Mutual exclusivity
                 
                 if (shaderReactivityFocus) {
@@ -21900,8 +24653,222 @@ ${providedShaderCode}
                 return;
             }
             
+            // V5_1_49: Escape: Exit shader panel (EQ/FX/Cue) - stays in Audio focus
+            if (e.key === 'Escape' && createAudioPanel !== 'none') {
+                e.preventDefault();
+                exitShaderPanel();
+                return;
+            }
+            
+            // V5_1_35: Escape: Exit audio mode
+            if (e.key === 'Escape' && createAudioFocus) {
+                e.preventDefault();
+                exitAudioMode();
+                return;
+            }
+            
+            // V5_1_49: Audio focus mode key handling (only when no panel active AND CREATE tab visible)
+            if (isCreateTabActive() && createAudioFocus && createAudioPanel === 'none') {
+                // 1-5 = jump to cues (from any column)
+                if (e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3' ||
+                    e.code === 'Digit4' || e.code === 'Digit5') {
+                    e.preventDefault();
+                    const cueIndex = parseInt(e.code.replace('Digit', '')) - 1;
+                    jumpToCue(cueIndex);
+                    return;
+                }
+                
+                // Enter = activate button controls
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    activateAudioControl();
+                    return;
+                }
+                
+                // Arrow left/right = navigate columns
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    const delta = e.key === 'ArrowRight' ? 1 : -1;
+                    shaderAudioSelectedCol = (shaderAudioSelectedCol + delta + AUDIO_COL_NAMES.length) % AUDIO_COL_NAMES.length;
+                    updateAudioSelection();
+                    return;
+                }
+                
+                // Shift+Arrow left/right = adjust value
+                if (e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+                    e.preventDefault();
+                    const delta = e.key === 'ArrowRight' ? 1 : -1;
+                    adjustAudioValue(delta);
+                    return;
+                }
+                
+                // Arrow up/down = adjust value  
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const delta = e.key === 'ArrowUp' ? 1 : -1;
+                    adjustAudioValue(delta);
+                    return;
+                }
+            }
+            
+            // V5_1_49: Volume panel mode key handling (CREATE tab)
+            if (isCreateTabActive() && createAudioPanel === 'volume') {
+                // Enter = toggle kill
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    toggleCreateAudioVolumeKill();
+                    updateVolumeSelection();
+                    return;
+                }
+                
+                // Arrow left/right = adjust value
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    const delta = e.key === 'ArrowRight' ? 1 : -1;
+                    adjustVolumeValue(delta);
+                    return;
+                }
+            }
+            
+            // V5_1_49: EQ panel mode key handling (CREATE tab)
+            if (isCreateTabActive() && createAudioPanel === 'eq') {
+                // Order: 0=High, 1=Mid, 2=Low (1/2/3 keys match top to bottom)
+                const bandNames = ['High', 'Mid', 'Low'];
+                
+                // 1/2/3 = select band (1=High, 2=Mid, 3=Low)
+                if (e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3') {
+                    e.preventDefault();
+                    createEQSelectedBand = parseInt(e.code.replace('Digit', '')) - 1;
+                    updateEQSelection();
+                    return;
+                }
+                
+                // Arrow up/down = navigate bands
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const delta = e.key === 'ArrowDown' ? 1 : -1;
+                    createEQSelectedBand = (createEQSelectedBand + delta + 3) % 3;
+                    updateEQSelection();
+                    return;
+                }
+                
+                // Enter = toggle kill
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const bandName = bandNames[createEQSelectedBand];
+                    const toggleFn = window[`toggleEQKill${bandName}`];
+                    if (toggleFn) {
+                        const killed = toggleFn();
+                        showMessage(`EQ ${bandName}: ${killed ? 'KILLED' : 'ON'}`, 'state');
+                    }
+                    return;
+                }
+                
+                // Arrow left/right = adjust value
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    const delta = e.key === 'ArrowRight' ? 1 : -1;
+                    adjustEQValue(delta);
+                    return;
+                }
+            }
+            
+            // V5_1_49: FX panel mode key handling (CREATE tab)
+            if (isCreateTabActive() && createAudioPanel === 'fx') {
+                // Order: 0=Washout, 1=Dubby, 2=Break (1/2/3 keys match top to bottom)
+                const slotNames = ['Washout', 'Dubby', 'Break'];
+                
+                // 1/2/3 = select slot
+                if (e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3') {
+                    e.preventDefault();
+                    createFXSelectedSlot = parseInt(e.code.replace('Digit', '')) - 1;
+                    updateFXSelection();
+                    return;
+                }
+                
+                // Arrow up/down = navigate slots
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const delta = e.key === 'ArrowDown' ? 1 : -1;
+                    createFXSelectedSlot = (createFXSelectedSlot + delta + 3) % 3;
+                    updateFXSelection();
+                    return;
+                }
+                
+                // V5_1_49: Enter = toggle kill
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const slotName = slotNames[createFXSelectedSlot];
+                    const toggleFn = window[`toggleFXKill${slotName}`];
+                    if (toggleFn) {
+                        const isKilled = toggleFn();
+                        showMessage(`FX ${slotName}: ${isKilled ? 'KILLED' : 'restored'}`, 'state');
+                    }
+                    return;
+                }
+                
+                // Arrow left/right = adjust dry/wet value
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    const slotName = slotNames[createFXSelectedSlot];
+                    
+                    // V5_1_49: Check killed state
+                    const isKilled = createFXSelectedSlot === 0 ? fxWashKilled :
+                                    createFXSelectedSlot === 1 ? fxDelayKilled : fxBreakKilled;
+                    if (isKilled) {
+                        showMessage(`FX ${slotName}: KILLED (Enter to restore)`, 'info');
+                        return;
+                    }
+                    
+                    // V5_1_49: Adjust value directly, auto-set on when value > 0
+                    const delta = e.key === 'ArrowRight' ? 1 : -1;
+                    adjustFXValue(delta);
+                    
+                    // Auto-set on state
+                    const value = createFXSelectedSlot === 0 ? fxWashValue :
+                                 createFXSelectedSlot === 1 ? fxDelayValue : fxBreakValue;
+                    if (value > 0) {
+                        if (createFXSelectedSlot === 0) fxWashOn = true;
+                        else if (createFXSelectedSlot === 1) fxDelayOn = true;
+                        else fxBreakOn = true;
+                    }
+                    return;
+                }
+            }
+            
+            // V5_1_49: Cue panel mode key handling (CREATE tab)
+            if (isCreateTabActive() && createAudioPanel === 'cue') {
+                // 1-5 = jump to cue point
+                if (e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3' || 
+                    e.code === 'Digit4' || e.code === 'Digit5') {
+                    e.preventDefault();
+                    const cueIndex = parseInt(e.code.replace('Digit', '')) - 1;
+                    createCueSelectedRow = cueIndex;
+                    updateCueSelection();
+                    jumpToCue(cueIndex);
+                    return;
+                }
+                
+                // All arrows = navigate cue rows
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    const delta = (e.key === 'ArrowDown' || e.key === 'ArrowRight') ? 1 : -1;
+                    createCueSelectedRow = (createCueSelectedRow + delta + 5) % 5;
+                    updateCueSelection();
+                    return;
+                }
+                
+                // Enter = jump to selected cue
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    jumpToCue(createCueSelectedRow);
+                    return;
+                }
+            }
+            
             // V5_0_17: Name mode - Enter opens dropdown, Shift+Arrow cycles
-            if (shaderNameFocus) {
+            // V5_1_49: Gate with tab check
+            if (isCreateTabActive() && shaderNameFocus) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     activateNameControl();
@@ -21916,7 +24883,8 @@ ${providedShaderCode}
             }
             
             // V5_0_17: Orientation mode - Enter opens dropdown, Shift+Arrow cycles
-            if (shaderOrientationFocus) {
+            // V5_1_49: Gate with tab check
+            if (isCreateTabActive() && shaderOrientationFocus) {
                 console.log('Orientation focus active, key:', e.key, 'shiftKey:', e.shiftKey);
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -21933,7 +24901,8 @@ ${providedShaderCode}
             }
             
             // V5_0_17: Music Timing navigation
-            if (shaderMusicTimingFocus) {
+            // V5_1_49: Gate with tab check
+            if (isCreateTabActive() && shaderMusicTimingFocus) {
                 // Shift+Left/Right: Adjust value
                 if (e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
                     e.preventDefault();
@@ -21952,8 +24921,9 @@ ${providedShaderCode}
                 }
             }
             
-            // Only handle arrows if in reactivity mode
-            if (!shaderReactivityFocus) return;
+            // Only handle arrows if in reactivity mode AND CREATE tab active
+            // V5_1_49: Added tab check to prevent cross-tab conflicts
+            if (!isCreateTabActive() || !shaderReactivityFocus) return;
             
             // Shift+Left/Right: Adjust value
             if (e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
@@ -21993,7 +24963,7 @@ ${providedShaderCode}
         // V4_9_06: Transform keyboard controls - Shift+T mode
         // V4_9_09: Updated for ZOOM combo encoder
         // V4_9_10: Updated for XY pad (3 controls: ROT, ZOOM, XY)
-        let shaderTransformFocus = false;
+        // V5_2_0: Now uses activeFocusMode === 'transform' instead of shaderTransformFocus
         let shaderTransformSelectedCol = 0;   // 0-2 = ROT/ZOOM/XY
         let transformKeyRepeatCount = 0;
         let transformLastKeyTime = 0;
@@ -22028,7 +24998,7 @@ ${providedShaderCode}
                 if (canvas) canvas.classList.remove('mod-selected');
             });
             
-            if (!shaderTransformFocus) return;
+            if (activeFocusMode !== 'transform') return;
             
             // Add selection ring to current control
             const canvas = document.getElementById(TRANSFORM_KNOB_IDS[shaderTransformSelectedCol]);
@@ -22057,17 +25027,20 @@ ${providedShaderCode}
         }
         
         function exitTransformMode() {
-            shaderTransformFocus = false;
-            transformKeyRepeatCount = 0;
-            TRANSFORM_KNOB_IDS.forEach(id => {
-                const canvas = document.getElementById(id);
-                if (canvas) canvas.classList.remove('mod-selected');
-            });
-            showMessage('', 'info');
+            // V5_2_0: Use unified exit
+            if (activeFocusMode === 'transform') {
+                transformKeyRepeatCount = 0;
+                TRANSFORM_KNOB_IDS.forEach(id => {
+                    const canvas = document.getElementById(id);
+                    if (canvas) canvas.classList.remove('mod-selected');
+                });
+                activeFocusMode = 'none';
+                showMessage('', 'info');
+            }
         }
         
         function adjustTransformValue(delta) {
-            if (!shaderTransformFocus) return;
+            if (activeFocusMode !== 'transform') return;
             
             const config = TRANSFORM_CONFIGS[shaderTransformSelectedCol];
             const id = TRANSFORM_COL_IDS[shaderTransformSelectedCol];
@@ -22211,6 +25184,8 @@ ${providedShaderCode}
                 if (shaderMusicTimingFocus) exitMusicTimingMode();
                 if (shaderNameFocus) exitNameMode();
                 if (shaderOrientationFocus) exitOrientationMode();
+                if (createAudioFocus) exitAudioMode();  // V5_1_35
+                if (createAudioPanel !== 'none') exitShaderPanel();  // V5_1_35
                 
                 if (shaderTransformFocus) {
                     exitTransformMode();
@@ -22523,7 +25498,7 @@ ${providedShaderCode}
         let bumprPlaying = false;
         let bumprPlayingSlot = null;  // V5_0_51: Track which slot is playing for visual feedback
         let bumprSelectedSlot = 0;    // V5_0_51: Currently selected slot for keyboard navigation
-        let bumprModeActive = false;  // V5_0_51: Shift+B mode
+        // V5_2_0: bumprModeActive replaced by activeFocusMode === 'bumpr'
         
         // V5_0_51: Toggle BumpR timing dropdown
         // V5_0_51: Unified BumpR dropdown toggle (uses CSS classes)
@@ -22934,15 +25909,12 @@ ${providedShaderCode}
         }
         
         // V5_0_51: BumpR Mode functions
+        // V5_2_0: Now uses activeFocusMode === 'bumpr' instead of bumprModeActive
         function enterBumprMode() {
-            // V5_0_51: Exit other focus modes (mutual exclusivity)
-            if (shaderReactivityFocus) exitReactivityMode();
-            if (shaderTransformFocus) exitTransformMode();
-            if (shaderMusicTimingFocus) exitMusicTimingMode();
-            if (shaderNameFocus) exitNameMode();
-            if (shaderOrientationFocus) exitOrientationMode();
+            // V5_2_0: Use unified exit
+            exitAllFocusModes();
             
-            bumprModeActive = true;
+            activeFocusMode = 'bumpr';
             bumprSelectedSlot = 0;  // V5_0_51: Start at first slot
             updateBumprSlideout();
             document.getElementById('bumprSlideout').classList.add('active');
@@ -22953,14 +25925,17 @@ ${providedShaderCode}
             } else {
                 showMessage('BumpR Mode: ↑/↓ nav, Enter/1-0 trigger, Esc exit', 'state');
             }
-            console.log('V5_0_51: Entered BumpR mode');
+            console.log('V5_2_0: Entered BumpR mode');
         }
         
         function exitBumprMode() {
-            bumprModeActive = false;
-            document.getElementById('bumprSlideout').classList.remove('active');
-            showMessage('BumpR Mode: Off', 'state');
-            console.log('V5_0_51: Exited BumpR mode');
+            // V5_2_0: Use unified exit
+            if (activeFocusMode === 'bumpr') {
+                document.getElementById('bumprSlideout').classList.remove('active');
+                activeFocusMode = 'none';
+                showMessage('BumpR Mode: Off', 'state');
+                console.log('V5_2_0: Exited BumpR mode');
+            }
         }
         
         function updateBumprSlideout() {
@@ -22973,7 +25948,7 @@ ${providedShaderCode}
                 const isEmpty = !slot;
                 const thumb = slot?.thumbnail ? `<img src="${slot.thumbnail}">` : '';
                 const isPlaying = bumprPlayingSlot === i;
-                const isSelected = bumprModeActive && bumprSelectedSlot === i;
+                const isSelected = activeFocusMode === 'bumpr' && bumprSelectedSlot === i;
                 
                 html += `
                     <div class="bumpr-slot-row ${isEmpty ? 'empty' : ''} ${isPlaying ? 'playing' : ''} ${isSelected ? 'selected' : ''}" 
@@ -23058,7 +26033,8 @@ ${providedShaderCode}
                 if (adminTab && adminTab.classList.contains('active')) return;
                 
                 e.preventDefault();
-                if (bumprModeActive) {
+                // V5_2_0: Toggle BumpR mode using unified focus system
+                if (activeFocusMode === 'bumpr') {
                     exitBumprMode();
                 } else {
                     enterBumprMode();
@@ -23067,7 +26043,7 @@ ${providedShaderCode}
             }
             
             // When in BumpR mode
-            if (bumprModeActive) {
+            if (activeFocusMode === 'bumpr') {
                 // Escape: Exit mode
                 if (e.key === 'Escape') {
                     e.preventDefault();
@@ -23150,6 +26126,14 @@ ${providedShaderCode}
                 }, { passive: false });
                 
                 console.log('V4_8_31: Trackpad waveform scrub initialized');
+            }
+            
+            // V5_1_49: Update overlay when filename changes
+            const filenameField = document.getElementById('filename');
+            if (filenameField) {
+                filenameField.addEventListener('input', () => {
+                    updateCreateWaveformOverlay();
+                });
             }
             
             // V4_9_14: Global Shift+trackpad for XY or PIVOT (whichever is selected)
@@ -23389,6 +26373,18 @@ ${providedShaderCode}
             
             // V4_8_10: Initialize gain knobs
             initGainKnobs();
+            
+            // V5_1_35: Initialize EQ3 knobs
+            initEQ3Knobs();
+            
+            // V5_1_35: Initialize FX knobs
+            initFXKnobs();
+            
+            // V5_1_49: Initialize CREATE audio volume knob
+            initCreateAudioVolumeKnob();
+            
+            // V5_1_35: Initialize PERFORM track knobs
+            initTrackKnobs();
             
             // V4_9_02: Initialize transform encoders
             initTransformEncoders();
