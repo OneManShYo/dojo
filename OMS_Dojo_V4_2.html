@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V4_1
+ONEMANSHYO Dojo App V4_2
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V4_1
+Version: V4_2
 -->
 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V4_1]</title>
+    <title>ONEMANSHYO App [V4_2]</title>
     <style>
         * {
             margin: 0;
@@ -1740,8 +1740,9 @@ Version: V4_1
             border-radius: 2px;
             padding: 8px 12px;
             display: flex;
-            align-items: center;
-            justify-content: flex-start;
+            flex-direction: column; /* V4_2_0_A_sub19: Stack title and time vertically */
+            align-items: flex-start;
+            justify-content: center;
             color: rgba(255, 255, 255, 0.5);
             font-size: 12px;
             font-weight: 400;
@@ -1750,6 +1751,18 @@ Version: V4_1
             white-space: nowrap;
             text-align: left;
             position: relative; /* V3_6_0_AF: For absolute positioning of scrolling text */
+        }
+
+        /* V4_2_0_A_sub19: Time elapsed display */
+        /* V4_2_0_A_sub20: Moved down 5px more, centered */
+        /* V4_2_0_A_sub21: tabular-nums for fixed-width digits */
+        .waveform-overlay-time {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 7px;
+            width: 100%;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
         }
 
         /* V3_6_0_AF: Inner wrapper for scrolling text */
@@ -1812,40 +1825,13 @@ Version: V4_1
         /* V4_1_0_B_sub18: Playhead now drawn on master grid canvas */
 
         /* V3_9_0_F_sub19c: Clock dot lane - shows master clock position */
-        /* V4.0.0_C_sub137: Updated for canvas on left */
-        .clock-dot-lane {
-            position: absolute;
-            bottom: 0;
-            left: 0; /* V4.0.0_C_sub137: Canvas starts at 0 now (no spacer) */
-            width: 800px; /* V4.0.0_C_sub30: Match canvas width */
-            height: 8px;
-            background: #0c0c0c;
-            border-top: 1px solid #444;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 200; /* V4.0.0_C_sub25: Above everything including master grid */
-        }
-
-        .clock-dot {
-            position: absolute;
-            top: 2px;
-            left: 50%; /* V4.0.0_C_sub35: Auto-centered in 800px clock-dot-lane */
-            width: 4px;
-            height: 4px;
-            background: #00ff00;
-            border-radius: 50%;
-            box-shadow: 0 0 4px #00ff00;
-            will-change: transform;
-            z-index: 100; /* V4.0.0_C_sub25: Always on top of everything */
-        }
-
         /* V3_9_0_G_sub2: Master Grid overlay canvas */
         .master-grid-canvas {
             position: absolute;
             top: 0;
             left: 0; /* V4_1_0_A_sub1: Removed band-aid offset, show true misalignment */
             width: 800px; /* V4.0.0_C_sub28: Match canvas width */
-            height: 240px; /* All 4 tracks (not including clock-dot-lane) */
+            height: 248px; /* V4_2_0_A_sub15: Extended to bottom (was 240px + 8px clock dot lane) */
             pointer-events: none; /* Don't block waveform interactions */
             z-index: 5; /* Above waveforms (z-index 1), below playhead (z-index 10) */
             display: none; /* Hidden by default, toggle with G button */
@@ -1956,7 +1942,7 @@ Version: V4_1
     <div class="header">
         <div class="header-left">
             <div class="header-brand">ONEMANSHYO</div>
-            <div class="header-app">Shader Baker [V4_1]</div>
+            <div class="header-app">Shader Baker [V4_2]</div>
         </div>
         <div class="header-greeting" id="headerGreeting">Hi Friend, I'm Wes!</div>
     </div>
@@ -2858,6 +2844,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                         <canvas class="waveform-overlay-thumbnail" id="waveformOverlayThumb1" width="90" height="120"></canvas>
                                         <div class="waveform-overlay-name" id="waveformOverlayName1">
                                             <span class="waveform-overlay-name-text" id="waveformOverlayText1"></span>
+                                            <span class="waveform-overlay-time" id="waveformOverlayTime1"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -2881,6 +2868,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                         <canvas class="waveform-overlay-thumbnail" id="waveformOverlayThumb2" width="90" height="120"></canvas>
                                         <div class="waveform-overlay-name" id="waveformOverlayName2">
                                             <span class="waveform-overlay-name-text" id="waveformOverlayText2"></span>
+                                            <span class="waveform-overlay-time" id="waveformOverlayTime2"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -2904,6 +2892,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                         <canvas class="waveform-overlay-thumbnail" id="waveformOverlayThumb3" width="90" height="120"></canvas>
                                         <div class="waveform-overlay-name" id="waveformOverlayName3">
                                             <span class="waveform-overlay-name-text" id="waveformOverlayText3"></span>
+                                            <span class="waveform-overlay-time" id="waveformOverlayTime3"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -2927,6 +2916,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                         <canvas class="waveform-overlay-thumbnail" id="waveformOverlayThumb4" width="90" height="120"></canvas>
                                         <div class="waveform-overlay-name" id="waveformOverlayName4">
                                             <span class="waveform-overlay-name-text" id="waveformOverlayText4"></span>
+                                            <span class="waveform-overlay-time" id="waveformOverlayTime4"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -2945,10 +2935,6 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                             
                             <!-- V3_9_0_G_sub2: Master Grid overlay -->
                             <canvas id="masterGrid" class="master-grid-canvas"></canvas>
-                            <!-- V4.0.0_C_sub25: Clock dot AFTER master grid for proper z-order -->
-                            <div class="clock-dot-lane">
-                                <div class="clock-dot" id="clockDot"></div>
-                            </div>
                             </div>
                             <!-- V4_0_0_C_sub136: End waveform-tracks-area -->
                             
@@ -2985,11 +2971,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                                     </div>
                                     <canvas class="rotary-knob" id="rotaryTempo" width="30" height="30" style="margin: 4px auto 0; display: block;"></canvas>
                                 </div>
-                                <!-- V4_1_0_B_sub4: Grid visibility toggles (M=Master, T=Track, W=Waveform) -->
+                                <!-- V4_2_0_A_sub1: Grid visibility toggles (Shift+M=Master, Shift+T=Track, Shift+W=Waveform) -->
                                 <div style="margin-top: 8px; display: flex; justify-content: center; gap: 2px;">
-                                    <button id="masterGridButton" class="track-btn" style="width: 24px; height: 24px; font-size: 11px; font-weight: bold;" title="Master Grid">M</button>
-                                    <button id="trackGridButton" class="track-btn" style="width: 24px; height: 24px; font-size: 11px; font-weight: bold;" title="Track Grid">T</button>
-                                    <button id="waveformButton" class="track-btn" style="width: 24px; height: 24px; font-size: 11px; font-weight: bold;" title="Waveform">W</button>
+                                    <button id="masterGridButton" class="track-btn" style="width: 24px; height: 24px; font-size: 11px; font-weight: bold;" title="Master Grid (Shift+M)">M</button>
+                                    <button id="trackGridButton" class="track-btn" style="width: 24px; height: 24px; font-size: 11px; font-weight: bold;" title="Track Grid (Shift+T)">T</button>
+                                    <button id="waveformButton" class="track-btn" style="width: 24px; height: 24px; font-size: 11px; font-weight: bold;" title="Waveform (Shift+W)">W</button>
                                 </div>
                             </div>
                         </div>
@@ -9004,6 +8990,14 @@ ${shaderCode}
             return trackAudioSources.some(source => source !== null);
         }
         
+        // V4_2_0_A_sub7: Clear scene playing indicators if no tracks are playing
+        function updateScenePlayingState() {
+            if (!isAnyTrackPlaying()) {
+                document.querySelectorAll('.scene-trigger').forEach(t => t.classList.remove('playing'));
+                console.log('V4_2_0_A_sub7: No tracks playing - cleared scene playing indicators');
+            }
+        }
+        
         // V4_0_0_B_sub2: Check if any track is past 1.1.1 (regardless of play/pause state)
         // Rule: Any track past 1.1.1? YES = don't reset clock, NO = reset clock
         function isAnyTrackPast_1_1_1() {
@@ -9021,9 +9015,6 @@ ${shaderCode}
                 trackAudioMasterClock.initializeTempoHistory(actualStartTime, gridState.masterTempo);
                 
                 console.log(`V3_5_0_M: Master clock started at ${trackMasterClockStart.toFixed(3)}`);
-                
-                // V3_9_0_F_sub19c: Start clock dot animation
-                startClockDotAnimation();
                 
                 // V3_9_0_G_sub13: Start DAW clock readout animation
                 startDAWClockAnimation();
@@ -9441,10 +9432,20 @@ ${shaderCode}
         // This happens in initAudioRouting() - we'll update it there
 
         // V3.1.0-K: Animate LED meters
+        // V4_2_0_A_sub23: Reset to 0 when not playing
+        // V4_2_0_A_sub24: Also check if audio context is suspended (paused)
         function animateMeters() {
+            // V4_2_0_A_sub24: Check if audio context is paused/suspended
+            const isPaused = trackAudioContext && trackAudioContext.state === 'suspended';
+            
             // Update track meters
             for (let t = 0; t < NUM_TRACKS; t++) {
-                if (trackAnalysers[t]) {
+                const meterL = document.getElementById(`meterL${t + 1}`);
+                const meterR = document.getElementById(`meterR${t + 1}`);
+                
+                // V4_2_0_A_sub23: Check if track is actually playing
+                // V4_2_0_A_sub24: Also check if paused
+                if (trackAnalysers[t] && trackAudioSources[t] && !isPaused) {
                     const dataArray = new Uint8Array(trackAnalysers[t].frequencyBinCount);
                     trackAnalysers[t].getByteFrequencyData(dataArray);
                     
@@ -9453,25 +9454,34 @@ ${shaderCode}
                     const level = Math.min(100, (average / 255) * 100);
                     
                     // Update L/R meters (same level for both since we're mono/mixed)
-                    const meterL = document.getElementById(`meterL${t + 1}`);
-                    const meterR = document.getElementById(`meterR${t + 1}`);
                     if (meterL) meterL.style.height = `${level}%`;
                     if (meterR) meterR.style.height = `${level}%`;
+                } else {
+                    // V4_2_0_A_sub23: Not playing - set to 0
+                    if (meterL) meterL.style.height = '0%';
+                    if (meterR) meterR.style.height = '0%';
                 }
             }
             
             // Update master meters
-            if (masterAnalyser) {
+            const masterMeterL = document.getElementById('meterLMaster');
+            const masterMeterR = document.getElementById('meterRMaster');
+            
+            // V4_2_0_A_sub23: Check if any track is playing
+            // V4_2_0_A_sub24: Also check if paused
+            if (masterAnalyser && isAnyTrackPlaying() && !isPaused) {
                 const dataArray = new Uint8Array(masterAnalyser.frequencyBinCount);
                 masterAnalyser.getByteFrequencyData(dataArray);
                 
                 const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
                 const level = Math.min(100, (average / 255) * 100);
                 
-                const meterL = document.getElementById('meterLMaster');
-                const meterR = document.getElementById('meterRMaster');
-                if (meterL) meterL.style.height = `${level}%`;
-                if (meterR) meterR.style.height = `${level}%`;
+                if (masterMeterL) masterMeterL.style.height = `${level}%`;
+                if (masterMeterR) masterMeterR.style.height = `${level}%`;
+            } else {
+                // V4_2_0_A_sub23: No tracks playing - set master to 0
+                if (masterMeterL) masterMeterL.style.height = '0%';
+                if (masterMeterR) masterMeterR.style.height = '0%';
             }
             
             // Continue animation loop
@@ -9665,10 +9675,8 @@ ${shaderCode}
                             trackMasterClockStart = clockRef;
                             trackAudioMasterClock.initializeTempoHistory(clockRef, gridState.masterTempo);
                             
-                            // FORCE RESET master clock dot animations
-                            stopClockDotAnimation();
+                            // FORCE RESET DAW clock animation
                             stopDAWClockAnimation();
-                            startClockDotAnimation();
                             startDAWClockAnimation();
                             
                             console.log(`V4_0_0_B_sub13: FORCE reset - clock ref at ${clockRef.toFixed(3)}, audio starts at ${audioStart.toFixed(3)} (5ms buffer)`);
@@ -9696,11 +9704,12 @@ ${shaderCode}
                 trigger.innerHTML = `<div class="scene-number">Scene ${s + 1}</div>`;
                 trigger.dataset.scene = s;
                 trigger.addEventListener('click', () => {
-                    // V3_5_0_I: Clicking scene trigger returns to scene mode (deselects cell)
+                    // V4_2_0_A_sub2: Click selects scene only - Enter key launches
                     selectedCell = null;
                     updateSelectionVisuals();
-                    
-                    launchScene(s);
+                    selectedSceneIndex = s;
+                    updateSceneSelectionVisuals();
+                    console.log(`V4_2_0_A_sub2: Selected Scene ${s + 1} (click) - press Enter to launch`);
                 });
                 scenes.appendChild(trigger);
             }
@@ -10492,14 +10501,16 @@ ${shaderCode}
             }
             
             // V4_1_0_B_sub4: Grid visibility button handlers (M, T, W)
+            // V4_2_0_A_sub2: Updated status messages for Shift+ shortcuts
             const masterGridButton = document.getElementById('masterGridButton');
             if (masterGridButton) {
+                masterGridButton.classList.add('active');  // V4_2_0_A_sub2: Default on
                 masterGridButton.addEventListener('click', () => {
                     console.log('V4_1_0_B_sub4: Master Grid button clicked');
                     toggleMasterGrid();
                 });
                 masterGridButton.addEventListener('mouseenter', () => {
-                    showStatus('Master Grid - Toggle overlay (M key)', 'info');
+                    showStatus('Master Grid - Toggle overlay (Shift+M)', 'info');
                 });
                 masterGridButton.addEventListener('mouseleave', () => {
                     showStatus('', 'info');
@@ -10514,7 +10525,7 @@ ${shaderCode}
                     toggleTrackGrid();
                 });
                 trackGridButton.addEventListener('mouseenter', () => {
-                    showStatus('Track Grid - Toggle beat markers (T key)', 'info');
+                    showStatus('Track Grid - Toggle beat markers (Shift+T)', 'info');
                 });
                 trackGridButton.addEventListener('mouseleave', () => {
                     showStatus('', 'info');
@@ -10529,7 +10540,7 @@ ${shaderCode}
                     toggleWaveform();
                 });
                 waveformButton.addEventListener('mouseenter', () => {
-                    showStatus('Waveform - Toggle amplitude bars (W key)', 'info');
+                    showStatus('Waveform - Toggle amplitude bars (Shift+W)', 'info');
                 });
                 waveformButton.addEventListener('mouseleave', () => {
                     showStatus('', 'info');
@@ -10674,10 +10685,8 @@ ${shaderCode}
                 trackMasterClockStart = clockRef;
                 trackAudioMasterClock.initializeTempoHistory(clockRef, gridState.masterTempo);
                 
-                // FORCE RESET master clock dot animations
-                stopClockDotAnimation();
+                // FORCE RESET DAW clock animation
                 stopDAWClockAnimation();
-                startClockDotAnimation();
                 startDAWClockAnimation();
                 
                 console.log(`V4_0_0_B_sub13: FORCE reset - clock ref at ${clockRef.toFixed(3)}, audio starts at ${audioStart.toFixed(3)} (5ms buffer, scene)`);
@@ -10720,15 +10729,22 @@ ${shaderCode}
                 }
             }
             
-            // V3_6_0_Q: Visual feedback - mark scene as playing (yellow)
+            // V4_2_0_A_sub7: Only mark scene as playing if at least one track is actually playing
             const triggers = document.querySelectorAll('.scene-trigger');
-            triggers.forEach((t, i) => {
-                if (i === sceneIndex) {
-                    t.classList.add('playing');
-                } else {
-                    t.classList.remove('playing');
-                }
-            });
+            if (isAnyTrackPlaying()) {
+                // V3_6_0_Q: Visual feedback - mark scene as playing (yellow)
+                triggers.forEach((t, i) => {
+                    if (i === sceneIndex) {
+                        t.classList.add('playing');
+                    } else {
+                        t.classList.remove('playing');
+                    }
+                });
+            } else {
+                // No tracks playing - clear all scene playing indicators
+                triggers.forEach(t => t.classList.remove('playing'));
+                console.log('V4_2_0_A_sub7: Scene launched but no tracks playing - cleared playing indicators');
+            }
             
             // V3.1.0-A: Update gridState and trigger auto-save
             gridState.lastSceneLaunched = sceneIndex;
@@ -11446,7 +11462,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V4_1]</title>
+    <title>ONEMANSHYO App [V4_2]</title>
     <style>
         body {
             margin: 0;
@@ -12306,9 +12322,13 @@ ${providedShaderCode}
                 stopAudioWaveformScroll(trackIndex);
                 drawWaveformFromAudioBuffer(trackIndex + 1, audioBuffer);
                 
-                if (trackAudioPlaying[trackIndex]) {
-                    positionTrackAudioWaveformAtPlayhead(trackIndex + 1, audioBuffer);
-                    startAudioWaveformScroll(trackIndex + 1, audioBuffer);
+                // V4_2_0_A_sub18: Check trackAudioSources (not trackAudioPlaying which doesn't exist)
+                if (trackAudioSources[trackIndex]) {
+                    // V4_2_0_A_sub16: Use current bar position (not Bar 1) for playing tracks
+                    positionTrackAudioWaveformAtCurrentBar(trackIndex + 1);
+                    // V4_2_0_A_sub17: Fix index - startAudioWaveformScroll expects 0-based
+                    startAudioWaveformScroll(trackIndex, audioBuffer);
+                    console.log(`🔍 sub18: Track ${trackIndex} - restarted scroll after zoom change`);
                 }
             } catch (error) {
                 console.error(`❌ sub136: Error in updateTrackWaveform for track ${trackIndex}:`, error);
@@ -12499,6 +12519,15 @@ ${providedShaderCode}
             */
         }
 
+        // V4_2_0_A_sub19: Format seconds as M:SS
+        function formatTime(seconds) {
+            const sign = seconds < 0 ? '-' : '';
+            const absSeconds = Math.abs(seconds);
+            const mins = Math.floor(absSeconds / 60);
+            const secs = Math.floor(absSeconds % 60);
+            return `${sign}${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
         // V3.1.0-T: Start waveform scrolling animation
         // V4_0_0_D_sub37: BEAT-BASED scrolling (Phase 3)
         // V4_0_0_D_sub37: BEAT-BASED scrolling (Phase 3)
@@ -12516,6 +12545,15 @@ ${providedShaderCode}
             // V4_1_0_B_sub13: Dynamic playhead based on container width
             const container = canvas.parentElement;
             const playheadX = container ? container.clientWidth / 2 : 400;
+            
+            // V4_2_0_A_sub19: Get container data for total duration
+            const containerData = trackContainerData[track];
+            const totalSeconds = containerData ? 
+                (containerData.audioEndTime || audioBuffer.duration) - (containerData.audioStartTime || 0) : 
+                audioBuffer.duration;
+            
+            // V4_2_0_A_sub19: Get time display element
+            const timeDisplay = document.getElementById(`waveformOverlayTime${track + 1}`);
             
             console.log(`V4_1_0_B_sub13: Starting beat-based scroll - playheadX: ${playheadX}px (dynamic)`);
             
@@ -12537,6 +12575,14 @@ ${providedShaderCode}
                 // Update position: playheadX - scrollAmount
                 canvas.style.transform = `translateX(${playheadX - scrollOffset}px)`;
                 
+                // V4_2_0_A_sub19: Update time display
+                // V4_2_0_A_sub20: Reordered to elapsed/remaining | total
+                if (timeDisplay) {
+                    const elapsedSeconds = elapsedBeats * 60 / gridState.masterTempo;
+                    const remainingSeconds = totalSeconds - elapsedSeconds;
+                    timeDisplay.textContent = `${formatTime(elapsedSeconds)} / ${formatTime(-remainingSeconds)} | ${formatTime(totalSeconds)}`;
+                }
+                
                 // Continue animation
                 waveformAnimations[`track${track}`] = requestAnimationFrame(animate);
             }
@@ -12553,72 +12599,6 @@ ${providedShaderCode}
                 cancelAnimationFrame(animId);
                 waveformAnimations[`track${track}`] = null;
                 console.log(`V3.1.0-T: Stopped waveform scroll for track ${track + 1}`);
-            }
-        }
-
-        // V3_9_0_F_sub19c: Clock dot animation
-        // V4_1_0_B_sub13: Dynamic playhead position
-        function startClockDotAnimation() {
-            if (!trackMasterClockStart || clockDotAnimation) return;
-            
-            const clockDot = document.getElementById('clockDot');
-            const clockDotLane = document.querySelector('.clock-dot-lane');
-            if (!clockDot || !clockDotLane) return;
-            
-            // V4_1_0_B_sub13: Dynamic lane width based on track container
-            const trackContainer = document.querySelector('.waveform-canvas-container');
-            const laneWidth = trackContainer ? trackContainer.clientWidth : 800;
-            const playheadInLane = laneWidth / 2;
-            
-            // Update clock-dot-lane width to match
-            clockDotLane.style.width = `${laneWidth}px`;
-            
-            function animate() {
-                if (!trackMasterClockStart) {
-                    stopClockDotAnimation();
-                    return;
-                }
-                
-                // V4_1_0_B: Use centralized tempo-based formula
-                const pixelsPerBar = getPixelsPerBar();
-                
-                // V3_9_0_H_sub1: Bar-based positioning (stay in DAW world)
-                const currentBar = trackAudioMasterClock.getCurrentBar() - 1;
-                const barSpacing = pixelsPerBar;
-                const barsFromReference = currentBar;
-                
-                // Calculate position (pure bar-based math, no time conversion)
-                const scrolledDistance = barsFromReference * barSpacing;
-                
-                // Calculate position with wrapping
-                let dotPosition = playheadInLane - (scrolledDistance % laneWidth);
-                if (dotPosition < 0) {
-                    dotPosition += laneWidth;
-                }
-                
-                clockDot.style.left = `${dotPosition}px`;
-                
-                clockDotAnimation = requestAnimationFrame(animate);
-            }
-            
-            requestAnimationFrame(animate);
-            console.log(`V4_1_0_B_sub13: Clock dot animation started - dynamic ${laneWidth}px layout`);
-        }
-        
-        function stopClockDotAnimation() {
-            if (clockDotAnimation) {
-                cancelAnimationFrame(clockDotAnimation);
-                clockDotAnimation = null;
-                
-                // V4_1_0_B_sub13: Reset clock dot to dynamic playhead position
-                const clockDot = document.getElementById('clockDot');
-                const trackContainer = document.querySelector('.waveform-canvas-container');
-                if (clockDot && trackContainer) {
-                    const playheadInLane = trackContainer.clientWidth / 2;
-                    clockDot.style.left = `${playheadInLane}px`;
-                }
-                
-                console.log('V4_1_0_B_sub13: Clock dot reset to dynamic playhead position');
             }
         }
 
@@ -12675,7 +12655,8 @@ ${providedShaderCode}
         }
 
         // V3_9_0_G_sub3: Master Grid - fixed bar overlay at playhead for visual sync reference
-        let masterGridVisible = false;
+        // V4_2_0_A_sub2: Default ON (was false)
+        let masterGridVisible = true;
         // V4_1_0_B_sub4: Track Grid and Waveform visibility toggles
         let trackGridVisible = true;   // Track grid on waveform (cyan/magenta bars)
         let waveformVisible = true;    // Blue amplitude bars
@@ -12704,7 +12685,7 @@ ${providedShaderCode}
             const waveformsSection = document.querySelector('.waveforms-section');
             if (waveformsSection) {
                 canvas.width = 800; // V4.0.0_C_sub28: Fixed width for grid spacing math
-                canvas.height = 240; // All 4 tracks
+                canvas.height = 248; // V4_2_0_A_sub15: Extended to bottom
                 console.log(`V4.0.0_C_sub28: Canvas sized - ${canvas.width}x${canvas.height} (FIXED 800px)`);
             }
             
@@ -12712,20 +12693,25 @@ ${providedShaderCode}
             // This function just checks initialization, handler is added where button is created
             console.log('V3_9_0_G_sub3: Button handler wired in initLiveMixer');
             
-            // V4_1_0_B_sub4: M, T, W key handlers for grid visibility
+            // V4_2_0_A_sub1: Shift+M, Shift+T, Shift+W key handlers for grid visibility
+            // Changed from plain M/T/W to avoid conflict with WASD navigation
             document.addEventListener('keydown', (e) => {
                 // Only if LIVE tab active and no input focused
                 if (document.getElementById('liveMixerContainer').style.display !== 'none' &&
                     document.activeElement.tagName !== 'INPUT' &&
                     document.activeElement.tagName !== 'TEXTAREA') {
-                    if (e.key === 'm' || e.key === 'M') {
-                        console.log('V4_1_0_B_sub4: M key pressed');
+                    // V4_2_0_A_sub1: Require Shift modifier for visibility toggles
+                    if (e.shiftKey && (e.key === 'm' || e.key === 'M')) {
+                        e.preventDefault();
+                        console.log('V4_2_0_A_sub1: Shift+M key pressed');
                         toggleMasterGrid();
-                    } else if (e.key === 't' || e.key === 'T') {
-                        console.log('V4_1_0_B_sub4: T key pressed');
+                    } else if (e.shiftKey && (e.key === 't' || e.key === 'T')) {
+                        e.preventDefault();
+                        console.log('V4_2_0_A_sub1: Shift+T key pressed');
                         toggleTrackGrid();
-                    } else if (e.key === 'w' || e.key === 'W') {
-                        console.log('V4_1_0_B_sub4: W key pressed');
+                    } else if (e.shiftKey && (e.key === 'w' || e.key === 'W')) {
+                        e.preventDefault();
+                        console.log('V4_2_0_A_sub1: Shift+W key pressed');
                         toggleWaveform();
                     }
                 }
@@ -12733,8 +12719,21 @@ ${providedShaderCode}
             
             console.log('V3_9_0_G_sub3: Master Grid initialized successfully');
             
+            // V4_2_0_A_sub3: Sync button state with masterGridVisible default
+            const masterGridBtn = document.getElementById('masterGridButton');
+            if (masterGridBtn && masterGridVisible) {
+                masterGridBtn.classList.add('active');
+                console.log('V4_2_0_A_sub3: Master Grid button set to active (default ON)');
+            }
+            
+            // V4_2_0_A_sub4: Canvas CSS has display:none by default - must set to block
+            canvas.style.display = 'block';
+            console.log('V4_2_0_A_sub4: Master Grid canvas display set to block');
+            
             // V4_1_0_B_sub18: Always draw playhead on init
+            // V4_2_0_A_sub3: This will also draw grid lines since masterGridVisible=true
             drawMasterGrid();
+            console.log(`V4_2_0_A_sub3: Initial drawMasterGrid called, masterGridVisible=${masterGridVisible}`);
         }
         
         function toggleMasterGrid() {
@@ -12908,11 +12907,12 @@ ${providedShaderCode}
                     const barNumber = barOffset + 1;
                     const isPhrase = (barOffset % barsPerPhrase === 0);
                     
+                    // V4_2_0_A_sub22: Reduced opacity by 50%
                     if (isPhrase) {
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.375)';
                         ctx.lineWidth = 2;
                     } else {
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
                         ctx.lineWidth = 1;
                     }
                     
@@ -13089,9 +13089,6 @@ ${providedShaderCode}
             track2: null,
             track3: null
         };
-        
-        // V3_9_0_F_sub19b: Clock dot animation
-        let clockDotAnimation = null;
         
         // Track selected knob and cell for keyboard control
         let selectedKnobIndex = -1; // -1 = none, 0-3 = tracks, 4 = master
@@ -13576,9 +13573,6 @@ ${providedShaderCode}
                     // V3_5_0_L: Reset master clock when all tracks stopped
                     trackMasterClockStart = null;
                     
-                    // V3_9_0_F_sub19c: Stop clock dot animation
-                    stopClockDotAnimation();
-                    
                     // V3_9_0_G_sub13: Stop DAW clock readout animation
                     stopDAWClockAnimation();
                     
@@ -13609,8 +13603,11 @@ ${providedShaderCode}
                     const { track, scene } = selectedCell;
                     if (scene > 0) {
                         selectedCell = { track, scene: scene - 1 };
+                        // V4_2_0_A_sub6: Sync scene highlight with cell row (spreadsheet behavior)
+                        selectedSceneIndex = scene - 1;
+                        updateSceneSelectionVisuals();
                         updateSelectionVisuals();
-                        console.log(`V3_5_0_I: Cell cursor moved up to Track ${track + 1}, Scene ${scene} (W key)`);
+                        console.log(`V4_2_0_A_sub6: Cell cursor moved up to Track ${track + 1}, Scene ${scene} (W key)`);
                     }
                 } else {
                     // V3_5_0_H: Scene mode - move scene cursor up
@@ -13633,8 +13630,11 @@ ${providedShaderCode}
                     const { track, scene } = selectedCell;
                     if (scene < NUM_SCENES - 1) {
                         selectedCell = { track, scene: scene + 1 };
+                        // V4_2_0_A_sub6: Sync scene highlight with cell row (spreadsheet behavior)
+                        selectedSceneIndex = scene + 1;
+                        updateSceneSelectionVisuals();
                         updateSelectionVisuals();
-                        console.log(`V3_5_0_I: Cell cursor moved down to Track ${track + 1}, Scene ${scene + 2} (S key)`);
+                        console.log(`V4_2_0_A_sub6: Cell cursor moved down to Track ${track + 1}, Scene ${scene + 2} (S key)`);
                     }
                 } else {
                     // V3_5_0_H: Scene mode - move scene cursor down
@@ -13668,10 +13668,11 @@ ${providedShaderCode}
                     }
                 } else {
                     // V3_8_0_T: In scene mode (Master column, right side) - enter Track 4 (move left)
+                    // V4_2_0_A_sub6: Keep selectedSceneIndex (row stays highlighted like spreadsheet)
                     selectedCell = { track: 3, scene: selectedSceneIndex };
                     selectedKnobIndex = -1; // Deselect knob
                     updateSelectionVisuals();
-                    console.log(`V3_8_0_T: Entered Track 4 from scene column - Scene ${selectedSceneIndex + 1} (A key)`);
+                    console.log(`V4_2_0_A_sub6: Entered Track 4, Scene ${selectedSceneIndex + 1} from scene column (A key)`);
                 }
                 
                 return;
@@ -13734,7 +13735,6 @@ ${providedShaderCode}
                             const now = trackAudioContext.currentTime;
                             trackMasterClockStart = now;
                             trackAudioMasterClock.initializeTempoHistory(now, gridState.masterTempo);
-                            startClockDotAnimation();
                             startDAWClockAnimation();
                             console.log(`🎹 sub133: Started master clock`);
                         }
@@ -13792,6 +13792,9 @@ ${providedShaderCode}
                             
                             // V3_6_0_W: Hide waveform overlay
                             hideWaveformOverlay(track);
+                            
+                            // V4_2_0_A_sub7: Clear scene playing indicator if no tracks playing
+                            updateScenePlayingState();
                             
                             console.log(`V3_6_0_M: Empty cell - stopped Track ${track + 1} (Enter key)`);
                             showStatus(`Stopped Track ${track + 1}`, 'success');
@@ -13859,6 +13862,10 @@ ${providedShaderCode}
                     
                     // Deselect knobs when cell selected
                     selectedKnobIndex = -1;
+                    
+                    // V4_2_0_A_sub6: Highlight scene row matching selected cell (spreadsheet behavior)
+                    selectedSceneIndex = selectedCell.scene;
+                    updateSceneSelectionVisuals();
                     
                     // Update visuals (box-shadow only)
                     updateSelectionVisuals();
