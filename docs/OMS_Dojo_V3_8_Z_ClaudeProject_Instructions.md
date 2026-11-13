@@ -1,7 +1,7 @@
-# OMS SHADER BAKER V3.7.0 - CLAUDE PROJECT INSTRUCTIONS
+# OMS SHADER BAKER V3.8.0 - CLAUDE PROJECT INSTRUCTIONS
 
-**Version:** V3.7.0  
-**Date:** November 16, 2025  
+**Version:** V3.8.0  
+**Date:** November 17, 2025  
 **Purpose:** Complete project context for Claude AI development in this Project
 
 ---
@@ -14,7 +14,7 @@
 1. [About Wes Smith - Creator Context](#about-wes-smith---creator-context)
 2. [ONEMANSHYO - The Origin Story](#onemanshyo---the-origin-story)
 3. [Current Production Workflow](#current-production-workflow)
-4. [OMS Shader Baker V3.7.0 - Current State](#oms-shader-baker-v370---current-state)
+4. [OMS Shader Baker V3.8.0 - Current State](#oms-shader-baker-v370---current-state)
 5. [Development Protocols - CRITICAL](#development-protocols---critical)
 6. [Communication Guidelines](#communication-guidelines)
 7. [Key Architectural Principles](#key-architectural-principles)
@@ -372,9 +372,9 @@ Chats titled "Shader Baker Road Map Planning" (or similar) are for **brainstormi
 **Production Release:**
 - Filename: `OMS_ShaderBaker_V3_7_0.html`  
 - Title: `v3.7.0` (lowercase v)  
-- Header: `[V3.7.0]` (brackets, uppercase V)
+- Header: `[V3.8.0]` (brackets, uppercase V)
 
-**CRITICAL:** Use underscores not periods: `V3_7_0_A` (NOT `V3.7.0_A`)
+**CRITICAL:** Use underscores not periods: `V3_7_0_A` (NOT `V3.8.0_A`)
 
 ### 6. Deliverables Protocol
 
@@ -518,7 +518,7 @@ When both are needed, create properly named general handlers rather than mixing 
 
 Perfect beat grid alignment regardless of track BPM or master tempo setting. All Bar 1s align at playhead. This is the foundation everything else builds on. (53 iterations to achieve)
 
-### Dual-Domain Architecture (V3.7.0)
+### Dual-Domain Architecture (V3.8.0)
 
 **Core Principle:** Independent control of visual and audio domains per track.
 
@@ -534,7 +534,7 @@ Perfect beat grid alignment regardless of track BPM or master tempo setting. All
 
 **V3.6.0 Discovery:** Tying shader opacity to audio volume creates intuitive visual mixing
 
-**V3.7.0 Enhancement:** Manual override allows independent control when needed
+**V3.8.0 Enhancement:** Manual override allows independent control when needed
 
 **Default (Auto Mode):**
 ```javascript
@@ -548,7 +548,7 @@ canvas.style.opacity = intensity;
 canvas.style.opacity = trackShaderOpacity[track]; // Use manual value
 ```
 
-### Visual Hierarchy Through Size (V3.7.0)
+### Visual Hierarchy Through Size (V3.8.0)
 
 **Small (30px) = Detail Work:** Track knobs for frequent adjustments  
 **Large (60px) = Global Control:** Master/zoom knobs for prominent controls
@@ -649,7 +649,7 @@ Creates intuitive interface without needing text labels. Position + size + color
 CURRENT:
 Shader Baker → FFmpeg → Ableton + EboSuite → Performance
 
-V3.7.0:
+V3.8.0:
 Shader Baker (Controls/Library/Code tabs) + LIVE tab → Performance
 ```
 
@@ -658,19 +658,34 @@ Shader Baker (Controls/Library/Code tabs) + LIVE tab → Performance
 ####################################################
 
 
-## OMS SHADER BAKER V3.7.0 - CURRENT STATE
+## OMS SHADER BAKER V3.8.0 - CURRENT STATE
 
 ### Project Identity
 
 **Name:** OMS Shader Baker  
-**Current Version:** V3.7.0  
-**Type:** Single-file HTML application (~525KB)  
+**Current Version:** V3.8.0  
+**Type:** Single-file HTML application (~550KB)  
 **License:** GPL-3.0 (free and open source)  
 **Purpose:** Audio-reactive WebGPU shader tool + live performance mixing
 
 ### Production Status
 
-**V3.7.0 Complete (November 16, 2025):**
+**V3.8.0 Complete (November 17, 2025):**
+✅ **Ergonomics + Polish + About Tab** (26 iterations A-Z)
+- Custom header greeting with ONEMANSHYO branding
+- Single-line header (24px brand, 11px version)
+- Ergonomic opacity control (←→ arrows, no modifiers)
+- Library auto-blur during performance
+- Trackpad pinch-to-zoom + bracket keys `[` `]`
+- Cell selection persistence (root fix)
+- Scene controls repositioned (Master column)
+- 5-column grid (181px each, 30px wider)
+- Preview orientation updates main canvas
+- About tab with comprehensive credits
+- Folder overlay with ESC dismiss
+- Professional polish throughout
+
+**V3.7.0 Foundation:**
 ✅ **Dual-Domain Mixer + Professional UI Polish** (31 iterations)
 - Independent shader and audio controls per track
 - Shader opacity knob with manual override (0-100%)
@@ -724,11 +739,20 @@ Shader Baker (Controls/Library/Code tabs) + LIVE tab → Performance
 - Bar-style waveforms
 
 **What Works:**
+- ✅ Custom header greeting (ONEMANSHYO branding)
+- ✅ Ergonomic keyboard controls (←→ opacity, ↑↓ volume)
+- ✅ Library auto-blur during performance
+- ✅ Trackpad + bracket key zoom
+- ✅ Cell selection persistence (Enter launches correct cell)
+- ✅ 5-column grid (scene controls in Master column)
+- ✅ Preview orientation updates main canvas
+- ✅ About tab with credits
+- ✅ Folder overlay with ESC dismiss
 - ✅ Dual-domain mixer (shader + audio per track)
 - ✅ Independent opacity control with manual override
 - ✅ Shader M/S buttons (purple/cyan)
 - ✅ Audio M/S buttons (standard + master)
-- ✅ Keyboard shortcuts (Shift+ for shader controls)
+- ✅ Keyboard shortcuts (Shift+ for shader M/S)
 - ✅ Four-track shader compositing
 - ✅ Pop-out window for second monitor/projector
 - ✅ Complete keyboard-based mixer control
@@ -832,7 +856,7 @@ Shader Baker (Controls/Library/Code tabs) + LIVE tab → Performance
 
 **File Size:** 445KB (same - pure functionality)
 
-### V3.6.0 - November 16, 2025 (31 iterations A-AF)
+### V3.6.0 - November 17, 2025 (31 iterations A-AF)
 
 **Achievement:** Four-track shader compositing + pop-out window
 
@@ -852,7 +876,7 @@ Shader Baker (Controls/Library/Code tabs) + LIVE tab → Performance
 
 **File Size:** 475KB (+30KB)
 
-### V3.7.0 - November 16, 2025 (31 iterations A-ZE)
+### V3.8.0 - November 17, 2025 (31 iterations A-ZE)
 
 **Achievement:** Dual-domain mixer + professional UI polish
 
@@ -881,6 +905,58 @@ Shader Baker (Controls/Library/Code tabs) + LIVE tab → Performance
 - Visual state must always match audio state
 
 **File:** OMS_ShaderBaker_V3_7_0.html (11,965 lines, 525KB)
+
+### V3.8.0 - November 17, 2025 (26 iterations A-Z)
+
+**Achievement:** Ergonomics + polish + About tab
+
+**What Changed:**
+- Custom header greeting with ONEMANSHYO branding (Settings tab control)
+- Single-line header layout (24px brand, 11px version, 12px gap)
+- Ergonomic opacity control (←→ arrows, no Shift modifiers needed)
+- Library auto-blur during performance (prevents scroll interference)
+- Trackpad pinch-to-zoom + bracket keys `[` `]` (10px steps)
+- Cell selection persistence (root fix - removed `selectedCell = null`)
+- Scene controls repositioned (left column → Master column)
+- 5-column grid layout (removed empty Scenes column, 30px wider cells)
+- Preview orientation updates main canvas (not just preset cards)
+- About tab with comprehensive credits (27 people/companies)
+- Folder overlay with ESC/Cancel dismiss (app-level, not per-tab)
+- PROJECT STATES moved to Settings tab (better organization)
+- WASD navigation updated (A enters Track 4, D exits Track 4)
+
+**Key Innovation:** Right-hand ergonomics - ↑↓ volume, ←→ opacity, no modifier keys
+
+**Key Learnings:**
+- Band-aids hide root causes (always find the real problem)
+- Aggressive cleanup scripts break code (verify manually)
+- Inline styles for surgical overrides (no global CSS impact)
+- WASD navigation must match grid layout (scenes right = enter right)
+- Library scroll interferes with arrow keys (auto-blur solves it)
+
+**Broken Iterations (Learning Points):**
+- O: Band-aid fix (blocked Enter) → replaced by R root fix
+- P: Aggressive cleanup → removed needed code
+- Q: Failed fix on broken base → rebuilt from O
+
+**File:** OMS_ShaderBaker_V3_8_0.html (12,615 lines, 550KB)
+
+**Tab Organization:**
+- C (Controls): Shader creation *(no folder)*
+- P (Presets): OMS library *(no folder)*
+- L (Library): .oms containers *(folder required)*
+- W (Code): Shader editor *(no folder)*
+- S (Settings): Application config *(folder required)*
+- A (About): Identity, credits *(no folder)* ← NEW
+- LIVE: Performance mixer *(folder required)*
+
+**Keyboard Mapping (Updated):**
+- ↑↓: Volume (vertical)
+- ←→: Opacity (horizontal) ← CHANGED from Shift+↑↓
+- Shift+, / Shift+.: Shader M/S
+- , / .: Audio M/S
+- `[` `]`: Zoom (10px steps) ← NEW
+- Trackpad pinch/spread: Zoom ← NEW
 
 ---
 

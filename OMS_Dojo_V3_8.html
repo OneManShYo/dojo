@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <!--
-ONEMANSHYO Dojo App V3_7
+ONEMANSHYO Dojo App V3_8
 DJ tool for live audio-reactive visuals
 
 Copyright (C) 2025-2026 Wes Smith / ONEMANSHYO
 Licensed under GPL-3.0
 https://onemanshyo.com
 
-Version: V3_7
+Version: V3_8
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONEMANSHYO App [V3_7]</title>
+    <title>ONEMANSHYO App [V3_8]</title>
     <style>
         * {
             margin: 0;
@@ -87,28 +87,42 @@ Version: V3_7
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
-            /* V2.1.1-A: Removed justify-content: space-between to keep title and version together */
+            justify-content: space-between; /* V3_8_0_B: Space between left and right */
             flex-shrink: 0; /* V2.1.1-A: Don't shrink */
         }
 
-        .header h1 {
-            font-size: 24px;
+        /* V3_8_0_K: Left side single line layout */
+        .header-left {
+            display: flex;
+            flex-direction: row; /* V3_8_0_K: Changed from column to row */
+            align-items: baseline; /* V3_8_0_K: Align text baselines */
+            gap: 12px; /* V3_8_0_K: Space between brand and app name */
+        }
+
+        /* V3_8_0_K: Brand name (ONEMANSHYO) - larger */
+        .header-brand {
+            font-size: 24px; /* V3_8_0_K: Increased from 20px */
             font-weight: 700;
             background: linear-gradient(45deg, #00d4ff, #ff006e);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin: 0; /* V2.1.1-A: Explicit margin reset */
+            margin: 0;
         }
 
-        .header .version {
-            font-size: 14px;
+        /* V3_8_0_K: App name and version - kept small */
+        .header-app {
+            font-size: 11px;
             color: #999;
             font-weight: 400;
-            display: inline;
-            margin-left: 10px; /* V2.1.1-A: Back with title, not separated */
-            background: linear-gradient(45deg, #00d4ff, #ff006e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        /* V3_8_0_B: Right side greeting */
+        .header-greeting {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            margin: 0;
         }
 
         /* V2.1.0-C: Tab system */
@@ -1063,7 +1077,7 @@ Version: V3_7
         /* Fixed Headers Section */
         .grid-headers {
             display: grid;
-            grid-template-columns: 151px 151px 151px 151px 151px 151px; /* V3_7_0_F: Restored to 151px (6×151=906px + 4px borders = 910px) */
+            grid-template-columns: 181px 181px 181px 181px 181px; /* V3_8_0_U: 5 columns × 181px = 905px (removed empty Scenes column) */
             gap: 0;
             background: #2a2a2a; /* V3_7_0_ZD: Changed from #0c0c0c (black) to grey */
             padding: 0;
@@ -1088,7 +1102,7 @@ Version: V3_7
 
         .scenes-grid {
             display: grid;
-            grid-template-columns: 151px 151px 151px 151px 151px 151px; /* V3_7_0_F: Restored to 151px */
+            grid-template-columns: 181px 181px 181px 181px 181px; /* V3_8_0_U: 5 columns × 181px = 905px */
             gap: 0;
             padding: 0;
             min-height: 100%;
@@ -1138,7 +1152,7 @@ Version: V3_7
             border: 2px solid #444; /* V3_7_0_C: Complete border for modular look */
             border-radius: 3px; /* V3_7_0_I: Rounded corners to match other modules */
             display: grid;
-            grid-template-columns: 151px 151px 151px 151px 151px 151px; /* V3_7_0_F: Restored to 151px */
+            grid-template-columns: 181px 181px 181px 181px 181px; /* V3_8_0_U: 5 columns × 181px = 905px */
             gap: 0;
             flex-shrink: 0;
         }
@@ -1723,15 +1737,115 @@ Version: V3_7
             z-index: 10;
             pointer-events: none;
         }
+
+        /* V3_8_0_G: App-Level Folder Required Overlay */
+        .folder-required-overlay {
+            position: fixed; /* V3_8_0_G: Changed from absolute to fixed for app-level */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000; /* V3_8_0_G: Increased to cover everything */
+        }
+
+        .folder-required-overlay.active {
+            display: flex;
+        }
+
+        .folder-required-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .folder-required-text {
+            font-size: 20px;
+            color: #e0e0e0;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* V3_8_0_E: Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: linear-gradient(180deg, #2a2a2a, #222);
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 30px;
+            min-width: 400px;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-label {
+            display: block;
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            border: 1px solid #444;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        .modal-input:focus {
+            border-color: #00d4ff;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
     </style>
 </head>
 <body>
     <!-- V3.0.0-H: App wrapper for centering entire app -->
     <div class="app-wrapper">
     <!-- V2.1.1-A: Header now full-width outside container -->
+    <!-- V3_8_0_N: Header with single line brand + app name, and customizable right greeting -->
     <div class="header">
-        <h1>ONEMANSHYO <span style="font-size: 12px; color: #ffa500; -webkit-text-fill-color: #ffa500;">dojo app</span></h1>
-        <span class="version">[V3_7]</span>
+        <div class="header-left">
+            <div class="header-brand">ONEMANSHYO</div>
+            <div class="header-app">Shader Baker [V3_8]</div>
+        </div>
+        <div class="header-greeting" id="headerGreeting">Hi Friend, I'm Wes!</div>
     </div>
     
     <div class="container">
@@ -1745,6 +1859,7 @@ Version: V3_7
                 <button class="tab" id="libraryTab" onclick="switchTab('library')">L</button>
                 <button class="tab" id="codeTab" onclick="switchTab('code')">W</button>
                 <button class="tab" id="settingsTab" onclick="switchTab('settings')">S</button>
+                <button class="tab" id="aboutTab" onclick="switchTab('about')">A</button>
                 <button class="tab" id="liveTab" onclick="switchTab('live')">LIVE</button>
             </div>
             
@@ -2015,47 +2130,6 @@ Version: V3_7
                         <div class="control-state-info-content"></div>
                     </div>
 
-                    <!-- V3.1.0-B: PROJECT STATES SECTION (Bottom of Controls tab) -->
-                    <div class="shader-header" style="margin-top: 20px;">Project States</div>
-                    
-                    <!-- Project States Row -->
-                    <div class="control-row">
-                        <div class="control-group" style="flex: 3;">
-                            <select id="projectStateSelect" title="Load Project State">
-                                <option value="" selected>No Project Loaded</option>
-                            </select>
-                        </div>
-                        <div class="control-group">
-                            <button class="btn" onclick="saveProjectState()" title="Save Project State">Save</button>
-                        </div>
-                        <div class="control-group">
-                            <button class="btn" onclick="loadProjectState()" title="Load Project State">Load</button>
-                        </div>
-                        <div class="control-group">
-                            <button class="btn btn-danger" onclick="deleteProjectState()" title="Delete Project State">Delete</button>
-                        </div>
-                    </div>
-                    
-                    <!-- V3.1.0-B: Inline Save Input Row (hidden by default) -->
-                    <div id="projectSaveInputRow" class="control-row" style="display: none;">
-                        <div class="control-group" style="flex: 3;">
-                            <input type="text" id="projectSaveName" placeholder="Enter project name..." 
-                                   class="control-group input" 
-                                   style="background: rgba(255,255,255,0.1); border: 1px solid #00d4ff; color: #fff; padding: 6px 10px; border-radius: 0; font-size: 14px;">
-                        </div>
-                        <div class="control-group">
-                            <button class="btn" onclick="confirmSaveProjectState()" title="Confirm Save">✓</button>
-                        </div>
-                        <div class="control-group">
-                            <button class="btn" onclick="cancelSaveProjectState()" title="Cancel Save">✗</button>
-                        </div>
-                    </div>
-                    
-                    <!-- V3.1.0-B: Project State Info Box -->
-                    <div id="projectStateInfo" class="control-state-info" style="display: none;">
-                        <div class="control-state-info-title">Project Information</div>
-                        <div class="control-state-info-content" id="projectStateInfoContent"></div>
-                    </div>
                 </div>
             </div>
             </div><!-- End Controls Tab Content -->
@@ -2247,6 +2321,66 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         </div>
                     </div>
                     
+                    <!-- V3_8_0_D: PROJECT STATES (Moved from Controls tab) -->
+                    <div style="margin-top: 30px;">
+                        <div class="shader-header" style="font-size: 14px; margin-bottom: 15px;">PROJECT STATES</div>
+                        
+                        <!-- Project States Row -->
+                        <div class="control-row">
+                            <div class="control-group" style="flex: 3;">
+                                <select id="projectStateSelect" title="Load Project State" style="width: 100%; padding: 8px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; font-size: 13px;">
+                                    <option value="" selected>No Project Loaded</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <button class="btn" onclick="saveProjectState()" title="Save Project State">Save</button>
+                            </div>
+                            <div class="control-group">
+                                <button class="btn" onclick="loadProjectState()" title="Load Project State">Load</button>
+                            </div>
+                            <div class="control-group">
+                                <button class="btn btn-danger" onclick="deleteProjectState()" title="Delete Project State">Delete</button>
+                            </div>
+                        </div>
+                        
+                        <!-- V3.1.0-B: Inline Save Input Row (hidden by default) -->
+                        <div id="projectSaveInputRow" class="control-row" style="display: none; margin-top: 10px;">
+                            <div class="control-group" style="flex: 3;">
+                                <input type="text" id="projectSaveName" placeholder="Enter project name..." 
+                                       style="width: 100%; padding: 8px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #00d4ff; border-radius: 4px; font-size: 13px;">
+                            </div>
+                            <div class="control-group">
+                                <button class="btn" onclick="confirmSaveProjectState()" title="Confirm Save">✓</button>
+                            </div>
+                            <div class="control-group">
+                                <button class="btn" onclick="cancelSaveProjectState()" title="Cancel Save">✗</button>
+                            </div>
+                        </div>
+                        
+                        <!-- V3.1.0-B: Project State Info Box -->
+                        <div id="projectStateInfo" class="control-state-info" style="display: none; margin-top: 15px;">
+                            <div class="control-state-info-title">Project Information</div>
+                            <div class="control-state-info-content" id="projectStateInfoContent"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- V3_8_0_B: Greeting Section -->
+                    <div style="margin-top: 30px;">
+                        <div class="shader-header" style="font-size: 14px; margin-bottom: 15px;">GREETING</div>
+                        
+                        <div class="control-row">
+                            <div class="control-group">
+                                <label style="display: block; margin-bottom: 5px; color: #aaa; font-size: 13px;">Header Text</label>
+                                <input type="text" id="headerGreetingInput" maxlength="50" 
+                                       style="width: 100%; padding: 8px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; font-size: 13px;"
+                                       placeholder="Hi Friend, I'm Wes!">
+                                <div style="margin-top: 5px; color: #666; font-size: 11px;">
+                                    Custom text displayed in the header (max 50 characters)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- V3_6_0_N: Pop-Out Window Settings -->
                     <div style="margin-top: 30px;">
                         <div class="shader-header" style="font-size: 14px; margin-bottom: 15px;">POP-OUT WINDOW</div>
@@ -2275,6 +2409,144 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                     </div>
                 </div>
             </div><!-- End Settings Tab Content -->
+            
+            <!-- V3_8_0_X: About Tab Content -->
+            <div class="tab-content" id="aboutTabContent">
+                <div class="controls-section">
+                    <!-- App Identity -->
+                    <div class="shader-header" style="padding-left: 0; padding-right: 0;">SHADER BAKER</div>
+                    
+                    <div style="margin-top: 20px;">
+                        <div style="color: #00d4ff; font-size: 16px; font-weight: 600; margin-bottom: 5px;">
+                            Version 3.8.0-Z
+                        </div>
+                        <div style="color: #aaa; font-size: 14px; margin-bottom: 15px;">
+                            Audio-Reactive WebGPU Shader Tool + Live Performance Mixer
+                        </div>
+                        <div style="color: #888; font-size: 13px; line-height: 1.6;">
+                            Created by <span style="color: #fff;">Wes Smith / ONEMANSHYO</span><br>
+                            San Diego, California
+                        </div>
+                        <div style="margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.3);">
+                            <div style="color: #999; font-size: 12px;">
+                                Copyright © 2024-2025 Wes Smith / ONEMANSHYO<br>
+                                Licensed under GPL-3.0 (Free & Open Source)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- About ONEMANSHYO -->
+                    <div style="margin-top: 30px;">
+                        <div class="shader-header" style="font-size: 14px; margin-bottom: 15px; padding-left: 0; padding-right: 0;">ONEMANSHYO</div>
+                        
+                        <div style="color: #aaa; font-size: 13px; line-height: 1.7;">
+                            <div style="margin-bottom: 12px;">
+                                Solo DJ + Live Visuals Performance Project
+                            </div>
+                            <div style="color: #888; font-size: 12px; line-height: 1.6;">
+                                • Wes Smith<br>
+                                • 35 years in electronic music production<br>
+                                • 500+ releases | 7,000+ days in Beatport charts<br>
+                                • Founder: Juice Recordings
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
+                            <div style="color: #999; font-size: 12px;">
+                                <span style="color: #00d4ff;">Website:</span>
+                                <a href="https://itswessmithyo.com" target="_blank" style="color: #fff; text-decoration: none; margin-left: 8px;">itswessmithyo.com</a>
+                            </div>
+                            <div style="color: #999; font-size: 12px;">
+                                <span style="color: #00d4ff;">YouTube:</span>
+                                <a href="https://youtube.com/@itswessmithyo" target="_blank" style="color: #fff; text-decoration: none; margin-left: 8px;">@itswessmithyo</a>
+                                <span style="color: #666; margin-left: 8px;">(100k+ monthly views)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Technical Info -->
+                    <div style="margin-top: 30px;">
+                        <div class="shader-header" style="font-size: 14px; margin-bottom: 15px; padding-left: 0; padding-right: 0;">TECHNICAL</div>
+                        
+                        <div style="color: #888; font-size: 12px; line-height: 1.8;">
+                            <div style="margin-bottom: 8px;">
+                                <span style="color: #00d4ff;">Browser:</span>
+                                <span style="color: #aaa; margin-left: 8px;">WebGPU-enabled (Chrome, Safari Technology Preview)</span>
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <span style="color: #00d4ff;">Shader Language:</span>
+                                <span style="color: #aaa; margin-left: 8px;">WGSL (WebGPU Shading Language)</span>
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <span style="color: #00d4ff;">Audio Engine:</span>
+                                <span style="color: #aaa; margin-left: 8px;">Web Audio API with FFT analysis</span>
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <span style="color: #00d4ff;">File Format:</span>
+                                <span style="color: #aaa; margin-left: 8px;">.oms containers (shader + audio + state)</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; color: #666; font-size: 11px; font-style: italic;">
+                            Repository: github.com/onemanshyo/shader-baker (planned)<br>
+                            Documentation: docs.onemanshyo.com (planned)
+                        </div>
+                    </div>
+                    
+                    <!-- Tools -->
+                    <div style="margin-top: 30px;">
+                        <div class="shader-header" style="font-size: 14px; margin-bottom: 15px; padding-left: 0; padding-right: 0;">TOOLS</div>
+                        
+                        <div style="color: #888; font-size: 12px; line-height: 1.8;">
+                            <div style="margin-bottom: 8px;">
+                                <span style="color: #ff00ff;">Claude AI</span>
+                                <span style="color: #666; margin-left: 8px;">(Anthropic) - Development Partner</span>
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <span style="color: #00d4ff;">WebGPU</span>
+                                <span style="color: #666; margin-left: 8px;">- Real-time shader rendering</span>
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <span style="color: #00d4ff;">Web Audio API</span>
+                                <span style="color: #666; margin-left: 8px;">- Audio analysis & playback</span>
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <span style="color: #00d4ff;">File System Access API</span>
+                                <span style="color: #666; margin-left: 8px;">- Library management</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Inspired By -->
+                    <div style="margin-top: 30px; margin-bottom: 20px;">
+                        <div class="shader-header" style="font-size: 14px; margin-bottom: 15px; padding-left: 0; padding-right: 0;">INSPIRED BY</div>
+                        
+                        <!-- People -->
+                        <div style="margin-bottom: 20px;">
+                            <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">People:</div>
+                            <div style="color: #888; font-size: 11px; line-height: 1.8;">
+                                Bileam Tschepe (elekktronaut), Bob Moog, Chris Wilson, Dave Smith, Deadmau5, Dennis "Thresh" Fong, Ducky 3D, ELPHNT, FOMO, Gerhard Behles, Ikutaro Kakehashi, Masato Tsutsui, Ned Rush, Robert Henke, Tadao Kikumoto, Tom Cosm, Xan3D
+                            </div>
+                        </div>
+                        
+                        <!-- Companies -->
+                        <div style="margin-bottom: 20px;">
+                            <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Companies:</div>
+                            <div style="color: #888; font-size: 11px; line-height: 1.8;">
+                                Ableton, Cycling 76, DJ Tech Tools, DJ.Studio, EboSuite, Pioneer, Serato, Showsync, Yaeltex, ZwoBot
+                            </div>
+                        </div>
+                        
+                        <!-- Communities -->
+                        <div style="margin-bottom: 0;">
+                            <div style="color: #00d4ff; font-size: 12px; font-weight: 600; margin-bottom: 8px;">Communities:</div>
+                            <div style="color: #888; font-size: 11px; line-height: 1.8;">
+                                Kick & Bass Community, W3C's "GPU for the Web" Community Group
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End About Tab Content -->
             
             <!-- V3.4.0_M: Only visible on LIVE tab -->
             <!-- V3.4.0_O: Removed label for more canvas space on MacBook Pro 14" -->
@@ -2412,7 +2684,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                         <div class="grid-section">
                             <!-- Fixed Grid Headers -->
                             <div class="grid-headers" id="gridHeaders">
-                                <div class="grid-corner">Scenes</div>
+                                <!-- V3_8_0_U: Removed Scenes grid-corner (empty column removed) -->
                                 <div class="track-header">
                                     <div class="track-title">Track 1</div>
                                 </div>
@@ -2440,7 +2712,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 
                         <!-- Fixed Mixer Section -->
                         <div class="mixer-section">
-                            <div class="mixer-spacer"></div>
+                            <!-- V3_8_0_V: Removed mixer-spacer div - now 5 columns (mixer1-4 + mixerMaster) -->
                             <div class="track-controls" id="mixer1"></div>
                             <div class="track-controls" id="mixer2"></div>
                             <div class="track-controls" id="mixer3"></div>
@@ -2622,9 +2894,11 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         };
         
         // V3_6_0_N: Application settings (persisted in .omsp files)
+        // V3_8_0_B: Added headerGreeting
         let appSettings = {
             popOutWindowSize: '640x360', // '640x360' or '1280x720'
-            popOutAlwaysOnTop: true      // true = alwaysRaised, false = normal window
+            popOutAlwaysOnTop: true,     // true = alwaysRaised, false = normal window
+            headerGreeting: 'Hi Friend, I\'m Wes!' // Custom header greeting text (max 50 chars)
         };
         
         // V3.2.0-Q: Track container data for beat grid & sync
@@ -3941,9 +4215,10 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             }
         }
 
-        function updateCanvasSize() {
+        function updateCanvasSize(orientationOverride = null) {
             const resolution = parseInt(document.getElementById('resolution').value);
-            const orientation = document.getElementById('orientation').value;
+            // V3_8_0_W: Allow orientation override (for Preview As: dropdown)
+            const orientation = orientationOverride || document.getElementById('orientation').value;
             let width, height;
             
             // Calculate dimensions based on orientation
@@ -4688,6 +4963,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('presetsTabContent').classList.remove('active');
             document.getElementById('libraryTabContent').classList.remove('active'); // V2.8.0-F
             document.getElementById('settingsTabContent').classList.remove('active'); // V3_4_0_C
+            document.getElementById('aboutTabContent').classList.remove('active'); // V3_8_0_X
             
             // Deactivate all tabs
             document.getElementById('controlsTab').classList.remove('active');
@@ -4695,6 +4971,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
             document.getElementById('presetsTab').classList.remove('active');
             document.getElementById('libraryTab').classList.remove('active'); // V2.8.0-F
             document.getElementById('settingsTab').classList.remove('active'); // V3_4_0_C
+            document.getElementById('aboutTab').classList.remove('active'); // V3_8_0_X
             document.getElementById('liveTab').classList.remove('active'); // V3.0.0-B
             
             // V3.0.0-B: Hide/show right panel content based on tab
@@ -4716,6 +4993,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
                 liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
+                // V3_8_0_G: Hide overlay (no folder needed)
+                document.getElementById('appFolderOverlay').classList.remove('active');
             } else if (tabName === 'code') {
                 document.getElementById('codeTabContent').classList.add('active');
                 document.getElementById('codeTab').classList.add('active');
@@ -4725,6 +5004,8 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
                 liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
+                // V3_8_0_G: Hide overlay (no folder needed)
+                document.getElementById('appFolderOverlay').classList.remove('active');
             } else if (tabName === 'presets') {
                 document.getElementById('presetsTabContent').classList.add('active');
                 document.getElementById('presetsTab').classList.add('active');
@@ -4734,16 +5015,21 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
                 liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
+                // V3_8_0_G: Hide overlay (no folder needed)
+                document.getElementById('appFolderOverlay').classList.remove('active');
             } else if (tabName === 'library') { // V2.8.0-F
-                // V3.2.0-X: Auto-trigger folder picker if LIBRARY not set
-                if (!applicationFolderHandle) {
-                    setupApplicationFolder();
-                    return; // Don't switch tab yet, let picker complete
-                }
-                
                 document.getElementById('libraryTabContent').classList.add('active');
                 document.getElementById('libraryTab').classList.add('active');
-                refreshLibraryList(); // Update library display
+                
+                // V3_8_0_G: Show app-level overlay if no folder
+                const appOverlay = document.getElementById('appFolderOverlay');
+                if (!applicationFolderHandle) {
+                    appOverlay.classList.add('active');
+                } else {
+                    appOverlay.classList.remove('active');
+                    refreshLibraryList(); // Update library display
+                }
+                
                 // Show canvas, hide LIVE mixer
                 previewContainer.style.display = 'flex';
                 waveformSection.style.display = 'flex';
@@ -4752,30 +5038,55 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
                 
                 // V2.9.0-P: Auto-focus first card for keyboard navigation
-                setTimeout(() => {
-                    const firstCard = document.querySelector('.library-card');
-                    if (firstCard) firstCard.focus();
-                }, 50);
+                if (applicationFolderHandle) {
+                    setTimeout(() => {
+                        const firstCard = document.querySelector('.library-card');
+                        if (firstCard) firstCard.focus();
+                    }, 50);
+                }
             } else if (tabName === 'settings') { // V3_4_0_C
                 document.getElementById('settingsTabContent').classList.add('active');
                 document.getElementById('settingsTab').classList.add('active');
+                
+                // V3_8_0_G: Show app-level overlay if no folder
+                const appOverlay = document.getElementById('appFolderOverlay');
+                if (!applicationFolderHandle) {
+                    appOverlay.classList.add('active');
+                } else {
+                    appOverlay.classList.remove('active');
+                }
+                
                 // Show canvas, hide LIVE mixer
                 previewContainer.style.display = 'flex';
                 waveformSection.style.display = 'flex';
                 audioControlsStrip.style.display = 'flex';
                 liveMixerContainer.style.display = 'none';
                 liveShaderOutputContainer.style.display = 'none'; // V3_4_0_M: Hide on non-LIVE tabs
-            } else if (tabName === 'live') { // V3.0.0-B
-                // V3.2.0-X: Auto-trigger folder picker if LIBRARY not set
-                if (!applicationFolderHandle) {
-                    setupApplicationFolder();
-                    return; // Don't switch tab yet, let picker complete
-                }
+            } else if (tabName === 'about') { // V3_8_0_X
+                document.getElementById('aboutTabContent').classList.add('active');
+                document.getElementById('aboutTab').classList.add('active');
                 
+                // Show canvas, hide LIVE mixer
+                previewContainer.style.display = 'flex';
+                waveformSection.style.display = 'flex';
+                audioControlsStrip.style.display = 'flex';
+                liveMixerContainer.style.display = 'none';
+                liveShaderOutputContainer.style.display = 'none'; // V3_8_0_X: Hide on non-LIVE tabs
+                // V3_8_0_X: Hide overlay (no folder needed)
+                document.getElementById('appFolderOverlay').classList.remove('active');
+            } else if (tabName === 'live') { // V3.0.0-B
                 // Show Library in left panel
                 document.getElementById('libraryTabContent').classList.add('active');
                 document.getElementById('liveTab').classList.add('active');
-                refreshLibraryList(); // Update library display
+                
+                // V3_8_0_G: Show app-level overlay if no folder
+                const appOverlay = document.getElementById('appFolderOverlay');
+                if (!applicationFolderHandle) {
+                    appOverlay.classList.add('active');
+                } else {
+                    appOverlay.classList.remove('active');
+                    refreshLibraryList(); // Update library display
+                }
                 
                 // Hide canvas/audio controls, show LIVE mixer
                 previewContainer.style.display = 'none';
@@ -4789,7 +5100,7 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 if (focusedCard) focusedCard.blur();
                 
                 // Initialize LIVE tab if not already initialized
-                if (!window.liveInitialized) {
+                if (!window.liveInitialized && applicationFolderHandle) {
                     initLiveTab();
                     window.liveInitialized = true;
                 }
@@ -4927,6 +5238,48 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
         
         let applicationFolderHandle = null;
         
+        // V3_8_0_E: Project management
+        let activeProjectName = null;  // Current project subfolder name
+        let activeProjectHandle = null; // Handle to active project subfolder
+        
+        // V3_8_0_E: Get default project name from localStorage
+        function getDefaultProjectName() {
+            return localStorage.getItem('omsDefaultProject') || null;
+        }
+        
+        // V3_8_0_E: Set default project name in localStorage
+        function setDefaultProjectName(projectName) {
+            localStorage.setItem('omsDefaultProject', projectName);
+        }
+        
+        // V3_8_0_E: Placeholder modal functions (full implementation in future iteration)
+        function cancelProjectCreation() {
+            document.getElementById('projectNameModal').classList.remove('active');
+        }
+        
+        function confirmProjectCreation() {
+            const projectName = document.getElementById('projectNameInput').value.trim() || 'My Project';
+            // TODO: Create project subfolder structure
+            console.log('V3_8_0_E: Project creation placeholder -', projectName);
+            document.getElementById('projectNameModal').classList.remove('active');
+        }
+        
+        // V3_8_0_H: Close folder overlay and return to Controls tab
+        function closeFolderOverlay() {
+            document.getElementById('appFolderOverlay').classList.remove('active');
+            switchTab('controls'); // Return to safe tab
+        }
+        
+        // V3_8_0_H: ESC key handler for overlay
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const overlay = document.getElementById('appFolderOverlay');
+                if (overlay && overlay.classList.contains('active')) {
+                    closeFolderOverlay();
+                }
+            }
+        });
+        
         async function setupApplicationFolder() {
             try {
                 // Check if File System Access API is supported
@@ -4958,6 +5311,9 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
                 // V3.2.0-B: REMOVED auto-load default project
                 // User must explicitly click "Load" to restore grid state
                 // await autoLoadDefaultProject();
+                
+                // V3_8_0_G: Hide app-level overlay
+                document.getElementById('appFolderOverlay').classList.remove('active');
                 
                 showStatus(`Library set: ${applicationFolderHandle.name}`, 'success');
             } catch (error) {
@@ -6597,6 +6953,12 @@ ${shaderCode}
         function updatePresetCardShapes() {
             generatePresetCards(); // Regenerate library cards with new orientation
             generateUserPresetCards(); // V2.6.0-S: Regenerate user preset cards with new orientation
+            
+            // V3_8_0_W: Also update main canvas orientation
+            const presetOrientation = document.getElementById('presetOrientation').value;
+            if (canvas) {
+                updateCanvasSize(presetOrientation);
+            }
         }
 
         // V2.6.0-B: Load preset into code editor and compile
@@ -8223,19 +8585,7 @@ ${shaderCode}
             scenes.innerHTML = '';
             
             for (let s = 0; s < NUM_SCENES; s++) {
-                // Scene trigger
-                const trigger = document.createElement('div');
-                trigger.className = 'scene-trigger';
-                trigger.innerHTML = `<div class="scene-number">Scene ${s + 1}</div>`;
-                trigger.dataset.scene = s;
-                trigger.addEventListener('click', () => {
-                    // V3_5_0_I: Clicking scene trigger returns to scene mode (deselects cell)
-                    selectedCell = null;
-                    updateSelectionVisuals();
-                    
-                    launchScene(s);
-                });
-                scenes.appendChild(trigger);
+                // V3_8_0_U: Removed empty spacer - now 5 columns (Track 1-4 + Master/Scenes)
 
                 // Clip slots for tracks 1-4
                 for (let t = 0; t < NUM_TRACKS; t++) {
@@ -8390,12 +8740,19 @@ ${shaderCode}
                     scenes.appendChild(slot);
                 }
                 
-                // Master column (empty/disabled)
-                const masterSlot = document.createElement('div');
-                masterSlot.className = 'clip-slot master-slot';
-                masterSlot.textContent = '';
-                masterSlot.style.background = '#111';
-                scenes.appendChild(masterSlot);
+                // V3_8_0_S: Scene trigger in Master column (right)
+                const trigger = document.createElement('div');
+                trigger.className = 'scene-trigger';
+                trigger.innerHTML = `<div class="scene-number">Scene ${s + 1}</div>`;
+                trigger.dataset.scene = s;
+                trigger.addEventListener('click', () => {
+                    // V3_5_0_I: Clicking scene trigger returns to scene mode (deselects cell)
+                    selectedCell = null;
+                    updateSelectionVisuals();
+                    
+                    launchScene(s);
+                });
+                scenes.appendChild(trigger);
             }
         }
 
@@ -8828,36 +9185,15 @@ ${shaderCode}
             // V3.3.0_O: Initialize Zoom Control in mixer-spacer
             // V3_4_0_R: Use mixer-layout structure to align with volume knobs
             // V3_4_0_S: Two-row structure - label aligns with M/S, knob aligns with volume
-            // V3_4_0_Y: Removed ALL inline styles - let CSS classes handle layout naturally
-            // V3_4_0_Z: gap: 0 removes empty space (no mixer-right in zoom control)
-            // V3_4_0_AB: Center label and knob in 153px column (all columns now equal width)
-            const mixerSpacer = document.querySelector('.mixer-spacer');
-            mixerSpacer.innerHTML = `
-                <div class="track-control-row" style="justify-content: center;">
-                    <div class="zoom-label">ZOOM</div>
-                </div>
-                <div class="mixer-layout" style="gap: 0; justify-content: center;">
-                    <div class="mixer-left">
-                        <canvas class="rotary-knob rotary-knob-large" id="rotaryZoom" width="60" height="60"></canvas>
-                    </div>
-                </div>
-            `;
+            // V3_8_0_V: mixer-spacer div removed entirely (no longer needed)
             
-            // Initialize zoom rotary knob
-            const canvasZoom = document.getElementById('rotaryZoom');
-            const ctxZoom = canvasZoom.getContext('2d');
-            let isDraggingZoom = false;
-            let lastYZoom = 0;
-            
-            // V3_6_0_H: Removed local drawZoomKnob and recalculateZoomRange functions
-            // These are now global functions (defined below initLiveMixer)
-            
-            function updateZoom(newValue) {
+            // V3_8_0_S: Zoom functionality maintained (no visual knob)
+            // Initialize zoom state (but no canvas to draw on)
+            // V3_8_0_N: Make updateZoom global for keyboard/trackpad access
+            window.updateZoom = function(newValue) {
                 // V3.3.0_S: Clamp to dynamic range (prevents jumping when range changes)
                 gridState.zoomValue = Math.max(gridState.minZoom, Math.min(gridState.maxZoom, Math.round(newValue)));
-                drawZoomKnob();
-                
-                // V3_4_0_R: Removed zoomValue display (no longer in UI)
+                // V3_8_0_S: No drawZoomKnob() call - visual removed
                 
                 // V3.3.0_O: Redraw all waveforms with new zoom
                 for (let t = 1; t <= NUM_TRACKS; t++) {
@@ -8868,26 +9204,49 @@ ${shaderCode}
                 }
             }
             
-            canvasZoom.addEventListener('mousedown', (e) => {
-                isDraggingZoom = true;
-                lastYZoom = e.clientY;
-                e.preventDefault();
-            });
-            
-            document.addEventListener('mousemove', (e) => {
-                if (!isDraggingZoom) return;
+            // V3_8_0_L: Trackpad pinch-to-zoom on waveforms
+            const waveformsSection = document.querySelector('.waveforms-section');
+            if (waveformsSection) {
+                // Chrome/Firefox: wheel event with ctrlKey indicates trackpad pinch
+                waveformsSection.addEventListener('wheel', (e) => {
+                    // Only on LIVE tab
+                    if (!document.getElementById('liveTab').classList.contains('active')) return;
+                    
+                    // ctrlKey + wheel = trackpad pinch gesture
+                    if (e.ctrlKey) {
+                        e.preventDefault();
+                        
+                        // Negative deltaY = pinch out (zoom in)
+                        // Positive deltaY = pinch in (zoom out)
+                        const zoomDelta = -e.deltaY * 0.5; // Adjust sensitivity
+                        updateZoom(gridState.zoomValue + zoomDelta);
+                    }
+                }, { passive: false });
                 
-                const deltaY = lastYZoom - e.clientY;
-                const sensitivity = 0.5;
-                const change = deltaY * sensitivity;
+                // Safari: gesturechange event for trackpad pinch
+                let lastScale = 1;
+                waveformsSection.addEventListener('gesturestart', (e) => {
+                    e.preventDefault();
+                    lastScale = 1;
+                });
                 
-                updateZoom(gridState.zoomValue + change);
-                lastYZoom = e.clientY;
-            });
-            
-            document.addEventListener('mouseup', () => {
-                isDraggingZoom = false;
-            });
+                waveformsSection.addEventListener('gesturechange', (e) => {
+                    if (!document.getElementById('liveTab').classList.contains('active')) return;
+                    e.preventDefault();
+                    
+                    // Scale > 1 = zoom in, scale < 1 = zoom out
+                    const scaleDelta = e.scale - lastScale;
+                    const zoomDelta = scaleDelta * 50; // Adjust sensitivity
+                    updateZoom(gridState.zoomValue + zoomDelta);
+                    lastScale = e.scale;
+                });
+                
+                waveformsSection.addEventListener('gestureend', (e) => {
+                    e.preventDefault();
+                });
+                
+                console.log('V3_8_0_L: Trackpad pinch-to-zoom enabled on waveforms');
+            }
             
             // Initial draw at 100
             drawZoomKnob();
@@ -9711,7 +10070,7 @@ fn fs_main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONEMANSHYO App [V3_7]</title>
+    <title>ONEMANSHYO App [V3_8]</title>
     <style>
         body {
             margin: 0;
@@ -10765,7 +11124,12 @@ ${providedShaderCode}
                     console.log('Master track selected (index 4)');
                 }
                 
-                selectedCell = null; // Deselect cell when selecting track
+                // V3_8_0_J: Blur any focused library cards (prevents arrow key scrolling)
+                const focusedLibraryCard = document.querySelector('.library-card:focus');
+                if (focusedLibraryCard) {
+                    focusedLibraryCard.blur();
+                }
+                
                 updateSelectionVisuals();
                 
                 // V3_5_0_B: Force redraw ALL knobs to update cyan ring immediately
@@ -10805,7 +11169,12 @@ ${providedShaderCode}
                     }
                 }
                 
-                selectedCell = null; // Deselect cell when selecting knob
+                // V3_8_0_J: Blur any focused library cards (prevents arrow key scrolling)
+                const focusedLibraryCard = document.querySelector('.library-card:focus');
+                if (focusedLibraryCard) {
+                    focusedLibraryCard.blur();
+                }
+                
                 updateSelectionVisuals();
                 return;
             }
@@ -10914,28 +11283,38 @@ ${providedShaderCode}
                 }
             }
             
-            // Arrow Up/Down - control selected volume knob OR shader opacity (with Shift)
+            // V3_8_0_I: Arrow Left/Right - shader opacity control (tracks 1-4 only)
+            if (selectedKnobIndex >= 0 && selectedKnobIndex < 4 && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+                e.preventDefault();
+                
+                // V3_8_0_J: Blur library cards to prevent scrolling
+                const focusedLibraryCard = document.querySelector('.library-card:focus');
+                if (focusedLibraryCard) focusedLibraryCard.blur();
+                
+                const delta = e.key === 'ArrowRight' ? 0.02 : -0.02; // 2% per press
+                const trackIndex = selectedKnobIndex;
+                const currentOpacity = trackShaderOpacity[trackIndex];
+                const newOpacity = Math.max(0, Math.min(1, currentOpacity + delta));
+                
+                // Use stored shader knob update function
+                if (shaderKnobDrawFunctions[trackIndex]) {
+                    shaderKnobDrawFunctions[trackIndex](newOpacity);
+                }
+                
+                console.log(`V3_8_0_I: Track ${trackIndex + 1} shader opacity ${Math.round(newOpacity * 100)}% (${e.key})`);
+                return;
+            }
+            
+            // Arrow Up/Down - audio volume control
             if (selectedKnobIndex >= 0 && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
                 e.preventDefault();
                 
+                // V3_8_0_J: Blur library cards to prevent scrolling
+                const focusedLibraryCard = document.querySelector('.library-card:focus');
+                if (focusedLibraryCard) focusedLibraryCard.blur();
+                
                 const delta = e.key === 'ArrowUp' ? 0.02 : -0.02; // 2% per press
                 
-                // V3_7_0_J: Shift+arrows = shader opacity control (tracks 1-4 only)
-                if (e.shiftKey && selectedKnobIndex < 4) {
-                    const trackIndex = selectedKnobIndex;
-                    const currentOpacity = trackShaderOpacity[trackIndex];
-                    const newOpacity = Math.max(0, Math.min(1, currentOpacity + delta));
-                    
-                    // V3_7_0_K: Use stored shader knob update function
-                    if (shaderKnobDrawFunctions[trackIndex]) {
-                        shaderKnobDrawFunctions[trackIndex](newOpacity);
-                    }
-                    
-                    console.log(`V3_7_0_J: Track ${trackIndex + 1} shader opacity ${Math.round(newOpacity * 100)}% (Shift+${e.key})`);
-                    return;
-                }
-                
-                // Normal arrows = audio volume control
                 console.log(`V3_5_0_B DEBUG: Arrow ${e.key} pressed, selectedKnobIndex=${selectedKnobIndex}`);
                 
                 if (selectedKnobIndex === 4) {
@@ -11093,6 +11472,24 @@ ${providedShaderCode}
                 return;
             }
             
+            // V3_8_0_M: [ key - zoom out
+            if (e.key === '[') {
+                e.preventDefault();
+                const zoomStep = 10; // Adjust zoom by 10 pixels per second
+                updateZoom(gridState.zoomValue - zoomStep);
+                console.log(`V3_8_0_M: Zoom out ([ key) - zoom: ${gridState.zoomValue}`);
+                return;
+            }
+            
+            // V3_8_0_M: ] key - zoom in
+            if (e.key === ']') {
+                e.preventDefault();
+                const zoomStep = 10; // Adjust zoom by 10 pixels per second
+                updateZoom(gridState.zoomValue + zoomStep);
+                console.log(`V3_8_0_M: Zoom in (] key) - zoom: ${gridState.zoomValue}`);
+                return;
+            }
+            
             // V3_5_0_I: Esc key - deselect cell (return to scene mode) OR emergency stop
             if (e.key === 'Escape') {
                 e.preventDefault();
@@ -11222,15 +11619,16 @@ ${providedShaderCode}
                         updateSelectionVisuals();
                         console.log(`V3_5_0_I: Cell cursor moved left to Track ${track}, Scene ${scene + 1} (A key)`);
                     } else {
-                        // V3_6_0_L: Already at Track 1 - exit to scene column
-                        selectedCell = null;
-                        updateSelectionVisuals();
-                        updateSceneSelectionVisuals();
-                        console.log(`V3_6_0_L: Exited to scene column - Scene ${scene + 1} (A key from Track 1)`);
+                        // V3_6_0_L: Already at Track 1 - exit to scene column (left side was old behavior)
+                        // V3_8_0_T: No longer valid - Track 1 is not leftmost (empty Scenes column is)
+                        console.log(`V3_8_0_T: Already at Track 1 - can't move further left (A key)`);
                     }
                 } else {
-                    // V3_6_0_L: Already in scene column - do nothing (leftmost position)
-                    console.log(`V3_6_0_L: Already in scene column (A key)`);
+                    // V3_8_0_T: In scene mode (Master column, right side) - enter Track 4 (move left)
+                    selectedCell = { track: 3, scene: selectedSceneIndex };
+                    selectedKnobIndex = -1; // Deselect knob
+                    updateSelectionVisuals();
+                    console.log(`V3_8_0_T: Entered Track 4 from scene column - Scene ${selectedSceneIndex + 1} (A key)`);
                 }
                 
                 return;
@@ -11248,13 +11646,16 @@ ${providedShaderCode}
                         selectedKnobIndex = -1; // Deselect knob when navigating cells
                         updateSelectionVisuals();
                         console.log(`V3_5_0_I: Cell cursor moved right to Track ${track + 2}, Scene ${scene + 1} (D key)`);
+                    } else {
+                        // V3_8_0_T: Already at Track 4 - exit to scene column (right side)
+                        selectedCell = null;
+                        updateSelectionVisuals();
+                        updateSceneSelectionVisuals();
+                        console.log(`V3_8_0_T: Exited to scene column - Scene ${scene + 1} (D key from Track 4)`);
                     }
                 } else {
-                    // V3_6_0_L: In scene column - enter Track 1 (Ableton-style)
-                    selectedCell = { track: 0, scene: selectedSceneIndex };
-                    selectedKnobIndex = -1; // Deselect knob
-                    updateSelectionVisuals();
-                    console.log(`V3_6_0_L: Entered Track 1 from scene column - Scene ${selectedSceneIndex + 1} (D key)`);
+                    // V3_8_0_T: Already in scene column (rightmost position) - do nothing
+                    console.log(`V3_8_0_T: Already in scene column (D key)`);
                 }
                 
                 return;
@@ -11437,9 +11838,11 @@ ${providedShaderCode}
                     lastSceneLaunched: gridState.lastSceneLaunched
                 },
                 // V3_6_0_N: Include application settings
+                // V3_8_0_B: Added headerGreeting
                 settings: {
                     popOutWindowSize: appSettings.popOutWindowSize,
-                    popOutAlwaysOnTop: appSettings.popOutAlwaysOnTop
+                    popOutAlwaysOnTop: appSettings.popOutAlwaysOnTop,
+                    headerGreeting: appSettings.headerGreeting
                 }
             };
         }
@@ -11629,6 +12032,15 @@ ${providedShaderCode}
                     appSettings.popOutAlwaysOnTop = projectData.settings.popOutAlwaysOnTop;
                     const checkbox = document.getElementById('popOutAlwaysOnTopCheckbox');
                     if (checkbox) checkbox.checked = appSettings.popOutAlwaysOnTop;
+                }
+                
+                // V3_8_0_B: Apply header greeting
+                if (projectData.settings.headerGreeting !== undefined) {
+                    appSettings.headerGreeting = projectData.settings.headerGreeting;
+                    const greetingInput = document.getElementById('headerGreetingInput');
+                    if (greetingInput) greetingInput.value = appSettings.headerGreeting;
+                    const headerGreetingDisplay = document.getElementById('headerGreeting');
+                    if (headerGreetingDisplay) headerGreetingDisplay.textContent = appSettings.headerGreeting;
                 }
             }
 
@@ -11962,8 +12374,54 @@ ${providedShaderCode}
                     console.log('V3_6_0_N: Pop-out always on top:', appSettings.popOutAlwaysOnTop);
                 });
             }
+            
+            // V3_8_0_B: Header greeting input event listener
+            const headerGreetingInput = document.getElementById('headerGreetingInput');
+            if (headerGreetingInput) {
+                // Initialize with current value
+                headerGreetingInput.value = appSettings.headerGreeting;
+                
+                // Listen for changes
+                headerGreetingInput.addEventListener('input', (e) => {
+                    const newGreeting = e.target.value.slice(0, 50); // Enforce 50 char limit
+                    appSettings.headerGreeting = newGreeting;
+                    
+                    // Update header display in real-time
+                    const headerGreetingDisplay = document.getElementById('headerGreeting');
+                    if (headerGreetingDisplay) {
+                        headerGreetingDisplay.textContent = newGreeting;
+                    }
+                    
+                    autoSaveProject(); // Save settings to default.omsp
+                    console.log('V3_8_0_B: Header greeting changed to:', appSettings.headerGreeting);
+                });
+            }
         });
 
     </script>
+
+    <!-- V3_8_0_G: Global App-Level Folder Required Overlay -->
+    <!-- V3_8_0_H: Added close button -->
+    <div class="folder-required-overlay" id="appFolderOverlay">
+        <div class="folder-required-icon">📁</div>
+        <div class="folder-required-text">Application Folder Required</div>
+        <button class="btn" onclick="setupApplicationFolder()">Set Application Folder</button>
+        <button class="btn" onclick="closeFolderOverlay()" style="margin-top: 15px; background: transparent; border: 1px solid #666;">Cancel</button>
+        <div style="margin-top: 20px; color: #666; font-size: 13px;">Press ESC to go back</div>
+    </div>
+
+    <!-- V3_8_0_E: Project Name Modal -->
+    <div class="modal-overlay" id="projectNameModal">
+        <div class="modal-box">
+            <div class="modal-title">Create Your First Project</div>
+            <label class="modal-label">Project Name:</label>
+            <input type="text" class="modal-input" id="projectNameInput" placeholder="My Project" maxlength="50">
+            <div class="modal-buttons">
+                <button class="btn" onclick="cancelProjectCreation()">Cancel</button>
+                <button class="btn" onclick="confirmProjectCreation()">Create</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
