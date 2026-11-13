@@ -1,7 +1,7 @@
-# ONEMANSHYO App [Beta V5_2_0] - SYSTEM REFERENCE
+# ONEMANSHYO App [Beta V5_3_0] - SYSTEM REFERENCE
 
-**Date:** December 26, 2025  
-**Version:** V5_2_0  
+**Date:** December 27, 2025  
+**Version:** V5_3_0  
 **Purpose:** Complete technical implementation reference
 
 ---
@@ -34,6 +34,7 @@ Foundational elements. Everything traces back to these. Change = cascade failure
 - `applicationFolderHandle` - Root app folder (user selects via picker)
 - `libraryFolderHandle` - /Library/ subfolder handle
 - `bumprStickrsFolderHandle` - /BumpRStickRs/ subfolder handle (V5_1_0)
+- `setsFolderHandle` - /Sets/ subfolder handle (V5_3_0)
 
 **Master Clock / Seconds:**
 - `audioContext` - Web Audio API instance
@@ -295,6 +296,28 @@ Built on cortex. Other things depend on these. Trace up AND down before touching
 - Washout: Highpass sweep 20Hz→2kHz
 - Dubby: DelayNode 375ms with feedback
 - Break: playbackRate 1.0→0.1
+
+**Mod Tuning System (V5_3_0):**
+- `modTuningPanelOpen` - Panel visibility state
+- `modAQ`, `modBQ`, `modCQ` - Per-modulator Q values (0.5-10, default 1.0)
+- `adsrAttack` - Attack time (0-100ms, default 5ms)
+- `adsrDecay` - Decay time (0-200ms, default 20ms)
+- `adsrSustain` - Sustain level (0-100%, default 70%)
+- `adsrRelease` - Release time (0-500ms, default 50ms)
+- `adsrThreshold` - Noise gate (0-20%, default 1%)
+
+**Audio Analysis System (V5_3_0 Rewrite):**
+- `createBandpassFilter()` - Bandpass filter per modulator
+- `peakDetector()` - Peak detection with ADSR envelope
+- Replaces flat FFT bin averaging with true dynamics
+- Result: kick hit → 0.72, silence → 0.01 (was constant ~0.02)
+
+**Unified Sets System (V5_3_0):**
+- `setsFolderHandle` - /Sets/ subfolder handle
+- `setsCache[]` - Combined manual + smart sets
+- `setType` - 'manual' or 'smart' per set
+- `smartSetQuery` - Search query for smart sets
+- Storage: /Sets/[name].oms-set
 
 ---
 
@@ -643,6 +666,21 @@ audioTempoField = 124       // Audio track is 124 BPM
     // ... other control states
   },
   
+  // Mod Tuning (V5_3_0)
+  modTuning: {
+    modAQ: 1.0,           // 0.5-10 (bandpass Q)
+    modBQ: 1.0,
+    modCQ: 1.0,
+    attack: 5,            // ms (0-100)
+    decay: 20,            // ms (0-200)
+    sustain: 70,          // % (0-100)
+    release: 50,          // ms (0-500)
+    threshold: 1          // % (0-20)
+  },
+  
+  // Container Tags (V5_3_0)
+  tags: ["bass", "128", "drop"],  // Array of tag strings
+  
   // Render Settings
   renderSettings: {
     resolution: "1080p",        // 720p, 1080p, 1440p, 2160p
@@ -809,6 +847,9 @@ const modA = waveform × audioLevel × gain;
   masterAudioVolume: 100,
   masterAudioMute: false,
   
+  // Quantize Setting (V5_3_0)
+  quantizeMode: "bar",              // 'off', 'beat', 'bar' (default)
+  
   // BumpR StickRs (V5_1_0)
   bumprStickrsSlots: [
     { filename: "logo.webm", thumbnail: "data:image/png;base64,..." },
@@ -836,15 +877,19 @@ const modA = waveform × audioLevel × gain;
 
 **Purpose:** Bundle multiple presets for distribution/backup
 
-**File Structure:**
+**File Structure (V5_3_0):**
 ```javascript
 {
   // Metadata
   setName: "Bass Music Collection",
   author: "ONEMANSHYO",
-  version: "5.1.0",
-  created: "2025-12-24T10:00:00Z",
+  version: "5.3.0",
+  created: "2025-12-27T10:00:00Z",
   description: "Heavy bass presets for 128-140 BPM",
+  
+  // V5_3_0: Set type field
+  setType: "manual",                   // 'manual' or 'smart'
+  smartQuery: null,                    // Query string if smart set
   
   // Preset Array
   presets: [
@@ -854,6 +899,7 @@ const modA = waveform × audioLevel × gain;
       shaderCode: "/* ... */",
       tempo: 128,
       audioCuePoints: [0, 64, 128, 192, 256],  // V5_2_0
+      tags: ["bass", "drop"],                   // V5_3_0
       // ... full .oms structure
     },
     {
@@ -862,6 +908,7 @@ const modA = waveform × audioLevel × gain;
       shaderCode: "/* ... */",
       tempo: 140,
       audioCuePoints: [0, 64, 128, 192, 256],  // V5_2_0
+      tags: ["bass", "wobble"],                 // V5_3_0
       // ... full .oms structure
     },
     // ... multiple presets
@@ -874,7 +921,7 @@ const modA = waveform × audioLevel × gain;
 }
 ```
 
-**Storage Location:** `/LIBRARY/[setName].oms-set`
+**Storage Location:** `/Sets/[setName].oms-set` (V5_3_0: moved from /Library/)
 
 **Usage:**
 - Import/export preset collections
@@ -948,6 +995,72 @@ const launchTime = master.startContextTime + (nextBar * 60 / master.bpm);
 // Start audio at calculated time
 source.start(launchTime, containerData.audioStartTime);
 ```
+
+**Quantize Modes (V5_3_0):**
+```javascript
+// Quantize dropdown replaces RMS input
+const quantizeModes = ['off', 'beat', 'bar'];  // Default: 'bar'
+
+function getNextBoundary(quantizeMode) {
+    const currentBeat = masterBeatNow();
+    if (quantizeMode === 'off') return currentBeat;      // Immediate
+    if (quantizeMode === 'beat') return Math.ceil(currentBeat);  // Next beat
+    if (quantizeMode === 'bar') return Math.ceil(currentBeat / 4) * 4;  // Next bar
+}
+
+// V5_3_0: Forward-only - always snaps ahead, never backward
+```
+
+**Real Audio Reactivity (V5_3_0):**
+
+Previous versions used flat FFT bin averaging:
+```javascript
+// OLD (V5_2_0 and earlier): Constant ~0.02 regardless of content
+const sum = bins.reduce((a, b) => a + b, 0);
+const avg = sum / bins.length;  // Always ~0.02
+```
+
+V5_3_0 uses bandpass-filtered peak detection:
+```javascript
+// NEW (V5_3_0): Real dynamics
+// Kick hit → 0.72, Silence → 0.01, Hi-hat → 0.15
+
+function analyzeModulator(analyser, centerFreq, Q, adsr) {
+    // 1. Bandpass filter isolates frequency range
+    const filtered = applyBandpass(analyser, centerFreq, Q);
+    
+    // 2. Peak detection captures transients
+    const peak = detectPeak(filtered);
+    
+    // 3. ADSR envelope shapes response
+    const shaped = applyADSR(peak, adsr);
+    
+    return shaped;  // 0.0-1.0 with real dynamics
+}
+```
+
+**Bandpass Filter Chain (per modulator):**
+```
+Audio Source → BiquadFilterNode (bandpass) → Peak Detector → ADSR Envelope → modValue
+```
+
+**Filter Parameters:**
+
+| Modulator | Center Freq | Q Range | Default Q |
+|-----------|-------------|---------|-----------|
+| Mod A | (Freq1+Freq2)/2 | 0.5-10 | 1.0 |
+| Mod B | (Freq1+Freq2)/2 | 0.5-10 | 1.0 |
+| Mod C | (Freq1+Freq2)/2 | 0.5-10 | 1.0 |
+
+**ADSR Envelope Parameters:**
+
+| Parameter | Range | Default | Effect |
+|-----------|-------|---------|--------|
+| Attack | 0-100ms | 5ms | Rise time to peak |
+| Decay | 0-200ms | 20ms | Fall time to sustain |
+| Sustain | 0-100% | 70% | Held level |
+| Release | 0-500ms | 50ms | Return to zero |
+| Threshold | 0-20% | 1% | Noise gate |
 
 ---
 
@@ -1370,6 +1483,54 @@ All components named "waveform" when they actually manage complete track display
 - Draggable in CREATE tab
 - Click-to-jump in both tabs
 
+**Component 3b: Bar 1 Marker (V5_3_0)**
+- Physical: White "1" text marker at audioStartTime position
+- Draggable in CREATE tab to adjust beatgrid
+- Updates audioStartTime on drag release
+- Visual indicator of where musical Bar 1 falls in audio file
+
+**Bar 1 Dragging (V5_3_0):**
+```javascript
+// State
+let bar1Dragging = false;
+let bar1DragStartX = 0;
+let bar1DragStartTime = 0;
+
+// Mouse handlers (CREATE tab only)
+handleBar1MouseDown(event)
+  // Check if click near Bar 1 marker
+  // Sets: bar1Dragging = true, stores start position
+
+handleBar1MouseMove(event)
+  // Update marker position during drag
+  // Visual feedback only (no audio change yet)
+  // Marker follows mouse horizontally
+
+handleBar1MouseUp(event)
+  // Calculate new audioStartTime from final position
+  // Update audioStartField
+  // Trigger waveform redraw
+```
+
+**Waveform Coloring (V5_3_0):**
+
+| Time Region | Color | Meaning |
+|-------------|-------|---------|
+| Before Bar 1 | Grey (#666) | Intro/count-in (pre-musical content) |
+| After Bar 1 | Blue (#00d4ff) | Main content (musical material) |
+
+```javascript
+function drawWaveformFromAudioBuffer() {
+    for (let i = 0; i < samples; i++) {
+        const sampleTime = i / sampleRate;
+        const isBeforeBar1 = sampleTime < audioStartTime;
+        
+        ctx.fillStyle = isBeforeBar1 ? '#666666' : '#00d4ff';
+        // Draw amplitude bar...
+    }
+}
+```
+
 **Component 4: Canvas Positioning**
 - Physical: translateX() CSS transform
 - Purpose: Position Bar 1 at playhead, scroll during playback
@@ -1448,7 +1609,7 @@ function getPixelsPerBar() {
 
 ---
 
-**Directory Structure (V5_1_0):**
+**Directory Structure (V5_3_0):**
 ```
 [User's Selected Folder]/              ← applicationFolderHandle
   ├── onemanshyo.omsp                  ← App state (auto-save, includes BumpR settings)
@@ -1464,6 +1625,10 @@ function getPixelsPerBar() {
   │   ├── Preset1.oms                 ← .oms containers
   │   ├── Preset2.oms
   │   └── MyShader.wgsl               ← V4_8_0: Raw WGSL files also supported
+  │
+  ├── Sets/                            ← V5_3_0: Manual and smart sets
+  │   ├── Bass Collection.oms-set     ← Manual set
+  │   └── 128 BPM.oms-set             ← Smart set (cyan dot indicator)
   │
   ├── BumpRStickRs/                    ← V5_1_0: Video overlays
   │   ├── logo.webm                   ← WebM VP9 with alpha
@@ -1487,16 +1652,18 @@ function getPixelsPerBar() {
 
 ---
 
-**Three File Handles (CORTEX) - V5_1_0:**
+**Four File Handles (CORTEX) - V5_3_0:**
 ```javascript
 let applicationFolderHandle = null;   // Root folder (user selects)
 let libraryFolderHandle = null;       // /Library/ subfolder
 let bumprStickrsFolderHandle = null;  // /BumpRStickRs/ subfolder (V5_1_0)
+let setsFolderHandle = null;          // /Sets/ subfolder (V5_3_0)
 
 // On folder selection:
 applicationFolderHandle = await window.showDirectoryPicker();
 libraryFolderHandle = await applicationFolderHandle.getDirectoryHandle('Library', { create: true });
 bumprStickrsFolderHandle = await applicationFolderHandle.getDirectoryHandle('BumpRStickRs', { create: true });
+setsFolderHandle = await applicationFolderHandle.getDirectoryHandle('Sets', { create: true });
 ```
 
 ---
@@ -1928,8 +2095,20 @@ infoBtn                   // [ℹ] Toggle info drawer (Cmd+I)
 deleteBtn                 // [X] Delete with confirmation
 ```
 
-**Sets (V4_6_0):**
+**Sets Panel (V5_3_0: Unified System):**
 ```javascript
+// Panel headers (clickable for focus)
+setsPanelHeader               // "Sets" - click to focus sets navigation
+containersPanelHeader         // "Containers" - click to focus containers navigation
+
+// Set management
+addSetBtn                     // [+ Set] Create new manual set
+saveSmartSetBtn               // [Save] Save current search as smart set (appears during search)
+
+// Set types:
+// - Manual set: no indicator, explicit container membership
+// - Smart set: cyan dot indicator, auto-updates from query
+
 // Set filter options
 'presets'                 // Preset containers only
 'all'                     // All Library containers
@@ -1948,6 +2127,12 @@ infoDurationField         // Duration display
 infoLoopInField           // Loop In (bar.beat)
 infoLoopOutField          // Loop Out (bar.beat)
 infoCreatedField          // Created date
+
+// V5_3_0: Tags section
+infoTagsContainer         // Container for tag chips
+infoTagInput              // Text input for new tags
+// Chip behavior: Enter/comma creates, × removes, Backspace removes last
+
 infoOkBtn                 // Apply changes
 infoCancelBtn             // Discard changes
 infoCloseBtn              // Close drawer (X)
@@ -1993,9 +2178,13 @@ trackShaderOpacityKnob[track]    // 30px encoder (0-100%)
 trackShaderMuteBtn[track]        // Purple button
 trackShaderSoloBtn[track]        // Cyan button
 
-trackAudioVolumeKnob[track]      // 30px encoder (0-100%)
+trackAudioVolumeKnob[track]      // 30px encoder (0-100%, V5_3_0: dB scale)
 trackAudioMuteBtn[track]         // Orange button
 trackAudioSoloBtn[track]         // Green button
+
+// V5_3_0: Peak Meters
+trackPeakMeterCanvas[track]      // 4px wide vertical meter
+// Colors: Green (-48 to -18dB), Yellow (-18 to -6dB), Red (-6 to 0dB)
 ```
 
 **Master Module:**
@@ -2014,6 +2203,9 @@ masterAudioMuteBtn              // Orange
 // Global Controls
 masterTempoKnob                 // 60px encoder (60-200 BPM)
 masterZoomKnob                  // 60px encoder (10-100 px/s)
+
+// V5_3_0: Quantize Dropdown (replaces RMS input)
+quantizeDropdown                // Options: 'off', 'beat', 'bar' (default)
 ```
 
 **Waveform Panel:**
@@ -2078,6 +2270,7 @@ bumprSlotRow[0-9]               // Slot rows with thumbnails
 | ↑/↓ | Navigate rows (A/B/C) |
 | Shift+← | Decrease value |
 | Shift+→ | Increase value |
+| N | Toggle Mod Tuning panel (V5_3_0) |
 | Escape | Exit mode |
 
 **Transform Focus Mode:**
@@ -2251,6 +2444,8 @@ let libraryContainersCache = [
         audioStartTime: 17.1,
         audioEndTime: 300.0,
         audioCuePoints: [0, 64, 128, 192, 256],  // V5_2_0: 5 cues
+        tags: ["bass", "128", "drop"],            // V5_3_0: Container tags
+        modTuning: {...},                         // V5_3_0: Mod tuning settings
         // ... everything from .oms file
     },
     // ... more containers
@@ -2282,6 +2477,79 @@ const container = containers.find(c => c.id === containerId);
 const shaderCode = container.shaderCode;
 const timelines = container.shaderModATimeline;
 const cuePoints = container.audioCuePoints;  // V5_1_0
+const tags = container.tags;                  // V5_3_0
+```
+
+---
+
+### Unified Sets Cache (V5_3_0)
+
+**Purpose:** Combined manual and smart sets from /Sets/ folder
+
+**Structure:**
+```javascript
+let setsCache = [
+    {
+        id: "Bass Collection",
+        filename: "Bass Collection.oms-set",
+        setType: "manual",            // 'manual' or 'smart'
+        smartQuery: null,             // Query string if smart set
+        containerIds: ["Container1", "Container2"],  // Manual: explicit list
+        containerCount: 12,
+        created: "2025-12-27T10:00:00Z"
+    },
+    {
+        id: "128 BPM",
+        filename: "128 BPM.oms-set",
+        setType: "smart",
+        smartQuery: "128",            // Auto-matches containers
+        containerIds: [],             // Smart: calculated on demand
+        containerCount: 8,            // Recalculated on refresh
+        created: "2025-12-27T11:00:00Z"
+    }
+];
+
+// Sets folder handle
+let setsFolderHandle = null;          // /Sets/ subfolder
+```
+
+**Set Type Indicators:**
+```javascript
+// In ORGANIZE tab Sets panel
+// Cyan dot = smart set (auto-updates)
+// No dot = manual set (explicit membership)
+```
+
+---
+
+### Container Tags (V5_3_0)
+
+**Purpose:** Multi-tag organization system per container
+
+**Structure:**
+```javascript
+// Tags stored in each .oms file
+container.tags = ["bass", "128", "drop"];
+
+// Global tag index (rebuilt on library refresh)
+let allTagsIndex = {
+    "bass": ["Container1", "Container2", "Container5"],
+    "128": ["Container1", "Container3"],
+    "drop": ["Container2", "Container4"]
+};
+
+// Tag normalization
+function normalizeTag(tag) {
+    return tag.trim().toLowerCase();
+}
+
+// Prevent duplicates (case-insensitive)
+function addTag(container, newTag) {
+    const normalized = normalizeTag(newTag);
+    if (!container.tags.some(t => normalizeTag(t) === normalized)) {
+        container.tags.push(newTag);
+    }
+}
 ```
 
 ---
@@ -2551,6 +2819,89 @@ let trackFXKilled = [
 // Audio routing nodes per track
 let trackEQNodes = [null, null, null, null];     // Each: {high, mid, low}
 let trackFXNodes = [null, null, null, null];     // Each: {washout, dubby, break}
+```
+
+---
+
+### Mod Tuning State (V5_3_0)
+
+```javascript
+// Panel state
+let modTuningPanelOpen = false;     // Blender-style slide-out panel
+
+// Per-modulator Q values (bandpass filter sharpness)
+let modAQ = 1.0;                     // 0.5-10 (default 1.0)
+let modBQ = 1.0;
+let modCQ = 1.0;
+
+// Global ADSR envelope parameters
+let adsrAttack = 5;                  // 0-100ms (default 5ms)
+let adsrDecay = 20;                  // 0-200ms (default 20ms)
+let adsrSustain = 70;                // 0-100% (default 70%)
+let adsrRelease = 50;                // 0-500ms (default 50ms)
+let adsrThreshold = 1;               // 0-20% (default 1% - noise gate)
+```
+
+**Mod Tuning in .oms files:**
+```javascript
+container.modTuning = {
+    modAQ: 1.0,
+    modBQ: 1.0,
+    modCQ: 1.0,
+    attack: 5,
+    decay: 20,
+    sustain: 70,
+    release: 50,
+    threshold: 1
+};
+```
+
+---
+
+### Volume dB Mapping (V5_3_0)
+
+```javascript
+// Ableton-style volume mapping: 0-100% → -∞ to +6dB
+function volumeToGain(percent) {
+    if (percent === 0) return 0;           // -∞ dB (silence)
+    if (percent <= 50) {
+        // 0-50% maps to 0.0-1.0 (exponential)
+        return Math.pow(percent / 50, 2);
+    } else {
+        // 50-100% maps to 1.0-2.0 (linear boost)
+        return 1.0 + (percent - 50) / 50;
+    }
+}
+
+// Reference points:
+// 0% → 0.0× gain (-∞ dB)
+// 50% → 1.0× gain (0 dB, unity)
+// 100% → 2.0× gain (+6 dB)
+```
+
+---
+
+### Peak Meters State (V5_3_0)
+
+```javascript
+// Per-track peak meter values (PERFORM tab)
+let trackPeakValues = [
+    -48,    // Track 1: current dBFS (-48 to 0)
+    -48,    // Track 2
+    -48,    // Track 3
+    -48     // Track 4
+];
+
+// Peak meter canvases
+let trackPeakMeterCanvases = [null, null, null, null];
+
+// Meter color zones:
+// -48 to -18 dB = Green (safe)
+// -18 to -6 dB = Yellow (warm)
+// -6 to 0 dB = Red (hot)
+
+// Peak detection interval
+const PEAK_METER_UPDATE_MS = 50;  // 20 fps for meters
 ```
 
 ---
@@ -3114,6 +3465,7 @@ initCreateVolumeKnob()
 
 updateCreateVolume(value)
   // Update volume (0-100)
+  // V5_3_0: Uses dB mapping (50% = unity)
 
 killCreateVolume()
   // Toggle volume kill (mute)
@@ -3121,6 +3473,375 @@ killCreateVolume()
 drawVolumeKnob(canvas, value, killed)
   // Draw volume knob visual
   // 24×24 cyan knob, magenta when killed
+```
+
+---
+
+### MOD TUNING DOMAIN (V5_3_0)
+
+**Panel Management:**
+```javascript
+initModTuningPanel()
+  // Initialize Blender-style slide-out panel
+  // Creates: Q knobs (3), ADSR knobs (5)
+  // Position: Right side of Reactivity section
+
+toggleModTuningPanel()
+  // Toggle panel open/close (N key in Reactivity Focus)
+  // Sets: modTuningPanelOpen
+
+showModTuningPanel()
+  // Slide panel in from right
+  // Animation: 200ms ease-out
+
+hideModTuningPanel()
+  // Slide panel out to right
+  // Animation: 200ms ease-in
+```
+
+**Q Control:**
+```javascript
+updateModQ(mod, value)
+  // Update per-modulator Q value
+  // Args: mod ('A', 'B', 'C'), value (0.5-10)
+  // Updates: bandpass filter Q parameter in real-time
+
+drawQKnob(canvas, value)
+  // Draw Q knob visual
+  // Range: 0.5-10, default 1.0
+  // Style: cyan arc on dark background
+```
+
+**ADSR Control:**
+```javascript
+updateADSR(param, value)
+  // Update envelope parameter
+  // Args: param ('attack', 'decay', 'sustain', 'release', 'threshold')
+  // Updates: envelope generator settings
+
+drawADSRKnob(canvas, value, config)
+  // Draw ADSR parameter knob
+  // Args: canvas, value, {min, max, default} config
+  // Style: matches Q knobs
+```
+
+**State Management:**
+```javascript
+getModTuningState()
+  // Get current mod tuning settings
+  // Returns: {modAQ, modBQ, modCQ, attack, decay, sustain, release, threshold}
+
+applyModTuningState(state)
+  // Apply mod tuning settings to UI and audio
+  // Args: modTuning object from .oms file
+```
+
+---
+
+### AUDIO REACTIVITY DOMAIN (V5_3_0 Rewrite)
+
+**Bandpass Filtering:**
+```javascript
+createBandpassFilter(audioContext, centerFreq, Q)
+  // Create BiquadFilterNode with bandpass type
+  // Args: audioContext, centerFreq (Hz), Q (0.5-10)
+  // Returns: BiquadFilterNode
+  // Note: centerFreq = (Freq1 + Freq2) / 2
+
+updateBandpassQ(filter, Q)
+  // Update filter Q value in real-time
+  // Args: BiquadFilterNode, Q value
+```
+
+**Peak Detection:**
+```javascript
+analyzeBandpassPeak(analyser)
+  // Get peak value from bandpass-filtered signal
+  // Args: AnalyserNode connected after bandpass
+  // Returns: 0.0-1.0 (actual peak, not average)
+  // Note: Uses getByteTimeDomainData for peak detection
+
+detectPeakFromTimeDomain(dataArray)
+  // Find peak amplitude in time-domain samples
+  // Args: Uint8Array from analyser
+  // Returns: 0.0-1.0 normalized peak
+```
+
+**ADSR Envelope:**
+```javascript
+applyADSREnvelope(input, attack, decay, sustain, release, threshold)
+  // Shape raw peak with envelope generator
+  // Args: input (0-1), ADSR params (ms/%)
+  // Returns: 0.0-1.0 (enveloped value)
+  // Implements: attack ramp, decay ramp, sustain hold, release tail
+
+ADSREnvelopeGenerator class
+  // Stateful envelope generator per modulator
+  // Methods: trigger(level), release(), getValue()
+  // Tracks: current phase, elapsed time, target level
+```
+
+**Main Analysis Function:**
+```javascript
+analyzeAudioReactive()
+  // V5_3_0: Replaces analyzeAudio() for live reactivity
+  // Uses bandpass + peak detection + ADSR per modulator
+  // Returns: {modA, modB, modC} with real dynamics
+  // Note: Old analyzeAudio() still used for timeline pre-analysis
+
+// Comparison:
+// Old: kick hit → 0.02, silence → 0.02 (constant)
+// New: kick hit → 0.72, silence → 0.01 (real dynamics)
+```
+
+---
+
+### SETS DOMAIN (V5_3_0)
+
+**Folder Management:**
+```javascript
+initSetsFolder()
+  // Initialize /Sets/ subfolder handle
+  // Creates folder if not exists
+  // Sets: setsFolderHandle
+
+refreshSetsList()
+  // Scan /Sets/ folder, populate setsCache
+  // Includes both manual and smart sets
+  // Recalculates smart set container counts
+```
+
+**Manual Sets:**
+```javascript
+createManualSet(name)
+  // Create new empty manual set
+  // Args: name (string)
+  // Creates: /Sets/[name].oms-set with setType: 'manual'
+
+addContainerToSet(setId, containerId)
+  // Add container to manual set
+  // Args: setId, containerId
+  // Updates: set's containerIds array
+
+removeContainerFromSet(setId, containerId)
+  // Remove container from manual set
+  // Args: setId, containerId
+  // Updates: set's containerIds array
+
+deleteSet(setId)
+  // Delete set file from /Sets/ folder
+  // Args: setId
+  // Confirmation required
+```
+
+**Smart Sets:**
+```javascript
+createSmartSet(name, query)
+  // Create smart set from search query
+  // Args: name, query string
+  // Creates: /Sets/[name].oms-set with setType: 'smart', smartQuery: query
+
+refreshSmartSets()
+  // Re-evaluate all smart set queries
+  // Updates container counts for each smart set
+  // Called on library refresh
+
+getSmartSetContainers(setId)
+  // Get containers matching smart set query
+  // Args: setId
+  // Returns: array of matching containers
+  // Evaluates query against all library containers
+```
+
+**Set UI:**
+```javascript
+renderSetsList()
+  // Render sets panel in ORGANIZE tab
+  // Shows: manual sets (no dot), smart sets (cyan dot)
+
+renderSetCard(set)
+  // Render individual set card
+  // Shows: name, container count, type indicator
+
+focusSetsPanel()
+  // Focus keyboard navigation on sets panel
+  // Enables ↑/↓ navigation
+
+focusContainersPanel()
+  // Focus keyboard navigation on containers panel
+```
+
+---
+
+### TAGS DOMAIN (V5_3_0)
+
+**Tag Management:**
+```javascript
+addTagToContainer(containerId, tag)
+  // Add tag to container's tags array
+  // Args: containerId, tag (string)
+  // Normalizes: lowercase, trimmed
+  // Prevents: duplicates (case-insensitive)
+  // Saves: updates .oms file
+
+removeTagFromContainer(containerId, tag)
+  // Remove tag from container
+  // Args: containerId, tag
+  // Saves: updates .oms file
+
+getContainerTags(containerId)
+  // Get tags for specific container
+  // Returns: array of tag strings
+```
+
+**Global Tag Operations:**
+```javascript
+renameTagGlobal(oldTag, newTag)
+  // Rename tag across all containers
+  // Args: oldTag, newTag
+  // Updates: all .oms files containing oldTag
+  // Prevents: creating duplicate (if newTag exists)
+
+deleteTagGlobal(tag)
+  // Remove tag from all containers
+  // Args: tag
+  // Updates: all .oms files containing tag
+  // Confirmation required
+
+getAllTags()
+  // Get all unique tags across library
+  // Returns: array of {tag, count} objects
+  // Sorted: by count descending
+```
+
+**Tag Index:**
+```javascript
+rebuildTagIndex()
+  // Rebuild global tag index from all containers
+  // Called: on library refresh
+  // Sets: allTagsIndex map
+
+getContainersByTag(tag)
+  // Get all containers with specific tag
+  // Args: tag (string)
+  // Returns: array of container objects
+```
+
+**Tag UI:**
+```javascript
+renderTagChips(container, tags)
+  // Render tag chips in Info Drawer
+  // Args: container element, tags array
+  // Creates: chip elements with × buttons
+
+initTagInput(container)
+  // Initialize tag input field
+  // Handles: Enter, comma for chip creation
+  // Handles: Backspace for chip deletion
+
+renderTagsAdminPanel()
+  // Render tags management in ADMIN tab
+  // Shows: all tags with counts
+  // Enables: rename, delete operations
+```
+
+---
+
+### PEAK METERING DOMAIN (V5_3_0)
+
+**Initialization:**
+```javascript
+initTrackPeakMeters()
+  // Initialize peak meter canvases for all tracks
+  // Creates: 4 canvas elements (one per track)
+  // Starts: update interval (50ms)
+
+initTrackPeakMeter(trackIndex)
+  // Initialize single track peak meter
+  // Args: trackIndex (0-3)
+  // Creates: canvas, connects to track analyser
+```
+
+**Measurement:**
+```javascript
+calculatePeakdB(analyserNode)
+  // Get peak level in dBFS from analyser
+  // Args: AnalyserNode
+  // Returns: -48 to 0 dB
+  // Uses: getByteTimeDomainData, peak detection
+
+updateAllPeakMeters()
+  // Update all track peak meters
+  // Called: every 50ms by interval
+  // Skips: tracks not playing
+```
+
+**Rendering:**
+```javascript
+drawPeakMeter(canvas, dBValue)
+  // Draw meter with color zones
+  // Args: canvas, dBValue (-48 to 0)
+  // Green: -48 to -18 dB (safe)
+  // Yellow: -18 to -6 dB (warm)
+  // Red: -6 to 0 dB (hot)
+
+updateTrackPeakMeter(trackIndex, dBValue)
+  // Update single track meter display
+  // Args: trackIndex (0-3), dBValue
+  // Stores: value in trackPeakValues array
+```
+
+---
+
+### BAR 1 DRAGGING DOMAIN (V5_3_0)
+
+**State:**
+```javascript
+let bar1Dragging = false;           // Currently dragging
+let bar1DragStartX = 0;             // Mouse X at drag start
+let bar1DragStartTime = 0;          // audioStartTime at drag start
+const BAR1_HIT_TOLERANCE = 15;      // Pixels for click detection
+```
+
+**Event Handlers:**
+```javascript
+handleBar1MouseDown(event)
+  // Check if click near Bar 1 marker
+  // Args: MouseEvent
+  // Sets: bar1Dragging = true if hit
+  // Stores: start position and time
+
+handleBar1MouseMove(event)
+  // Update marker position during drag
+  // Args: MouseEvent
+  // Calculates: new position from delta
+  // Visual feedback: marker follows mouse
+
+handleBar1MouseUp(event)
+  // End drag, update audioStartTime
+  // Args: MouseEvent
+  // Calculates: final audioStartTime from position
+  // Updates: audioStartField
+  // Triggers: waveform redraw with grey/blue coloring
+
+isNearBar1Marker(mouseX, canvas)
+  // Check if mouse position is near Bar 1 marker
+  // Args: mouseX (pixels), canvas element
+  // Returns: boolean
+  // Uses: BAR1_HIT_TOLERANCE constant
+```
+
+**Visual Updates:**
+```javascript
+drawBar1Marker(ctx, x, height)
+  // Draw white "1" marker at position
+  // Args: 2D context, x position, canvas height
+  // Style: white text, vertical line
+
+updateWaveformColors()
+  // Redraw waveform with grey/blue coloring
+  // Grey: samples before audioStartTime
+  // Blue: samples after audioStartTime
 ```
 
 ---

@@ -1,7 +1,7 @@
-# ONEMANSHYO App [Beta V5_2_0] - USER GUIDE
+# ONEMANSHYO App [Beta V5_3_0] - USER GUIDE
 
-**Version:** Beta V5_2_0
-**Date:** December 26, 2025
+**Version:** Beta V5_3_0
+**Date:** December 27, 2025
 **License:** GPL-3.0
 
 ---
@@ -11,11 +11,17 @@
 1. Introduction
 2. Instant Gratification
 3. Using the Application
+   - 3.2.4.7 Mod Tuning Panel (V5_3_0)
+   - 3.2.5.2 Waveform Display (V5_3_0: Draggable Bar 1)
    - 3.2.5.4 Cue Points (V5_2_0: 5 cues)
    - 3.2.5.5 Audio Focus Mode (V5_2_0)
    - 3.2.5.6 EQ3 System (V5_2_0)
    - 3.2.5.7 DJ FX System (V5_2_0)
-   - 3.2.5.8 Volume Knob (V5_2_0)
+   - 3.2.5.8 Volume Knob (V5_3_0: dB Scale)
+   - 3.3.4 Sets Panel (V5_3_0: Unified Sets)
+   - 3.3.8 Container Tags (V5_3_0)
+   - 3.4.2.2 Quantization (V5_3_0: Off/Beat/Bar)
+   - 3.4.5 Track Modules (V5_3_0: Peak Meters)
    - 3.4.10 Cue Points in PERFORM (V5_2_0: 5 cues)
    - 3.4.11 Per-Track EQ/FX (V5_2_0)
    - 3.5.7 BumpR StickRs
@@ -42,7 +48,7 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 **Browser:** Chrome (WebGPU support required)  
 **Screen:** 1352×761 effective viewport (14" MacBook Pro)
 
-**File:** `OMS_App_Beta_V5_2_0.html`
+**File:** `OMS_App_Beta_V5_3_0.html`
 
 ---
 
@@ -53,14 +59,14 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 If you want to create visuals based on music timing without setting up a library:
 
 **Audio-Reactive Visuals (reacts to your music):**
-1. Open `OMS_App_Beta_V5_2_0.html`
+1. Open `OMS_App_Beta_V5_3_0.html`
 2. Drag your audio file (.mp3, .wav) onto the waveform
 3. Visuals automatically react to bass, mids, treble
 4. Click [Render Video]
 5. Get SILENT video with pre-baked reactivity
 
 **Tempo-Synced Visuals (animated to BPM, no audio needed):**
-1. Open `OMS_App_Beta_V5_2_0.html`
+1. Open `OMS_App_Beta_V5_3_0.html`
 2. Set tempo (e.g., 128 BPM)
 3. Set duration (e.g., 03:30.000)
 4. Click [Render Video]
@@ -193,6 +199,20 @@ fn fs_main(@builtin(position) pos: vec4<f32>) -> @location(0) vec4<f32> {
 - Frequency range: 2000-20000 Hz
 - Reacts to: Hi-hats, cymbals
 - Best for: Fine details, sparkle
+
+**Real Audio Reactivity (V5_3_0):**
+
+Previous versions used FFT bin averaging that produced constant ~0.02 values. V5_3_0 uses bandpass-filtered peak detection:
+
+| Before | After |
+|--------|-------|
+| Kick hit → 0.02 | Kick hit → 0.72 |
+| Silence → 0.02 | Silence → 0.01 |
+| Constant output | Real dynamics |
+
+- Captures actual transients (kicks, snares, hi-hats)
+- Freq1/Freq2 define filter center frequency
+- Q value controls filter sharpness (see Mod Tuning panel)
 
 ---
 
@@ -430,6 +450,54 @@ Controls to transform the shader output in real-time. All transforms save with y
 
 ---
 
+##### 3.2.4.7 Mod Tuning Panel (V5_3_0)
+
+Professional envelope shaping for audio reactivity.
+
+**Access:** Press `N` while in Reactivity Focus (Shift+R)
+
+Blender-style slide-out panel for fine-tuning how modulators respond to audio.
+
+**Per-Modulator Q Knobs:**
+
+| Control | Range | Default | Effect |
+|---------|-------|---------|--------|
+| Mod A Q | 0.5-10 | 1.0 | Bandpass filter sharpness for bass |
+| Mod B Q | 0.5-10 | 1.0 | Bandpass filter sharpness for mids |
+| Mod C Q | 0.5-10 | 1.0 | Bandpass filter sharpness for highs |
+
+Higher Q = narrower frequency band, more isolated response.
+
+**Global ADSR Envelope:**
+
+| Parameter | Range | Default | Effect |
+|-----------|-------|---------|--------|
+| Attack | 0-100ms | 5ms | How fast mod rises to peak |
+| Decay | 0-200ms | 20ms | How fast mod falls to sustain |
+| Sustain | 0-100% | 70% | Level held while signal present |
+| Release | 0-500ms | 50ms | How fast mod returns to zero |
+| Threshold | 0-20% | 1% | Noise gate (signals below ignored) |
+
+**Keyboard:**
+
+| Key | Action |
+|-----|--------|
+| Shift+R | Enter Reactivity Focus |
+| N | Toggle Mod Tuning panel |
+| Drag knobs | Adjust values |
+| Escape | Close panel |
+
+**Workflow:**
+1. Load audio with clear transients
+2. Enter Reactivity Focus: `Shift+R`
+3. Open Mod Tuning: `N`
+4. Play audio, watch shader response
+5. Adjust Q for frequency isolation
+6. Adjust Attack/Decay for snappier or smoother response
+7. Set Threshold to reject noise floor
+
+---
+
 #### 3.2.5 Audio Section
 
 ##### 3.2.5.0 Audio Controls Header (V4_7_0)
@@ -468,9 +536,11 @@ Controls to transform the shader output in real-time. All transforms save with y
 ##### 3.2.5.2 Waveform Display
 
 **Visual elements:**
-- Blue bars = amplitude
+- Blue bars = amplitude (after Bar 1)
+- Grey bars = amplitude (before Bar 1) (V5_3_0)
 - Cyan/magenta lines = beat markers
 - Magenta vertical line = playhead
+- White "1" marker = Bar 1 position (V5_3_0)
 
 **When empty:**
 - Shows "Drag/Drop Audio" placeholder
@@ -479,6 +549,27 @@ Controls to transform the shader output in real-time. All transforms save with y
 - Click waveform = jump playhead
 - Spacebar = play/pause
 - Arrow keys (← →) = navigate by beat
+
+**Bar 1 Marker (V5_3_0):**
+
+The white "1" marker shows where Bar 1 (the first downbeat) falls in your audio.
+
+| Visual | Meaning |
+|--------|---------|
+| Grey waveform | Before Bar 1 (intro/count-in) |
+| Blue waveform | After Bar 1 (main content) |
+
+**Dragging Bar 1:**
+- Click and drag the "1" marker to reposition
+- Sets the beatgrid start point
+- Updates Audio Start field automatically
+
+**Setting Beatgrid by Ear:**
+1. Play track, listen for first downbeat
+2. Pause playback
+3. Drag Bar 1 marker to align with downbeat
+4. Resume to verify alignment
+5. Adjust if needed
 
 ---
 
@@ -689,7 +780,7 @@ Three essential DJ transition effects.
 
 ---
 
-##### 3.2.5.8 Volume Knob (V5_2_0)
+##### 3.2.5.8 Volume Knob (V5_3_0)
 
 Quick volume control with kill switch in the audio header.
 
@@ -699,6 +790,16 @@ Quick volume control with kill switch in the audio header.
 - 24×24 cyan knob
 - Shows current volume as arc
 - Magenta when killed
+
+**dB Mapping (V5_3_0):**
+
+Industry-standard Ableton-style volume mapping:
+
+| Position | Value | Gain | dB |
+|----------|-------|------|-----|
+| Full left | 0% | 0.0× | -∞ (silence) |
+| 12 o'clock | 50% | 1.0× | 0 dB (unity) |
+| Full right | 100% | 2.0× | +6 dB (boost) |
 
 **Interaction:**
 - Mouse wheel: Adjust volume (0-100%)
@@ -712,7 +813,7 @@ Quick volume control with kill switch in the audio header.
 | Enter | Kill/restore |
 | Escape | Exit panel |
 
-**Audio Header Layout (V5_2_0):**
+**Audio Header Layout (V5_3_0):**
 ```
 AUDIO | [Vol] | [Container Name (scrolling)] | [Time] | [SWAP] [X]
 ```
@@ -801,6 +902,7 @@ AUDIO | [Vol] | [Container Name (scrolling)] | [Time] | [SWAP] [X]
 | ↑ ↓ | Navigate rows (A/B/C) |
 | Shift+← | Decrease value |
 | Shift+→ | Increase value |
+| N | Toggle Mod Tuning panel (V5_3_0) |
 | Escape | Exit reactivity mode |
 
 **Note:** Hold Shift+Arrow for progressive acceleration (faster changes).
@@ -920,13 +1022,47 @@ A **collection** bundles multiple containers for distribution.
 
 ---
 
-#### 3.3.4 Sets Panel
+#### 3.3.4 Sets Panel (V5_3_0)
+
+Unified system for manual and smart sets.
+
+**Set Types:**
+
+| Type | Indicator | How Created |
+|------|-----------|-------------|
+| Manual | No dot | Click "+ Set", drag containers in |
+| Smart | Cyan dot | Search something, click "Save" |
+
+**Creating Sets:**
+
+**Manual Set:**
+1. Click "+ Set" button
+2. Enter set name
+3. Drag containers from right panel into set
+
+**Smart Set:**
+1. Type search term in search field
+2. See filtered results
+3. Click "Save" button next to search
+4. Smart set automatically updates when matching containers added
+
+**Navigation:**
+
+| Action | Result |
+|--------|--------|
+| Click "Sets" header | Focus sets panel |
+| Click "Containers" header | Focus containers panel |
+| ↑ / ↓ | Navigate within focused panel |
+| Double-click name | Rename inline |
+| Enter | Select/load set |
+
+**Storage:** `/Sets/[name].oms-set`
 
 **[All]**
-- Containers from /Library/ folder
+- All containers from /Library/ folder
 - Everything you've created
 
-**[All Audio]** (V4_7_0)
+**[All Audio]**
 - Containers that have audio attached
 - Quick filter for audio-enabled content
 
@@ -1036,7 +1172,51 @@ Each shows:
 
 ---
 
-#### 3.3.8 Delete Confirmation
+#### 3.3.8 Container Tags (V5_3_0)
+
+Organize containers with multiple tags for easy filtering and search.
+
+**Adding Tags:**
+1. Open Info Drawer (click container name or press `I`)
+2. Find Tags section
+3. Type tag name + Enter (or comma)
+4. Tag appears as chip
+
+**Chip Behavior:**
+
+| Action | Result |
+|--------|--------|
+| Type + Enter | Creates chip |
+| Type + comma | Creates chip |
+| × button | Removes chip |
+| Backspace on empty | Removes last chip |
+| Duplicate attempt | Ignored (case-insensitive) |
+
+**Search Integration:**
+- Tags are included in search matching
+- Search "bass" finds containers tagged "bass"
+- Combine with other search terms
+
+**Admin Panel (ADMIN → Containers → Tags):**
+
+Manage all tags across your library:
+
+| Feature | Action |
+|---------|--------|
+| View all tags | See tag list with container counts |
+| Rename tag | Click tag name, edit inline |
+| Delete tag | Remove from all containers |
+
+**Tag Suggestions:**
+- Genre: bass, house, techno, ambient
+- Energy: drop, buildup, breakdown
+- Tempo: 128, 140, 174
+- Style: minimal, maximal, melodic
+- Use: intro, outro, transition
+
+---
+
+#### 3.3.9 Delete Confirmation
 
 **Status bar pattern** (no browser dialog)
 
@@ -1051,7 +1231,7 @@ Each shows:
 
 ---
 
-#### 3.3.9 Drag & Drop
+#### 3.3.10 Drag & Drop
 
 **Drag audio file (.mp3, .wav) onto ORGANIZE tab:**
 1. File drops
@@ -1061,7 +1241,7 @@ Each shows:
 
 ---
 
-#### 3.3.10 ORGANIZE Keyboard Shortcuts
+#### 3.3.11 ORGANIZE Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
@@ -1121,18 +1301,23 @@ The PERFORM tab is a 4-track DJ mixer for live performance with reactive visuals
 
 ---
 
-##### 3.4.2.2 Quantization
+##### 3.4.2.2 Quantization (V5_3_0)
 
-**All launches snap to next bar boundary:**
-- Press Enter → launches at next bar
-- Keeps all tracks perfectly synchronized
-- No manual timing needed
+**Quantize Dropdown** (replaces RMS input):
+
+| Option | Behavior |
+|--------|----------|
+| Off | Immediate launch (no quantize) |
+| 1 Beat | Snaps to next beat |
+| 1 Bar | Snaps to next bar (default) |
+
+**Forward-Only:** Quantize always snaps forward to the next boundary, never backward. No timing surprises.
 
 **How it works:**
 1. Calculate current beat position
-2. Find next bar (always forward, never backward)
+2. Find next boundary (beat or bar, always ahead)
 3. Schedule launch at that time
-4. Audio starts exactly on the bar
+4. Audio starts exactly on the boundary
 
 ---
 
@@ -1223,6 +1408,28 @@ The PERFORM tab is a 4-track DJ mixer for live performance with reactive visuals
 - Volume knob (0-100%)
 - [M] Mute button (orange)
 - [S] Solo button (green)
+
+**Peak Meters (V5_3_0):**
+
+Real dBFS meters per track showing actual audio levels:
+
+| Zone | dB Range | Color |
+|------|----------|-------|
+| Safe | -48 to -18 | Green |
+| Warm | -18 to -6 | Yellow |
+| Hot | -6 to 0 | Red |
+
+Meters respond to actual audio dynamics - you'll see them jump on transients and settle during quiet passages.
+
+**dB Volume Mapping (V5_3_0):**
+
+Same Ableton-style mapping as CREATE tab:
+
+| Position | Gain | dB |
+|----------|------|-----|
+| 0% | 0.0× | -∞ |
+| 50% | 1.0× | 0 dB (unity) |
+| 100% | 2.0× | +6 dB |
 
 **Independent control:**
 - Shader and audio mix separately
@@ -1755,8 +1962,8 @@ Social / YouTube
 ## 5. Credits
 
 **Created by:** Wes Smith / ONEMANSHYO  
-**Version:** Beta V5_2_0  
-**Date:** December 26, 2025
+**Version:** Beta V5_3_0  
+**Date:** December 27, 2025
 
 **Technology:**
 - WebGPU / WGSL (shaders)
@@ -3307,6 +3514,7 @@ length(fract(uv * 8.0) - 0.5)
 | 2.0.0 | December 2025 | Added Transform chain (V5_0_0), 112-byte uniform buffer |
 | 2.1.0 | December 2025 | Updated for V5_1_0 (Cue Points, BumpR StickRs) |
 | 2.2.0 | December 2025 | Updated for V5_2_0 (Audio Focus, EQ3, DJ FX, 5 Cues) |
+| 2.3.0 | December 2025 | Updated for V5_3_0 (Real Audio Reactivity, Mod Tuning, Tags, Sets, Quantize) |
 
 ---
 
@@ -3316,6 +3524,6 @@ length(fract(uv * 8.0) - 0.5)
 
 **END OF USER GUIDE**
 
-Version: Beta V5_2_0  
-Date: December 26, 2025  
+Version: Beta V5_3_0  
+Date: December 27, 2025  
 License: GPL-3.0
