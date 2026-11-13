@@ -1600,6 +1600,26 @@ fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
 - Return alpha MUST be 1.0
 - Use `vec4<f32>` not `vec4f` (explicit types)
 
+**Shader Header Template (REQUIRED):**
+
+Every shader file MUST include these comment tags at the top:
+```wgsl
+// @name [Display Name - no version]
+// @app ONEMANSHYO
+// @appVersion BETA V5_0_0
+// @url http://www.itswessmithyo.com
+// @credit [Inspiration source or empty]
+// @creditUrl [URL or empty]
+// @desc [One-line description]
+@fragment
+fn fs_main(@builtin(position) coord: vec4<f32>) -> @location(0) vec4<f32> {
+```
+
+- `@name` is parsed by app for dropdown display
+- Keep all fields even if empty
+- Update `@appVersion` to match current app version
+
+
 ---
 
 #### C.1.2 Available Uniforms
