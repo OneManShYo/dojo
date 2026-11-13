@@ -1,7 +1,7 @@
-# ONEMANSHYO App [Beta V5_0_0] - SYSTEM REFERENCE
+# ONEMANSHYO App [Beta V5_1_0] - SYSTEM REFERENCE
 
-**Date:** December 21, 2025  
-**Version:** V5_0_0  
+**Date:** December 24, 2025  
+**Version:** V5_1_0  
 **Purpose:** Complete technical implementation reference
 
 ---
@@ -33,6 +33,7 @@ Foundational elements. Everything traces back to these. Change = cascade failure
 **File System Handles (V4.3.0_A):**
 - `applicationFolderHandle` - Root app folder (user selects via picker)
 - `libraryFolderHandle` - /Library/ subfolder handle
+- `bumprStickrsFolderHandle` - /BumpRStickRs/ subfolder handle (V5_1_0)
 
 **Master Clock / Seconds:**
 - `audioContext` - Web Audio API instance
@@ -205,11 +206,12 @@ function createUniformData(p) {
 - `calculateMod()` function
 - .oms container schema
 
-**Message Bar System (V4_7_0, V4_8_0):**
+**Message Bar System (V4_7_0, V4_8_0, V5_1_0):**
 - `messageBar` - DOM element ID (single message display)
 - `showMessage(text, type, onClick)` - THE FUNCTION for all user feedback
 - Types: `'info'` (cyan), `'state'` (orange), `'error'` (magenta)
 - V4_8_0: Optional `onClick` callback makes message clickable (cursor: pointer)
+- V5_1_0: CORTEX hover patterns for Container Output section
 - CSS class: `.message-bar` + type modifier
 - Single entry point - ALL transient user communication flows through this
 
@@ -230,6 +232,11 @@ showMessage('Container not found', 'error')  // failure
 
 // V4_8_0: Clickable message
 showMessage('Set application folder', 'state', () => setupApplicationFolder())
+
+// V5_1_0: Container Output hover messages
+showMessage('Container = Shader + Audio + Settings', 'info')  // header hover
+showMessage('Save as NEW container to Library', 'info')       // Save hover
+showMessage('Update loaded container (keeps name)', 'info')   // Update hover
 ```
 
 **Why Message Bar is CORTEX:**
@@ -268,6 +275,13 @@ Built on cortex. Other things depend on these. Trace up AND down before touching
 - GainNode routing
 - Compositing order (z-index)
 
+**Cue Points System (V5_1_0):**
+- `audioCuePoints[]` - 3 beat positions per container (default: [0, 64, 128])
+- Stored relative to audioStartTime
+- Visual flags (orange #ffa500) on waveform
+- Draggable with bar snap (4 beats)
+- Click-to-jump functionality
+
 ---
 
 ### Tier 3: Leafs
@@ -288,12 +302,19 @@ End of chain. Nothing depends on these. Safe to modify.
 - Visibility states (masterGridVisible, trackGridVisible, waveformVisible)
 - Colors (waveform, grid lines, playhead)
 - Knob/button styling
+- Cue point flag colors (orange #ffa500) - V5_1_0
 
 **Controls:**
 - Keyboard shortcut mappings
 - Header text
 - Tab labels
 - Font choices
+
+**BumpR StickRs (V5_1_0):**
+- Slot thumbnails and styling
+- Animation CSS keyframes (15 types)
+- Dropdown styling (Scale/Timing/Animate/Duration)
+- Slideout panel layout
 
 ---
 
@@ -317,7 +338,7 @@ End of chain. Nothing depends on these. Safe to modify.
 - `applyControlState()` - apply control state to UI fields
 - `getCurrentProjectState()` - get current LIVE tab state
 - `applyProjectState()` - restore LIVE tab from project state
-- `calculateMod()` - calculate waveform value (lines 3139-3209, handles ALL waveform types including meta-modes: sine, square, triangle, sawtooth, cycler, chaosmode, madmax, psycho)
+- `calculateMod()` - calculate waveform value (handles ALL waveform types including meta-modes: sine, square, triangle, sawtooth, cycler, chaosmode, madmax, psycho)
 
 **AUDIO DOMAIN (`audio*` prefix):**
 - `analyzeAudio()` - FFT analysis (returns {bass, mid, treble})
@@ -330,16 +351,19 @@ End of chain. Nothing depends on these. Safe to modify.
 - `render()` - render single frame
 - `startRender()` - start video recording
 - `initWebGPU()` - initialize WebGPU
+- `toggleShaderTempoLink()` - V5_1_0: Link/unlink shader tempo from audio
+- `updateShaderTempoLinkUI()` - V5_1_0: Update link button visual
 
 **TRACK AUDIO DOMAIN (LIVE Tab):**
 - `playCellAudio()` - start playing track audio
 - `initAudioRouting()` - initialize Web Audio API routing
 
 **WAVEFORM DOMAIN:**
-- `drawWaveformFromAudioBuffer()` - draw blue amplitude bars
+- `drawWaveformFromAudioBuffer()` - draw blue amplitude bars + cue flags (V5_1_0)
 - `drawBeatGridOnWaveform()` - draw cyan/magenta beat grid
 - `positionTrackAudioWaveformAtPlayhead()` - position Bar 1 at playhead
 - `startAudioWaveformScroll()` - start scroll animation
+- `drawProgress()` - draw playback progress + cue flags (V5_1_0)
 
 **LIVE TAB DOMAIN:**
 - `initLiveTab()` - initialize entire LIVE tab
@@ -353,6 +377,23 @@ End of chain. Nothing depends on these. Safe to modify.
 - `handleUnifiedDrop()` - Routes all external file drops by type + active tab
 - `isExternalFileDrop()` - Distinguishes external files from internal card drags
 
+**BUMPR STICKRS DOMAIN (V5_1_0):**
+- `handleBumprSlotDrop()` - Handle WebM drop onto slot
+- `generateBumprThumbnail()` - Create 160×90 thumbnail
+- `updateBumprSlotUI()` - Update slot visual state
+- `removeBumprSlot()` - Clear slot
+- `triggerBumprStickr()` - Fire sticker with timing logic
+- `playBumprVideo()` - Start video overlay playback
+- `stopBumprVideo()` - Stop current playback
+- `getBumprDelay()` - Calculate timing delay
+- `enterBumprMode()` - Enter Shift+B keyboard mode
+- `exitBumprMode()` - Exit keyboard mode
+
+**FOCUS MODE DOMAIN (V5_1_0 Renames):**
+- `shaderReactivityFocus` - Reactivity keyboard mode (was `modReactivityMode`)
+- `shaderTransformFocus` - Transform keyboard mode (was `transformKeyboardMode`)
+- `shaderMusicTimingFocus` - Music Timing keyboard mode (NEW V5_1_0)
+
 **#ForReview - LIVE TAB DOMAIN NAMING:**
 - `startMasterClock()` - #ForReview should be `liveStartMasterClock()`
 - `getNextBarBoundary()` - #ForReview should be `liveGetNextBarBoundary()`
@@ -365,9 +406,12 @@ End of chain. Nothing depends on these. Safe to modify.
 
 ### 2. UI FIELDS/VARIABLES (Organized by Usage Domain)
 
-**SHADER DOMAIN:**
-- `tempo` - shader tempo (visual animation speed, NOT audio BPM)
-- `renderDuration` - MM:SS.mmm format (when no audio)
+**SHADER DOMAIN (V5_1_0 Renames):**
+- `shaderTempo` - shader tempo (was `tempo`) - visual animation speed, NOT audio BPM
+- `shaderRenderDuration` - MM:SS.mmm format (was `renderDuration`) - when no audio
+- `shaderLoopLength` - calculated loop length display (was `loopLength`)
+- `shaderLoopLengthDropdown` - OmsDropdown instance (was `loopLengthDropdown`)
+- `shaderTempoLinked` - V5_1_0: Whether shader tempo follows audio tempo (default: true)
 - `modAWave`, `modBWave`, `modCWave` - modulator waveforms
 - `modASubdiv`, `modBSubdiv`, `modCSubdiv` - modulator subdivisions
 - `shaderCode` - WGSL fragment shader code
@@ -381,7 +425,7 @@ End of chain. Nothing depends on these. Safe to modify.
 - `audioEndField` - manual beatgrid end (seconds)
 - `inBeat` - loop In point (bar.beat format)
 - `outBeat` - loop Out point (bar.beat format)
-- `loopLength` - calculated duration display
+- `audioCuePoints` - V5_1_0: Array of 3 beat positions (default: [0, 64, 128])
 
 **AUDIO REACTIVITY DOMAIN:**
 - `bassGain` - 0.0-2.0 (multiplies modA)
@@ -411,10 +455,11 @@ End of chain. Nothing depends on these. Safe to modify.
 ```javascript
 {
   name: "Bass Drop Tunnel",
-  version: "3.8.0",
+  version: "5.1.0",
   shaderCode: "/* WGSL */",
   tempo: 128,
   modAWave: "sine",
+  audioCuePoints: [0, 64, 128],  // V5_1_0
   // ... full structure documented in File Formats section
 }
 ```
@@ -423,9 +468,14 @@ End of chain. Nothing depends on these. Safe to modify.
 ```javascript
 {
   projectName: "Friday Set",
-  version: "3.8.0",
+  version: "5.1.0",
   gridCells: [...],
   masterTempo: 128,
+  bumprStickrsSlots: [...],      // V5_1_0
+  bumprTimingModes: [...],       // V5_1_0
+  bumprScaleModes: [...],        // V5_1_0
+  bumprAnimateModes: [...],      // V5_1_0
+  bumprDurationModes: [...],     // V5_1_0
   // ... full structure documented in File Formats section
 }
 ```
@@ -447,12 +497,12 @@ End of chain. Nothing depends on these. Safe to modify.
 
 **.oms Files:**
 - Purpose: Single shader container
-- Contains: Shader code, timing, modulators, audio reference, render settings
+- Contains: Shader code, timing, modulators, audio reference, render settings, cue points (V5_1_0)
 - Location: `/LIBRARY/[name].oms`
 
 **.omsp Files:**
-- Purpose: LIVE tab project state
-- Contains: Grid layout, track states, master settings
+- Purpose: LIVE tab project state + BumpR StickRs state (V5_1_0)
+- Contains: Grid layout, track states, master settings, BumpR configuration
 - Location: `/LIBRARY/[projectName].omsp`
 - Auto-save: `default.omsp`
 
@@ -466,22 +516,26 @@ End of chain. Nothing depends on these. Safe to modify.
 
 ### CRITICAL SEPARATION
 
-**tempo vs audioTempoField:**
+**shaderTempo vs audioTempoField (V5_1_0 Naming):**
 ```javascript
-tempo          → Shader Tempo (visual animation speed)
+shaderTempo     → Shader Tempo (visual animation speed)
 audioTempoField → Audio Tempo (musical timing/beat positioning)
 
 // These are NEVER the same value!
 // Example:
-tempo = 128           // Shader animates at 128 BPM
-audioTempoField = 124 // Audio track is 124 BPM
+shaderTempo = 128           // Shader animates at 128 BPM
+audioTempoField = 124       // Audio track is 124 BPM
 // Both independent, both valid
+
+// V5_1_0: shaderTempoLinked
+// When true: shader tempo automatically follows audio tempo
+// When false: shader tempo is independent
 ```
 
 **Why This Matters:**
 - Shaders can animate at different speeds than music
-- Pure visual mode (no audio) uses only `tempo`
-- Audio-reactive mode uses BOTH (independently)
+- Pure visual mode (no audio) uses only `shaderTempo`
+- Audio-reactive mode uses BOTH (independently or linked)
 
 ---
 
@@ -491,13 +545,13 @@ audioTempoField = 124 // Audio track is 124 BPM
 
 **Purpose:** Complete shader package with all settings and optional audio reference
 
-**File Structure:**
+**File Structure (V5_1_0):**
 ```javascript
 {
   // Metadata
   name: "Bass Drop Tunnel",
-  version: "3.8.0",
-  created: "2025-11-15T10:30:00Z",
+  version: "5.1.0",
+  created: "2025-12-24T10:30:00Z",
   
   // Shader Code
   shaderCode: "/* WGSL fragment shader code */",
@@ -530,6 +584,15 @@ audioTempoField = 124 // Audio track is 124 BPM
     trebleGain: 1.0             // 0.0-2.0 (modC multiplier)
   },
   
+  // Cue Points (V5_1_0)
+  audioCuePoints: [0, 64, 128],   // 3 beat positions relative to audioStartTime
+  
+  // Control States (V5_1_0)
+  controlStates: {
+    shaderTempoLinked: true,      // V5_1_0: Link shader tempo to audio tempo
+    // ... other control states
+  },
+  
   // Render Settings
   renderSettings: {
     resolution: "1080p",        // 720p, 1080p, 1440p, 2160p
@@ -550,6 +613,13 @@ audioTempoField = 124 // Audio track is 124 BPM
 - Audio file must exist separately in user's filesystem
 - User re-selects audio file when needed
 - Audio is optional (pure shader mode works without it)
+
+**Cue Points (V5_1_0):**
+- Array of 3 beat positions
+- Stored relative to audioStartTime (beat 0 = Bar 1.1)
+- Default values: `[0, 64, 128]` (Bar 1.1, 17.1, 33.1)
+- Draggable with bar snap (4 beats)
+- Legacy containers default to `[0, 64, 128]`
 
 **WAVEFORM ARCHITECTURE - What's Stored vs. Calculated:**
 
@@ -575,7 +645,10 @@ audioTempoField = 124 // Audio track is 124 BPM
   "shaderModCSubdiv": 4,
   "shaderModCGain": 1.0,
   "shaderModCFreq1": 100,
-  "shaderModCFreq2": 500
+  "shaderModCFreq2": 500,
+  
+  // V5_1_0: Shader Tempo Link
+  "shaderTempoLinked": true
 }
 
 // Timeline Arrays - Pre-analyzed FFT data (STORED)
@@ -626,15 +699,15 @@ const modA = waveform × audioLevel × gain;
 
 ### .omsp Files (Project States)
 
-**Purpose:** Save/restore LIVE tab performance grid layout
+**Purpose:** Save/restore LIVE tab performance grid layout + BumpR StickRs
 
-**File Structure:**
+**File Structure (V5_1_0):**
 ```javascript
 {
   // Metadata
   projectName: "Friday Set",
-  version: "3.8.0",
-  saved: "2025-11-15T22:45:00Z",
+  version: "5.1.0",
+  saved: "2025-12-24T22:45:00Z",
   
   // Grid State (4 tracks × 8 scenes = 32 cells)
   gridCells: [
@@ -684,7 +757,20 @@ const modA = waveform × audioLevel × gain;
   masterShaderMute: false,
   masterShaderSolo: false,
   masterAudioVolume: 100,
-  masterAudioMute: false
+  masterAudioMute: false,
+  
+  // BumpR StickRs (V5_1_0)
+  bumprStickrsSlots: [
+    { filename: "logo.webm", thumbnail: "data:image/png;base64,..." },
+    null, null, null, null, null, null, null, null, null
+  ],
+  bumprTimingModes: ['instant', 'instant', 'instant', 'instant', 'instant', 
+                     'instant', 'instant', 'instant', 'instant', 'instant'],
+  bumprScaleModes: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+  bumprAnimateModes: ['none', 'none', 'none', 'none', 'none',
+                      'none', 'none', 'none', 'none', 'none'],
+  bumprDurationModes: ['original', 'original', 'original', 'original', 'original',
+                       'original', 'original', 'original', 'original', 'original']
 }
 ```
 
@@ -706,8 +792,8 @@ const modA = waveform × audioLevel × gain;
   // Metadata
   setName: "Bass Music Collection",
   author: "ONEMANSHYO",
-  version: "3.8.0",
-  created: "2025-11-15T10:00:00Z",
+  version: "5.1.0",
+  created: "2025-12-24T10:00:00Z",
   description: "Heavy bass presets for 128-140 BPM",
   
   // Preset Array
@@ -717,6 +803,7 @@ const modA = waveform × audioLevel × gain;
       category: "Bass",
       shaderCode: "/* ... */",
       tempo: 128,
+      audioCuePoints: [0, 64, 128],  // V5_1_0
       // ... full .oms structure
     },
     {
@@ -724,6 +811,7 @@ const modA = waveform × audioLevel × gain;
       category: "Bass",
       shaderCode: "/* ... */",
       tempo: 140,
+      audioCuePoints: [0, 64, 128],  // V5_1_0
       // ... full .oms structure
     },
     // ... multiple presets
@@ -827,32 +915,40 @@ device = await navigator.gpu.requestAdapter()
 trackShaderPipelines = [null, null, null, null];   // GPURenderPipeline[]
 trackCanvases = [canvas1, canvas2, canvas3, canvas4]; // HTMLCanvasElement[]
 
-// Shader Uniforms (sent to GPU each frame) - V4_8_0: 80 bytes
+// Shader Uniforms (sent to GPU each frame) - V5_0_0: 112 bytes
 uniforms = {
   time: 0.0,              // Seconds since shader start
   tempo: 128,             // Shader Tempo (visual timing)
   modA: 0.0,              // Combined bass (0-1) - legacy
   modB: 0.0,              // Combined mids (0-1) - legacy
   modC: 0.0,              // Combined treble (0-1) - legacy
-  beat: 0.0,              // Tempo-synced beat position (V4_8_0)
+  beat: 0.0,              // Tempo-synced beat position
   resolutionX: 1920,      // Canvas width
   resolutionY: 1080,      // Canvas height
-  shaderModAWave: 0.0,    // Mod A waveform output (V4_8_0)
-  shaderModAGain: 0.1,    // Mod A gain value (V4_8_0)
-  shaderModAFFT: 0.0,     // Mod A FFT level (V4_8_0)
+  shaderModAWave: 0.0,    // Mod A waveform output
+  shaderModAGain: 0.1,    // Mod A gain value
+  shaderModAFFT: 0.0,     // Mod A FFT level
   shaderModBWave: 0.0,    // Mod B waveform
   shaderModBGain: 0.1,    // Mod B gain
   shaderModBFFT: 0.0,     // Mod B FFT
   shaderModCWave: 0.0,    // Mod C waveform
   shaderModCGain: 0.1,    // Mod C gain
   shaderModCFFT: 0.0,     // Mod C FFT
+  transformRotation: 0.0, // Rotation (radians)
+  transformScaleX: 1.0,   // Scale X
+  transformScaleY: 1.0,   // Scale Y
+  transformTranslateX: 0.0, // Position X
+  transformTranslateY: 0.0, // Position Y
+  transformPivotX: 0.0,   // Pivot X
+  transformPivotY: 0.0,   // Pivot Y
+  transformTile: 1.0,     // Tile count
   padding1: 0.0,          // GPU alignment
   padding2: 0.0,
-  padding3: 0.0           // 20 floats = 80 bytes
+  padding3: 0.0           // 28 floats = 112 bytes
 };
 ```
 
-**Shader Compilation (V4_8_0):**
+**Shader Compilation:**
 ```javascript
 // App injects struct and binding - user code just uses uniforms.*
 // User writes ONLY the fragment function:
@@ -871,7 +967,7 @@ fn fs_main(@builtin(position) pos: vec4<f32>) -> @location(0) vec4<f32> {
 
 **Modulator Calculation:**
 
-**CRITICAL:** Uses centralized `calculateMod(beat, subdivision, waveform)` function (lines 3139-3209)
+**CRITICAL:** Uses centralized `calculateMod(beat, subdivision, waveform)` function
 
 **Available Waveform Types:**
 ```javascript
@@ -890,33 +986,6 @@ fn fs_main(@builtin(position) pos: vec4<f32>) -> @location(0) vec4<f32> {
 - 'chaosmode' // Chaotic/random behavior
 - 'madmax'    // Aggressive variations
 - 'psycho'    // Extreme modulation
-
-// Example implementations:
-
-// SINE WAVE
-function calculateSine(time, freq) {
-  return Math.sin(time * freq * Math.PI * 2);
-}
-
-// SQUARE WAVE
-function calculateSquare(time, freq) {
-  return Math.sin(time * freq * Math.PI * 2) > 0 ? 1 : -1;
-}
-
-// TRIANGLE WAVE
-function calculateTriangle(time, freq) {
-  return Math.asin(Math.sin(time * freq * Math.PI * 2)) * (2/Math.PI);
-}
-
-// SAWTOOTH WAVE
-function calculateSawtooth(time, freq) {
-  return (time * freq) % 1.0;
-}
-
-// CYCLER (Custom - bounces up and down)
-function calculateCycler(time, freq) {
-  return Math.abs(((time * freq) % 2.0) - 1.0);
-}
 
 // All normalize to 0.0-1.0 range
 wave = (wave + 1.0) * 0.5;
@@ -941,7 +1010,7 @@ modA = Wave × Gain × FFT  // When audio loaded
 modA = Wave × Gain        // When no audio (FFT treated as 1.0)
 ```
 
-**Independent Shader Access (V4_8_0):**
+**Independent Shader Access:**
 ```javascript
 // Shaders can access components separately:
 uniforms.shaderModAWave   // Just the waveform
@@ -1079,9 +1148,10 @@ trackMasterClockStart = audioContext.currentTime;  // Breaks multi-track sync!
 | Master Grid | FIXED | Bar 1 at playheadX (center), extends left/right |
 | Track Grid | SCROLLS | Drawn on canvas at bar positions, canvas translateX moves |
 | Waveform | SCROLLS | Blue amplitude bars, same canvas as Track Grid |
+| Cue Flags | SCROLLS | Orange flags at cue point positions (V5_1_0) |
 | Playhead | FIXED | Magenta line drawn on Master Grid canvas at playheadX |
 
-**Key Insight:** Master Grid is stationary ruler. Track Grid + Waveform scroll under it.
+**Key Insight:** Master Grid is stationary ruler. Track Grid + Waveform + Cue Flags scroll under it.
 
 ---
 
@@ -1235,7 +1305,7 @@ All components named "waveform" when they actually manage complete track display
 **Component 1: Waveform (Amplitude Bars)**
 - Physical: Blue/cyan bars showing audio levels
 - Affected by: RMS calibration (height), Zoom (spacing)
-- Function: `drawWaveformFromAudioBuffer()` #ForReview misleading name - also draws grid
+- Function: `drawWaveformFromAudioBuffer()` #ForReview misleading name - also draws grid + cue flags
 - Independence: Changes with RMS, grid does NOT (proves separation)
 
 **Component 2: Beat Grid (Timing Markers)**
@@ -1244,12 +1314,18 @@ All components named "waveform" when they actually manage complete track display
 - Function: `drawBeatGridOnWaveform()` - accurate name
 - Independence: Separate from waveform, drawn on same canvas
 
-**Component 3: Canvas Positioning**
+**Component 3: Cue Flags (V5_1_0)**
+- Physical: Orange (#ffa500) vertical line + triangle + number
+- Position: Based on audioCuePoints[] beat positions
+- Draggable in CREATE tab
+- Click-to-jump in both tabs
+
+**Component 4: Canvas Positioning**
 - Physical: translateX() CSS transform
 - Purpose: Position Bar 1 at playhead, scroll during playback
 - Function: `positionTrackAudioWaveformAtPlayhead()` #ForReview misleading - manages entire display
 
-**Component 4: Scroll Animation**
+**Component 5: Scroll Animation**
 - Physical: requestAnimationFrame loop
 - Purpose: Move canvas left during playback
 - Functions: `startAudioWaveformScroll()`, `stopAudioWaveformScroll()` #ForReview misleading - affects entire display
@@ -1264,9 +1340,10 @@ All components named "waveform" when they actually manage complete track display
 M = Magenta (phrase marker)
 W = White (bar marker)
 | = Beat marker
+C = Cue flag (orange, V5_1_0)
 
 Phrase 1 (bars 1-4):
-M | | | | W | | | | W | | | | W | | | | M
+C | | | | W | | | | W | | | | W | | | | M
 ^         ^         ^         ^         ^
 1.1.1     2.1.1     3.1.1     4.1.1     5.1.1 (Phrase 2 starts)
 
@@ -1309,6 +1386,7 @@ function getPixelsPerBar() {
 - `drawWaveformFromAudioBuffer()` - Canvas width calculation
 - `startClockDotAnimation()` - Clock dot movement
 - `startAudioWaveformScroll()` - Waveform scroll rate
+- `drawProgress()` - Cue flag positions (V5_1_0)
 
 ---
 
@@ -1320,10 +1398,10 @@ function getPixelsPerBar() {
 
 ---
 
-**Directory Structure (V4.4.0):**
+**Directory Structure (V5_1_0):**
 ```
 [User's Selected Folder]/              ← applicationFolderHandle
-  ├── onemanshyo.omsp                  ← App state (auto-save, includes selectedSetId)
+  ├── onemanshyo.omsp                  ← App state (auto-save, includes BumpR settings)
   │
   ├── Library/                         ← libraryFolderHandle
   │   ├── Container1.oms               ← Container files
@@ -1336,6 +1414,11 @@ function getPixelsPerBar() {
   │   ├── Preset1.oms                 ← .oms containers
   │   ├── Preset2.oms
   │   └── MyShader.wgsl               ← V4_8_0: Raw WGSL files also supported
+  │
+  ├── BumpRStickRs/                    ← V5_1_0: Video overlays
+  │   ├── logo.webm                   ← WebM VP9 with alpha
+  │   ├── effect1.webm
+  │   └── effect2.webm
   │
   └── Exports/
       └── Container1.oms.zip           ← ZIP exports
@@ -1354,14 +1437,16 @@ function getPixelsPerBar() {
 
 ---
 
-**Two File Handles (CORTEX):**
+**Three File Handles (CORTEX) - V5_1_0:**
 ```javascript
 let applicationFolderHandle = null;   // Root folder (user selects)
 let libraryFolderHandle = null;       // /Library/ subfolder
+let bumprStickrsFolderHandle = null;  // /BumpRStickRs/ subfolder (V5_1_0)
 
 // On folder selection:
 applicationFolderHandle = await window.showDirectoryPicker();
 libraryFolderHandle = await applicationFolderHandle.getDirectoryHandle('Library', { create: true });
+bumprStickrsFolderHandle = await applicationFolderHandle.getDirectoryHandle('BumpRStickRs', { create: true });
 ```
 
 ---
@@ -1432,6 +1517,108 @@ function saveLibraryContainers() {
 
 ---
 
+### 7. BumpR StickRs System (V5_1_0)
+
+**Purpose:** Video overlays triggered during live performance
+
+**Key Components:**
+```javascript
+// State variables
+let bumprStickrsFolderHandle = null;      // Folder handle
+let bumprStickrsSlots = [null × 10];      // {filename, thumbnail}
+let bumprTimingModes = ['instant' × 10];  // instant, beat, bar
+let bumprScaleModes = [100 × 10];         // 25, 50, 75, 100
+let bumprAnimateModes = ['none' × 10];    // 16 animation types
+let bumprDurationModes = ['original' × 10]; // original, loop, musical, timed
+let bumprModeActive = false;               // Keyboard mode
+let bumprSelectedSlot = 0;                 // Currently selected
+let bumprPlaying = false;                  // Video playing
+let bumprQueuedTimeout = null;             // Pending quantized trigger
+let bumprActiveVideoEl = null;             // Current video element
+```
+
+**Specifications:**
+| Aspect | Value |
+|--------|-------|
+| Content | WebM VP9 with alpha channel only |
+| Slots | 10 total |
+| Location | ADMIN → Settings → BumpR StickRs |
+| Folder | `/BumpRStickRs/` in application folder |
+| Files | Copied (not moved) on assignment |
+| Thumbnails | Data URLs (160×90), black background fill |
+
+**Animation Types (16 total):**
+```javascript
+const BUMPR_ANIMATIONS = [
+  'none', 'bounce', 'breathe', 'crazy', 'drift', 'drop', 'float', 'glitch',
+  'pop', 'pulse', 'shake', 'spin', 'spiral', 'strobe', 'wobble', 'zoom'
+];
+```
+
+**Duration Types:**
+```javascript
+const BUMPR_DURATIONS = [
+  'original',  // Play once, full length
+  'loop',      // Loop continuously
+  '1/4', '1/2', '1', '2', '4', '8',  // Musical (bars)
+  '1s', '2s', '3s', '5s', '10s'      // Timed (seconds)
+];
+```
+
+**Timing Sources:**
+| Tab | Audio State | Timing Source |
+|-----|-------------|---------------|
+| PERFORM | Playing | `trackAudioMasterClock.getCurrentBeat()` |
+| PERFORM | Stopped | Message: "Start playback for quantized timing" |
+| CREATE | Playing | `(audioElement.currentTime - audioStartTime) * beatsPerSecond` |
+| CREATE | Stopped | Message: "Start audio for quantized timing" |
+
+**CDJ Cue Behavior:**
+- Keys always fire (no toggle)
+- Pressing any slot stops current playback and immediately plays new slot
+- Matches professional DJ cue button behavior
+
+---
+
+### 8. Cue Points System (V5_1_0)
+
+**Purpose:** CDJ-style hot cue system for quick navigation
+
+**Key Components:**
+```javascript
+let audioCuePoints = [0, 64, 128];  // Beats relative to audioStartTime
+let draggingCueIndex = -1;          // Currently dragging (-1 = none)
+let dragStartX = 0;                 // Mouse start position
+let cueDragged = false;             // Whether drag occurred (vs click)
+const CUE_HIT_TOLERANCE = 20;       // Pixels for click detection
+```
+
+**Default Positions:**
+| Cue | Bar.Beat | Beats | Typical Use |
+|-----|----------|-------|-------------|
+| 1 | 1.1 | 0 | Intro |
+| 2 | 17.1 | 64 | First drop |
+| 3 | 33.1 | 128 | Second drop |
+
+**CREATE Tab Features:**
+- Visual flags: Orange (#ffa500) line + triangle + number
+- Draggable: Click and drag to reposition
+- Grid snap: Snaps to bar (4 beats)
+- Click to jump: Click flag (no drag) jumps playhead
+
+**PERFORM Tab Features:**
+- Display: Orange flags on track waveforms
+- Keyboard jump: 1/2/3 keys jump to cue on selected track
+
+**Storage:**
+```json
+{
+  "audioCuePoints": [0, 64, 128]
+}
+```
+
+---
+
 ## DOM ELEMENTS & CONTROLS
 
 ### Tab System
@@ -1474,19 +1661,26 @@ adminTabContent      // ADMIN tab content (nav items: Settings, Utilities, About
 
 ### Controls Tab Elements
 
-**Shader Controls (Visual Timing):**
+**Shader Controls (Visual Timing) - V5_1_0 ID Renames:**
 ```javascript
-// V4_6_0: Shader Name Dropdown
+// V5_1_0: Shader Name Dropdown
 shaderNameDropdown    // Select - pick shader from Presets/Library
                       // Values: _current, _setfolder, sysPreset:*, userPreset:*, library:*
 
-tempo                 // Shader Tempo (60-200 BPM)
+shaderTempo           // V5_1_0: Shader Tempo (was `tempo`) (60-200 BPM)
                       // NOT audio BPM - visual animation speed only
                       // V4_8_0: DISABLED when audio loaded (grayed out)
                       // Audio tempo becomes THE tempo when audio present
+
+shaderTempoLinked     // V5_1_0: Link button (chains shader tempo to audio tempo)
+                      // Default: true (linked)
+                      // Toggle: Click to unlink for independent timing
                       
-renderDuration        // MM:SS.mmm format (when no audio loaded)
+shaderRenderDuration  // V5_1_0: MM:SS.mmm format (was `renderDuration`)
                       // Determines render length for pure shader mode
+
+shaderLoopLength      // V5_1_0: Loop length display (was `loopLength`)
+shaderLoopLengthDropdown // V5_1_0: OmsDropdown instance
 
 // V4_6_0: Orientation (moved from Render Settings)
 orientation           // Select: landscape, portrait, square
@@ -1501,7 +1695,7 @@ modCWave
 modCSubdiv            
 
 shaderCode            // Textarea - WGSL fragment shader code
-messageBar          // Status display - compile messages
+messageBar            // Status display - compile messages
 ```
 
 **Audio Controls (Musical Timing):**
@@ -1523,7 +1717,9 @@ audioEndField         // Manual beatgrid end (seconds)
 // V4_6_0: Loop fields save to project defaults
 inBeat                // Loop In point (bar.beat format: "1.1")
 outBeat               // Loop Out point (bar.beat format: "65.1")
-loopLength            // Display - calculated duration
+
+// V5_1_0: Cue Points
+audioCuePoints        // Array of 3 beat positions [0, 64, 128]
 
 inLabel               // Clickable label - jump to In point
 outLabel              // Clickable label - jump to Out point
@@ -1554,15 +1750,40 @@ modCFreq2Knob         // 20-24000 Hz
 // - Log scale for natural frequency perception
 ```
 
-**Reactivity Keyboard Mode (V4_8_0):**
+**Focus Mode State (V5_1_0 Renames):**
 ```javascript
-// State variables
-modReactivityMode     // boolean - keyboard mode active
-modSelectedRow        // 0-2 (A/B/C)
-modSelectedCol        // 0-4 (Subdiv/Waveform/Gain/Freq1/Freq2)
-modKeyRepeatCount     // Progressive acceleration counter
-modLastKeyTime        // Timestamp for acceleration
-freqKnobsDisabled     // boolean - true when no audio loaded
+// Reactivity Focus Mode (was Reactivity Mode)
+shaderReactivityFocus     // boolean - keyboard mode active (was modReactivityMode)
+shaderReactivitySelectedRow  // 0-2 (A/B/C) (was modSelectedRow)
+shaderReactivitySelectedCol  // 0-4 (Subdiv/Waveform/Gain/Freq1/Freq2) (was modSelectedCol)
+
+// Transform Focus Mode
+shaderTransformFocus      // boolean (was transformKeyboardMode)
+shaderTransformSelectedCol  // 0-4 (was transformSelectedCol)
+
+// Music Timing Focus Mode (NEW V5_1_0)
+shaderMusicTimingFocus    // boolean
+shaderMusicTimingSelectedCol  // column selection
+
+// Progressive acceleration
+modKeyRepeatCount         // Counter for held key
+modLastKeyTime            // Timestamp for acceleration
+freqKnobsDisabled         // boolean - true when no audio loaded
+```
+
+**Transform Animation Modes (V5_1_0):**
+```javascript
+let transformModes = {
+    rotation: 'stop',     // stop, clockwise, counterclockwise, pingpong
+    scale: 'stop',        // stop, clockwise, counterclockwise, pingpong
+    tile: 'stop'          // stop, clockwise, counterclockwise, pingpong
+};
+
+// Mode descriptions:
+// stop - No animation, manual control only
+// clockwise - Continuous increase
+// counterclockwise - Continuous decrease  
+// pingpong - Beat-synced oscillation (uses shaderLoopLength)
 ```
 
 **Transport Controls:**
@@ -1574,14 +1795,24 @@ removeBtn             // Remove loaded audio
 stopBtn               // (Deprecated - may be hidden)
 ```
 
-**Render Settings:**
+**Container Output (V5_1_0 Rename from "OUTPUT"):**
 ```javascript
+// Section header: "CONTAINER OUTPUT"
+// Hover message: "Container = Shader + Audio + Settings"
+
 filename              // Output filename (no extension)
+                      // Placeholder: "Container Name"
                       // V4_6_0: Auto-populated from cleanAudioName() + shader name
+                      
 resolution            // Select: 720p, 1080p, 1440p, 2160p
 fps                   // Select: 24, 30, 60
 // orientation moved to SHADER CONTROLS (V4_6_0)
-renderBtn             // Start render button
+
+// V5_1_0: Separate Save/Update buttons
+saveBtn               // Save as NEW container to Library
+updateBtn             // Update currently loaded container (hidden until load)
+
+renderBtn             // [R] Start render button
 ```
 
 **Display Elements:**
@@ -1593,9 +1824,9 @@ progressText          // Progress percentage display
 gridFreeBtn           // Toggle beatgrid overlay (future)
 ```
 
-**Critical Separation:**
+**Critical Separation (V5_1_0 Terms):**
 ```
-tempo          → Shader Tempo (visual animation speed)
+shaderTempo    → Shader Tempo (visual animation speed)
 audioTempoField → Audio Tempo (musical timing/beat positioning)
 
 These are NEVER the same value!
@@ -1607,6 +1838,10 @@ V4_8_0: When audio is loaded, shader tempo is DISABLED
 - Audio tempo becomes THE tempo (single source of truth)
 - Shader tempo field grayed out, tooltip explains why
 - Re-enabled when audio removed
+
+V5_1_0: shaderTempoLinked
+- When true: shader tempo auto-follows audio tempo
+- When false: independent control
 ```
 
 ---
@@ -1665,9 +1900,9 @@ card.classList.add('selected')   // Cyan border
 // V4_6_0: Tempo column header (was BPM)
 ```
 
-**ADMIN Tab:**
+**ADMIN Tab (V5_1_0 - Alphabetized Navigation):**
 ```javascript
-adminNavItems             // Settings, Utilities, About
+adminNavItems             // Application, BumpR StickRs, Create, Organize, Perform
 adminContent              // Right panel dynamic content
 ```
 
@@ -1737,9 +1972,20 @@ playheadLine                    // Magenta vertical line (z-index 10)
 masterGrid                      // White bars overlay (z-index 5) - NOT IMPLEMENTED
 ```
 
+**BumpR Video Overlays (V5_1_0):**
+```javascript
+// Video elements for overlay playback
+bumprOverlayVideo               // <video> in preview-container (CREATE)
+bumprOverlayVideoLive           // <video> in liveShaderOutputContainer (PERFORM)
+
+// Slideout panel
+bumprSlideout                   // 80px panel inside preview-container
+bumprSlotRow[0-9]               // Slot rows with thumbnails
+```
+
 ---
 
-### Keyboard Shortcuts (CREATE Tab) (V4_8_0)
+### Keyboard Shortcuts (CREATE Tab) (V5_1_0)
 
 **Audio Navigation:**
 | Shortcut | Action |
@@ -1750,33 +1996,69 @@ masterGrid                      // White bars overlay (z-index 5) - NOT IMPLEMEN
 | Shift+> | Jump to next grid line (4 bars) |
 | G | Toggle beatgrid |
 
-**Reactivity Mode:**
+**Reactivity Focus Mode:**
 | Shortcut | Action |
 |----------|--------|
-| Shift+R | Enter/exit reactivity mode |
+| Shift+R | Enter/exit reactivity focus mode |
 | ←/→ | Navigate columns (Subdiv/Waveform/Gain/Freq1/Freq2) |
 | ↑/↓ | Navigate rows (A/B/C) |
 | Shift+← | Decrease value |
 | Shift+→ | Increase value |
-| Escape | Exit reactivity mode |
+| Escape | Exit mode |
+
+**Transform Focus Mode:**
+| Shortcut | Action |
+|----------|--------|
+| Shift+T | Enter/exit transform focus mode |
+| ←/→ | Navigate columns (Rotation/Scale/Tile/XY/Pivot) |
+| Shift+← | Decrease value |
+| Shift+→ | Increase value |
+| 0/1/2/3 | V5_1_0: Animation modes (stop/cw/ccw/pingpong) |
+| Escape | Exit mode |
+
+**Music Timing Focus Mode (V5_1_0):**
+| Shortcut | Action |
+|----------|--------|
+| Shift+M | Enter/exit music timing focus mode |
+| ←/→ | Navigate columns |
+| Shift+← | Decrease value |
+| Shift+→ | Increase value |
+| Escape | Exit mode |
+
+**BumpR StickRs Mode (V5_1_0):**
+| Shortcut | Action |
+|----------|--------|
+| Shift+B | Enter/exit BumpR mode |
+| 1-9, 0 | Trigger slots 1-10 |
+| ↑/↓ | Navigate slots |
+| Enter | Trigger selected slot |
+| Escape | Exit mode |
 
 **Note:** Hold Shift+Arrow for progressive acceleration (faster value changes).
 
 ---
 
-### Keyboard Shortcuts (LIVE Tab)
+### Keyboard Shortcuts (LIVE Tab) - V5_1_0 Changes
 
 **Note:** In V4_5_0, this tab is labeled "PERFORM" but internal references remain "live" for code continuity.
 
 **Pattern:** All keyboard actions trigger `showMessage()` with state feedback.
 
+**Track/Cue Selection (V5_1_0 Changes):**
+| Key | Action |
+|-----|--------|
+| Shift+1-5 | Select track/master (V5_1_0: was 1-5) |
+| 1/2/3 | V5_1_0: Jump to cue point on selected track |
+
 **Categories:**
-- Track Selection: `1-5`
+- Track Selection: `Shift+1-5`
+- Cue Jump: `1/2/3` (V5_1_0)
 - Grid Navigation: `W/A/S/D`
 - Playback: `Enter`, `Space`, `Esc`, `Delete`
 - Mixer: Arrow keys, `,` `.` `<` `>`
 - Visibility: `Shift+M/T/W`
 - Zoom: `[ ]`
+- BumpR: `Shift+B`, then `1-0`, `↑/↓`, `Enter` (V5_1_0)
 
 **Complete list:** See User Guide section 3.4.8
 
@@ -1803,13 +2085,13 @@ masterGrid                      // White bars overlay (z-index 5) - NOT IMPLEMEN
 
 ### Container Data Object
 
-**Structure:**
+**Structure (V5_1_0):**
 ```javascript
 containerData = {
   // Metadata
   name: "Bass Drop Tunnel",
-  version: "3.8.0",
-  created: "2025-11-15T10:30:00Z",
+  version: "5.1.0",
+  created: "2025-12-24T10:30:00Z",
   
   // Shader
   shaderCode: "/* WGSL code */",
@@ -1838,6 +2120,15 @@ containerData = {
   
   // Audio Loop State (V4.4.0)
   audioLoopEnabled: true,        // Loop on/off state
+  
+  // Cue Points (V5_1_0)
+  audioCuePoints: [0, 64, 128],  // 3 beat positions
+  
+  // Control States (V5_1_0)
+  controlStates: {
+    shaderTempoLinked: true,
+    // ... other states
+  },
   
   // Render Settings
   renderSettings: {
@@ -1877,6 +2168,7 @@ let libraryContainersCache = [
         audioFilename: "bass_track.mp3",
         audioStartTime: 17.1,
         audioEndTime: 300.0,
+        audioCuePoints: [0, 64, 128],  // V5_1_0
         // ... everything from .oms file
     },
     // ... more containers
@@ -1907,6 +2199,7 @@ const container = containers.find(c => c.id === containerId);
 // Access full data
 const shaderCode = container.shaderCode;
 const timelines = container.shaderModATimeline;
+const cuePoints = container.audioCuePoints;  // V5_1_0
 ```
 
 ---
@@ -2024,35 +2317,48 @@ let projectLoopDefaults = {
 
 ---
 
-### UI State (V4_8_0)
+### UI State (V4_8_0 / V5_1_0 Focus Mode Renames)
 
 ```javascript
-// Reactivity keyboard mode
-let modReactivityMode = false;     // Keyboard mode active
-let modSelectedRow = 0;            // 0-2 (A/B/C)
-let modSelectedCol = 0;            // 0-4 (Subdiv/Waveform/Gain/Freq1/Freq2)
-let modKeyRepeatCount = 0;         // Progressive acceleration counter
-let modLastKeyTime = 0;            // Timestamp for acceleration
+// Reactivity Focus Mode (V5_1_0 renames)
+let shaderReactivityFocus = false;     // Was modReactivityMode
+let shaderReactivitySelectedRow = 0;   // Was modSelectedRow (0-2 = A/B/C)
+let shaderReactivitySelectedCol = 0;   // Was modSelectedCol (0-4)
+let modKeyRepeatCount = 0;             // Progressive acceleration counter
+let modLastKeyTime = 0;                // Timestamp for acceleration
 
 // Freq knob state
-let freqKnobsDisabled = true;      // true when no audio loaded
+let freqKnobsDisabled = true;          // true when no audio loaded
 
 // Current container tracking
-let currentLoadedContainerId = null;  // null = new, "name" = editing existing
+let currentLoadedContainerId = null;   // null = new, "name" = editing existing
 ```
 
 ---
 
-
-### UI State (V5_0_0)
+### UI State (V5_0_0 / V5_1_0)
 
 ```javascript
-// Transform keyboard mode
-let transformKeyboardMode = false;    // Keyboard mode active (Shift+T)
-let transformSelectedCol = 0;         // 0-4 (Rotation/Scale/Tile/XY/Pivot)
-let transformKeyRepeatCount = 0;      // Progressive acceleration counter
-let transformLastKeyTime = 0;         // Timestamp for acceleration
-let transformLastEnterTime = 0;       // Double-tap Enter detection
+// Transform Focus Mode (V5_1_0 renames)
+let shaderTransformFocus = false;         // Was transformKeyboardMode
+let shaderTransformSelectedCol = 0;       // Was transformSelectedCol (0-4)
+let transformKeyRepeatCount = 0;          // Progressive acceleration counter
+let transformLastKeyTime = 0;             // Timestamp for acceleration
+let transformLastEnterTime = 0;           // Double-tap Enter detection
+
+// Music Timing Focus Mode (NEW V5_1_0)
+let shaderMusicTimingFocus = false;
+let shaderMusicTimingSelectedCol = 0;
+
+// Transform Animation Modes (V5_1_0)
+let transformModes = {
+    rotation: 'stop',     // stop, clockwise, counterclockwise, pingpong
+    scale: 'stop',
+    tile: 'stop'
+};
+
+// Shader Tempo Link (V5_1_0)
+let shaderTempoLinked = true;  // Stored in controlStates
 
 // Transform configuration arrays
 const TRANSFORM_COL_IDS = ['transformRotation', 'transformScale', 'transformTile', 'transformXY', 'transformPivot'];
@@ -2069,12 +2375,60 @@ const TRANSFORM_CONFIGS = [
 
 ---
 
-### OmsDropdown Instances (V5_0_0)
+### Cue Points State (V5_1_0)
+
+```javascript
+// Cue point positions (beats relative to audioStartTime)
+let audioCuePoints = [0, 64, 128];  // Default: Bar 1.1, 17.1, 33.1
+
+// Drag state (CREATE tab)
+let draggingCueIndex = -1;          // -1 = not dragging
+let dragStartX = 0;                 // Mouse start X
+let cueDragged = false;             // Whether actual drag occurred
+
+// Constants
+const CUE_HIT_TOLERANCE = 20;       // Pixels for click detection
+```
+
+---
+
+### BumpR StickRs State (V5_1_0)
+
+```javascript
+// File system
+let bumprStickrsFolderHandle = null;
+
+// Slot data (10 slots)
+let bumprStickrsSlots = [null, null, null, null, null, null, null, null, null, null];
+// Each slot: { filename: string, thumbnail: dataURL } or null
+
+// Per-slot settings
+let bumprTimingModes = ['instant', 'instant', 'instant', 'instant', 'instant',
+                        'instant', 'instant', 'instant', 'instant', 'instant'];
+let bumprScaleModes = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100];
+let bumprAnimateModes = ['none', 'none', 'none', 'none', 'none',
+                         'none', 'none', 'none', 'none', 'none'];
+let bumprDurationModes = ['original', 'original', 'original', 'original', 'original',
+                          'original', 'original', 'original', 'original', 'original'];
+
+// Keyboard mode
+let bumprModeActive = false;
+let bumprSelectedSlot = 0;
+
+// Playback state
+let bumprPlaying = false;
+let bumprQueuedTimeout = null;
+let bumprActiveVideoEl = null;
+```
+
+---
+
+### OmsDropdown Instances (V5_0_0 / V5_1_0)
 
 ```javascript
 // Global dropdown instances (11 total in CREATE tab)
 window.orientationDropdown           // Orientation (Landscape/Portrait/Square)
-window.loopLengthDropdown            // Loop Length (bars display)
+window.shaderLoopLengthDropdown      // V5_1_0: Loop Length (was loopLengthDropdown)
 window.modASubdivDropdown            // Mod A Subdivision
 window.modAWaveformDropdown          // Mod A Waveform
 window.modBSubdivDropdown            // Mod B Subdivision
@@ -2180,23 +2534,23 @@ trackAudioPixelGrid = {
 USER INPUT
   ↓
 [Shader Controls]
-  - tempo (Shader Tempo)
-  - renderDuration (MM:SS.mmm)
+  - shaderTempo (Shader Tempo) - V5_1_0 rename
+  - shaderRenderDuration (MM:SS.mmm) - V5_1_0 rename
   - modAWave/Subdiv
   - modBWave/Subdiv
   - modCWave/Subdiv
   - shaderCode (WGSL)
   ↓
 [Timing Engine]
-  - duration = parse renderDuration
-  - beatCount = (duration * tempo) / 60
+  - duration = parse shaderRenderDuration
+  - beatCount = (duration * shaderTempo) / 60
   ↓
 [Modulator Calculation]
   - For each frame:
     - Calculate time (frame / fps)
-    - modA = calculate wave (modAWave, modASubdiv, time, tempo)
-    - modB = calculate wave (modBWave, modBSubdiv, time, tempo)
-    - modC = calculate wave (modCWave, modCSubdiv, time, tempo)
+    - modA = calculate wave (modAWave, modASubdiv, time, shaderTempo)
+    - modB = calculate wave (modBWave, modBSubdiv, time, shaderTempo)
+    - modC = calculate wave (modCWave, modCSubdiv, time, shaderTempo)
   ↓
 [Shader Rendering]
   - WebGPU compile shader
@@ -2227,6 +2581,7 @@ USER INPUT
   - audioTempoField (Audio Tempo)
   - audioStartField/audioEndField (beatgrid)
   - inBeat/outBeat (loop points)
+  - audioCuePoints (V5_1_0)
   ↓
 [Audio Reactivity]
   - bassGain (modA multiplier)
@@ -2298,7 +2653,7 @@ PERFORMANCE
   ↓
 [Waveform Display]
   - Position: Bar 1 at playhead (center)
-  - Draw: blue amplitude + cyan beat grid
+  - Draw: blue amplitude + cyan beat grid + orange cue flags (V5_1_0)
   - Scroll: left at master tempo rate
   ↓
 [Animation Loop]
@@ -2315,6 +2670,11 @@ PERFORMANCE
   - Opacity knobs → canvas.style.opacity
   - Mute/Solo buttons → gain/opacity calculations
   ↓
+[BumpR StickRs (V5_1_0)]
+  - Shift+B mode → slot selection
+  - 1-0 keys → trigger video overlay
+  - Timing: instant/beat/bar quantized
+  ↓
 [Output]
   - Composited shaders → pop-out window
   - Audio → speakers (via audioContext.destination)
@@ -2324,7 +2684,7 @@ PERFORMANCE
 
 ## FUNCTION REFERENCE
 
-**Total Functions:** ~210 (V5_0_0 adds ~15 new functions)
+**Total Functions:** ~225 (V5_1_0 adds ~25 new functions)
 
 ---
 
@@ -2372,6 +2732,7 @@ parseShaderNameFromCode(shaderCode)
 ```javascript
 getCurrentControlState()
   // Get current control state from UI
+  // V5_1_0: Includes shaderTempoLinked
   // Returns: controlStateObject
 
 applyControlState(state)
@@ -2380,6 +2741,7 @@ applyControlState(state)
 
 getCurrentProjectState()
   // Get current LIVE tab state
+  // V5_1_0: Includes BumpR StickRs state
   // Returns: projectStateObject
 
 applyProjectState(projectData)
@@ -2405,6 +2767,18 @@ calculateMod(beat, subdivision, waveform)
   // Returns: 0.0-1.0
 ```
 
+**V5_1_0 Shader Tempo Link:**
+```javascript
+toggleShaderTempoLink()
+  // Toggle link between shader tempo and audio tempo
+  // Updates shaderTempoLinked state
+  // Syncs tempo values when linking
+
+updateShaderTempoLinkUI()
+  // Update link button visual (chain icon)
+  // Shows linked/unlinked state
+```
+
 **V4_8_0 Knob Functions:**
 ```javascript
 initGainKnobs()
@@ -2422,47 +2796,141 @@ setFreqKnobsDisabled(disabled)
   // When disabled: dimmed, no interaction, tooltip shows reason
 ```
 
-**V4_8_0 Reactivity Mode Functions:**
+**V5_1_0 Focus Mode Functions (Renamed):**
 ```javascript
-enterReactivityMode()
+enterReactivityFocus()  // Was enterReactivityMode()
   // Enter keyboard control mode for modulators
-  // Sets: modReactivityMode = true
+  // Sets: shaderReactivityFocus = true
   // Shows: cyan selection ring
 
-exitReactivityMode()
+exitReactivityFocus()   // Was exitReactivityMode()
   // Exit keyboard control mode
   // Clears: selection ring, resets state
 
-updateModSelection()
-  // Update visual selection ring on active control
-  // Uses: modSelectedRow, modSelectedCol
+enterTransformFocus()   // Was enterTransformMode()
+  // Enter keyboard mode (Shift+T)
+  // Sets: shaderTransformFocus = true
 
-adjustModValue(delta)
-  // Adjust selected modulator value
-  // Args: delta (positive or negative)
-  // Handles: dropdowns, knobs with appropriate step sizes
+exitTransformFocus()    // Was exitTransformMode()
+  // Exit transform keyboard mode
+
+enterMusicTimingFocus() // NEW V5_1_0
+  // Enter keyboard mode (Shift+M)
+  // Sets: shaderMusicTimingFocus = true
+
+exitMusicTimingFocus()  // NEW V5_1_0
+  // Exit music timing keyboard mode
 ```
 
-**V4_8_0 Audio Functions:**
+---
+
+### BUMPR STICKRS DOMAIN (V5_1_0)
+
+**File Handling:**
 ```javascript
-parseBPMFromID3(file)
-  // Extract BPM from ID3v2 TBPM tag
-  // Supports: ID3v2.2, v2.3, v2.4 formats
-  // Falls back to: filename parsing, then 120 default
-  // Returns: Promise<number>
+handleBumprSlotDrop(slotIndex, event)
+  // Handle WebM file drop onto slot
+  // Copies file to /BumpRStickRs/ folder
+  // Generates thumbnail
+
+generateBumprThumbnail(file)
+  // Create 160×90 thumbnail from video
+  // Uses dark background fill for alpha
+  // Returns: Promise<dataURL>
+
+updateBumprSlotUI(slotIndex)
+  // Update slot visual state
+  // Shows thumbnail, filename, settings
+
+removeBumprSlot(slotIndex)
+  // Clear slot and delete file
 ```
 
-**V4_8_0 OmsDropdown Class:**
+**Playback:**
 ```javascript
-new OmsDropdown(containerId, options)
-  // Custom dropdown with thumbnail support
-  // Options: {
-  //   showThumbnails: boolean,
-  //   thumbnailSize: { w: number, h: number },
-  //   onChange: (value, item) => void,
-  //   onOpen: async () => void  // Called on every open for refresh
-  // }
-  // Methods: setItems(items), setValue(value), getValue()
+triggerBumprStickr(slotIndex)
+  // Fire sticker with timing logic
+  // Respects timing mode (instant/beat/bar)
+  // Stops current playback first
+
+playBumprVideo(slotIndex)
+  // Start video overlay playback
+  // Applies scale, animation, duration settings
+
+stopBumprVideo()
+  // Stop current video playback
+  // Clears queued timeouts
+
+getBumprDelay(slotIndex)
+  // Calculate delay for quantized timing
+  // Returns: milliseconds to next beat/bar
+```
+
+**Mode Management:**
+```javascript
+enterBumprMode()
+  // Enter Shift+B keyboard mode
+  // Shows slideout panel
+  // Enables 1-0 key triggers
+
+exitBumprMode()
+  // Exit keyboard mode
+  // Hides slideout panel
+
+updateBumprSlideout()
+  // Refresh slideout panel UI
+  // Updates selection highlight
+
+showBumprSlotInfo(slotIndex)
+  // Display slot info in message bar
+```
+
+**Dropdown Controls:**
+```javascript
+toggleBumprDropdown(dropdownEl)
+  // Toggle dropdown open/close
+
+setBumprTiming(slotIndex, mode, optionEl)
+  // Set timing mode (instant/beat/bar)
+
+setBumprScale(slotIndex, scale, optionEl)
+  // Set scale (25/50/75/100%)
+
+setBumprAnimate(slotIndex, animate, optionEl)
+  // Set animation (16 types)
+
+setBumprDuration(slotIndex, duration, optionEl)
+  // Set duration (original/loop/musical/timed)
+```
+
+---
+
+### CUE POINTS DOMAIN (V5_1_0)
+
+**Drawing:**
+```javascript
+// In drawProgress() - added cue flag drawing
+// In drawWaveformFromAudioBuffer() - added cue flags for PERFORM
+```
+
+**Interaction (CREATE Tab):**
+```javascript
+// Mouse handlers in waveform canvas:
+// - mousedown: Check cue hit, start drag
+// - mousemove: Update cue position (bar snap)
+// - mouseup: End drag, or jump if no drag occurred
+```
+
+**Storage:**
+```javascript
+// In buildContainerObject():
+audioCuePoints: audioCuePoints.slice()
+
+// In loadContainer():
+audioCuePoints = container.audioCuePoints || [0, 64, 128]
+
+// In updateContainer():
+audioCuePoints: audioCuePoints.slice()
 ```
 
 ---
@@ -2475,10 +2943,12 @@ loadAudioFile(event)
   // Load audio file from file input
   // Creates: AudioBuffer
   // Updates: UI fields
+  // V5_1_0: Resets cue points to defaults
 
 removeAudio()
   // Remove loaded audio
   // Clears: AudioBuffer, resets UI
+  // V5_1_0: Resets cue points to defaults
 
 toggleAudioPlayback()
   // Play/pause audio preview
@@ -2529,6 +2999,7 @@ drawBarGrid(ctx, canvas)
 
 drawProgress()
   // Draw playback progress indicator
+  // V5_1_0: Also draws cue flags
 
 setupWaveformControls()
   // Initialize waveform UI controls
@@ -2612,120 +3083,28 @@ getShaderNameFromCode()
 
 ### PRESET/LIBRARY DOMAIN
 
-**Preset Management:**
-```javascript
-importPreset()
-  // Import preset from system presets
-
-deletePreset()
-  // Delete user-created preset
-
-getUserPresets()
-  // Get array of user presets from localStorage
-  // Returns: Array<presetObject>
-
-saveUserPresets(presets)
-  // Save user presets to localStorage
-  // Args: Array<presetObject>
-
-generateUserPresetCards()
-  // Generate UI cards for user presets
-
-loadUserPreset(index)
-  // Load user preset by index
-  // Args: integer
-
-generatePresetCards()
-  // Generate UI cards for system presets
-
-loadPreset(index)
-  // Load system preset by index
-  // Args: integer
-
-initThumbnailShader(displayCanvas, shaderCode, index)
-  // Initialize shader thumbnail rendering
-  // Args: canvas, shaderCode, index
-
-updatePresetCardShapes()
-  // Update preset card aspect ratios
-
-togglePresetSection(sectionId)
-  // Expand/collapse preset section
-  // Args: sectionId (string)
-```
-
-**UI Functions (V4_5_0):**
-```javascript
-toggleCodeView()
-  // Toggle between Controls view and Code view in CREATE tab
-  // Updates codeViewActive state
-
-adminNavSelect(section)
-  // Switch ADMIN tab content (Settings, Utilities, About)
-  // Args: section (string)
-
-toggleInfoDrawer()
-  // Open/close info drawer in ORGANIZE tab
-  // Updates infoDrawerOpen state
-
-applyInfoChanges()
-  // Apply pending info changes from info drawer
-  // Processes pendingInfoChanges object
-
-cancelInfoChanges()
-  // Discard pending info changes
-  // Clears pendingInfoChanges object
-
-confirmDelete()
-  // Handle delete confirmation (status bar pattern)
-  // Second press within 3s confirms deletion
-```
-
-**Container Building (V4_6_0):**
+**Container Building (V4_6_0, V5_1_0):**
 ```javascript
 buildContainerObject(name, audioOverride)
   // UNIFIED container builder - single source of truth for all save paths
-  // Args: name (string), audioOverride (optional object with audioFilename, audioTempo, etc.)
+  // Args: name (string), audioOverride (optional object)
+  // V5_1_0: Includes audioCuePoints, shaderTempoLinked
   // Returns: Complete containerData object
   // Used by: confirmAddToLibrary(), updateContainer(), all save workflows
-  // Sources: UI fields for shader, controlStates, timelines
-  // Handles: Smart loop validation, tempo from audioTempoField, thumbnail generation
-
-cleanAudioName(filename)
-  // Strip extension and BPM patterns from audio filename
-  // Args: filename (string) e.g., "Track_128BPM.mp3"
-  // Returns: cleaned string e.g., "Track"
-  // Used for: Auto-populating render filename
 ```
 
-**Shader Name Dropdown (V4_6_0):**
+**V5_1_0 Save/Update Separation:**
 ```javascript
-populateShaderNameDropdown()
-  // Populate shader picker dropdown in CREATE tab
-  // Sources: Current shader, System Presets, User Presets, Library containers
-  // Option values use prefixes: _current, _setfolder, sysPreset:, userPreset:, library:
+saveContainer()
+  // Save as NEW container to Library
+  // Always creates new file
+  // Switches to ORGANIZE tab
 
-handleShaderNameDropdownChange(e)
-  // Handle shader selection from dropdown
-  // Routes by prefix to appropriate load function
-  // Preserves current audio when loading new shader
-```
-
-**Audio Swap Controls (V4_6_0):**
-```javascript
-populateAudioSwapDropdown()
-  // Populate audio picker dropdown in CREATE tab header
-  // Groups: Unused audio first, then In Use
-  // Shows only audio files from Library folder
-
-handleAudioSwapSelect(e)
-  // Handle audio selection from swap dropdown
-  // Loads selected audio file, keeps current shader
-  // Triggers folder setup if not configured
-
-removeCurrentAudio()
-  // Remove audio from current container (X button)
-  // Clears audio fields, keeps shader
+updateContainer()
+  // Update currently loaded container
+  // Keeps existing name
+  // V5_1_0: Stays on CREATE tab
+  // V5_1_0: Includes audioCuePoints
 ```
 
 **Library/Container Management:**
@@ -2737,6 +3116,7 @@ addToLibrary()
 confirmAddToLibrary()
   // Save current state as .oms container
   // Creates: containerData object
+  // V5_1_0: Sets currentLoadedContainerId
 
 cancelAddToLibrary()
   // Cancel add to library workflow
@@ -2749,15 +3129,18 @@ saveContainerToOMS(container)
 loadContainer(containerId)
   // Load .oms container from Library/
   // Args: containerId (string) = filename without .oms
+  // V5_1_0: Restores audioCuePoints
   // Returns: Promise<void>
 
 updateContainer(containerId)
   // Update existing .oms container
   // Args: containerId (string)
+  // V5_1_0: Includes audioCuePoints
 
 removeContainer(containerId)
   // Delete .oms file from Library/
   // Args: containerId (string)
+  // V5_1_0: Delete key checks for input focus first
 
 exportContainer(containerId)
   // Export .oms.zip to Exports/ folder
@@ -2771,668 +3154,9 @@ handleOmsFileImport(event)
 refreshLibraryList()
   // V4.3.0_A: Scans folder, populates libraryContainersCache
   // Updates: library UI display
-
-editContainerName(containerId)
-  // Enable inline editing of container name
-  // Args: containerId (string)
-
-renameContainer(containerId, newName)
-  // Rename container (file + internal name)
-  // Args: containerId (string), newName (string)
-  // V4.3.0_A: Renames actual .oms file
-
-getLibraryContainers()
-  // V4.3.0_A: Returns libraryContainersCache (full data)
-  // Returns: Array of container objects
-
-saveLibraryContainers()
-  // V4.3.0_A: DEPRECATED (no-op)
-  // localStorage no longer used
-```
-
-**Library Sort Functions (V4_4_0):**
-```javascript
-toggleLibrarySort(column)
-  // Toggle sort column/direction
-  // Args: 'name', 'bpm', or 'audio' (V4_4_0: added 'audio')
-  // Calls: updateSortArrows(), refreshLibraryList()
-
-updateSortArrows()
-  // Update arrow indicators (▼/▲) in headers
-```
-
-**Drag-Drop Import (V4.3.0_A):**
-```javascript
-handleLibraryAudioDrop(e)
-  // Drag audio file → create container
-  // Copies audio to Library/
-  // Creates .oms with current shader/controls
-
-sanitizeFilename(name)
-  // Remove invalid filesystem characters
-  // Keeps: brackets [], letters, numbers, spaces
-  // Removes: < > : " / \ | ? *
-```
-
-**Drag/Drop (V4.4.0):**
-```javascript
-handleUnifiedDrop(e)
-  // Route all external file drops
-  // Routes: by file type AND active tab
-  // Audio → create container (L) or load (others)
-  // Shader → load + compile (all tabs)
-  // ZIP → import (L only)
-  
-isExternalFileDrop(e)
-  // Distinguish external files from internal drags
-  // Returns: boolean
-  // Checks: dataTransfer.types.includes('Files')
-```
-
-**Library UI (V4.4.0):**
-```javascript
-refreshLibraryListRight()
-  // Render right panel only (containers)
-  // Used after internal changes
-
-renderLibraryThumbnails(containers)
-  // Async batch render shader thumbnails
-  // Args: Array of container objects
-  // Renders: 32x18 canvas per card via initThumbnailShader()
-  // Yields: every 5 to avoid UI blocking
-
-selectLibrarySet(setId)
-  // Update both panels + dropdown
-  // Args: 'presets' or 'all'
-  // Syncs with LIVE tab
-
-loadShaderOnly()
-  // Shift+Enter: load shader, keep audio
-  // Used for shader-only performance
-```
-
-**Presets (V4.4.0):**
-```javascript
-saveShaderToPresets()
-  // W tab Save button
-  // Save to /Presets/ folder
-
-copyPresetsToLibrary()
-  // System presets copy on folder setup
-  // Creates initial /Presets/ folder
 ```
 
 ---
-
-### CONTROL STATE DOMAIN (Controls Tab)
-
-**Control State Management:**
-```javascript
-saveControlState()
-  // Begin save control state workflow
-
-confirmSaveControlState()
-  // Save named control state preset
-
-cancelSaveControlState()
-  // Cancel save workflow
-
-deleteControlState()
-  // Delete control state preset
-
-updateControlStatesDropdown()
-  // Refresh control states dropdown UI
-
-updateControlStateInfo()
-  // Update info display for current state
-
-markAsCustomState()
-  // Mark state as "Custom" after user edit
-```
-
----
-
-### LIVE TAB - INITIALIZATION
-
-**Tab Initialization:**
-```javascript
-initLiveTab()
-  // Initialize entire LIVE tab
-  // Calls: all init* functions
-
-initLiveHeaders()
-  // Initialize track column headers
-
-initLiveScenes()
-  // Initialize scene launch buttons
-
-initLiveMixer()
-  // Initialize mixer controls (knobs, buttons)
-
-initLiveWaveforms()
-  // Initialize waveform display canvases
-
-initLiveTempo()
-  // Initialize tempo encoder
-
-initLiveShader()
-  // Initialize shader rendering system
-
-initMasterGrid()
-  // Initialize Master Grid overlay
-
-initAudioRouting()
-  // Initialize Web Audio API routing
-
-initCellSelection()
-  // Initialize grid cell selection
-
-initKnobSelection()
-  // Initialize knob/track selection
-```
-
----
-
-### LIVE TAB - MASTER CLOCK
-
-```javascript
-startMasterClock(actualStartTime)  // #ForReview naming
-  // Initialize master clock on first launch
-  // Args: actualStartTime (audioContext.currentTime)
-  // Sets: trackMasterClockStart
-
-getNextBarBoundary()  // #ForReview naming
-  // Calculate next bar boundary for quantization
-  // Returns: {barTime: float, when: float}
-
-isAnyTrackPlaying()  // #ForReview naming
-  // Check if any track is currently playing
-  // Returns: boolean
-```
-
----
-
-### LIVE TAB - AUDIO ROUTING
-
-```javascript
-launchCell(track, scene, cellData, startTime)  // V4.4.0: Renamed from playCellAudio
-  // Start playing audio/shader for track
-  // Args: track (0-3), scene (0-7), cellData, startTime (optional)
-  // Creates: AudioBufferSourceNode (if audio present)
-  // Calculates: playbackRate, quantized launch time
-  // Handles: Shader-only containers (no audio)
-
-// NOTE: stopCellAudio, setupAudioNodes may exist but not found in grep pattern
-```
-
----
-
-### LIVE TAB - MIXER
-
-**Knob Drawing/Updating:**
-```javascript
-drawKnob()
-  // Draw volume knob (per track)
-  // Uses: arc drawing, rotation transforms
-
-updateVolume(newVolume)
-  // Update track volume
-  // Args: newVolume (0-100)
-  // Updates: GainNode, knob visual
-
-drawShaderKnob()
-  // Draw shader opacity knob (per track)
-
-updateShaderOpacity(newOpacity)
-  // Update shader opacity
-  // Args: newOpacity (0-100)
-  // Updates: canvas.style.opacity, knob visual
-
-drawKnobTempo()
-  // Draw master tempo knob (60px)
-
-drawKnobMaster()
-  // Draw master volume knob (60px)
-
-updateVolumeMaster(vol)
-  // Update master volume
-  // Args: vol (0-100)
-
-drawZoomKnob()
-  // Draw zoom knob (60px)
-
-recalculateZoomRange()
-  // Recalculate pixelsPerSecond range
-```
-
-**Meter Animation:**
-```javascript
-animateMeters()
-  // Animate audio level meters
-  // Uses: requestAnimationFrame
-```
-
----
-
-### LIVE TAB - GRID/CELLS
-
-**Cell Management:**
-```javascript
-assignContainerToCell(containerId, containerName, track, scene)
-  // Assign container to grid cell
-  // Args: containerId, containerName, track (0-3), scene (0-7)
-  // Creates: cell visual, stores containerData
-
-updateCellDisplay(track, scene)
-  // Update cell visual state
-  // Args: track (0-3), scene (0-7)
-  // Updates: classes (loaded, playing, selected)
-
-updateCellShader(track, scene)
-  // Update shader for cell
-  // Args: track (0-3), scene (0-7)
-
-updateSelectionVisuals()
-  // Update cell selection highlights
-
-updateSceneSelectionVisuals()
-  // Update scene button highlights
-```
-
-**Scene Launching:**
-```javascript
-launchScene(sceneIndex)
-  // Launch all 4 tracks in scene
-  // Args: sceneIndex (0-7)
-  // Calculates: shared quantized launch time
-```
-
----
-
-### LIVE TAB - WAVEFORMS
-
-**Waveform Drawing:**
-```javascript
-drawWaveformFromAudioBuffer(track, audioBuffer)
-  // Draw blue amplitude bars on waveform canvas
-  // Args: track (0-3), audioBuffer
-  // Uses: containerData.audioStartTime/audioEndTime
-
-drawEmptyWaveform(ctx, canvas)
-  // Draw empty/placeholder waveform
-  // Args: ctx (CanvasRenderingContext2D), canvas
-
-drawBeatGridOnWaveform(ctx, containerData, audioBuffer, canvasWidth, canvasHeight)
-  // Draw cyan/magenta beat grid bars
-  // Args: ctx, containerData, audioBuffer, dimensions
-  // Spacing: master tempo, not original BPM
-
-drawInfoOverlay(ctx, containerData, canvasHeight)
-  // Draw container name overlay on waveform
-  // Args: ctx, containerData, canvasHeight
-```
-
-**Waveform Positioning:**
-```javascript
-positionTrackAudioWaveformAtPlayhead(track, audioBuffer)
-  // Position waveform so Bar 1 appears at playhead
-  // Args: track (0-3), audioBuffer
-  // Sets: canvas.style.transform (translateX)
-
-positionTrackAudioWaveformAtCurrentBar(track)
-  // Reposition waveform at current bar (tempo change)
-  // Args: track (0-3)
-  // Calculates: current bar position, maintains alignment
-```
-
-**Waveform Scrolling:**
-```javascript
-startAudioWaveformScroll(track, audioBuffer)
-  // Start waveform scroll animation
-  // Args: track (0-3), audioBuffer
-  // Uses: requestAnimationFrame loop
-
-stopAudioWaveformScroll(track)
-  // Stop waveform scroll animation
-  // Args: track (0-3)
-  // Calls: cancelAnimationFrame
-
-updateWaveformOverlay(track, container)
-  // Update waveform overlay (name + thumbnail)
-  // Args: track (0-3), container
-
-hideWaveformOverlay(track)
-  // Hide waveform overlay
-  // Args: track (0-3)
-```
-
----
-
-### LIVE TAB - CLOCK/GRID VISUALIZATION
-
-**Clock Animations:**
-```javascript
-startClockDotAnimation()
-  // Start clock dot animation (magenta dot)
-  // Uses: requestAnimationFrame
-  // Shows: current bar position
-
-stopClockDotAnimation()
-  // Stop clock dot animation
-
-startDAWClockAnimation()
-  // Start DAW clock display (bar.beat.tick)
-  // Updates: text display with current position
-
-stopDAWClockAnimation()
-  // Stop DAW clock display
-```
-
-**Master Grid:**
-```javascript
-toggleMasterGrid()
-  // Toggle Master Grid visibility (G key)
-  // Updates: masterGridVisible state
-  // Redraws: Master Grid canvas
-
-drawMasterGrid()
-  // Draw white overlay bars (Master Grid)
-  // Spans: all 4 tracks
-  // Spacing: master tempo
-
-updateMasterGrid()
-  // Update Master Grid after tempo/zoom change
-  // Redraws: grid with new spacing
-```
-
----
-
-### LIVE TAB - SHADER
-
-**Shader Management:**
-```javascript
-getShaderCodeForLive()
-  // Get shader code for LIVE rendering
-  // Returns: WGSL code string
-
-updateLiveShader(trackIndex, providedShaderCode)
-  // Update shader for track
-  // Args: trackIndex (0-3), shaderCode (optional)
-  // Compiles: new shader, updates pipeline
-
-renderLiveShader()
-  // Render all 4 shaders (60fps loop)
-  // Uses: requestAnimationFrame
-  // Composites: with opacity blending
-
-calculateTrackShaderOpacity(track)
-  // Calculate final opacity (manual vs auto)
-  // Args: track (0-3)
-  // Returns: 0.0-1.0
-  // V4_4_0: Detects shader-only via .playing class (not audio source)
-
-updateTrackShaderOpacity(track)
-  // Update shader opacity visual
-  // Args: track (0-3)
-  // Sets: canvas.style.opacity
-
-getActiveShaderTrack(sceneIndex)
-  // Get highest-priority visible shader
-  // Args: sceneIndex (0-7)
-  // Returns: track index or -1
-
-updateLiveShaderOutput(sceneIndex)
-  // Update shader output for scene
-  // Args: sceneIndex (0-7)
-```
-
-**Pop-Out Window:**
-```javascript
-openPopOutWindow()
-  // Open pop-out window for shader display
-  // Creates: new window, transfers rendering
-
-closePopOutWindow()
-  // Close pop-out window
-  // Restores: rendering to main window
-```
-
----
-
-### LIVE TAB - PROJECT STATE
-
-**Project Management:**
-```javascript
-saveProjectState()
-  // Begin save project workflow
-
-confirmSaveProjectState()
-  // Save named .omsp project file
-
-cancelSaveProjectState()
-  // Cancel save workflow
-
-loadProjectState()
-  // Load .omsp project file
-
-deleteProjectState()
-  // Delete .omsp project file
-
-updateProjectStatesDropdown()
-  // Refresh project states dropdown
-
-updateProjectStateInfo(projectData)
-  // Update info display for project
-
-autoSaveProject()
-  // Auto-save to default.omsp
-  // Throttled: 1 second debounce
-
-autoLoadDefaultProject()
-  // Load default.omsp on tab init
-```
-
----
-
-### FILE SYSTEM DOMAIN
-
-**Folder Access:**
-```javascript
-setupApplicationFolder()
-  // Request LIBRARY folder access
-  // Uses: File System Access API
-
-storeApplicationFolderHandle(handle)
-  // Store folder handle in IndexedDB
-  // Args: FileSystemDirectoryHandle
-
-loadApplicationFolderHandle()
-  // Load folder handle from IndexedDB
-  // Returns: Promise<FileSystemDirectoryHandle>
-
-closeFolderOverlay()
-  // Close folder selection overlay
-
-confirmProjectCreation()
-  // Confirm and create project folder
-
-cancelProjectCreation()
-  // Cancel folder selection
-```
-
-**IndexedDB:**
-```javascript
-openLibraryDB()
-  // Open IndexedDB for library data
-  // Returns: Promise<IDBDatabase>
-
-getAudioFromLibrary(filename)
-  // Get audio file from IndexedDB
-  // Args: filename (string)
-  // Returns: Promise<File>
-
-checkLibrarySet(autoOpen)
-  // Check if LIBRARY folder is set
-  // Args: autoOpen (boolean)
-  // Returns: boolean
-
-getLibraryContainers()
-  // Get containers list from IndexedDB
-  // Returns: Array<containerData>
-
-saveLibraryContainers(containers)
-  // Save containers list to IndexedDB
-  // Args: Array<containerData>
-```
-
-**Project Naming:**
-```javascript
-getDefaultProjectName()
-  // Get default project name from localStorage
-  // Returns: string or null
-
-setDefaultProjectName(projectName)
-  // Set default project name
-  // Args: projectName (string)
-```
-
----
-
-### BROADCAST DOMAIN (Future Multi-Instance)
-
-**Communication:**
-```javascript
-announcePresence()
-  // Broadcast instance presence
-  // Uses: BroadcastChannel API
-
-broadcastSnapshot()
-  // Broadcast current state snapshot
-
-broadcastLibrary()
-  // Broadcast library contents
-
-startHeartbeat()
-  // Start heartbeat broadcast
-  // Keeps: instance alive in network
-```
-
----
-
-### UI/INTERACTION DOMAIN
-
-**Drag & Drop:**
-```javascript
-setupDragAndDrop()
-  // Initialize drag/drop handlers
-
-preventDefaults(e)
-  // Prevent default drag behaviors
-  // Args: event
-
-handleAudioDrop(e)
-  // Handle audio file drop
-  // Args: event
-
-handleShaderDrop(e)
-  // Handle shader code drop
-  // Args: event
-
-handlePresetDrop(e)
-  // Handle preset drop onto grid
-  // Args: event
-```
-
-**Tab Management:**
-```javascript
-switchTab(tabName)
-  // Switch between tabs
-  // Args: tabName (string)
-  // Shows: tab content, updates active state
-```
-
-**Keyboard:**
-```javascript
-setupInOutArrowKeys()
-  // Setup arrow key handlers for loop points
-```
-
-**Grid Toggle:**
-```javascript
-toggleGridFree()
-  // Toggle beatgrid overlay (Controls tab)
-```
-
----
-
-### V4_8_0 REACTIVITY DOMAIN
-
-**Modulator Knob Controls:**
-```javascript
-initGainKnobs()
-  // Initialize 3 gain knobs (30×30 canvas each)
-  // Range: 0-1, default 0.1
-  // Color: Purple (#9d4edd)
-
-initFreqKnobs()
-  // Initialize 6 freq knobs (30×30 canvas each)
-  // Range: 20-24000 Hz (log scale)
-  // Color: Purple (#9d4edd)
-  // Push behavior: Freq1 can't exceed Freq2
-
-setFreqKnobsDisabled(disabled)
-  // Enable/disable freq knobs based on audio state
-  // Args: boolean
-  // Visual: Dimmed when disabled, "load audio" tooltip
-```
-
-**Reactivity Keyboard Mode:**
-```javascript
-enterReactivityMode()
-  // Enter keyboard navigation mode (Shift+R)
-  // Shows cyan selection ring on active control
-  // Message bar shows "Reactivity Mode"
-
-exitReactivityMode()
-  // Exit keyboard mode (Escape)
-  // Clears selection ring
-
-adjustModValue(delta)
-  // Adjust selected control value
-  // Args: delta (positive or negative)
-  // Handles: Dropdowns (cycle options), Knobs (adjust value)
-  // Progressive acceleration when key held
-
-updateModSelection()
-  // Update visual selection feedback
-  // Draws cyan ring on selected control
-  // Updates message bar with control info
-```
-
-**OmsDropdown Class:**
-```javascript
-class OmsDropdown
-  constructor(containerId, options)
-    // Create custom dropdown component
-    // Options: showThumbnails, thumbnailSize, onChange, onOpen
-  
-  setOptions(items)
-    // Populate dropdown options
-    // Items: [{value, label, shaderCode, separator}]
-  
-  setValue(value)
-    // Set selected value programmatically
-  
-  getValue()
-    // Get current selected value
-    // Returns: string
-  
-  open() / close()
-    // Programmatic control
-```
-
----
-
 
 ### V5_0_0 TRANSFORM DOMAIN
 
@@ -3462,14 +3186,14 @@ drawTransformPad(canvas, x, y)
   // Args: canvas, x value, y value
 ```
 
-**Transform Keyboard Mode:**
+**Transform Focus Mode (V5_1_0 Renames):**
 ```javascript
-enterTransformMode()
+enterTransformFocus()     // Was enterTransformMode()
   // Enter keyboard mode (Shift+T)
   // Shows cyan selection ring
-  // Message bar shows "Transform Mode"
+  // Message bar shows "Transform Focus"
 
-exitTransformMode()
+exitTransformFocus()      // Was exitTransformMode()
   // Exit keyboard mode (Escape)
   // Clears selection ring
 
@@ -3489,12 +3213,17 @@ resetTransformToDefault()
   // Double-tap Shift+Enter required (300ms window)
 ```
 
-**Transform Helpers:**
+**Transform Animation (V5_1_0):**
 ```javascript
-getModDropdown(row, col)
-  // Get OmsDropdown instance for reactivity grid position
-  // Args: row (0-2 = A/B/C), col (0-1 = Subdiv/Waveform)
-  // Returns: OmsDropdown instance or null
+setTransformAnimationMode(control, mode)
+  // Set animation mode for control
+  // Args: control ('rotation', 'scale', 'tile'), mode ('stop', 'clockwise', 'counterclockwise', 'pingpong')
+  // Keyboard: 0=stop, 1=cw, 2=ccw, 3=pingpong
+
+applyTransformAnimation()
+  // Called each frame
+  // Updates transform values based on modes
+  // PingPong uses shaderLoopLength for timing
 ```
 
 ---
@@ -3584,6 +3313,55 @@ document.addEventListener('wheel', (e) => {
 
 ---
 
+### V5_1_0 BUMPR STICKRS CSS
+
+**Animation Keyframes (15 types):**
+```css
+@keyframes bumpr-bounce { /* Vertical bounce */ }
+@keyframes bumpr-breathe { /* Scale in/out slowly */ }
+@keyframes bumpr-crazy { /* Chaotic movement */ }
+@keyframes bumpr-drift { /* Slow horizontal drift */ }
+@keyframes bumpr-drop { /* Drop from above */ }
+@keyframes bumpr-float { /* Gentle float up */ }
+@keyframes bumpr-glitch { /* Glitch effect */ }
+@keyframes bumpr-pop { /* Pop in with scale */ }
+@keyframes bumpr-pulse { /* Opacity pulse */ }
+@keyframes bumpr-shake { /* Horizontal shake */ }
+@keyframes bumpr-spin { /* 360° rotation */ }
+@keyframes bumpr-spiral { /* Spiral in */ }
+@keyframes bumpr-strobe { /* Strobe flash */ }
+@keyframes bumpr-wobble { /* Rotation wobble */ }
+@keyframes bumpr-zoom { /* Zoom in/out */ }
+```
+
+**Slideout Panel:**
+```css
+.bumpr-slideout {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 80px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    transform: translateX(100%);
+    transition: transform 0.2s;
+}
+
+.bumpr-slideout.active {
+    transform: translateX(0);
+}
+```
+
+**Dropdown Widths:**
+```css
+.bumpr-dropdown.scale { width: 50px; }
+.bumpr-dropdown.timing { width: 55px; }
+.bumpr-dropdown.animate { width: 65px; }
+.bumpr-dropdown.duration { width: 60px; }
+```
+
+---
+
 ## NAMING CONVENTIONS
 
 ### ID Naming Rules
@@ -3591,22 +3369,25 @@ document.addEventListener('wheel', (e) => {
 **Buttons:**
 ```
 [action]Btn
-Examples: playBtn, loopBtn, renderBtn, uploadBtn
+Examples: playBtn, loopBtn, renderBtn, uploadBtn, saveBtn, updateBtn
 ```
 
-**Input Fields:**
+**Input Fields (V5_1_0 Updates):**
 ```
 Audio timing: [name]Field
 Examples: audioTempoField, audioStartField, audioEndField
 
+Shader timing: shader[Name]
+Examples: shaderTempo, shaderRenderDuration, shaderLoopLength
+
 Other inputs: [name]
-Examples: tempo, filename, resolution
+Examples: filename, resolution
 ```
 
 **Display Fields:**
 ```
 [name]
-Examples: audioFileName, loopLength, messageBar
+Examples: audioFileName, messageBar
 ```
 
 **Modulators:**
@@ -3627,7 +3408,20 @@ Examples: bassGainGroup, midGainGroup, trebleGainGroup
 Examples: inLabel, outLabel
 ```
 
-### Variable Naming Rules
+### Variable Naming Rules (V5_1_0 Updates)
+
+**Focus Mode State:**
+```javascript
+// V5_1_0: Renamed from "Mode" to "Focus"
+shaderReactivityFocus     // Was modReactivityMode
+shaderTransformFocus      // Was transformKeyboardMode
+shaderMusicTimingFocus    // NEW V5_1_0
+
+// Selected positions also renamed
+shaderReactivitySelectedRow  // Was modSelectedRow
+shaderReactivitySelectedCol  // Was modSelectedCol
+shaderTransformSelectedCol   // Was transformSelectedCol
+```
 
 **Arrays:**
 ```javascript
@@ -3635,6 +3429,12 @@ Examples: inLabel, outLabel
 trackShaderOpacity = [100, 100, 100, 100];
 trackAudioVolume = [75, 75, 75, 75];
 trackAudioPlaying = [false, false, false, false];
+
+// Cue points (always length 3)
+audioCuePoints = [0, 64, 128];
+
+// BumpR slots (always length 10)
+bumprStickrsSlots = [null, null, null, null, null, null, null, null, null, null];
 ```
 
 **Maps/Objects:**
@@ -3646,7 +3446,15 @@ audioBuffers = new Map(); // containerName → AudioBuffer
 containerData = {
   name: "...",
   version: "...",
+  audioCuePoints: [...],  // V5_1_0
   // ...
+};
+
+// Transform animation modes (V5_1_0)
+transformModes = {
+  rotation: 'stop',
+  scale: 'stop',
+  tile: 'stop'
 };
 ```
 
@@ -3657,6 +3465,8 @@ loadAudioFile()
 playCellAudio()
 calculateModulator()
 updateShaderUniforms()
+triggerBumprStickr()      // V5_1_0
+enterReactivityFocus()    // V5_1_0 rename
 ```
 
 **Constants:**
@@ -3666,6 +3476,7 @@ const MAX_TRACKS = 4;
 const MAX_SCENES = 8;
 const MIN_BPM = 60;
 const MAX_BPM = 200;
+const CUE_HIT_TOLERANCE = 20;  // V5_1_0
 ```
 
 ---
@@ -3676,7 +3487,7 @@ const MAX_BPM = 200;
 ```javascript
 // All files include version field
 {
-  version: "3.8.0",
+  version: "5.1.0",
   // ...
 }
 
@@ -3689,10 +3500,15 @@ const MAX_BPM = 200;
 function migrateContainer(containerData) {
   const version = containerData.version;
   
-  // Add migration logic as needed
-  if (compareVersions(version, "3.8.0") < 0) {
-    // Migrate from pre-3.8.0
-    // e.g., add new fields with defaults
+  // V5_1_0: Add cue points if missing
+  if (!containerData.audioCuePoints) {
+    containerData.audioCuePoints = [0, 64, 128];
+  }
+  
+  // V5_1_0: Add shaderTempoLinked if missing
+  if (containerData.controlStates && 
+      containerData.controlStates.shaderTempoLinked === undefined) {
+    containerData.controlStates.shaderTempoLinked = true;
   }
   
   return containerData;
@@ -3709,6 +3525,7 @@ function migrateContainer(containerData) {
 - 4 WebGPU pipelines (one per track)
 - FFT analysis: 2048 samples per track
 - Waveform scroll: CSS transform (GPU accelerated)
+- BumpR video: WebM VP9 with alpha (hardware decoded)
 
 **Optimization Techniques:**
 - Shader compilation cached per container
@@ -3716,16 +3533,16 @@ function migrateContainer(containerData) {
 - Waveform canvas pre-rendered (not drawn per frame)
 - Beat grid drawn once (only on tempo change)
 - requestAnimationFrame for all animations
+- BumpR thumbnails cached as data URLs
 
 **Browser Requirements:**
 - WebGPU support (Chrome 113+, Edge 113+)
 - Web Audio API (all modern browsers)
 - File System Access API (Chrome/Edge only)
+- WebM VP9 alpha (Chrome/Edge for BumpR)
 - Minimum 4GB RAM (for audio buffers)
 - Dedicated GPU recommended
 
 ---
 
 ## END OF SYSTEM REFERENCE
-
-

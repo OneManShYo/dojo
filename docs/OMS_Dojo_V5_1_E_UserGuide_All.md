@@ -1,7 +1,7 @@
-# ONEMANSHYO App [Beta V5_0_0] - USER GUIDE
+# ONEMANSHYO App [Beta V5_1_0] - USER GUIDE
 
-**Version:** Beta V5_0_0
-**Date:** December 21, 2025
+**Version:** Beta V5_1_0
+**Date:** December 24, 2025
 **License:** GPL-3.0
 
 ---
@@ -11,6 +11,9 @@
 1. Introduction
 2. Instant Gratification
 3. Using the Application
+   - 3.2.5.4 Cue Points (V5_1_0)
+   - 3.4.10 Cue Points in PERFORM (V5_1_0)
+   - 3.5.7 BumpR StickRs (V5_1_0)
 4. Support
 5. Credits
 
@@ -34,7 +37,7 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 **Browser:** Chrome (WebGPU support required)  
 **Screen:** 1352×761 effective viewport (14" MacBook Pro)
 
-**File:** `OMS_App_Beta_V5_0_0.html`
+**File:** `OMS_App_Beta_V5_1_0.html`
 
 ---
 
@@ -45,14 +48,14 @@ OMS Beta is a browser-based tool for DJing with live reactive visuals. No instal
 If you want to create visuals based on music timing without setting up a library:
 
 **Audio-Reactive Visuals (reacts to your music):**
-1. Open `OMS_App_Beta_V5_0_0.html`
+1. Open `OMS_App_Beta_V5_1_0.html`
 2. Drag your audio file (.mp3, .wav) onto the waveform
 3. Visuals automatically react to bass, mids, treble
 4. Click [Render Video]
 5. Get SILENT video with pre-baked reactivity
 
 **Tempo-Synced Visuals (animated to BPM, no audio needed):**
-1. Open `OMS_App_Beta_V5_0_0.html`
+1. Open `OMS_App_Beta_V5_1_0.html`
 2. Set tempo (e.g., 128 BPM)
 3. Set duration (e.g., 03:30.000)
 4. Click [Render Video]
@@ -76,7 +79,7 @@ To save containers and use performance features:
 2. Go to ADMIN tab
 3. Click "Set Application Folder"
 4. Select a folder on your computer
-5. OMS creates subfolders: /Library/, /Presets/, /Exports/
+5. OMS creates subfolders: /Library/, /Presets/, /Exports/, /BumpRStickRs/
 6. Now you can save containers and perform live
 
 ---
@@ -375,7 +378,31 @@ Controls to transform the shader output in real-time. All transforms save with y
 
 ---
 
-##### 3.2.4.6 OUTPUT Section
+##### 3.2.4.6 CONTAINER OUTPUT Section (V5_1_0)
+
+**Section renamed from "OUTPUT"** to clarify dual purpose: Container = Shader + Audio + Settings.
+
+**Header Buttons:**
+
+| Button | Action | Visibility |
+|--------|--------|------------|
+| [Save] | Creates NEW container in Library | Always visible |
+| [Update] | Updates currently loaded container | Only when container loaded |
+
+**Save vs Update:**
+- **Save** = Always creates a new container with the current name
+- **Update** = Overwrites the loaded container, keeps the name
+- After Save, Update button appears (you now have a loaded container)
+- Update stays on CREATE tab (no navigation)
+
+**Hover Messages:** All controls show info messages on hover:
+- Header: "Container = Shader + Audio + Settings"
+- Save: "Save as NEW container to Library"
+- Update: "Update loaded container (keeps name)"
+- Resolution: "Video resolution for render"
+- FPS: "Frame rate for render"
+- Filename: "Name for container and video file"
+- R button: "Render video file"
 
 **Filename** (text field)
 - Auto-populated with shader name + audio name (V4_7_0)
@@ -474,6 +501,44 @@ Controls to transform the shader output in real-time. All transforms save with y
 **In/Out Labels:**
 - Click "In" label = jump playhead to In point
 - Click "Out" label = jump playhead to Out point
+
+---
+
+##### 3.2.5.4 Cue Points (V5_1_0)
+
+CDJ-style hot cues for instant navigation. 3 cue points per container, displayed as orange flags on the waveform.
+
+**Default Positions:**
+
+| Cue | Position | Beats | Typical Use |
+|-----|----------|-------|-------------|
+| 1 | Bar 1.1 | 0 | Intro |
+| 2 | Bar 17.1 | 64 | First drop |
+| 3 | Bar 33.1 | 128 | Second drop |
+
+**Visual Appearance:**
+- Orange vertical line (#ffa500)
+- Orange triangle flag pointing right
+- Number (1, 2, or 3) inside flag
+
+**Interaction:**
+
+| Action | Result |
+|--------|--------|
+| Click flag (no drag) | Jump playhead to cue position |
+| Drag flag | Move cue to new position |
+| Release drag | Cue snaps to nearest bar |
+
+**Bar Snap:** Cue positions always snap to bar boundaries (every 4 beats).
+
+**Storage:** Cue points save with your .oms container. Legacy containers default to 1.1, 17.1, 33.1.
+
+**Workflow:**
+1. Load audio
+2. Play through to find key moments
+3. Drag cue flags to those positions
+4. Save container - cues are stored!
+5. In PERFORM tab, press 1/2/3 to jump to cues
 
 ---
 
@@ -1016,14 +1081,27 @@ The PERFORM tab is a 4-track DJ mixer for live performance with reactive visuals
 
 #### 3.4.8 PERFORM Keyboard Shortcuts
 
-**Track Selection:**
+**Track Selection (V5_1_0 changed):**
 
 | Shortcut | Action |
 |----------|--------|
-| 1-4 | Select track |
-| 5 | Select master |
+| Shift+1 | Select track 1 |
+| Shift+2 | Select track 2 |
+| Shift+3 | Select track 3 |
+| Shift+4 | Select track 4 |
+| Shift+5 | Select master |
 | Tab | Next track |
 | Shift+Tab | Previous track |
+
+**Cue Jump (V5_1_0 new):**
+
+| Shortcut | Action |
+|----------|--------|
+| 1 | Jump to Cue 1 on selected track |
+| 2 | Jump to Cue 2 on selected track |
+| 3 | Jump to Cue 3 on selected track |
+
+**Why the change:** Cue jumping is urgent during performance (needs fast access). Track selection is a setup task (less urgent). Plain number keys now do the most time-critical action.
 
 **Grid Navigation:**
 
@@ -1097,6 +1175,39 @@ The message bar at the bottom of the screen provides instant feedback:
 
 ---
 
+#### 3.4.10 Cue Points in PERFORM (V5_1_0)
+
+Jump to saved cue positions during live performance.
+
+**Visual Display:**
+- Orange flags appear on track waveforms
+- Same positions saved in CREATE tab
+- Flags visible even when track not playing
+
+**Keyboard Jump:**
+
+| Key | Action |
+|-----|--------|
+| 1 | Jump to Cue 1 |
+| 2 | Jump to Cue 2 |
+| 3 | Jump to Cue 3 |
+
+**Requirements:**
+- Track must be selected (Shift+1-4)
+- Container must have cue points (all do by default)
+
+**Behavior:**
+- If track playing: Jumps immediately (audio skips to cue position)
+- If track stopped: Positions waveform at cue (ready to launch)
+
+**Workflow:**
+1. Select track: `Shift+1`
+2. Launch container: `Enter`
+3. Jump to drop: `2` (cue 2 = bar 17 by default)
+4. Jump to breakdown: `3` (cue 3 = bar 33 by default)
+
+---
+
 ### 3.5 ADMIN
 
 #### 3.5.1 Overview
@@ -1112,8 +1223,12 @@ The ADMIN tab contains settings, utilities, and application info.
 
 #### 3.5.2 Interface Layout
 
-**Left Navigation:**
-- [Settings]
+**Left Navigation (alphabetized):**
+- [Application]
+- [BumpR StickRs] (V5_1_0)
+- [Create]
+- [Organize]
+- [Perform]
 - [Utilities]
 - [About]
 
@@ -1182,9 +1297,186 @@ Auto-saves to `default.omsp` after each action.
 
 ---
 
-#### 3.5.6 ADMIN Keyboard Shortcuts
+#### 3.5.7 BumpR StickRs (V5_1_0)
 
-No keyboard shortcuts for ADMIN tab.
+Video overlay system for personal branding during live performance. Fire WebM video clips with transparency over your shader canvas.
+
+##### 3.5.7.1 Overview
+
+**What it is:**
+- 10-slot video overlay system
+- WebM VP9 with alpha channel (transparency)
+- Keyboard-triggered during performance
+- Per-slot settings for Scale, Timing, Animation, Duration
+
+**Location:** ADMIN → BumpR StickRs
+
+**Folder:** `/BumpRStickRs/` (auto-created on first drop)
+
+##### 3.5.7.2 Setting Up Slots
+
+**Adding Videos:**
+1. Go to ADMIN → BumpR StickRs
+2. Drag WebM file onto any slot
+3. File copies to /BumpRStickRs/ folder
+4. Thumbnail generates automatically
+
+**Requirements:**
+- WebM format only
+- VP9 codec recommended
+- Alpha channel for transparency
+
+**Creating WebM with Alpha:**
+```bash
+ffmpeg -i input.mov -c:v libvpx-vp9 -pix_fmt yuva420p output.webm
+```
+
+##### 3.5.7.3 Per-Slot Settings
+
+Each of the 10 slots has 4 independent dropdowns:
+
+**Scale:**
+
+| Option | Result |
+|--------|--------|
+| 25% | Quarter size |
+| 50% | Half size |
+| 75% | Three-quarter size |
+| 100% | Full size (default) |
+
+**Timing:**
+
+| Option | Behavior |
+|--------|----------|
+| Instant | Plays immediately (default) |
+| Beat | Waits for next beat |
+| Bar | Waits for next bar |
+
+*Note: Beat/Bar timing requires audio playback. Tab-aware: PERFORM uses master clock, CREATE uses audio playback.*
+
+**Animate (16 effects):**
+
+| Effect | Duration | Loop | Style |
+|--------|----------|------|-------|
+| None | - | - | No animation (default) |
+| Bounce | 0.5s | ∞ | Pulsing scale |
+| Breathe | 4s | ∞ | Slow gentle pulse |
+| Crazy | 0.8s | ∞ | Everything at once! |
+| Drift | 4s | ∞ | Slow diagonal float |
+| Drop | 0.6s | 1× | Fall and bounce |
+| Float | 2s | ∞ | Gentle bob up/down |
+| Glitch | 0.2s | ∞ | Rapid position jitter |
+| Pop | 0.4s | 1× | Scale entrance |
+| Pulse | 1s | ∞ | Fading in/out |
+| Shake | 0.3s | ∞ | Quick wiggle |
+| Spin | 1s | ∞ | Continuous rotation |
+| Spiral | 2s | ∞ | Spin while scaling |
+| Strobe | 0.1s | ∞ | Rapid flash |
+| Wobble | 0.5s | ∞ | Tilting left/right |
+| Zoom | 2s | ∞ | Scaling in and out |
+
+**Duration:**
+
+| Option | Behavior |
+|--------|----------|
+| Original | Play video once (default) |
+| Loop | Repeat until stopped/replaced |
+| 1/4 bar | Cut after 1/4 bar |
+| 1/2 bar | Cut after 1/2 bar |
+| 1 bar | Cut after 1 bar |
+| 2 bars | Cut after 2 bars |
+| 4 bars | Cut after 4 bars |
+| 8 bars | Cut after 8 bars |
+| 1s | Cut after 1 second |
+| 2s | Cut after 2 seconds |
+| 3s | Cut after 3 seconds |
+| 5s | Cut after 5 seconds |
+| 10s | Cut after 10 seconds |
+
+##### 3.5.7.4 Keyboard Mode (Shift+B)
+
+**Entering Mode:**
+- Press `Shift+B` to enter BumpR mode
+- Slideout panel appears showing all 10 slots
+- Message bar shows "BumpR Mode: ↑/↓ nav, Enter/1-0 trigger, Esc exit"
+
+**Triggering Videos:**
+
+| Key | Action |
+|-----|--------|
+| 1-9 | Trigger slots 1-9 |
+| 0 | Trigger slot 10 |
+| Enter | Trigger selected slot |
+
+**Navigation:**
+
+| Key | Action |
+|-----|--------|
+| ↑ | Move selection up |
+| ↓ | Move selection down |
+
+**Exiting:**
+
+| Key | Action |
+|-----|--------|
+| Escape | Exit BumpR mode |
+| Shift+B | Toggle mode off |
+
+##### 3.5.7.5 CDJ Cue Behavior
+
+BumpR triggers work like CDJ hot cues:
+- **Always fires** - Keys trigger immediately (no toggle)
+- **Retrigger replaces** - Pressing same slot restarts video
+- **Switch replaces** - Pressing different slot stops current, plays new
+
+This matches professional DJ equipment behavior.
+
+##### 3.5.7.6 Slideout Panel
+
+When BumpR mode is active:
+- Panel slides in from right edge of canvas
+- Shows all 10 slots with thumbnails
+- Empty slots dimmed (not clickable)
+- Selected slot has cyan border
+- Hover shows slot info in message bar
+
+##### 3.5.7.7 Use Cases
+
+**Logo Hits:**
+- Short logo animation on drops
+- Set to "Bar" timing + "Pop" animation
+- Fire on beat 1 of chorus
+
+**Brand Watermarks:**
+- Subtle corner logo
+- Set to "Loop" duration + 25% scale
+- Fire at start of set
+
+**Transitions:**
+- Full-screen wipe or flash
+- Set to "Instant" + "1 bar" duration
+- Fire during breakdowns
+
+**Hype Moments:**
+- Animated text or effects
+- Set to "Beat" timing + "Crazy" animation
+- Fire on big moments
+
+---
+
+#### 3.5.8 ADMIN Keyboard Shortcuts
+
+**BumpR Mode (V5_1_0):**
+
+| Shortcut | Action |
+|----------|--------|
+| Shift+B | Enter/exit BumpR mode |
+| 1-9, 0 | Trigger slots 1-10 |
+| ↑ / ↓ | Navigate slots |
+| Enter | Trigger selected |
+| Escape | Exit mode |
+
+No other keyboard shortcuts for ADMIN tab.
 
 ---
 
@@ -2750,6 +3042,7 @@ length(fract(uv * 8.0) - 0.5)
 | 1.0.0 | December 2025 | Initial vocabulary catalog |
 | 1.1.0 | December 2025 | Updated for OMS shader contract (fs_main, auto-injected struct) |
 | 2.0.0 | December 2025 | Added Transform chain (V5_0_0), 112-byte uniform buffer |
+| 2.1.0 | December 2025 | Updated for V5_1_0 (Cue Points, BumpR StickRs) |
 
 ---
 
@@ -2759,6 +3052,6 @@ length(fract(uv * 8.0) - 0.5)
 
 **END OF USER GUIDE**
 
-Version: Beta V5_0_0  
-Date: December 21, 2025  
+Version: Beta V5_1_0  
+Date: December 24, 2025  
 License: GPL-3.0
